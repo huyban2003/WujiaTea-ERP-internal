@@ -1,7 +1,6 @@
 from werkzeug.exceptions import Forbidden, NotFound
 
 from odoo import http
-from odoo.exceptions import ValidationError
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
@@ -9,9 +8,9 @@ from odoo.addons.wujia_portal_base.controllers.portal import (
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     DEFAULT_DOC_MIME,
-    MOBILE_TICKET_BADGES,
     attach_files_to_record,
     build_pager,
+    status_badge,
     status_badge_for,
 )
 
@@ -28,6 +27,18 @@ STATE_LABELS = {k: (v, status_badge_for(v)) for k, v in {
     'cancelled': 'Đã huỷ',
 }.items()}
 
+# Sprint 17 — nhãn MOBILE (Figma Mobile_Ticket), tách khỏi STATE_LABELS desktop. LƯU Ý
+# 'waiting_customer'="Có phản hồi" (mobile/Figma) ≠ desktop "Chờ phản hồi" — drift chủ đích,
+# đối chiếu BA. F10: dời từ portal_base/utils.py về module sở hữu màn (A2).
+MOBILE_TICKET_BADGES = {
+    'new':              ('Mới', status_badge('info')),
+    'in_progress':      ('Đang xử lý', status_badge('processing')),
+    'waiting_customer': ('Có phản hồi', status_badge('feedback')),
+    'resolved':         ('Đã giải quyết', status_badge('success')),
+    'closed':           ('Đã đóng', status_badge('neutral')),
+    'cancelled':        ('Đã huỷ', status_badge('danger')),
+}
+
 PRIORITY_LABELS = {
     'normal': ('Bình thường', 'wujia-badge-muted'),
     'urgent': ('Khẩn', 'wujia-badge-danger'),
@@ -40,17 +51,19 @@ def _categories():
     )
 
 
+def _scoped_ticket(ticket_id):
+    Ticket = request.env['wujia.support.ticket'].sudo()
+    return Ticket.search(
+        [('id', '=', ticket_id)] + Ticket._portal_scope_domain(request.env.user), limit=1,
+    )
+
+
 class WujiaPortalSupport(http.Controller):
 
     @http.route(['/portal/support'], type='http', auth='user', sitemap=False)
     def portal_support_list(self, page=1, state='', q='', **kw):
         Ticket = request.env['wujia.support.ticket'].sudo()
-        # Portal user only sees own visible tickets, not cancelled.
-        domain = [
-            ('created_by_id', '=', request.env.user.id),
-            ('portal_visible', '=', True),
-            ('state', '!=', 'cancelled'),
-        ]
+        domain = Ticket._portal_scope_domain(request.env.user) + [('state', '!=', 'cancelled')]
         if state and state in STATE_LABELS:
             domain.append(('state', '=', state))
         # Sprint 17 — tìm theo Mã (name) HOẶC Tiêu đề (title). ilike trigram-friendly.
@@ -98,53 +111,27 @@ class WujiaPortalSupport(http.Controller):
             category_id = int(post.get('category_id') or 0)
         except (TypeError, ValueError):
             return request.redirect('/portal/support/new?error=invalid_input')
-        priority = post.get('priority', 'normal')
         # Accept both 'title' (new) and 'subject' (legacy) form keys.
         title = (post.get('title') or post.get('subject') or '').strip()
-        description = (post.get('description') or '').strip()
-
-        if not title or not franchise_id or not category_id:
-            return request.redirect('/portal/support/new?error=missing_fields')
-
-        # Verify user has access to the selected franchise.
-        franchise_ids = get_active_franchise_ids_filter()
-        if franchise_id not in franchise_ids:
-            return request.redirect('/portal/support/new?error=invalid_franchise')
-
-        if not _categories().filtered(lambda c: c.id == category_id):
-            return request.redirect('/portal/support/new?error=invalid_input')
-
-        if priority not in ('normal', 'urgent'):
-            priority = 'normal'
-
-        ticket = request.env['wujia.support.ticket'].sudo().create({
+        files = request.httprequest.files.getlist('attachments')
+        ticket, error = request.env['wujia.support.ticket'].sudo().create_from_portal({
             'title': title,
-            'description': description,
+            'description': (post.get('description') or '').strip(),
             'franchise_id': franchise_id,
             'created_by_id': request.env.user.id,
             'category_id': category_id,
-            'priority': priority,
-        })
-
-        try:
-            attach_files_to_record(
-                ticket, request.httprequest.files.getlist('attachments'),
-                allowed_mime=DEFAULT_DOC_MIME, max_size_mb=5, max_count=6,
-            )
-        except ValidationError:
-            ticket.unlink()
-            return request.redirect('/portal/support/new?error=invalid_attachment')
-
+            'priority': post.get('priority', 'normal'),
+        }, get_active_franchise_ids_filter(), attach=lambda t: attach_files_to_record(
+            t, files, allowed_mime=DEFAULT_DOC_MIME, max_size_mb=5, max_count=6,
+        ))
+        if error:
+            return request.redirect(f'/portal/support/new?error={error}')
         return request.redirect(f'/portal/support/{ticket.id}')
 
     @http.route(['/portal/support/<int:ticket_id>'],
                 type='http', auth='user', sitemap=False)
     def portal_support_detail(self, ticket_id, **kw):
-        ticket = request.env['wujia.support.ticket'].sudo().search([
-            ('id', '=', ticket_id),
-            ('created_by_id', '=', request.env.user.id),
-            ('portal_visible', '=', True),
-        ], limit=1)
+        ticket = _scoped_ticket(ticket_id)
         if not ticket:
             return request.redirect('/portal/support')
         return request.render('wujia_portal_support.portal_support_detail', {
@@ -158,41 +145,20 @@ class WujiaPortalSupport(http.Controller):
                 type='http', auth='user', sitemap=False,
                 methods=['POST'], csrf=True)
     def portal_support_reply(self, ticket_id, **post):
-        ticket = request.env['wujia.support.ticket'].sudo().search([
-            ('id', '=', ticket_id),
-            ('created_by_id', '=', request.env.user.id),
-            ('portal_visible', '=', True),
-        ], limit=1)
+        ticket = _scoped_ticket(ticket_id)
         if not ticket:
             return request.redirect('/portal/support')
-        body = (post.get('body') or '').strip()
-        if body:
-            # message_post triggers _update_response_analytics on the ticket.
-            ticket.with_user(request.env.user).message_post(
-                body=body, message_type='comment',
-                subtype_xmlid='mail.mt_comment',
-            )
+        ticket._portal_reply(request.env.user, post.get('body'))
         return request.redirect(f'/portal/support/{ticket_id}')
 
     @http.route(['/portal/support/<int:ticket_id>/attachment/<int:att_id>'],
                 type='http', auth='user', sitemap=False)
     def portal_support_attachment_download(self, ticket_id, att_id, **kw):
         """Stream attachment với ACL: chỉ owner ticket được tải."""
-        ticket = request.env['wujia.support.ticket'].sudo().search([
-            ('id', '=', ticket_id),
-            ('created_by_id', '=', request.env.user.id),
-            ('portal_visible', '=', True),
-        ], limit=1)
+        ticket = _scoped_ticket(ticket_id)
         if not ticket:
             raise NotFound()
-        Attachment = request.env['ir.attachment'].sudo()
-        att = Attachment.search([
-            ('id', '=', att_id),
-            '|',
-              '&', ('res_model', '=', 'wujia.support.ticket'),
-                   ('res_id', '=', ticket.id),
-              ('id', 'in', ticket.attachment_ids.ids),
-        ], limit=1)
+        att = ticket._portal_get_attachment(att_id)
         if not att:
             raise Forbidden()
         return request.env['ir.binary']._get_stream_from(att).get_response(

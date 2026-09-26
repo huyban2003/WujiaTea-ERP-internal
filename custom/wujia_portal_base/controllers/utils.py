@@ -540,19 +540,6 @@ MOBILE_RETURN_BADGES = {
     'cancelled':  ('Đã huỷ', status_badge('danger')),
 }
 
-# Sprint 17 — nhãn MOBILE cho ticket hỗ trợ (Figma Mobile_Ticket). UI-only,
-# TÁCH STATE_LABELS desktop của wujia_portal_support (precedent S13). LƯU Ý nhãn
-# 'waiting_customer'="Có phản hồi" (mobile/Figma) ≠ desktop "Chờ phản hồi" —
-# drift chủ đích, đối chiếu BA. Nguồn state thật wujia.support.ticket.state.
-MOBILE_TICKET_BADGES = {
-    'new':              ('Mới', status_badge('info')),
-    'in_progress':      ('Đang xử lý', status_badge('processing')),
-    'waiting_customer': ('Có phản hồi', status_badge('feedback')),
-    'resolved':         ('Đã giải quyết', status_badge('success')),
-    'closed':           ('Đã đóng', status_badge('neutral')),
-    'cancelled':        ('Đã huỷ', status_badge('danger')),
-}
-
 VI_WEEKDAYS = {0: 'Thứ 2', 1: 'Thứ 3', 2: 'Thứ 4', 3: 'Thứ 5',
                4: 'Thứ 6', 5: 'Thứ 7', 6: 'CN'}
 

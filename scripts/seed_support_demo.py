@@ -1,4 +1,4 @@
-"""Seed demo data for wujia_portal_support (full BA spec).
+"""Seed demo data for wujia_support (full BA spec; F10 tách từ wujia_portal_support).
 
 Idempotent. Creates support tickets in mixed states/categories,
 some linked to existing sale orders / picking batches seeded by

@@ -1418,6 +1418,10 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   200, category/tag/slug sai → redirect `notice=*_gone` như cũ, chi tiết 200, attachment lạ 403, JSON search 2 bài · Home 200, 2 bài
   mới nhất đúng dự kiến. UAT không có bài hẹn giờ tương lai hay đính kèm ⇒ hai nhánh đó chỉ có bằng chứng local. Mở trang chi tiết
   làm `view_count` bài QA-RETEST +1 (không tạo bản ghi).
+  Browser (Playwright, chỉ xem): portal PC 1440 + mobile 390 — Home, danh sách (12/21, trang 1), lọc danh mục (2 bài), tìm
+  "Checklist" (2 bài), chi tiết; 0 tràn ngang, 0 lỗi JS mới (chỉ 404 `locales/en.json` có sẵn). Home PC không có khối bài viết
+  (thiết kế cũ, chỉ mobile có), Home mobile hiện đúng 2 bài. Backend admin: list bài 27 / danh mục 9 / thẻ 6, kanban, form
+  `KNW-000020` mở được, chatter giữ lịch sử từ 16/05, không lưu gì. Chi tiết mở thêm 2 lần ⇒ `view_count` QA-RETEST +2.
 - Số đo: hook 107 imd + 13 cons + 2 rel · snapshot 122 đổi chủ **0 lệch thật** · HTML 12/12 route + JSON 2/2 giống từng byte,
   bundle cùng md5, Home lệch đúng bài hẹn giờ · suite **856, 0 đỏ** (F8 847 + 9) · test mới trên HEAD chỉ Home đỏ · DB trắng
   10/10 · mutation M2 2 đỏ, M3 2 đỏ, M1 chỉ snapshot bắt (10 lệch) · `check_layers` 1 (exam, F12) · R7 2 (Thái).
@@ -1432,3 +1436,36 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `number_next` trước khi tách (ghi ở bảng §2 + chapter 74).
 - Phiên kế: **F10 `support`** (có sequence ticket,
   depends `sale`/`stock_picking_batch`/`sales_team`; C1 đã vá) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F10 — Tách `support` → `wujia_support` + controller mỏng · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f10-acceptance-matrix.md` (9/9).
+- Issue List đầu phiên: 8 `Ready for Dev` (STT 126, 140–146), reconcile 0 code. Chủ dự án chọn F10.
+- Chủ dự án chốt: **code + commit + push `main`**, deploy để chủ dự án · **dời luôn trả lời ticket** về model.
+  Mobile Thái: 0 tham chiếu support. Không có nhóm quyền riêng.
+- UAT đo chỉ-đọc trước (RPC): 15 ticket, `WJ-TK` số kế 17, 7 danh mục khớp XML (vi_VN có đủ) ⇒ không dừng hỏi.
+- Đã làm:
+  - Module L2 mới `wujia_support` (git mv 2 model, ACL, 2 rule, sequence, 7 danh mục, backend; `.po` 204 mục → 129 + 75
+    portal). Hook `imd_names(extra=[4 menu, 7 danh mục])` + `migrate_ownership`.
+  - Controller mỏng: `_portal_scope_domain(user)` · `create_from_portal` (kiểm + tạo + đính kèm một savepoint, trả mã lỗi
+    form) · `_portal_reply` · `_portal_get_attachment`. 200 → 166 dòng (kể cả bảng badge dời vào).
+  - A2: `MOBILE_TICKET_BADGES` rời `portal_base/utils.py` về `portal_support`; test badge phần ticket dời sang `test_scan_e2b`
+    để `test_scan_e2` vẫn chạy khi `portal_base` cài một mình.
+  - Test: `wujia_support` 11 (model trước đó 0 test riêng) + 5 HttpCase portal. `check_layers`, `deploy.yml`, reseed.
+  - Chapter 74: bẫy noupdate với dữ liệu mẫu (bước 2), số `.po`, đoạn F10, dòng P5.
+- Commit: xem bên dưới (push `main`).
+- Deploy: **chưa** (chủ dự án). Lệnh: `-i wujia_support -u wujia_portal_support,wujia_portal_base`.
+- Số đo: hook 113 imd + 16 cons + 1 rel · snapshot 130 đổi chủ, **1 lệch có giải trình** (md5 bảng danh mục: chỉ
+  `write_date`) · HTML 18/18 GET giống từng byte + 9/9 POST cùng redirect + DB sau POST giống hệt, bundle cùng md5 ·
+  suite **872, 0 đỏ** (F9 856 + 16) · test portal mới trên HEAD 12/12 (hành vi không đổi) · DB trắng 11/11 · mutation
+  **4/4** (M2 lượt đầu chỉ test đơn vị bắt → thêm ca portal) · `check_layers` 1 (exam, F12) · R7 2 (Thái).
+- Lệch plan / quyết định mới: Bẫy noupdate với **dữ liệu mẫu**: `-i` đưa field ghi trong XML về giá trị XML (đo trên DB
+  giả lập: `sequence` 55 → 50) nhưng **giữ bản dịch vi_VN tuỳ biến**. UAT khớp XML nên an toàn. Test fixture bật vi_VN
+  (DB copy `wujia_f8final` để admin `vi_VN` mà lang chưa bật ⇒ `message_post` lỗi "Invalid language code").
+- Bài học: DB trắng phải cài trước rồi mới `-u --test-tags /<module>` — `--test-enable` lúc `-i` import cả tests
+  `wujia_franchise` (file đã xoá) ⇒ registry chết. Hash URL bundle theo mtime file (worktree ≠ cây chính) ⇒ so md5 nội dung.
+- Nợ để lại: (1) hỏi BA: portal support lọc theo **người tạo**, quản lý không thấy ticket nhân viên cùng cửa hàng;
+  (2) `_sql_constraints` danh mục chết trên Odoo 19 (nợ chung); (3) `test_scan_e2b` import thẳng từng `portal_*`
+  (không chạy khi `portal_base` một mình, có từ trước).
+- Phiên kế: chủ dự án deploy F10 → đo UAT chỉ-đọc (số kế `WJ-TK` 17, 7 danh mục + vi_VN, 5 view portal). Sau đó
+  **F11 `announcement`** (từ `portal_notification`, giữ `_name wujia.notification`, 2 nhóm quyền — phải sửa tham chiếu
+  `group_*`, sequence ANN, rule theo cửa hàng; bảng badge thông báo nếu có) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".

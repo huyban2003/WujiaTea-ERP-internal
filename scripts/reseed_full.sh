@@ -33,7 +33,7 @@ PG_PASS="${PG_PASS:-1}"
 # KHÔNG cài wj_ks_dashboard_ninja / wj_ks_dn_advance (workstream dashboard riêng) và
 # KHÔNG cài mcp_server. wujia_portal_inspection PHẢI có: thiếu nó thì 4 thẻ metric của
 # màn Khảo sát không đo được — đúng chỗ DB dev cũ ở máy Linux bị hụt.
-MODULES="wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_base,wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery,wujia_portal_return,wujia_portal_notification,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_report,wujia_portal_support,wujia_portal_info_request,wujia_order_window,wujia_info_request,wujia_knowledge,wujia_account,wujia_portal_debt,wujia_portal_inspection"
+MODULES="wujia_core,wujia_franchise,wujia_sale,wujia_fleet,wujia_delivery,wujia_portal_base,wujia_portal_layout,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery,wujia_portal_return,wujia_portal_notification,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_report,wujia_portal_support,wujia_portal_info_request,wujia_order_window,wujia_info_request,wujia_knowledge,wujia_support,wujia_account,wujia_portal_debt,wujia_portal_inspection"
 
 echo "==> Drop DB ${DB_NAME}"
 PGPASSWORD="${PG_PASS}" dropdb -h "${PG_HOST}" -U "${PG_USER}" --if-exists "${DB_NAME}"

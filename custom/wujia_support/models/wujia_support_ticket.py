@@ -254,6 +254,61 @@ class WujiaSupportTicket(models.Model):
         self.sudo().write(vals)
 
     # -----------------------------------------------------------------
+    # Portal — luật dùng chung cho mọi kênh (F10, ADR-027)
+    # -----------------------------------------------------------------
+    @api.model
+    def _portal_scope_domain(self, user):
+        """Portal chỉ thấy ticket do chính mình tạo và chưa bị HQ ẩn."""
+        return [('created_by_id', '=', user.id), ('portal_visible', '=', True)]
+
+    @api.model
+    def create_from_portal(self, vals, franchise_ids, attach=None):
+        """Kiểm → tạo → đính kèm (``attach(ticket)``) trong một savepoint.
+
+        Trả ``(ticket, error)``; ``error`` là mã lỗi của form portal, ticket rỗng khi có lỗi.
+        """
+        if not vals.get('title') or not vals.get('franchise_id') or not vals.get('category_id'):
+            return self.browse(), 'missing_fields'
+        if vals['franchise_id'] not in franchise_ids:
+            return self.browse(), 'invalid_franchise'
+        category = self.env['wujia.support.category'].browse(vals['category_id']).exists()
+        if not category.active:
+            return self.browse(), 'invalid_input'
+        vals = dict(vals)
+        if vals.get('priority') not in dict(PRIORITIES):
+            vals['priority'] = 'normal'
+        with self.env.cr.savepoint() as sp:
+            ticket = self.create(vals)
+            try:
+                if attach:
+                    attach(ticket)
+            except ValidationError:
+                sp.close()
+                return self.browse(), 'invalid_attachment'
+        return ticket, None
+
+    def _portal_reply(self, user, body):
+        """Cửa hàng trả lời ticket; ``message_post`` cập nhật phân tích phản hồi."""
+        self.ensure_one()
+        body = (body or '').strip()
+        if body:
+            self.with_user(user).message_post(
+                body=body, message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+            )
+
+    def _portal_get_attachment(self, att_id):
+        """Attachment ``att_id`` nếu thuộc ticket (m2m cũ hoặc res_model/res_id), không thì rỗng."""
+        self.ensure_one()
+        return self.env['ir.attachment'].sudo().search([
+            ('id', '=', att_id),
+            '|',
+              '&', ('res_model', '=', self._name),
+                   ('res_id', '=', self.id),
+              ('id', 'in', self.attachment_ids.ids),
+        ], limit=1)
+
+    # -----------------------------------------------------------------
     # Actions
     # -----------------------------------------------------------------
     def action_set_in_progress(self):
