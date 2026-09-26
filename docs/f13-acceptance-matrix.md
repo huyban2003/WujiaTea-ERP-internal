@@ -91,7 +91,8 @@ PC 1440 + mobile 390, 16 màn (danh sách, lọc bù một phần/đã gửi, fo
    portal còn 5 view; số kế `RTN` **5** · `CA` **1**; nhóm Quản lý 1 người; 14 phiếu; `/portal/return` 200.
 2. Báo BA: đổi chữ Home mobile (bảng trên) + câu hỏi `reviewing` trong KPI đang mở.
 3. `migrations/` cũ của portal để nguyên (đã chạy trên UAT).
-4. Kế tiếp: **★FR-A** — review lại toàn khối A (F7–F13), không làm tính năng.
+4. Đã dọn: DB đo `wujia_f13*` + filestore, worktree `scratchpad/f13/head`. Commit `a138d21`.
+5. Kế tiếp: **★FR-A** — review lại toàn khối A (F7–F13), không làm tính năng.
 
 ## Lệnh chạy lại
 

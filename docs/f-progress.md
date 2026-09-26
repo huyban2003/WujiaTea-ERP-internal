@@ -1594,6 +1594,8 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     + portal `test_return_controller` viết lại + `test_portal_return_f13` 5 HttpCase; 2 test quét badge base.
     `check_layers` (`PENDING_SPLIT = set()`), `deploy.yml`, reseed.
   - Chapter 74: đoạn F13, dòng P8, số `.po`.
+- Commit: `a138d21` — `feat(F13): tách return → module nghiệp vụ wujia_return + controller mỏng` (đã push `main`).
+- Đã dọn: 8 DB đo `wujia_f13*` + filestore, worktree `scratchpad/f13/head`.
 - Deploy: **chờ chủ dự án** (không đụng module Thái). Lệnh: `-i wujia_return -u wujia_portal_return,wujia_portal_base`.
   Sau deploy đo chỉ-đọc: `wujia_return 19.0.1.0.0` · `portal_return 19.0.4.0.0` · `portal_base 19.0.7.28.0`, portal còn
   5 view, số kế RTN 5 · CA 1, nhóm Quản lý 1 người, 14 phiếu, `/portal/return` 200.
