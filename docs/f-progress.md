@@ -1671,3 +1671,24 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Còn treo: `auto_install` áp đồng loạt 1 phiên · 7 câu hỏi BA ADR-027 · nợ ch.77 · BA retest 126.
 - Phiên kế: **Issue List cụm 140+141** (shell header PC + store switcher mobile, cùng `wujia_portal_layout`) hoặc
   **143+144+145** (mật độ mobile, đo trên khung E7 trước).
+
+## Phân cụm G — Issue List STT 140–146 · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Phiên phân cụm, **0 file dưới `custom/`**, không deploy, không ghi sheet.
+- Chủ dự án chốt: quay lại Issue List; **chuẩn hoá component làm trước**; tên lứa **cụm G** (không phải F — F
+  đã là cụm kiến trúc; G1/G2 ngày 18/09 là phiên lẻ khác); 144 làm cuối G1.
+- Đã làm:
+  - `issue_queue.py --dev`: 7 issue Ready for Dev (140–146), 0 Retest Failed. Reconcile `git log -S` + `grep`:
+    chỉ commit docs nhắc mã, 0 code, 0 ledger ⇒ cả 7 chưa fix.
+  - Đọc đủ cột `Đề xuất` + `Kết quả mong muốn` + `Ghi chú` (qua `sheet_io.read_values`), soi seam trong source.
+  - `docs/next-session-clusters-G.md`: bảng Tiến độ + luật chung + 4 khối prompt: **G1** 143+145→144 (mật độ mobile,
+    `wujia_portal_layout`+`_sale`) · **G2** 141+140 (Current Store mobile/PC + nút giỏ, `portal_base`+`portal_sale`) ·
+    **G3a/G3b** 142 Home PC V4 · **G4** 146 URL gốc `/`.
+  - Compact summary: dòng Cập nhật · §5 State · §13 "Bảng cụm G".
+- Commit: xem git log — `docs(G): phân cụm Issue List 140–146`.
+- Deploy: không.
+- Số đo: 7/7 ID có mặt đúng 1 cụm; call site PageHeader 77/14 module, SectionHeader 57/8 module (grep — G1 phải đếm lại
+  bằng cấu trúc).
+- Lệch plan / quyết định mới: không.
+- Nợ để lại: mockup V4 (142) + mockup 141 chỉ có trên Drive — cần file trước G2/G3a. BA retest 126 vẫn treo.
+- Phiên kế: **G1** — hỏi đầu phiên: không có (145 ngược "BA final 83px" chỉ ghi FYI). Việc cần biết trước: dựng DB từ
+  `wujia_frp` + replay `deploy.yml`; đo 360/390/430, PC Δ0.

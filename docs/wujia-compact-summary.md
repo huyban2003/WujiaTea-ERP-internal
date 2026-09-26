@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-09-26 · **END-SPRINT 63** — chốt sổ khối A kiến trúc (F6 → ★FR-A): chapter 77 `77-sprint63-cluster-f-block-a.tex`, **ADR-027 ĐÃ CHỐT** + 3 ý bổ sung (chapter 74 §addendum), PDF master 321 trang + ADR 15 trang; 0 dòng code, smoke deploy replay RC 0. Phiên kế: **Issue List cụm 140+141** (shell) hoặc **143+144+145** (mật độ mobile).
+**Cập nhật:** 2026-09-26 · **PHÂN CỤM G** — 7 issue `Ready for Dev` STT 140–146 chia 4 cụm G1–G4 (`docs/next-session-clusters-G.md`), ưu tiên chuẩn hoá component; 0 dòng code. Trước đó END-SPRINT 63 chốt sổ khối A (chapter 77, ADR-027 đã chốt). Phiên kế: **G1** (mật độ mobile: PageHeader/SectionHeader + BottomNav, cuối phiên nhịp Đặt hàng).
 
 ---
 
@@ -122,6 +122,8 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-09-26 · phiên phân cụm G) — ISSUE LIST STT 140–146 CHIA 4 CỤM, 0 DÒNG CODE, 0 GHI SHEET.** `issue_queue.py --dev` ra 7 issue (Owner=Dev, Need confirm=No, 0 Retest Failed); reconcile: chỉ commit docs nhắc mã, 0 dòng `custom/`, 0 ledger ⇒ cả 7 chưa fix. Chủ dự án chốt: tên lứa **cụm G** (G1/G2 ngày 18/09 là phiên lẻ khác), **component trước**, 144 làm cuối G1. Thứ tự: **G1** 143+145→144 (`wujia_portal_layout`+`_sale`) → **G2** 141+140 (`portal_base`+`portal_sale`) → **G3a/G3b** 142 Home PC V4 (`portal_base`, chờ mockup V4 trên Drive) → **G4** 146 URL gốc `/`. Câu hỏi treo ghi sẵn trong từng khối prompt (G2: user 1 cửa hàng có chevron không, nhãn Manager↔"Quản lý"; G4: cách giành `/` khi `website` cài mà `portal_base` cấm depend).
 
 **State (2026-09-26 · END-SPRINT 63) — KHỐI A CHỐT SỔ, ADR-027 ĐÃ CHỐT; 0 dòng code.** Chapter 77 (`chapters/77-sprint63-cluster-f-block-a.tex`, Sprint 63: F6 · F7 · ★FR-P · bảng F8–F13 · ★FR-A · trade-off · nợ); chapter 74 đổi trạng thái "đã chốt, đã áp khối A", thêm §addendum 3 ý (portal theo chức năng · mobile kế thừa view · `auto_install` chỉ ghi), sửa tên `wujia_announcement` → `wujia_notification` (chốt F11) + depends thật 7 L2, số đo từng phiên F8–FR-A dời sang ch.77 (giữ 2 bài học quy trình: rollback không `assertRaises`, hook `extra` chỉ snapshot bắt). Smoke chốt sổ: DB `wujia_frp` copy + đúng lệnh `deploy.yml` (+`wujia_portal_debt`) **RC 0, 0 ERROR**, 7 L2 installed, 0 module kẹt. ⚠️ Local `wujia_tea_19` còn trước F7 (có `wujia_portal_order_window`, không có 7 L2) — đo phải dùng DB copy từ `wujia_frp` + replay deploy; python Mac là env **`odoo19`** (env `odoo` thiếu `rjsmin`). **Pending:** Issue List 8 mở → cụm **140+141** shell · **143+144+145** mật độ mobile · **142** Home PC · **146** routing; `UI-DATALIST-001` chờ BA retest; `auto_install` áp đồng loạt 1 phiên; 7 câu hỏi BA ADR-027; nợ ch.77 (portal_sale write, `_sql_constraints` 8 Dev, comment mã issue, bàn giao Thái).
 
@@ -500,6 +502,20 @@ BA audit UAT 11–13/08 mở **32 issue mới**. Đã reconcile `git log --all -
 | **E6a/b** | UI-BUTTON-001 (132) | layout + 13 module | ~150 action (`<button>` 102 + `a.btn` ~50); `wj-pc-btn` 68 · Bootstrap 40+ · `wj-pc-page-btn` 26 · exam 31; E6a atom + support/return/notification, E6b còn lại; boundary Pagination/BN/Chip/Stepper/BPH |
 | **E7a/b** | UI-PAGECONTAINER-001 (129) | layout + mọi module portal | ~40 template, 3 họ vỏ (`content-wrapper`/`wujia-mpage`/`wj-debt`); seam `app_layout:218`; 30,8px tablet = `_wujia_theme.css:400` chỉ ép ≥1200; E7b width fluid/standard/narrow |
 | **E8** | UI-SIDEBAR-001 (131) | layout + 12 `sidenav_inherit` | `--wujia-sidebar-width` 300→264 + 3 rule `!important`; drawer 992–1199; 3 nhóm menu; chuông + item "Đổi trả" đã có (đo rồi đổi nhãn); E8a đo JS Vuexy trước |
+
+### Bảng cụm G (7 issue Ready for Dev, phân cụm 2026-09-26, STT 140–146)
+
+📌 **Prompt từng lượt + seam + câu hỏi treo: `docs/next-session-clusters-G.md`.** Cách dùng: `/wujia-start` → "làm cụm G&lt;n&gt;".
+Chủ dự án chốt 26/09: tên **cụm G**; **chuẩn hoá component làm trước**; 144 làm cuối G1 (phụ thuộc số đo 143).
+
+**Thứ tự chạy:** G1 → G2 → G3a → G3b → G4.
+
+| Cụm | Issue (STT) | Module `-u` | Gốc rễ + seam đã soi |
+|---|---|---|---|
+| **G1** | UI-MOB-HEADER-DENSITY-001 (143) + UI-MOB-BOTTOMNAV-DENSITY-001 (145) → cuối phiên WJ-ORD-MOB-SPACING-001 (144) | `wujia_portal_layout` + `wujia_portal_sale` (+ exam nếu chỉnh offset) | `_components.css:1860` PageHeader mobile dọc 12→8 (ngang của PageContainer, không cộng) · `:1961` SectionHeader 20/28→18/24 · call site 77/14 module + 57/8 module ⇒ chỉ sửa component · `--wujia-mnav-height` 83→72 (`_variables.css:372`) + 6 chỗ đọc token (layout, `portal_order.css:235/405`, `portal_exam.css:64`) · 144 = nợ nhịp `.wj-filter-card` +16, chỉ sửa wrapper `.wujia-morder` |
+| **G2** | UI-MOB-STORE-SWITCHER-001 (141) + UI-PC-TOPBAR-REG-001 (140) | `wujia_portal_base` + `wujia_portal_sale` (+ layout) | Strip mobile `store_picker_navbar.xml:45–72` (chỉ bấm được khi >1 cửa hàng) → chip mã · tên · pill · chevron; PC `:83–113` pill vai trò là anh em của `<a>` ⇒ đưa vào block; badge giỏ `header_cart_inherit.xml:16` vs circle 40×40 `_pc_account.css:241+` |
+| **G3a/b** | UI-PC-HOME-REDESIGN-001 (142) | `wujia_portal_base` | `portal_home.xml` khối desktop; dữ liệu đúng nguồn Home mobile qua 7 seam `hasattr` (cấm thêm depend); **chờ mockup V4** |
+| **G4** | WJ-PORTAL-ROUTING-001 (146) | `wujia_portal_base` | Chưa có route `/`; `website` giữ `/` trên UAT; AC4 nối `portal_post_login_redirect` (`portal_layout/controllers/auth.py:79`); fork cách giành `/` hỏi đầu phiên |
 
 ### Chuẩn nghiệm thu mỗi issue — khớp ≥90% acceptance BA (chủ dự án yêu cầu 08-10)
 
