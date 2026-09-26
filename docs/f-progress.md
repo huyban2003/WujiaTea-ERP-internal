@@ -1512,7 +1512,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     (Home = badge, list Home, mở lại giữ `read_date`, mark-read chỉ id truy cập được, đính kèm 200/403/404). `check_layers`,
     `deploy.yml`, reseed, `test_sprint32.py`.
   - Chapter 74: đoạn F11, dòng P6, số `.po`.
-- Commit: xem `git log` — `feat(F11): tách notification → module nghiệp vụ wujia_notification + controller mỏng` (đã push `main`).
+- Commit: `bfa2bae` — `feat(F11): tách notification → module nghiệp vụ wujia_notification + controller mỏng` (đã push `main`).
 - Deploy: **chờ chủ dự án**. Lệnh: `-i wujia_notification -u wujia_portal_notification,wujia_portal_base`. Sau deploy đo
   chỉ-đọc: 3 version (`wujia_notification 19.0.1.0.0` · `portal_notification 19.0.3.0.0` · `portal_base 19.0.7.27.0`), module
   mới 141 xmlid (140 + `rating_ids`), portal còn 6 view, `ANN/` số kế **20**, 4 ô màu loại đổi, KPI Home = badge chuông.

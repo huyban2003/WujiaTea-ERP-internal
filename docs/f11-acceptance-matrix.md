@@ -98,7 +98,7 @@ duy nhất 404 `/app-assets/data/locales/en.json` (có từ trước).
    hiệu lực" nhưng danh sách là lịch sử (có cả bài hết hạn, gắn nhãn "Đã hết hiệu lực"); bài hết hạn chưa mở vẫn gắn
    "Chưa đọc". Ghi lại, hỏi BA nếu cần.
 3. `is_read_by()` trên model không còn nơi gọi (đếm đọc không theo cửa hàng) — để nguyên, dọn ở ★FR-A.
-4. Dọn DB đo `wujia_f11*` + worktree `scratchpad/f11/head` (dọn cuối phiên).
+4. Đã dọn: 6 DB đo `wujia_f11*` + filestore, worktree `scratchpad/f11/head`.
 
 ## Lệnh chạy lại
 
