@@ -1384,7 +1384,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Test: +10 (module mới, trước đó model 0 test) + 3 HttpCase portal (luồng gửi thật). `check_layers`, `deploy.yml`, reseed.
   - Chapter 74: bước 5–6 Quy trình tách (tách một phần, chốt mobile, kết quả đo khi lỗi), số đo F8, bẫy `assertRaises`.
 - Commit: `a5cb738` — `feat(F8): tách info_request → module nghiệp vụ wujia_info_request + controller mỏng` (đã push `main`).
-- Deploy: chưa (chủ dự án tự deploy). Lệnh: `-i wujia_info_request -u wujia_portal_info_request,wujia_mobile_portal_info_request`.
+- Deploy: **UAT 26/09** (chủ dự án). Đo chỉ-đọc + Playwright (không gửi/lưu): 3 version đúng (`19.0.1.0.0` · `19.0.2.0.0` · mobile `19.0.1.0.1`) · module mới 73 xmlid (72 + `field_…__rating_ids` có từ 17/05 vì UAT cài `rating`) · portal còn 3 QWeb · menu/action list-kanban-form/3 rule/2 ACL/seq INF- nguyên · nhãn vi_VN còn · portal PC + mobile list/form 200, ô giá trị hiện tại tự điền · backend PC list→kanban→form mới, mobile vào kanban · 0 bản ghi sinh ra. 404 `/app-assets/data/locales/en.json` có trên mọi trang portal (có từ trước, không thuộc F8). Chưa test được staff 403 trên UAT (không có mật khẩu staff; local đã phủ). Lệnh: `-i wujia_info_request -u wujia_portal_info_request,wujia_mobile_portal_info_request`.
 - Số đo: hook 72 imd + 7 cons + 1 rel · snapshot 80 đổi chủ **0 lệch thật** · HTML 5 route + JSON giống từng byte (cùng lần seed)
   · 3 HttpCase mới trên code HEAD cũng xanh (đối chứng) · suite **847, 0 đỏ** (FR-P 834 + 13) · DB trắng 10/10 · mutation **3/3** · DB giống UAT (có mobile) deploy **exit 0**, test mobile 3/3, `check_layers` 2 → 1.
 - Lệch plan / quyết định mới: Đã nói với chủ dự án là "lỗi thì cả lượt deploy bị huỷ", nhưng **đo ra sai**. Odoo 19 commit sau từng
@@ -1395,3 +1395,34 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ để lại: (1) báo anh Thái đã sửa 5 dòng module mobile; (2) AJAX `values` với `other` đọc được field bất kỳ của
   cửa hàng mình (hành vi có sẵn); (3) dọn DB đo `wujia_f8*` khi xong (worktree HEAD đã gỡ).
 - Phiên kế: commit F8 (khi được yêu cầu) → chủ dự án deploy → đo UAT chỉ-đọc. Sau đó **F9 `knowledge`** (có cron; grep mobile trước) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F9 — Tách `knowledge` → `wujia_knowledge` + controller mỏng · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f9-acceptance-matrix.md` (9/9).
+- Issue List đầu phiên: 7 issue STT 140–146 `Ready for Dev`, reconcile 0 code. Chủ dự án chọn F9.
+- Chủ dự án chốt: **Home dùng chung luật hiển thị, vá luôn** (Home không lọc ngày phát hành ⇒ bài hẹn giờ đã hiện, bấm vào
+  báo "đã gỡ") · **code + commit + push `main`**, deploy để chủ dự án. Mobile Thái: 0 tham chiếu knowledge.
+- Đã làm:
+  - Module L2 mới `wujia_knowledge` (git mv 3 model, ACL, sequence, cron, backend; `.po` 123 mục → 97 + 26 portal). Hook
+    `imd_names(extra=[4 menu])` + `migrate_ownership`.
+  - Controller mỏng: `_portal_visible_domain` · `_portal_search_domain` · `_portal_get_attachment` về model. 180 → 153 dòng.
+    Home (`portal_base`) gọi `_portal_visible_domain` qua `env.get` + `hasattr` (không thêm depend).
+  - Test: `wujia_knowledge` 10 (4 dời + slug/mã, publish, cron hết hạn, đính kèm, tìm kiếm, 2 đổi chủ); portal 13 (+ tải
+    đính kèm 200/403, Home không hiện bài hẹn giờ).
+  - `split_snapshot` đọc `last_value` sequence Postgres. `check_layers`, `deploy.yml`, reseed. Chapter 74 (bẫy noupdate, số đo F9, P4).
+- Commit: xem git log `feat(F9)` (đã push `main`).
+- Deploy: chưa. Lệnh: `-i wujia_knowledge -u wujia_portal_knowledge,wujia_portal_base`. UAT trước deploy (RPC chỉ-đọc): 27 bài,
+  `KNW-` số kế 28, cron khớp XML — sau deploy phải đo lại số kế 28.
+- Số đo: hook 107 imd + 13 cons + 2 rel · snapshot 122 đổi chủ **0 lệch thật** · HTML 12/12 route + JSON 2/2 giống từng byte,
+  bundle cùng md5, Home lệch đúng bài hẹn giờ · suite **856, 0 đỏ** (F8 847 + 9) · test mới trên HEAD chỉ Home đỏ · DB trắng
+  10/10 · mutation M2 2 đỏ, M3 2 đỏ, M1 chỉ snapshot bắt (10 lệch) · `check_layers` 1 (exam, F12) · R7 2 (Thái).
+- Lệch plan / quyết định mới: **Bẫy data `noupdate`** — lượt deploy đầu reset sequence `KNW-` 438 → 1 mà snapshot cũ báo 0 lệch
+  (chỉ đọc cột `number_next`, luôn 1 với kiểu standard). `-i` chạy chế độ init ⇒ Odoo nạp lại bản ghi noupdate lên xmlid đã đổi
+  chủ. Sửa: bỏ `number_next` khỏi XML + snapshot đọc `last_value`. F8 dính cùng bẫy trên UAT, vô hại (0 yêu cầu, số kế 1).
+  Test đơn vị không bắt được hook quên menu (trạng thái cuối giống hệt) — việc của snapshot.
+- Bài học: `createdb -T` không chép filestore ⇒ server đo trả 500 cho đính kèm/bundle (nhầm là lỗi code nếu không đọc log);
+  log server nằm ở `<thư mục logfile>/<năm>/<tháng>/<ngày>.log` (wujia_core đổi chỗ).
+- Nợ để lại: (1) `_sql_constraints` hết hiệu lực trên Odoo 19 — unique slug/mã bài/mã danh mục/tên tag không có trong DB (nhiều
+  module cùng lỗi); (2) publish bài nháp đã có ngày hẹn thì `write` ghi đè ngày = now (hỏi BA); (3) F10–F13 có sequence thật ⇒ bỏ
+  `number_next` trước khi tách (ghi ở bảng §2 + chapter 74).
+- Phiên kế: chủ dự án deploy F9 → đo UAT chỉ-đọc (số kế `KNW-` 28, 107 xmlid, Home). Sau đó **F10 `support`** (có sequence ticket,
+  depends `sale`/`stock_picking_batch`/`sales_team`; C1 đã vá) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".

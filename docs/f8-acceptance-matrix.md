@@ -66,8 +66,7 @@ của nó ⇒ không có việc.
 
 ## Còn mở
 
-1. Deploy UAT (chủ dự án chạy): `-i wujia_info_request -u wujia_portal_info_request,wujia_mobile_portal_info_request`.
-   Sau deploy đo chỉ-đọc: 3 version, 72 xmlid thuộc `wujia_info_request`, portal còn 3 QWeb, action mobile list/kanban/form.
+1. ✅ Đã deploy UAT 26/09 (`a5cb738`): đo chỉ-đọc + Playwright đạt. Chi tiết ở `f-progress.md` mục F8, dòng Deploy. Module mới có 73 xmlid trên UAT, local có 72: dòng dư là `field_wujia_info_update_request__rating_ids`, tồn tại từ 17/05 vì UAT cài `rating`; hook chuyển chủ đúng.
 2. Báo anh Thái: đã sửa 5 dòng trong `wujia_mobile_portal_info_request` (chủ dự án duyệt).
 3. Ghi nhận, không sửa: AJAX `…/values` với `request_type=other` cho portal user đọc được field bất kỳ của cửa hàng mình
    (hành vi có sẵn, không đổi trong F8).

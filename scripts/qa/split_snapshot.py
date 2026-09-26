@@ -18,7 +18,7 @@ Tách `wujia_portal_<x>` → `wujia_<x>` chỉ được phép đổi CỘT MODUL
   view       ir_ui_view của model hoặc của module liên quan (md5 arch)
   icp        ir_config_parameter theo tiền tố
   group      số user của mọi group dùng trong acl/rule/menu
-  seq        ir_sequence theo code (number_next)
+  seq        ir_sequence theo code (number_next + last_value Postgres — kiểu standard chỉ số thật nằm ở đó)
   inherit    ir_model_inherit của model (Odoo 19 có xmlid riêng, F8+ phải chuyển)
   sel        giá trị selection của field thuộc model (xmlid riêng)
   cron/tpl/srv  ir_cron · mail_template · ir_act_server trỏ tới model
@@ -153,8 +153,11 @@ def snapshot(args):
     for r in q(args, group_sql):
         put('group', r[0], r[1])
 
-    for r in q(args, f"""select json_agg(json_build_array(code, number_next, prefix, padding, active))
-                         from ir_sequence where code in {lst(args.seq)}"""):
+    # -i module mới nạp lại data noupdate: number_next trong XML reset sequence Postgres (F9)
+    for r in q(args, f"""select json_agg(json_build_array(s.code, s.number_next, s.prefix, s.padding, s.active,
+                                (select p.last_value from pg_sequences p where p.schemaname = 'public'
+                                    and p.sequencename = 'ir_sequence_' || lpad(s.id::text, 3, '0'))))
+                         from ir_sequence s where s.code in {lst(args.seq)}"""):
         put('seq', r[0], r[1:])
 
     # Odoo 19: inherit + selection có xmlid riêng — F7 không gặp (model không kế thừa mixin), F8+ có

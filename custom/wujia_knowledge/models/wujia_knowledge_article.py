@@ -172,6 +172,43 @@ class WujiaKnowledgeArticle(models.Model):
     def action_back_to_draft(self):
         self.write({'state': 'draft'})
 
+    # -----------------------------------------------------------------
+    # Portal — luật dùng chung cho mọi kênh (portal, Home, mobile)
+    # -----------------------------------------------------------------
+    @api.model
+    def _portal_visible_domain(self):
+        """Bài được phép hiện trên portal: đã publish, đã tới ngày phát hành, chưa hết hạn.
+
+        `active` do active_test loại sẵn; `is_published_portal` đã gộp state + expired_date.
+        """
+        return [
+            ('is_published_portal', '=', True),
+            '|', ('publish_date', '=', False),
+                 ('publish_date', '<=', fields.Datetime.now()),
+        ]
+
+    @api.model
+    def _portal_search_domain(self, keyword):
+        return [
+            '|', '|', ('name', 'ilike', keyword),
+                      ('summary', 'ilike', keyword),
+                      ('wujia_content_text', 'ilike', keyword),
+        ]
+
+    def _portal_get_attachment(self, att_id):
+        """Attachment ``att_id`` nếu thuộc bài (m2m hoặc res_model/res_id), không thì rỗng.
+
+        Knowledge là toàn cục, không lọc theo cửa hàng; người gọi kiểm bài đang hiện trước.
+        """
+        self.ensure_one()
+        return self.env['ir.attachment'].sudo().search([
+            ('id', '=', att_id),
+            '|',
+              '&', ('res_model', '=', self._name),
+                   ('res_id', '=', self.id),
+              ('id', 'in', self.attachment_ids.ids),
+        ], limit=1)
+
     def action_increment_view(self):
         # Atomic SQL update — tránh race condition trên view_count cao tải.
         self.ensure_one()

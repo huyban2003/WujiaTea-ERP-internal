@@ -2,7 +2,7 @@ import logging
 
 from werkzeug.exceptions import Forbidden
 
-from odoo import fields, http
+from odoo import http
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.utils import (
@@ -17,26 +17,6 @@ PAGE_SIZE = 12
 # Lưới bài viết 3 cột nên bậc cỡ trang là bội của 12, không dùng bậc 10/20/50 chung.
 PAGE_SIZE_OPTIONS = (12, 24, 48)
 NOTICES = ('category_gone', 'tag_gone', 'article_gone')
-
-
-def _visible_domain():
-    """Bài được phép hiện trên portal: đã publish, đã tới ngày phát hành, chưa hết hạn.
-
-    `active` do active_test loại sẵn; `is_published_portal` đã gộp state + expired_date.
-    """
-    return [
-        ('is_published_portal', '=', True),
-        '|', ('publish_date', '=', False),
-             ('publish_date', '<=', fields.Datetime.now()),
-    ]
-
-
-def _keyword_domain(keyword):
-    return [
-        '|', '|', ('name', 'ilike', keyword),
-                  ('summary', 'ilike', keyword),
-                  ('wujia_content_text', 'ilike', keyword),
-    ]
 
 
 class WujiaPortalKnowledge(http.Controller):
@@ -73,9 +53,9 @@ class WujiaPortalKnowledge(http.Controller):
                 % ('category_gone' if cat_invalid else 'tag_gone')
             )
 
-        domain = _visible_domain()
+        domain = Article._portal_visible_domain()
         if keyword:
-            domain += _keyword_domain(keyword)
+            domain += Article._portal_search_domain(keyword)
         if category:
             domain.append(('category_id', '=', category.id))
         if tag:
@@ -112,12 +92,12 @@ class WujiaPortalKnowledge(http.Controller):
                 type='http', auth='user', sitemap=False)
     def portal_knowledge_detail(self, slug, **kw):
         Article = request.env['wujia.knowledge.article'].sudo()
-        article = Article.search(_visible_domain() + [('slug', '=', slug)], limit=1)
+        article = Article.search(Article._portal_visible_domain() + [('slug', '=', slug)], limit=1)
         if not article:
             return request.redirect('/portal/knowledge?notice=article_gone')
         article.action_increment_view()
         related = Article.search(
-            _visible_domain() + [
+            Article._portal_visible_domain() + [
                 ('category_id', '=', article.category_id.id),
                 ('id', '!=', article.id),
             ], order='publish_date desc', limit=4)
@@ -135,18 +115,11 @@ class WujiaPortalKnowledge(http.Controller):
         check_attachment_access (util đó check theo franchise — knowledge
         là global published cho mọi portal user).
         """
-        article = request.env['wujia.knowledge.article'].sudo().search(
-            _visible_domain() + [('slug', '=', slug)], limit=1)
+        Article = request.env['wujia.knowledge.article'].sudo()
+        article = Article.search(Article._portal_visible_domain() + [('slug', '=', slug)], limit=1)
         if not article:
             return request.redirect('/portal/knowledge?notice=article_gone')
-        Attachment = request.env['ir.attachment'].sudo()
-        att = Attachment.search([
-            ('id', '=', att_id),
-            '|',
-              '&', ('res_model', '=', 'wujia.knowledge.article'),
-                   ('res_id', '=', article.id),
-              ('id', 'in', article.attachment_ids.ids),
-        ], limit=1)
+        att = article._portal_get_attachment(att_id)
         if not att:
             raise Forbidden()
         return request.env['ir.binary']._get_stream_from(att).get_response(
@@ -166,7 +139,7 @@ class WujiaPortalKnowledge(http.Controller):
             limit = 10
         Article = request.env['wujia.knowledge.article'].sudo()
         articles = Article.search(
-            _visible_domain() + _keyword_domain(keyword),
+            Article._portal_visible_domain() + Article._portal_search_domain(keyword),
             limit=limit, order='publish_date desc')
         return {'results': [
             {

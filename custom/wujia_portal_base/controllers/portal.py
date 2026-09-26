@@ -158,13 +158,13 @@ class WujiaPortal(CustomerPortal):
             get_upcoming_batches(franchise_ids_list, limit=HOME_PREVIEW_LIMIT)
             if franchise_ids_list else {'items': [], 'undelivered_count': 0}
         )
-        # Knowledge — base KHÔNG depend wujia_portal_knowledge → guard registry
+        # Knowledge — base KHÔNG depend wujia_knowledge → guard registry
         # (cùng pattern _safe_count/_safe_list; KHÔNG thêm depends, tránh coupling).
         Article = request.env.get('wujia.knowledge.article')
         articles = []
-        if Article is not None and 'is_published_portal' in Article._fields:
+        if Article is not None and hasattr(Article, '_portal_visible_domain'):
             articles = Article.sudo().search(
-                [('is_published_portal', '=', True)],
+                Article._portal_visible_domain(),
                 order='publish_date desc, id desc', limit=HOME_PREVIEW_LIMIT,
             )
 
