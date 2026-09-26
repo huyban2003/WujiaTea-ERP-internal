@@ -195,6 +195,17 @@ def measure(args):
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         ctx = browser.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=1)
+        if args.readonly:
+            # UAT: chặn mọi lệnh gửi dữ liệu, chỉ để lọt POST đăng nhập + 2 bộ đếm badge (chỉ đọc).
+            res['blocked'] = []
+            reads = ('/portal/login', '/portal/notification/unread-count', '/portal/order/cart/count')
+
+            def guard(route, req):
+                if req.method in ('GET', 'HEAD') or (req.method == 'POST' and req.url.split('?')[0].endswith(reads)):
+                    return route.continue_()
+                res['blocked'].append(f'{req.method} {req.url}')
+                route.abort()
+            ctx.route('**/*', guard)
         page = ctx.new_page()
         login(page, args.base, args.login, args.password)
         routes = args.routes or (ROUTES + resolve_details(page, args.base))
@@ -252,7 +263,8 @@ def measure(args):
         browser.close()
     with open(args.out, 'w') as f:
         json.dump(res, f, ensure_ascii=False, indent=1)
-    print('ghi', args.out, '·', len(res['routes']), 'route')
+    print('ghi', args.out, '·', len(res['routes']), 'route',
+          '· chặn %d request' % len(res['blocked']) if 'blocked' in res else '')
 
 
 def diff(a_path, b_path):
@@ -292,6 +304,7 @@ def main():
     ap.add_argument('--password', default='wujia@test123')
     ap.add_argument('--routes', nargs='*')
     ap.add_argument('--safe-area', type=int, default=0)
+    ap.add_argument('--readonly', action='store_true', help='UAT: chặn mọi request không phải GET, trừ POST đăng nhập và bộ đếm badge')
     ap.add_argument('--no-pc', action='store_true')
     ap.add_argument('--no-mobile', action='store_true')
     ap.add_argument('--keep-layout', action='store_true', help='lưu cả danh sách phần tử PC để soi chỗ lệch')

@@ -1694,7 +1694,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `wujia_frp` + replay `deploy.yml`; đo 360/390/430, PC Δ0.
 
 ## G1 — Mật độ mobile: PageHeader · SectionHeader · BottomNav + nhịp Đặt hàng (143 · 145 · 144) · 26/09/2026 · Mac
-- Kết quả: ✅ code + đo xong, **chưa deploy**. 3 issue ghi ledger (`CHƯA DEPLOY`), `qa_sync --apply` chờ deploy.
+- Kết quả: ✅ code + đo xong, **đã deploy UAT + đo lại đạt**. 3 issue ghi ledger (`ĐÃ DEPLOY UAT`), chờ `qa_sync --apply`.
 - Chủ dự án chốt: PageHeader mobile **cả 3 kiểu (title/back/create) cùng cao 44** (pad 8/1/0).
 - Đã làm:
   - `wujia_portal_layout` 19.0.59.0.0: token mobile `--wujia-m-pagehead-py 8`, `--wujia-m-sechead-fs/lh 18/24`;
@@ -1708,7 +1708,9 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     PageHeader/SectionHeader/nav/badge/cuộn cuối/nhịp Đặt hàng + vân tay bố cục PC, cờ `--safe-area`).
   - `docs/g1-acceptance-matrix.md`; ledger 3 entry.
 - Commit: xem git log — `feat(G1): mật độ mobile PageHeader/SectionHeader/BottomNav + nhịp Đặt hàng`.
-- Deploy: **chưa** — lệnh: `-u wujia_portal_layout,wujia_portal_exam,wujia_portal_sale`.
+- Deploy: ✅ UAT 26/09 (`-u wujia_portal_layout,wujia_portal_exam,wujia_portal_sale`), chủ dự án làm tay. Đo chỉ-đọc
+  `wj_density.py --readonly` (`em.hcm`): mobile 26 route × 3 khổ × có/không safe area đạt (1 lần Giỏ hàng @360 title 2 dòng
+  thoáng qua, 9 lần đo lại đều 44), PC 20 route × 3 khổ không nav/không tràn; 0 request bị chặn. Ledger → `ĐÃ DEPLOY UAT`.
 - Số đo: 28 route × 360/390/430 × có/không safe area 34: PageHeader 44 mọi kiểu, SH 18/24, nav 72 (106), cuộn cuối ≥13,
   0 tràn, badge không chạm icon; Đặt hàng 12/8 giữ sau lọc AJAX + tìm, smoke +/−/thêm giỏ 0 lỗi JS; PC vân tay
   **76/81** giống (5 = bộ đếm lượt xem Kiến thức, nhiễu nền); suite 21 module **930/0/0**; mutation **11/11**;
@@ -1717,5 +1719,5 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Bài học: xem "🔴 Bài học G1" trong `next-session-clusters-G.md` (form margin 15, CDP safe area, vân tay thay md5,
   `--any` ngoài media, filestore ⇒ xoá `/web/assets`).
 - Nợ để lại: safe area chưa đo iPhone thật; nhánh Đặt hàng không có danh mục chưa đo trình duyệt; FYI BA 83 → 72.
-- Phiên kế: **deploy G1 → `qa_sync --apply --only` 3 ID**, rồi **G2** (141 + 140) — hỏi đầu phiên câu (a)–(e) trong
+- Phiên kế: `qa_sync --apply --only` 3 ID (nếu chưa chạy), rồi **G2** (141 + 140) — hỏi đầu phiên câu (a)–(e) trong
   khối G2 (user 1 cửa hàng có chevron không, nhãn Manager ↔ "Quản lý", mockup 141, dải trên Home, 140 ↔ V4).

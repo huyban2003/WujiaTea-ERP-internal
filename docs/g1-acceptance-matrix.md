@@ -81,3 +81,19 @@ Khoảng "cuộn cuối" tăng ở trang ngắn (vd 328 → 347) vì nav thấp 
 - Safe area đo bằng giả lập Chromium, chưa trên iPhone thật.
 - 145 đi ngược ghi chú "BA final 83px" (Sprint 12) — theo issue mới (Need confirm = No), FYI BA.
 - Khảo sát (`wujia_portal_inspection`) không khai `ph_platform` ⇒ không ăn `--m`, không đụng (code anh Thái).
+
+## 5. Đo UAT chỉ-đọc (26/09/2026, sau deploy `fcce811`)
+
+`http://113.161.187.126:8019` · `em.hcm` (Owner HCM-01) · `wj_density.py --readonly`: chặn mọi request không phải GET, chỉ cho
+qua POST đăng nhập + 2 bộ đếm badge (`/portal/notification/unread-count`, `/portal/order/cart/count` — soi controller: chỉ
+đọc) ⇒ **0 request bị chặn**, không lỗi kịch bản. Không thử thêm giỏ/đổi số lượng trên UAT (smoke đã chạy trên DB copy).
+
+| Kiểm | Kết quả UAT |
+|---|---|
+| Mobile 26 route × 360/390/430, không safe area | PH 44 (title/back/create), SH 18/24, nav 72 · mục 50 · nhãn 12, cuộn cuối ≥13, 0 tràn — 1 lệch: Giỏ hàng @360 PH 100 (title 2 dòng) **1 lần**, đo lại 3 lượt đủ + 6 lần tải lại @360 đều 44 / 1 dòng ⇒ thoáng qua |
+| Mobile 26 route × 3 khổ, safe area 34 | **0 lệch**: nav 106, sheet "Thêm" đáy = nav top (694/738/826) |
+| `/portal/order` | search → chip **12**, chip → list **8**, input 44, chip 32 ở 3 khổ |
+| Badge | chuông "1" không chạm lõi icon |
+| PC 20 route × 1440/1024/992 | không nav mobile, PH `pc` 64, SH `--pc` 22/30 (`_pc_components.css:446`, G1 không đụng), 0 tràn ngang |
+
+Không có vân tay PC trước-deploy trên UAT ⇒ PC Δ0 dựa vào số đo DB copy (§1) + các số tuyệt đối trên.
