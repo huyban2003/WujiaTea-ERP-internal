@@ -499,6 +499,35 @@ class TestPortalDebtAccess(HttpCase):
         self.assertIn('wj-debt-pc', res.text)
         self.assertIn('Tìm mã thanh toán', res.text)   # placeholder ô search PC
 
+    def _post_payments(self, n):
+        journal = self.env['account.journal'].search(
+            [('type', '=', 'bank'), ('company_id', '=', self.env.company.id)], limit=1)
+        if not journal:
+            journal = self.env['account.journal'].create(
+                {'name': 'HACC1 bank', 'type': 'bank', 'code': 'HAB'})
+        partner = self.env['res.partner'].create({'name': 'HACC1 payer'})
+        for i in range(n):
+            pay = self.env['account.payment'].create({
+                'amount': 100_000 + i, 'date': date.today(), 'payment_type': 'inbound',
+                'partner_type': 'customer', 'partner_id': partner.id, 'journal_id': journal.id})
+            pay.action_post()
+            pay.franchise_id = self.franchise
+
+    def test_payment_history_mobile_paginated_like_pc(self):
+        """Retest UI-DATALIST-001: 12 giao dịch → mobile 10 thẻ + nút trang (cả 2 kênh);
+        trang 2 còn 2 thẻ; 50/trang → 12 thẻ và không còn nút trang."""
+        self._post_payments(12)
+        self.authenticate('debt_owner', 'debt_owner')
+        res = self.url_open('/portal/debt/payment-history', timeout=30)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.text.count('wj-debt-pay '), 10)
+        self.assertEqual(res.text.count('wj-pagination__nav'), 2)
+        res = self.url_open('/portal/debt/payment-history?page=2', timeout=30)
+        self.assertEqual(res.text.count('wj-debt-pay '), 2)
+        res = self.url_open('/portal/debt/payment-history?page_size=50', timeout=30)
+        self.assertEqual(res.text.count('wj-debt-pay '), 12)
+        self.assertNotIn('wj-pagination__nav', res.text)
+
     def test_pay_page_blocked_when_nothing_due(self):
         """WJ-DEBT-007: hết nợ → về trang công nợ kèm thông báo, không dựng QR/STK."""
         self.authenticate('debt_owner', 'debt_owner')

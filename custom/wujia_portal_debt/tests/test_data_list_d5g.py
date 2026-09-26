@@ -153,3 +153,22 @@ class TestDataListDebt(TransactionCase):
             if 'wj-debt-summary__meta' in cls:
                 self.assertNotIn('wj-data-item', cls.split(),
                                  'ô tóm tắt bị gắn nhầm wj-data-item')
+
+    def test_lich_su_thanh_toan_mobile_phan_trang_nhu_pc(self):
+        """Retest UI-DATALIST-001: thẻ mobile lịch sử thanh toán lặp trên cùng lát phân
+        trang với bảng PC, gọi cùng component pager; hàng phụ chỉ đi qua khuôn chung,
+        hai hàng ngắn (ngày giờ, số tiền) đứng cùng dòng để thẻ về dải 96–120."""
+        cards = [c for c in self._calls('detail-card')
+                 if c.xpath('.//*[contains(@class, "wj-debt-pay")]')]
+        self.assertEqual(len(cards), 1, 'không thấy danh sách thanh toán mobile')
+        call = cards[0]
+        self.assertEqual(call.xpath('./t[@t-foreach]/@t-foreach'), ['payments'])
+        self.assertEqual(
+            len(call.xpath('./t[@t-set="dl_pager"]//t[@t-call="wujia_portal_layout.wj_pagination"]')), 1,
+            'mobile lịch sử thanh toán không đi qua component pager')
+        rows = call.xpath('.//t[@t-call="wujia_portal_layout.wj_list_card_row"]')
+        self.assertEqual(len(rows), 3)
+        inline = [r for r in rows if r.xpath('./t[@t-set="lcr_class"][contains(@t-value, "wj-lc__row--inline")]')]
+        self.assertEqual(len(inline), 2, 'ngày giờ và số tiền phải là hai hàng inline')
+        self.assertFalse(call.xpath('.//t[@t-set="lcr_class"][contains(@t-value, "wj-debt-pay")]'),
+                         'hàng phụ không được gắn class riêng của màn')

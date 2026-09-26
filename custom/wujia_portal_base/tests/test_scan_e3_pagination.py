@@ -84,7 +84,7 @@ class TestPaginationCallSites(TransactionCase):
         ('wujia_portal_base', 'portal_franchise_information.xml', 2),
         # E3c — 5 khối cuối của kiểm kê + 2 khối mobile vốn thiếu hẳn pager
         ('wujia_portal_exam', 'portal_exam.xml', 2),
-        ('wujia_portal_debt', 'portal_debt.xml', 2),
+        ('wujia_portal_debt', 'portal_debt.xml', 3),
         ('wujia_portal_sale', 'portal_order_catalog.xml', 2),
         ('wujia_portal_layout', 'pc_preview.xml', 1),
     ]
