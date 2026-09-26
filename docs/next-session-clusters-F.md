@@ -144,7 +144,8 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 | F6 | Sale: luật số lượng 1 nguồn, giỏ + submit về model (+ nợ `portal_base` tự test) | sale, wujia_sale, base, layout (test) | Cao | ✅ 25/09 — `docs/f6-acceptance-matrix.md` |
 | F7 | Pilot tách order_window | order_window, portal_sale | Cao | ✅ 25/09 — `docs/f7-acceptance-matrix.md` · `6b2938d`, UAT 25/09, vỏ gỡ 26/09 |
 | **FR-P** | **Review pilot trước khi nhân quy trình** | 0 (vá nhỏ: core tools, test, snapshot) | — | ✅ 26/09 — **ĐẠT**, deploy UAT 26/09 · `docs/f-review-FR-P.md` · mobile Thái = bàn giao, không chặn F8 |
-| F8–F13 | Tách phân hệ + controller mỏng | theo phân hệ | Cao | ☐ |
+| F8 | Tách một phần `info_request` → `wujia_info_request` + controller mỏng | info_request, portal_info_request (+ mobile Thái 5 dòng) | Cao | ✅ 26/09 — `docs/f8-acceptance-matrix.md` (9/9), 5 dòng mobile Thái sửa theo duyệt; chưa commit/deploy |
+| F9–F13 | Tách phân hệ + controller mỏng | theo phân hệ | Cao | ☐ |
 | **FR-A** | **Review toàn khối A + controller (F1, F6–F13)** | 0 hoặc vá nhỏ | — | ☐ |
 
 ---

@@ -104,14 +104,17 @@ class WujiaInfoUpdateRequest(models.Model):
     @api.depends('franchise_id', 'request_type', 'field_target')
     def _compute_old_value(self):
         for rec in self:
-            value = ''
-            if rec.franchise_id and rec.request_type:
-                field_name = REQUEST_TYPE_FIELD_MAP.get(rec.request_type)
-                if not field_name and rec.request_type == 'other':
-                    field_name = rec.field_target
-                if field_name and field_name in rec.franchise_id._fields:
-                    value = rec.franchise_id[field_name] or ''
-            rec.old_value = str(value)
+            rec.old_value = self._franchise_value(rec.franchise_id, rec.request_type, rec.field_target)
+
+    @api.model
+    def _franchise_value(self, franchise, request_type, field_target=None):
+        """Giá trị hiện tại trên cửa hàng ứng với loại thông tin — form lẫn AJAX portal dùng chung."""
+        field = REQUEST_TYPE_FIELD_MAP.get(request_type)
+        if not field and request_type == 'other':
+            field = (field_target or '').strip()
+        if franchise and field and field in franchise._fields:
+            return str(franchise[field] or '')
+        return ''
 
     @api.constrains('request_type', 'field_target')
     def _check_other_field_target(self):
@@ -129,6 +132,29 @@ class WujiaInfoUpdateRequest(models.Model):
                     'wujia.info.update.request'
                 ) or '/'
         return super().create(vals_list)
+
+    @api.model
+    def _portal_scope_domain(self, franchise_ids):
+        return [('franchise_id', 'in', list(franchise_ids) or [-1])]
+
+    @api.model
+    def _portal_can_request(self, franchise_ids):
+        """BA: gửi cập nhật thông tin là quyết định cấp shop — chỉ Owner/Manager."""
+        target = set(franchise_ids)
+        return any(m.role in ('owner', 'manager') and m.franchise_id.id in target
+                   for m in self.env.user._get_active_franchise_memberships())
+
+    @api.model
+    def create_from_portal(self, vals, submit=False, attach=None):
+        """Tạo → đính kèm (``attach(rec)`` trả ir.attachment) → gửi, trong một savepoint."""
+        with self.env.cr.savepoint():
+            rec = self.create(vals)
+            attachments = attach(rec) if attach else None
+            if attachments:
+                rec.write({'attachment_ids': [(4, a.id) for a in attachments]})
+            if submit:
+                rec.action_submit()
+        return rec
 
     def action_submit(self):
         for rec in self:

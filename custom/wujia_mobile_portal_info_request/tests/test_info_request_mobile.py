@@ -8,7 +8,7 @@ class TestInfoRequestMobile(TransactionCase):
     def setUp(self):
         super().setUp()
         self.action = self.env.ref(
-            'wujia_portal_info_request.action_wujia_info_update_request'
+            'wujia_info_request.action_wujia_info_update_request'
         )
         self.kanban_view = self.env.ref(
             'wujia_mobile_portal_info_request.view_wujia_info_update_request_kanban'

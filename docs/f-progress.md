@@ -1370,3 +1370,28 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   header/spacing `/portal/order` mobile · 145 bottom-nav 83px · 146 routing `/` → login (Suggestion).
 - Phiên kế: đề xuất **Issue List cụm nhỏ trước** (143 + 144 + 145 cùng một chủ đề "mật độ mobile", 1 phiên; 140 + 141 phiên
   hai; 142 cần BA duyệt mockup; 146 hỏi BA) rồi **F8 `info_request`** — việc cần biết trước: dùng `imd_names` + liệt kê `extra` (menu), giữ 3 QWeb ở portal; báo Thái mục (1) trước deploy.
+
+## F8 — Tách `info_request` → `wujia_info_request` + controller mỏng · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f8-acceptance-matrix.md` (9/9).
+- Issue List đầu phiên: 7 issue STT 140–146 `Ready for Dev`, reconcile 0 code. Chủ dự án chọn F8.
+- Chủ dự án chốt: code F8, **chưa deploy** (chủ dự án tự deploy) · **sửa luôn 5 dòng tên trong `wujia_mobile_portal_info_request`**
+  (UAT đang cài module này; không sửa thì `-u` gãy). Lần đầu cổng quyền Claude Code chặn; chủ dự án bảo sửa lần nữa ⇒ đã sửa.
+- Đã làm:
+  - Module L2 mới `wujia_info_request` (git mv model, ACL, rule, sequence, backend; `.po` tách 137 mục thành 81 + 56).
+    Hook tách một phần: `imd_names(extra=[menu])` + `migrate_ownership`.
+  - Controller mỏng: `_portal_can_request` · `_portal_scope_domain` · `create_from_portal` (một savepoint, upload truyền callback) ·
+    `_franchise_value` (1 nguồn cho form + AJAX). 263 → 239 dòng, response giữ nguyên.
+  - Test: +10 (module mới, trước đó model 0 test) + 3 HttpCase portal (luồng gửi thật). `check_layers`, `deploy.yml`, reseed.
+  - Chapter 74: bước 5–6 Quy trình tách (tách một phần, chốt mobile, kết quả đo khi lỗi), số đo F8, bẫy `assertRaises`.
+- Commit: chưa (chưa được yêu cầu).
+- Deploy: chưa (chủ dự án tự deploy). Lệnh: `-i wujia_info_request -u wujia_portal_info_request,wujia_mobile_portal_info_request`.
+- Số đo: hook 72 imd + 7 cons + 1 rel · snapshot 80 đổi chủ **0 lệch thật** · HTML 5 route + JSON giống từng byte (cùng lần seed)
+  · 3 HttpCase mới trên code HEAD cũng xanh (đối chứng) · suite **847, 0 đỏ** (FR-P 834 + 13) · DB trắng 10/10 · mutation **3/3** · DB giống UAT (có mobile) deploy **exit 0**, test mobile 3/3, `check_layers` 2 → 1.
+- Lệch plan / quyết định mới: Đã nói với chủ dự án là "lỗi thì cả lượt deploy bị huỷ", nhưng **đo ra sai**. Odoo 19 commit sau từng
+  module ⇒ phần F8 vẫn vào DB, chỉ module mobile dừng, exit 255; khởi động thường vẫn chạy. Test rollback viết bằng `assertRaises`
+  không bắt được lỗi quên savepoint (Odoo tự bọc savepoint) ⇒ đổi sang `try/except`.
+- Bài học: log của `-u` nằm ở `logs/<năm>/<tháng>/<ngày>.log` của cây code đang chạy (worktree HEAD ghi vào scratchpad). Hai DB seed
+  cách nhau vài phút làm HTML lệch giờ tạo ⇒ so HTML phải dùng hai bản copy của cùng một lần seed.
+- Nợ để lại: (1) báo anh Thái đã sửa 5 dòng module mobile; (2) AJAX `values` với `other` đọc được field bất kỳ của
+  cửa hàng mình (hành vi có sẵn); (3) dọn DB đo `wujia_f8*` khi xong (worktree HEAD đã gỡ).
+- Phiên kế: commit F8 (khi được yêu cầu) → chủ dự án deploy → đo UAT chỉ-đọc. Sau đó **F9 `knowledge`** (có cron; grep mobile trước) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".

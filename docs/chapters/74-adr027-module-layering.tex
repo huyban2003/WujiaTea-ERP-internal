@@ -336,7 +336,10 @@ nhóm quyền, rule biến mất, sequence mã phiếu chạy lại từ đầu,
     sinh 2 dòng CHECK trùng tên và 6 dòng cũ mồ côi sau khi gỡ vỏ.
   \end{itemize}
   Chạy ở \texttt{pre\_init\_hook} vì Odoo \emph{không} chạy migration script ở lần cài đầu.
-\item Module cũ: còn controller/QWeb/asset thì giữ, thêm depends \texttt{wujia\_<x>}. Rút hết
+\item Module cũ: còn controller/QWeb/asset thì giữ, thay depends nghiệp vụ bằng
+  \texttt{wujia\_<x>}, xoá \texttt{models/}, \texttt{security/}, \texttt{data/} đã rỗng. \texttt{.po}
+  tách theo dòng tham chiếu \texttt{\#:} (controller + QWeb portal ở lại; một msgid dùng ở cả hai
+  phía thì ghi ở cả hai file). F8: 137 mục thành 56 portal + 81 nghiệp vụ. Rút hết
   (như F7) thì để \textbf{vỏ rỗng} (\texttt{\_\_init\_\_.py} trống, \texttt{data: []}, depends
   mỗi \texttt{wujia\_<x>}) và thêm vào \texttt{DEPRECATED} của \texttt{check\_layers}. Bump version
   cả hai.
@@ -346,9 +349,13 @@ nhóm quyền, rule biến mất, sequence mã phiếu chạy lại từ đầu,
   \texttt{.github/workflows/deploy.yml} (danh sách \texttt{-i}/\texttt{-u}; FR-P phát hiện F7 bỏ
   sót). \textbf{Grep cả module mobile của anh Thái}: \texttt{wujia\_mobile\_portal\_info\_request}
   và \texttt{\_exam} ghi đè action/\texttt{ref()} view bằng xmlid \texttt{wujia\_portal\_<x>.*} ---
-  đổi chủ xmlid xong thì \texttt{ref} ở đó gãy lúc \texttt{-u}. Chốt trước khi làm F8/F12: sửa
-  nguồn mobile (bàn giao) hay giữ xmlid cũ (dòng \texttt{ir\_model\_data} thứ hai trỏ cùng
-  \texttt{res\_id}) --- chưa quyết.
+  đổi chủ xmlid xong thì \texttt{ref} ở đó gãy lúc \texttt{-u}. \textbf{Chốt F8 (26/09): sửa nguồn
+  mobile} (đổi tiền tố + depends), không giữ xmlid cũ. Đo F8 trên DB copy có cài module mobile, khi
+  chưa sửa: \texttt{-u} dừng ở \texttt{Cannot update missing record
+  'wujia\_portal\_info\_request.action\_\ldots'}, exit 255. \textbf{Không phải huỷ cả lượt}: Odoo 19
+  commit sau từng module, nên module mới đã cài và đổi chủ xong, module portal đã lên version mới;
+  chỉ module mobile dừng lại. Khởi động thường vẫn chạy, action mobile vẫn đủ list/kanban/form.
+  Nhưng mọi lần \texttt{-u} sau vẫn gãy cho tới khi sửa nguồn mobile.
 \item \textbf{Deploy một lệnh:} \texttt{-i wujia\_<x> -u wujia\_portal\_<x>,<module tham chiếu>}.
   Đo F7: chỉ \texttt{-u wujia\_portal\_<x>} (quên \texttt{-i}) cũng tự cài module mới, và
   \texttt{update\_list} cập nhật luôn bảng phụ thuộc từ manifest mới.
@@ -384,6 +391,16 @@ byte; mutation 5/5 đỏ. \textbf{FR-P (26/09):} UAT gỡ vỏ xong, đo lại 0
 \texttt{check\_layers} 0 vi phạm phía Dev; thử tách một phần \texttt{info\_request} trên DB copy:
 80 dòng đổi chủ, 0 lệch thật, sequence giữ nguyên.
 
+\textbf{F8 (26/09) --- tách một phần \texttt{info\_request} làm thật:} hook
+\texttt{imd\_names} + \texttt{extra=[menu]} chuyển 72 xmlid + 7 ràng buộc + 1 quan hệ; module portal
+còn đúng 3 QWeb; snapshot 80 dòng đổi chủ, \textbf{0 lệch thật}, 0 ERROR. Controller mỏng: gate
+Owner/Manager, phạm vi cửa hàng và ``tạo + đính kèm + gửi'' về model
+(\texttt{\_portal\_can\_request}, \texttt{\_portal\_scope\_domain}, \texttt{create\_from\_portal}
+trong một savepoint; tiện ích upload vẫn ở \texttt{portal\_base}, truyền vào qua callback nên L2
+không import portal). HTML 5 route + JSON giống từng byte; mutation 3/3 đỏ. \textbf{Bẫy test:}
+\texttt{assertRaises} của Odoo tự bọc savepoint, nên test ``lỗi thì rollback nguyên khối'' viết bằng
+nó sẽ Pass cả khi code quên savepoint. Phải dùng \texttt{try/except} thường (bắt được qua mutation).
+
 \section{Lộ trình}
 
 \begin{center}
@@ -394,7 +411,7 @@ byte; mutation 5/5 đỏ. \textbf{FR-P (26/09):} UAT gỡ vỏ xong, đo lại 0
 \midrule
 P1 & Dựng \texttt{wujia\_mobile\_core} & Không phụ thuộc việc tách, chạy song song được. Cần BA chốt màn ưu tiên. \\
 P2 & Tách \texttt{order\_window} (pilot) & \textbf{Xong F7 (25/09)}: 36 xmlid + 6 ràng buộc đổi chủ, 0 nhóm quyền; module cũ thành vỏ chờ gỡ. Lộ ra bẫy \texttt{ir\_model\_constraint} và hook khuôn không còn được nối. \\
-P3 & \texttt{info\_request} & 13 xmlid, 0 nhóm quyền. \\
+P3 & \texttt{info\_request} & \textbf{Xong F8 (26/09)}: tách một phần, 72 xmlid + 7 ràng buộc + 1 quan hệ đổi chủ, 0 nhóm quyền; 3 QWeb + controller mỏng ở lại portal. \\
 P4 & \texttt{knowledge} & 20 xmlid, có 1 cron. \\
 P5 & \texttt{support} & 26 xmlid, nhiều depends (\texttt{sale}, \texttt{stock\_picking\_batch}, \texttt{sales\_team}). \\
 P6 & \texttt{announcement} & Tách từ \texttt{portal\_notification}. 2 nhóm quyền, sequence ANN, ir.rule theo cửa hàng. Giữ \texttt{\_name} \texttt{wujia.notification} (không đổi tên bảng). \\

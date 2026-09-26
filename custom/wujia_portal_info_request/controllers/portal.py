@@ -15,14 +15,11 @@ from urllib.parse import quote
 
 from werkzeug.exceptions import Forbidden
 
-from odoo import _, fields, http
+from odoo import _, http
 from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
-from odoo.addons.wujia_portal_base.controllers.portal import (
-    get_active_franchise_ids_filter,
-    get_max_role_in_franchises,
-)
+from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_ids_filter
 from odoo.addons.wujia_portal_base.controllers.utils import (
     DEFAULT_DOC_MIME,
     PAGE_SIZE_OPTIONS,
@@ -31,9 +28,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     parse_page_size,
     status_badge_for,
 )
-from odoo.addons.wujia_portal_info_request.models.wujia_info_update_request import (
-    REQUEST_TYPE, REQUEST_TYPE_FIELD_MAP, STATE,
-)
+from odoo.addons.wujia_info_request.models.wujia_info_update_request import REQUEST_TYPE, STATE
 
 _logger = logging.getLogger(__name__)
 
@@ -41,7 +36,7 @@ PAGE_SIZE = 20
 
 # Nhãn VN của wujia.info.update.request.request_type. Pin cứng tại đây vì source đã chuyển
 # sang tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
-# Key phải khớp REQUEST_TYPE trong models/wujia_info_update_request.py (giữ đúng thứ tự).
+# Key phải khớp REQUEST_TYPE trong wujia_info_request (giữ đúng thứ tự).
 REQUEST_TYPE_LABELS = {
     'address': 'Địa chỉ',
     'phone': 'Số điện thoại',
@@ -76,7 +71,7 @@ class WujiaPortalInfoRequest(http.Controller):
                  'request_type_options': REQUEST_TYPE_OPTIONS},
             )
         Model = request.env['wujia.info.update.request'].sudo()
-        domain = [('franchise_id', 'in', list(franchise_ids))]
+        domain = Model._portal_scope_domain(franchise_ids)
         if state and state in dict(STATE):
             domain.append(('state', '=', state))
         if request_type and request_type in dict(REQUEST_TYPE):
@@ -111,9 +106,8 @@ class WujiaPortalInfoRequest(http.Controller):
         if not franchise_ids:
             return request.redirect('/portal/info-request')
 
-        # Role gate (Owner/Manager only).
-        role = get_max_role_in_franchises(list(franchise_ids))
-        if role not in ('owner', 'manager'):
+        Model = request.env['wujia.info.update.request'].sudo()
+        if not Model._portal_can_request(franchise_ids):
             raise Forbidden(description=_(
                 "Chỉ Owner / Manager mới được tạo yêu cầu cập nhật thông tin."
             ))
@@ -127,8 +121,13 @@ class WujiaPortalInfoRequest(http.Controller):
         except ValidationError as e:
             return self._render_form(error=str(e), prefill=post)
 
+        files = request.httprequest.files.getlist('attachments')
         try:
-            rec = request.env['wujia.info.update.request'].sudo().create(vals)
+            rec = Model.create_from_portal(
+                vals, submit=action == 'submit',
+                attach=lambda r: attach_files_to_record(
+                    r, files, allowed_mime=DEFAULT_DOC_MIME, max_size_mb=5, max_count=6),
+            )
         except (ValidationError, UserError) as e:
             return self._render_form(error=str(e), prefill=post)
         except Exception:
@@ -136,21 +135,6 @@ class WujiaPortalInfoRequest(http.Controller):
             return self._render_form(
                 error=_("Không thể gửi yêu cầu. Vui lòng kiểm tra lại thông tin và thử lại."),
                 prefill=post)
-
-        files = request.httprequest.files.getlist('attachments')
-        try:
-            attachments = attach_files_to_record(
-                rec, files, allowed_mime=DEFAULT_DOC_MIME,
-                max_size_mb=5, max_count=6,
-            )
-            if attachments:
-                rec.sudo().write({'attachment_ids': [(4, a.id) for a in attachments]})
-        except ValidationError as e:
-            rec.sudo().unlink()
-            return self._render_form(error=str(e), prefill=post)
-
-        if action == 'submit':
-            rec.action_submit()
         return request.redirect(
             f'/portal/info-request/{rec.id}?message=created'
         )
@@ -159,10 +143,8 @@ class WujiaPortalInfoRequest(http.Controller):
                 auth='user', sitemap=False)
     def portal_info_request_detail(self, req_id, **kw):
         franchise_ids = get_active_franchise_ids_filter()
-        rec = request.env['wujia.info.update.request'].sudo().search([
-            ('id', '=', req_id),
-            ('franchise_id', 'in', list(franchise_ids) if franchise_ids else [-1]),
-        ], limit=1)
+        Model = request.env['wujia.info.update.request'].sudo()
+        rec = Model.search([('id', '=', req_id)] + Model._portal_scope_domain(franchise_ids), limit=1)
         if not rec:
             return request.redirect('/portal/info-request')
         return request.render(
@@ -176,11 +158,9 @@ class WujiaPortalInfoRequest(http.Controller):
                 auth='user', methods=['POST'], sitemap=False, csrf=True)
     def portal_info_request_cancel(self, req_id, **kw):
         franchise_ids = get_active_franchise_ids_filter()
-        rec = request.env['wujia.info.update.request'].sudo().search([
-            ('id', '=', req_id),
-            ('franchise_id', 'in', list(franchise_ids) if franchise_ids else [-1]),
-            ('created_by_user_id', '=', request.env.uid),
-        ], limit=1)
+        Model = request.env['wujia.info.update.request'].sudo()
+        rec = Model.search([('id', '=', req_id), ('created_by_user_id', '=', request.env.uid)]
+                           + Model._portal_scope_domain(franchise_ids), limit=1)
         if not rec:
             return request.redirect('/portal/info-request')
         try:
@@ -204,12 +184,8 @@ class WujiaPortalInfoRequest(http.Controller):
         franchise = request.env['wujia.franchise.management'].sudo().browse(int(fid))
         if not franchise.exists():
             return {'error': 'not_found'}
-        field = REQUEST_TYPE_FIELD_MAP.get(request_type)
-        if not field and request_type == 'other':
-            field = (field_target or '').strip()
-        if not field or field not in franchise._fields:
-            return {'old_value': ''}
-        return {'old_value': str(franchise[field] or '')}
+        return {'old_value': request.env['wujia.info.update.request'].sudo()._franchise_value(
+            franchise, request_type, field_target)}
 
     # ============================================================== helpers
     def _render_form(self, error=None, prefill=None):
