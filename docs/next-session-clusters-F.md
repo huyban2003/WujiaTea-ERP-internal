@@ -145,7 +145,7 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 | F7 | Pilot tách order_window | order_window, portal_sale | Cao | ✅ 25/09 — `docs/f7-acceptance-matrix.md` · `6b2938d`, UAT 25/09, vỏ gỡ 26/09 |
 | **FR-P** | **Review pilot trước khi nhân quy trình** | 0 (vá nhỏ: core tools, test, snapshot) | — | ✅ 26/09 — **ĐẠT**, deploy UAT 26/09 · `docs/f-review-FR-P.md` · mobile Thái = bàn giao, không chặn F8 |
 | F8 | Tách một phần `info_request` → `wujia_info_request` + controller mỏng | info_request, portal_info_request (+ mobile Thái 5 dòng) | Cao | ✅ 26/09 — `docs/f8-acceptance-matrix.md` (9/9), 5 dòng mobile Thái sửa theo duyệt; `a5cb738`, UAT 26/09 |
-| F9 | Tách một phần `knowledge` → `wujia_knowledge` + controller mỏng; Home dùng chung luật hiển thị | knowledge, portal_knowledge, portal_base | Cao | ✅ 26/09 — `docs/f9-acceptance-matrix.md` (9/9); bẫy noupdate reset sequence đã chặn; chưa deploy |
+| F9 | Tách một phần `knowledge` → `wujia_knowledge` + controller mỏng; Home dùng chung luật hiển thị | knowledge, portal_knowledge, portal_base | Cao | ✅ 26/09 — `docs/f9-acceptance-matrix.md` (9/9); bẫy noupdate reset sequence đã chặn; `2ba8311`, chưa deploy |
 | F10–F13 | Tách phân hệ + controller mỏng (**bỏ `number_next` khỏi XML sequence trước khi tách**) | theo phân hệ | Cao | ☐ |
 | **FR-A** | **Review toàn khối A + controller (F1, F6–F13)** | 0 hoặc vá nhỏ | — | ☐ |
 

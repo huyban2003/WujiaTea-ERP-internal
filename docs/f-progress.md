@@ -1409,7 +1409,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Test: `wujia_knowledge` 10 (4 dời + slug/mã, publish, cron hết hạn, đính kèm, tìm kiếm, 2 đổi chủ); portal 13 (+ tải
     đính kèm 200/403, Home không hiện bài hẹn giờ).
   - `split_snapshot` đọc `last_value` sequence Postgres. `check_layers`, `deploy.yml`, reseed. Chapter 74 (bẫy noupdate, số đo F9, P4).
-- Commit: xem git log `feat(F9)` (đã push `main`).
+- Commit: `2ba8311` — `feat(F9): tách knowledge → module nghiệp vụ wujia_knowledge + controller mỏng` (đã push `main`).
 - Deploy: chưa. Lệnh: `-i wujia_knowledge -u wujia_portal_knowledge,wujia_portal_base`. UAT trước deploy (RPC chỉ-đọc): 27 bài,
   `KNW-` số kế 28, cron khớp XML — sau deploy phải đo lại số kế 28.
 - Số đo: hook 107 imd + 13 cons + 2 rel · snapshot 122 đổi chủ **0 lệch thật** · HTML 12/12 route + JSON 2/2 giống từng byte,
