@@ -1383,7 +1383,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     `_franchise_value` (1 nguồn cho form + AJAX). 263 → 239 dòng, response giữ nguyên.
   - Test: +10 (module mới, trước đó model 0 test) + 3 HttpCase portal (luồng gửi thật). `check_layers`, `deploy.yml`, reseed.
   - Chapter 74: bước 5–6 Quy trình tách (tách một phần, chốt mobile, kết quả đo khi lỗi), số đo F8, bẫy `assertRaises`.
-- Commit: chưa (chưa được yêu cầu).
+- Commit: `a5cb738` — `feat(F8): tách info_request → module nghiệp vụ wujia_info_request + controller mỏng` (đã push `main`).
 - Deploy: chưa (chủ dự án tự deploy). Lệnh: `-i wujia_info_request -u wujia_portal_info_request,wujia_mobile_portal_info_request`.
 - Số đo: hook 72 imd + 7 cons + 1 rel · snapshot 80 đổi chủ **0 lệch thật** · HTML 5 route + JSON giống từng byte (cùng lần seed)
   · 3 HttpCase mới trên code HEAD cũng xanh (đối chứng) · suite **847, 0 đỏ** (FR-P 834 + 13) · DB trắng 10/10 · mutation **3/3** · DB giống UAT (có mobile) deploy **exit 0**, test mobile 3/3, `check_layers` 2 → 1.
