@@ -1354,19 +1354,19 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     0 lệch thật, `number_next` giữ.
   - Chapter 74 §Quy trình tách 4 chỗ + số đo FR-P; build PDF.
 - Commit: `9d2a606` — `review(FR-P): review pilot F7 đạt — gỡ vỏ order_window, hook đổi chủ về wujia_core` (đã push `main`; gồm cả mục F7 deploy sửa local từ phiên trước).
-- Deploy: chưa. Khi được yêu cầu: `git pull` + `-u wujia_core,wujia_order_window` (không `--test-enable`).
+- Deploy: **UAT 26/09** (chủ dự án). Đo chỉ-đọc: `wujia_core 19.0.1.0.1`, 36 xmlid + 6 ràng buộc, vỏ `uninstalled`, khung giờ/tham số/Settings nguyên.
 - Số đo: UAT 36 xmlid + 6 cons + 2 khung + 3 tham số + 2 menu + 2 ACL y hệt · `check_layers` 2 (Thái) · R6 0 · R7 2 (Thái) ·
   `-u` DB copy 0 ERROR · suite **834, 0 đỏ** (F7 833 + 1) · snapshot vs `f7r2/u.json` 0 lệch · DB trắng **11/11** (trước sửa
   1 error) · trial 80 đổi chủ / 0 lệch · mutation M3 trên helper đã dời **đỏ đúng**.
 - Lệch plan / quyết định mới: `-u wujia_core --test-enable` kéo nạp test `wujia_franchise` (import file đã xoá) → 2 lượt
   chết 255; chỉ `-u wujia_order_window`. `ir_cron` Odoo 19 không có `name`/`model_id` (kế thừa `ir.actions.server`) — sửa cả
   helper lẫn snapshot. Hai Bash song song dùng chung cwd → đường dẫn tuyệt đối.
-- Nợ để lại: (1) **`ref()` xmlid `wujia_portal_<x>.*` trong `wujia_mobile_portal_info_request`/`_exam` (Thái) — chốt sửa
-  nguồn hay alias `ir_model_data` trước F8/F12**; (2) dư âm tên portal trong L2 (ICP `wujia_portal.*`, field
+- Nợ để lại: (1) bàn giao Thái (chốt 26/09: phần mobile ngoài phạm vi, **không chặn F8**) — `wujia_mobile_portal_info_request`/
+  `_exam` `ref()` xmlid `wujia_portal_<x>.*`, sau F8/F12 Thái đổi tiền tố; Dev báo trước khi deploy; (2) dư âm tên portal trong L2 (ICP `wujia_portal.*`, field
   `portal_order_time_*`, app/menu "Wujia Portal", xmlid view) — cần migration nếu đổi; (3) hook Khảo sát không nối + 46 cons
   `wujia_franchise` (bàn giao Thái); (4) `test_wujia_supply_demand_report` error có sẵn.
 - Issue List (reconcile 7 issue STT 140–146): `grep custom/` + ledger = 0; `git log -S` chỉ bắt commit docs ⇒ **chưa có code**,
   chưa phân cụm. Toàn UI: 140 badge topbar PC · 141 store switcher mobile · 142 Home PC redesign (lớn) · 143+144 mật độ
   header/spacing `/portal/order` mobile · 145 bottom-nav 83px · 146 routing `/` → login (Suggestion).
 - Phiên kế: đề xuất **Issue List cụm nhỏ trước** (143 + 144 + 145 cùng một chủ đề "mật độ mobile", 1 phiên; 140 + 141 phiên
-  hai; 142 cần BA duyệt mockup; 146 hỏi BA) rồi **F8 `info_request`** — việc cần biết trước: chốt nợ (1) với anh Thái.
+  hai; 142 cần BA duyệt mockup; 146 hỏi BA) rồi **F8 `info_request`** — việc cần biết trước: dùng `imd_names` + liệt kê `extra` (menu), giữ 3 QWeb ở portal; báo Thái mục (1) trước deploy.

@@ -11,7 +11,7 @@ nghiệp vụ – portal – mobile (ADR-027) không**.
 **ĐẠT — nhân quy trình sang F8 được**, với 3 điều kiện đã chốt trong phiên:
 1. Hook đổi chủ dùng chung nằm ở L1 (`wujia_core/tools/module_split.py`), có `imd_names` suy danh sách xmlid theo model —
    tách MỘT PHẦN không còn phải liệt kê tay 75 xmlid.
-2. Trước F8/F12 phải chốt cách xử lý `ref()` xmlid `wujia_portal_<x>.*` trong module mobile của anh Thái (§5 nợ 1).
+2. Phần mobile của anh Thái **không thuộc phạm vi review** (chốt chủ dự án 26/09): dòng `ref()` xmlid `wujia_portal_<x>.*` bên `wujia_mobile_portal_*` là mục **bàn giao**, không chặn F8 (§6 nợ 1).
 3. Vỏ `wujia_portal_order_window` đã gỡ trên UAT và xoá khỏi repo; `deploy.yml` đã đổi tên (F7 bỏ sót).
 
 Tuân thủ tầng của `wujia_order_window` (L2): **0 vi phạm** — bảng §3.
@@ -76,11 +76,10 @@ Tuân thủ tầng của `wujia_order_window` (L2): **0 vi phạm** — bảng �
 
 ## 6. Nợ ghi lại
 
-1. **`ref()` xmlid `wujia_portal_<x>.*` trong module mobile anh Thái** — `wujia_mobile_portal_info_request` ghi đè
-   `action_wujia_info_update_request` + `ref` 2 view; `wujia_mobile_portal_exam` 4 file view + test. Đổi chủ xmlid xong thì
-   `-u` module mobile **gãy**. Phương án: (a) sửa nguồn mobile (bàn giao Thái, kéo theo R3) · (b) giữ dòng `ir_model_data`
-   alias module cũ trỏ cùng `res_id` (Odoo cho phép 2 xmlid → 1 record; gỡ module cũ sẽ xoá record? — phải đo). **Chốt
-   trước F8**, không tự quyết.
+1. **Bàn giao anh Thái (không sửa hộ, không chặn F8):** `wujia_mobile_portal_info_request` ghi đè
+   `wujia_portal_info_request.action_wujia_info_update_request` + `ref()` 2 view; `wujia_mobile_portal_exam` 4 file view + test
+   dùng xmlid `wujia_portal_exam.*`. Sau khi Dev tách F8/F12 (xmlid đổi chủ sang `wujia_info_request`/`wujia_exam`), lần `-u`
+   module mobile sẽ báo xmlid không tồn tại — Thái đổi tiền tố xmlid là xong. Dev báo trước khi deploy F8/F12.
 2. Dư âm tên portal trong L2 (§3 dòng cuối): giữ vì "chỉ đổi chủ"; muốn đổi cần migration ICP key + field + xmlid + `.po`.
 3. Hook Khảo sát `wujia_franchise_inspection/hooks.py` không được nối (`ec6d380`) + 46 dòng `ir_model_constraint` Khảo sát
    vẫn `wujia_franchise` — bàn giao Thái (từ F7).
@@ -93,7 +92,7 @@ Tuân thủ tầng của `wujia_order_window` (L2): **0 vi phạm** — bảng �
   `ir_model_data` module cũ trừ `imd_names` và giải trình từng dòng (info_request: 3 QWeb).
 - **Odoo 19 có xmlid cho `ir.model.inherit` và `ir.model.fields.selection`** — F7 không gặp (model không mixin). `imd_names`
   đã phủ; snapshot đã đo.
-- Grep tham chiếu xmlid phải quét **cả `custom/wujia_mobile_*`**, không chỉ `wujia_portal_*`.
+- Grep tham chiếu xmlid phải quét **cả `custom/wujia_mobile_*`** để lập danh sách bàn giao Thái (không sửa hộ).
 - Test không được tra `ir_module_module` của module đã rời repo (DB trắng không có dòng).
 - CI/`deploy.yml` là "tham chiếu" dễ quên nhất — thêm vào bước 6 chapter 74.
 - Log stdout trống vì `wujia_core` chuyển log sang `logs/<năm>/<tháng>/<ngày>.log` — đọc số test ở đó; hai lệnh Bash song
@@ -123,6 +122,6 @@ python3 $W/scripts/qa/check_layers.py                                           
 
 ## 9. UAT (26/09, sau gỡ vỏ)
 
-`wujia_order_window 19.0.1.0.0` installed · vỏ `uninstalled` (dòng module còn, không thư mục) · `wujia_portal_sale 19.0.4.25.0`.
-Thư mục vỏ trên server vẫn còn tới lần `git pull` kế — vô hại (uninstalled). Khi deploy FR-P: `-u wujia_core,wujia_order_window`
-(không test) — `deploy.yml` đã có `wujia_order_window`.
+Sau gỡ vỏ: `wujia_order_window 19.0.1.0.0` installed · vỏ `uninstalled` · `wujia_portal_sale 19.0.4.25.0`.
+**Deploy FR-P 26/09 (`9d2a606`) — đo lại chỉ đọc:** `wujia_core 19.0.1.0.1` · 36 xmlid + 6 ràng buộc (0 trùng) vẫn thuộc
+`wujia_order_window` · vỏ `uninstalled` · 2 khung giờ · 3 tham số nguyên · form Settings chỉ còn app `wujia_order_window`.
