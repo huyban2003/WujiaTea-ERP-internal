@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Exam (Đào tạo / Thi)',
-    'version': '19.0.6.0.0',
+    'version': '19.0.6.1.0',
     'category': 'Wujia',
     'summary': 'Màn Đăng ký thi trên portal (PC + mobile) — nghiệp vụ ở wujia_exam (F12).',
     'author': 'WujiaTea',

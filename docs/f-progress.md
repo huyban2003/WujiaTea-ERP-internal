@@ -1692,3 +1692,30 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ để lại: mockup V4 (142) + mockup 141 chỉ có trên Drive — cần file trước G2/G3a. BA retest 126 vẫn treo.
 - Phiên kế: **G1** — hỏi đầu phiên: không có (145 ngược "BA final 83px" chỉ ghi FYI). Việc cần biết trước: dựng DB từ
   `wujia_frp` + replay `deploy.yml`; đo 360/390/430, PC Δ0.
+
+## G1 — Mật độ mobile: PageHeader · SectionHeader · BottomNav + nhịp Đặt hàng (143 · 145 · 144) · 26/09/2026 · Mac
+- Kết quả: ✅ code + đo xong, **chưa deploy**. 3 issue ghi ledger (`CHƯA DEPLOY`), `qa_sync --apply` chờ deploy.
+- Chủ dự án chốt: PageHeader mobile **cả 3 kiểu (title/back/create) cùng cao 44** (pad 8/1/0).
+- Đã làm:
+  - `wujia_portal_layout` 19.0.59.0.0: token mobile `--wujia-m-pagehead-py 8`, `--wujia-m-sechead-fs/lh 18/24`;
+    PageHeader `--m` 52 → 44; SectionHeader `--m` 18/24, `--any` chỉ đổi trong `@media ≤991.98`; nav 83 → **72 + safe
+    area**, mục 50, nhãn 12, badge neo góc icon; sửa công thức `--wujia-mnav-total` (sai từ trước) ⇒ sheet "Thêm" +
+    backdrop bám `-total` (hết chồng nav 8px khi có safe area); pad cuối nội dung `72 + 13` thay số cứng 96.
+  - `wujia_portal_exam` 19.0.6.1.0: FAB bám `-total`.
+  - `wujia_portal_sale` 19.0.4.26.0 (144, làm cuối): chỉ ở wrapper `.wujia-morder` — search → chip 23 → **12**
+    (nguồn 23 = `form` margin 15 toàn cục), chip → "Danh sách sản phẩm" 14 → **8**.
+  - 16 test tĩnh mới (tag `wujia_mobile_density_g1`, `wujia_order_spacing_g1`) + `scripts/qa/wj_density.py` (Playwright:
+    PageHeader/SectionHeader/nav/badge/cuộn cuối/nhịp Đặt hàng + vân tay bố cục PC, cờ `--safe-area`).
+  - `docs/g1-acceptance-matrix.md`; ledger 3 entry.
+- Commit: xem git log — `feat(G1): mật độ mobile PageHeader/SectionHeader/BottomNav + nhịp Đặt hàng`.
+- Deploy: **chưa** — lệnh: `-u wujia_portal_layout,wujia_portal_exam,wujia_portal_sale`.
+- Số đo: 28 route × 360/390/430 × có/không safe area 34: PageHeader 44 mọi kiểu, SH 18/24, nav 72 (106), cuộn cuối ≥13,
+  0 tràn, badge không chạm icon; Đặt hàng 12/8 giữ sau lọc AJAX + tìm, smoke +/−/thêm giỏ 0 lỗi JS; PC vân tay
+  **76/81** giống (5 = bộ đếm lượt xem Kiến thức, nhiễu nền); suite 21 module **930/0/0**; mutation **11/11**;
+  `check_layers` 0 vi phạm Dev.
+- Lệch plan / quyết định mới: sửa kèm 2 lỗi có từ trước (công thức `mnav-total`; sheet/FAB bỏ quên safe area).
+- Bài học: xem "🔴 Bài học G1" trong `next-session-clusters-G.md` (form margin 15, CDP safe area, vân tay thay md5,
+  `--any` ngoài media, filestore ⇒ xoá `/web/assets`).
+- Nợ để lại: safe area chưa đo iPhone thật; nhánh Đặt hàng không có danh mục chưa đo trình duyệt; FYI BA 83 → 72.
+- Phiên kế: **deploy G1 → `qa_sync --apply --only` 3 ID**, rồi **G2** (141 + 140) — hỏi đầu phiên câu (a)–(e) trong
+  khối G2 (user 1 cửa hàng có chevron không, nhãn Manager ↔ "Quản lý", mockup 141, dải trên Home, 140 ↔ V4).

@@ -26,7 +26,7 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 
 | Lượt | Issue (STT) | Module `-u` | Trạng thái |
 |---|---|---|---|
-| G1 | `UI-MOB-HEADER-DENSITY-001` (143) + `UI-MOB-BOTTOMNAV-DENSITY-001` (145) → cuối phiên `WJ-ORD-MOB-SPACING-001` (144) | `wujia_portal_layout` + `wujia_portal_sale` (+ `wujia_portal_exam` nếu chỉnh offset thanh dính) | ☐ |
+| G1 | `UI-MOB-HEADER-DENSITY-001` (143) + `UI-MOB-BOTTOMNAV-DENSITY-001` (145) → cuối phiên `WJ-ORD-MOB-SPACING-001` (144) | `wujia_portal_layout` + `wujia_portal_sale` + `wujia_portal_exam` | ✅ 26/09 — code + đo xong, commit `feat(G1)` (xem git log); **chưa deploy**, ledger chờ `--apply` |
 | G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_sale` (+ `wujia_portal_layout` nếu sửa action circle) | ☐ |
 | G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` | ☐ (mockup V4 đã có local) |
 | G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ☐ |
@@ -99,6 +99,25 @@ chỉ ghi FYI BA ở LIMIT; không chặn phiên.
 
 **Nghiệm thu:** bảng route × 3 khổ (height PageHeader, cỡ title SectionHeader, cao bottom nav, khoảng
 144) + cột PC Δ0 + ảnh trước/sau `/portal/order`, `/portal/return`, 1 trang nhóm "Thêm", 1 form dài.
+
+### 🔴 Bài học G1
+
+- **Số BA đo lệch token không phải do token**: search → chip 23 = `form { margin-bottom: 15px }` toàn cục của
+  shell + gap 8. Đo computed style từng phần tử giữa hai khối trước khi đổi token; vá bằng `margin-bottom: calc(12px
+  - var(--wujia-mshell-content-gap))` trên chính `form` của trang, không đụng `form` chung.
+- **Công thức `--wujia-mnav-total` sai từ trước** (`83 + max(0, safe − 6)` = 111 trong khi nav thật 91) ⇒ sheet
+  "Thêm" chồng nav 8px trên máy có safe area. Chỉ lộ khi giả lập safe area bằng CDP
+  `Emulation.setSafeAreaInsetsOverride` — Playwright `viewport`/`isMobile` **không** cho `env()` giá trị ≠ 0. Mọi
+  lượt đụng nav/sticky phải đo **cả có và không có** safe area.
+- **md5 ảnh chụp PC vô dụng**: thanh `.pace` chạy ⇒ 74/81 ảnh lệch dù cùng mã. Dùng **vân tay bố cục** (rect + font +
+  padding mọi phần tử đang hiện, bỏ `.pace`) — `scripts/qa/wj_density.py`. Vẫn còn nhiễu bộ đếm lượt xem Kiến thức ⇒
+  luôn chạy 1 lượt đối chứng cùng mã để biết nhiễu nền.
+- **`--any` nằm ngoài `@media`**: SectionHeader `--any` hiện ở mọi khổ ⇒ cỡ mobile phải bọc `@media (max-width:
+  991.98px)`, nếu không PC đổi theo. Kiểu `--m` đã `d-lg-none` nên để ở rule gốc được.
+- **DB copy `wujia_frp` không kèm filestore ⇒ bundle JS 500**, trang vẫn vẽ nên dễ tưởng JS chạy. Trước khi smoke
+  JS: `delete from ir_attachment where url like '/web/assets/%'` trên DB copy (Odoo tự dựng lại bundle).
+- **Chiều cao hàng PageHeader 3 kiểu**: pad 8 cho kiểu back/create thành 58/60 (nút 42/44 tự chiếm chỗ) — phải
+  hỏi, chủ dự án chốt cùng 44 (pad 1/0) để chuyển màn không nhảy.
 
 ---
 

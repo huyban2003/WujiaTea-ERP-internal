@@ -27,6 +27,14 @@
     align-items: center;     /* nút 38 căn giữa hàng 44 của ô tìm */
     gap: 8px;                /* FUNC-MOB-ORDER-006: chừa chỗ nút Tìm bên phải */
 }
+/* WJ-ORD-MOB-SPACING-001 — nhịp đầu trang Đặt hàng mobile: search → chip 12, chip → "Danh
+   sách sản phẩm" 8. Đặt ở wrapper trang, KHÔNG đụng FilterChip/FilterBar chung.
+   Search: thay margin 15 của rule `form` toàn cục shell ⇒ gap trang + phần bù = 12.
+   SectionHeader đầu slot: bỏ margin-top token ⇒ chỉ còn gap trang 8. */
+.wujia-morder > .wujia-morder-search {
+    margin-bottom: calc(12px - var(--wujia-mshell-content-gap));
+}
+.wujia-morder #wj-ord-mbody > .wj-section-header--m { margin-top: 0; }
 .wujia-morder-search-btn {
     /* E4b2: về chuẩn ô lọc — hộp nhìn thấy 38, vùng chạm 44 bằng ::before (Q1 12/09). */
     position: relative;
