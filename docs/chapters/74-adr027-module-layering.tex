@@ -351,7 +351,7 @@ nhóm quyền, rule biến mất, sequence mã phiếu chạy lại từ đầu,
 \item Module cũ: còn controller/QWeb/asset thì giữ, thay depends nghiệp vụ bằng
   \texttt{wujia\_<x>}, xoá \texttt{models/}, \texttt{security/}, \texttt{data/} đã rỗng. \texttt{.po}
   tách theo dòng tham chiếu \texttt{\#:} (controller + QWeb portal ở lại; một msgid dùng ở cả hai
-  phía thì ghi ở cả hai file). F8: 137 mục thành 56 portal + 81 nghiệp vụ; F9: 123 thành 26 + 97; F10: 204 thành 75 + 129; F11: 214 thành 55 + 159. Rút hết
+  phía thì ghi ở cả hai file). F8: 137 mục thành 56 portal + 81 nghiệp vụ; F9: 123 thành 26 + 97; F10: 204 thành 75 + 129; F11: 214 thành 55 + 159; F12: 393 thành 177 + 216. Rút hết
   (như F7) thì để \textbf{vỏ rỗng} (\texttt{\_\_init\_\_.py} trống, \texttt{data: []}, depends
   mỗi \texttt{wujia\_<x>}) và thêm vào \texttt{DEPRECATED} của \texttt{check\_layers}. Bump version
   cả hai.
@@ -368,6 +368,11 @@ nhóm quyền, rule biến mất, sequence mã phiếu chạy lại từ đầu,
   commit sau từng module, nên module mới đã cài và đổi chủ xong, module portal đã lên version mới;
   chỉ module mobile dừng lại. Khởi động thường vẫn chạy, action mobile vẫn đủ list/kanban/form.
   Nhưng mọi lần \texttt{-u} sau vẫn gãy cho tới khi sửa nguồn mobile.
+\item \textbf{Ref nhóm quyền đổi chủ (F11, F12):} ACL csv và \texttt{<menuitem groups=\ldots>} đổi sang tên
+  cục bộ được (loader tự thêm module đang nạp). \textbf{\texttt{groups=} trong arch view thì phải ghi đủ
+  \texttt{wujia\_<x>.group\_\ldots}}: Odoo 19 parse bằng \texttt{\_get\_group\_definitions().parse(\ldots,
+  raise\_if\_not\_found=False)}, tên thiếu tiền tố không khớp nhóm nào và bị bỏ qua im lặng $\Rightarrow$ phần tử
+  ẩn với mọi người, kể cả Administrator (F12: 10 nút trên 3 form). Snapshot bắt qua md5 arch.
 \item \textbf{Deploy một lệnh:} \texttt{-i wujia\_<x> -u wujia\_portal\_<x>,<module tham chiếu>}.
   Đo F7: chỉ \texttt{-u wujia\_portal\_<x>} (quên \texttt{-i}) cũng tự cài module mới, và
   \texttt{update\_list} cập nhật luôn bảng phụ thuộc từ manifest mới.
@@ -450,6 +455,19 @@ dòng): domain lịch sử/còn hiệu lực, đếm chưa đọc theo cửa hà
 bằng badge chuông, list bỏ bài hẹn giờ/hết hạn. HTML 117/120 giống từng byte (3 lệch đều Home, đúng chỗ vá),
 DB đã đọc sau lượt ghi giống hệt; suite 885/0; mutation 5/5 luật đỏ.
 
+\textbf{F12 (26/09) --- tách một phần \texttt{exam}, gộp F12a + F12b:} 5 model (giữ \texttt{\_name}), 2 nhóm
+quyền + privilege, 2 rule, 3 sequence, 7 menu sang \texttt{wujia\_exam}; mobile anh Thái
+(\texttt{wujia\_mobile\_portal\_exam}) đổi depend + 18 dòng ref như F8 --- gỡ vi phạm R3 cuối, \texttt{check\_layers}
+về \textbf{0}. Hook đổi chủ 214 xmlid + 30 ràng buộc + 1 quan hệ, portal còn 3 QWeb + 2 mục nav; snapshot 245 dòng
+đổi chủ, bản ghi + \texttt{last\_value} 3 sequence + người trong nhóm giữ. Lộ bẫy mới: \texttt{groups=} trong
+\emph{arch} view phải ghi đủ \texttt{module.xmlid} (Odoo 19 bỏ qua im lặng tên không khớp $\Rightarrow$ 10 nút
+backend ẩn với cả Administrator); ACL csv và \texttt{menuitem} thì ref cục bộ được. Controller mỏng (729
+$\rightarrow$ 558 dòng): luật chọn ca, lịch tháng, meta khoá, phạm vi cửa hàng và
+\texttt{register\_from\_portal} (lớp lỗi \texttt{ExamPortalError} giữ mã \texttt{not\_found}/\texttt{validation}/
+\texttt{business}) về model; ``tối đa người/phiếu'' thành một nguồn (ca thi, trống thì khoá) cho cả hướng dẫn,
+chặn portal và constraint. HTML/JSON 234/234 giống từng byte (19 nhánh gửi phiếu), DB sau ghi giống hệt; suite
+897/0; mutation 6/6 luật đỏ.
+
 \section{Lộ trình}
 
 \begin{center}
@@ -464,7 +482,7 @@ P3 & \texttt{info\_request} & \textbf{Xong F8 (26/09)}: tách một phần, 72 x
 P4 & \texttt{knowledge} & \textbf{Xong F9 (26/09)}: tách một phần, 107 xmlid + 13 ràng buộc + 2 quan hệ đổi chủ, cron + sequence giữ nguyên; lộ bẫy data \texttt{noupdate} reset sequence. \\
 P5 & \texttt{support} & \textbf{Xong F10 (26/09)}: tách một phần, 113 xmlid + 16 ràng buộc + 1 quan hệ đổi chủ, sequence + 7 danh mục giữ; bảng badge ticket rời \texttt{portal\_base}. \\
 P6 & \texttt{announcement} & \textbf{Xong F11 (26/09)}: tách một phần sang \texttt{wujia\_notification}, giữ \texttt{\_name}; 140 xmlid + 28 ràng buộc + 5 quan hệ đổi chủ, 2 nhóm quyền + sequence ANN giữ; Home dùng chung luật chưa đọc. \\
-P7 & \texttt{exam} & 2 nhóm quyền, 5 model. \\
+P7 & \texttt{exam} & \textbf{Xong F12 (26/09)}: tách một phần sang \texttt{wujia\_exam}, giữ \texttt{\_name}; 214 xmlid + 30 ràng buộc + 1 quan hệ đổi chủ, 2 nhóm quyền + 3 sequence giữ; mobile Thái đổi ref, \texttt{check\_layers} về 0. \\
 P8 & \texttt{return} & Lớn nhất: 1108 dòng model, kế thừa SO/picking, hook picking, wizard SO 0đ FIFO. Để cuối, khi quy trình đã chín. \\
 \bottomrule
 \end{tabularx}

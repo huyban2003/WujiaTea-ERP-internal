@@ -7,6 +7,17 @@ try:
 except Exception:  # pragma: no cover
     LockNotAvailable = Exception
 
+
+
+class ExamPortalError(ValidationError):
+    """Đầu vào kênh portal bị từ chối trước khi tạo phiếu — ``kind`` = mã lỗi kênh trả về
+    (``not_found`` / ``validation``); lỗi lúc tạo phiếu vẫn là ValidationError/UserError thường."""
+
+    def __init__(self, message, kind='validation'):
+        super().__init__(message)
+        self.kind = kind
+
+
 REG_STATE = [
     ('submitted', 'Submitted'),
     ('confirmed', 'Approved'),
@@ -96,7 +107,7 @@ class WujiaExamRegistration(models.Model):
             if n < 1:
                 raise ValidationError(_(
                     "Phiếu '%s' cần ít nhất 1 nhân sự dự thi.", rec.name))
-            max_p = rec.session_id.max_participants_per_registration or 0
+            max_p = rec.session_id._effective_max_per_registration() or 0
             if max_p and n > max_p:
                 raise ValidationError(_(
                     "Phiếu '%s': tối đa %s nhân sự / phiếu.", rec.name, max_p))
@@ -158,6 +169,59 @@ class WujiaExamRegistration(models.Model):
             self.filtered(
                 lambda r: r.state in ('submitted', 'confirmed'))._lock_and_check_capacity()
         return res
+
+    # ------------------------------------------------------------ portal
+    @api.model
+    def _portal_scope_domain(self, franchise_id):
+        return [('franchise_id', '=', franchise_id)]
+
+    def _portal_result_counts(self):
+        """(số Đạt, số Không đạt) của phiếu — chỉ có nghĩa khi kỳ thi đã công bố."""
+        self.ensure_one()
+        results = self.line_ids.mapped('result')
+        return results.count('passed'), results.count('failed')
+
+    @api.model
+    def register_from_portal(self, session_id, franchise_id, user, participants, note=None):
+        """Cửa hàng tự đăng ký thi — kiểm đầu vào, dựng thí sinh, tạo phiếu trong 1 savepoint.
+
+        Đầu vào sai ⇒ ExamPortalError (``kind``); phiếu không tạo được (hết chỗ, quá hạn,
+        kỳ thi đóng…) ⇒ ValidationError/UserError của create, đã rollback sạch.
+        """
+        session = self.env['wujia.exam.session'].sudo().browse(session_id).exists()
+        if not session or session.course_id.state != 'published':
+            raise ExamPortalError('Khung giờ đã thay đổi hoặc không còn. Vui lòng'
+                                  ' chọn lại lịch thi.', kind='not_found')
+        parts = participants or []
+        max_p = session._effective_max_per_registration()
+        if not parts:
+            raise ExamPortalError('Cần ít nhất 1 người dự thi.')
+        if max_p and len(parts) > max_p:
+            raise ExamPortalError('Tối đa %d người mỗi phiếu.' % max_p)
+        Line = self.env['wujia.exam.registration.line']
+        try:
+            line_cmds = [(0, 0, Line._portal_prepare_vals(p)) for p in parts]
+        except ValidationError as e:
+            raise ExamPortalError(e.args[0] if e.args else str(e))
+        member = self.env['wujia.franchise.member'].sudo()
+        try:
+            member = member.find_active_membership(user.id, franchise_id)
+        except Exception:  # pragma: no cover — helper vắng thì bỏ qua
+            member = member.browse()
+        # Savepoint + flush: constraint sức chứa của session là @api.constrains → chỉ
+        # raise lúc flush; để tới flush cuối request thì thành 500 và (nguy hiểm hơn)
+        # commit phiếu vượt chỗ. Ép flush ở đây, savepoint đảm bảo rollback sạch.
+        with self.env.cr.savepoint():
+            reg = self.sudo().create({
+                'session_id': session.id,
+                'franchise_id': franchise_id,
+                'requester_user_id': user.id,
+                'member_id': member.id if member else False,
+                'note': (note or '').strip() or False,
+                'line_ids': line_cmds,
+            })
+            self.env.flush_all()
+        return reg
 
     # ------------------------------------------------------------ workflow
     def action_confirm(self):

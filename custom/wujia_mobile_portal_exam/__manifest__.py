@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Wujia Mobile Portal Exam',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Wujia',
     'summary': 'Responsive mobile views and kanban cards for Wujia Training & Exams',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': [
-        'wujia_portal_exam',
+        'wujia_exam',
         'wujia_mobile_core',
     ],
     'data': [

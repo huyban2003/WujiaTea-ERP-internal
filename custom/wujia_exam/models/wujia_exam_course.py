@@ -1,3 +1,6 @@
+import calendar
+from datetime import date, timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -76,6 +79,80 @@ class WujiaExamCourse(models.Model):
                 vals['code'] = self.env['ir.sequence'].next_by_code(
                     'wujia.exam.course') or _('New')
         return super().create(vals_list)
+
+    # ------------------------------------------------------------ booking rules
+    def _effective_max_per_registration(self):
+        self.ensure_one()
+        return self.max_participants_per_registration
+
+    @api.model
+    def _portal_published(self):
+        """Khóa hiển thị cho cửa hàng chọn khi đăng ký."""
+        return self.search([('state', '=', 'published'), ('active', '=', True)],
+                           order='name, id')
+
+    def _portal_horizon(self, today):
+        self.ensure_one()
+        return today + timedelta(days=self.registration_horizon_days)
+
+    def _portal_day_states(self, year, month, today=None, now=None):
+        """{ngày trong tháng: ``available`` / ``full`` / ``none``} — lịch đăng ký của khóa."""
+        self.ensure_one()
+        today = today or fields.Date.context_today(self)
+        now = now or fields.Datetime.now()
+        horizon = self._portal_horizon(today)
+        first = date(year, month, 1)
+        last = date(year, month, calendar.monthrange(year, month)[1])
+        by_day = {}
+        for s in self.env['wujia.exam.session'].search([
+            ('course_id', '=', self.id),
+            ('exam_date', '>=', first), ('exam_date', '<=', last),
+            ('state', '!=', 'cancelled'),
+        ]):
+            by_day.setdefault(s.exam_date, []).append(s)
+        states = {}
+        for day in range(1, last.day + 1):
+            d = date(year, month, day)
+            sessions = by_day.get(d, [])
+            if d < today or d > horizon or not sessions:
+                states[d] = 'none'
+            elif any(s._portal_is_selectable(now) for s in sessions):
+                states[d] = 'available'
+            # Còn kỳ thi mở / chưa quá hạn nhưng hết chỗ → 'full'.
+            elif any(s._portal_in_deadline(now) for s in sessions):
+                states[d] = 'full'
+            else:
+                states[d] = 'none'
+        return states
+
+    def _portal_sessions_on(self, day):
+        """Kỳ thi (khung giờ) của khóa vào 1 ngày, bỏ kỳ đã hủy."""
+        self.ensure_one()
+        return self.env['wujia.exam.session'].search([
+            ('course_id', '=', self.id), ('exam_date', '=', day),
+            ('state', '!=', 'cancelled'),
+        ], order='start_datetime, id')
+
+    def _portal_booking_meta(self, today=None, now=None):
+        """Số kỳ thi mở trong cửa sổ đăng ký + cờ ``closed`` / ``full``.
+
+        WJ-EXAM-002: 'full' = còn lịch mở, còn hạn, nhưng hết chỗ — khác hẳn 'closed'
+        (không còn kỳ thi nào mở/còn hạn). Cả hai đều không cho đăng ký.
+        """
+        self.ensure_one()
+        today = today or fields.Date.context_today(self)
+        now = now or fields.Datetime.now()
+        upcoming = self.env['wujia.exam.session'].search([
+            ('course_id', '=', self.id),
+            ('exam_date', '>=', today), ('exam_date', '<=', self._portal_horizon(today)),
+            ('state', '=', 'open'),
+        ])
+        has_open = any(s._portal_is_selectable(now) for s in upcoming)
+        return {
+            'upcoming_count': len(upcoming),
+            'closed': not has_open,
+            'full': not has_open and any(s._portal_in_deadline(now) for s in upcoming),
+        }
 
     def action_publish(self):
         for rec in self:

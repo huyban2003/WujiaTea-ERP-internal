@@ -9,23 +9,23 @@
                 <header>
                     <button name="action_open" type="object" string="Open registration"
                             class="btn-primary" invisible="state != 'draft'"
-                            groups="wujia_portal_exam.group_exam_manager"/>
+                            groups="wujia_exam.group_exam_manager"/>
                     <button name="action_close" type="object" string="Close registration"
                             invisible="state != 'open'"
-                            groups="wujia_portal_exam.group_exam_manager"/>
+                            groups="wujia_exam.group_exam_manager"/>
                     <button name="action_mark_done" type="object" string="Complete"
                             invisible="state not in ('open', 'closed')"
-                            groups="wujia_portal_exam.group_exam_manager"/>
+                            groups="wujia_exam.group_exam_manager"/>
                     <button name="action_publish_results" type="object"
                             string="Publish results" class="btn-success"
                             invisible="state not in ('closed', 'done') or results_published"
                             confirm="Publish the results of this exam session?"
-                            groups="wujia_portal_exam.group_exam_manager"/>
+                            groups="wujia_exam.group_exam_manager"/>
                     <button name="action_cancel" type="object" string="Cancel"
                             class="btn-secondary"
                             invisible="state in ('done', 'cancelled')"
                             confirm="Cancel this exam session?"
-                            groups="wujia_portal_exam.group_exam_manager"/>
+                            groups="wujia_exam.group_exam_manager"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,open,closed,done"/>
                 </header>

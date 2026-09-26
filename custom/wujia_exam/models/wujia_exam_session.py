@@ -140,6 +140,38 @@ class WujiaExamSession(models.Model):
             start = self._local_to_utc(tz, self.time_slot_id.time_from)
             self.registration_deadline = start - timedelta(days=lead)
 
+    # ------------------------------------------------------------ booking rules
+    def _effective_max_per_registration(self):
+        """Giới hạn người / phiếu — NGUỒN DUY NHẤT cho hướng dẫn, quota, validate.
+
+        Ca thi cấu hình riêng được thì ưu tiên, để trống mới lấy của khóa (WJ-EXAM-007
+        sinh ra vì UI từng chép tay số 4 = default của field).
+        """
+        self.ensure_one()
+        return (self.max_participants_per_registration
+                or self.course_id.max_participants_per_registration)
+
+    def _portal_in_deadline(self, now):
+        """Đang mở đăng ký và chưa quá hạn (chưa xét còn chỗ)."""
+        self.ensure_one()
+        return (self.state == 'open'
+                and (not self.registration_deadline or now <= self.registration_deadline))
+
+    def _portal_is_selectable(self, now):
+        self.ensure_one()
+        return self._portal_in_deadline(now) and self.available_participant_count > 0
+
+    def _portal_slot_status(self, now):
+        """Vì sao chọn / không chọn được: ``closed`` · ``expired`` · ``full`` · ``open``."""
+        self.ensure_one()
+        if self.state != 'open':
+            return 'closed'
+        if self.registration_deadline and now > self.registration_deadline:
+            return 'expired'
+        if self.available_participant_count <= 0:
+            return 'full'
+        return 'open'
+
     # ------------------------------------------------------------ constraints
     @api.constrains('time_slot_id', 'course_id')
     def _check_slot_in_course(self):

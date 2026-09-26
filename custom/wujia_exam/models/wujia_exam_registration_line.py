@@ -1,9 +1,14 @@
+import base64
+import binascii
 import re
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.tools.image import image_process
 
 PHONE_RE = re.compile(r'^(0|\+84)[0-9]{8,10}$')
+MAX_PHOTO_BYTES = 5 * 1024 * 1024
+PHOTO_MIMES = ('image/jpeg', 'image/jpg', 'image/png')
 
 RESULT_STATE = [
     ('pending', 'No result yet'),
@@ -70,6 +75,70 @@ class WujiaExamRegistrationLine(models.Model):
             if rec.birth_year and not (1900 <= rec.birth_year <= current):
                 raise ValidationError(_(
                     "Năm sinh phải trong khoảng 1900–%s.", current))
+
+    # ------------------------------------------------------------ portal intake
+    @api.model
+    def _portal_scope_domain(self, franchise_id):
+        return [('franchise_id', '=', franchise_id)]
+
+    @api.model
+    def _portal_prepare_vals(self, p):
+        """1 người dự thi gửi từ kênh portal → vals line; sai thì ValidationError thân thiện."""
+        name = (p.get('employee_name') or '').strip()
+        phone = (p.get('phone') or '').strip()
+        if not name or not phone:
+            raise ValidationError(_(
+                "Mỗi người dự thi cần có họ tên và số điện thoại."))
+        # WJ-EXAM-001 — chặn ngay lúc nhận thay vì đợi constraint lúc flush.
+        if not PHONE_RE.match(phone):
+            raise ValidationError(_(
+                "Số điện thoại '%s' không hợp lệ (vd 0901234567).", phone))
+        vals = {
+            'employee_name': name, 'phone': phone,
+            'job_position': (p.get('job_position') or '').strip() or False,
+        }
+        by = (p.get('birth_year') or '').strip() if isinstance(
+            p.get('birth_year'), str) else p.get('birth_year')
+        if by:
+            try:
+                vals['birth_year'] = int(by)
+            except (TypeError, ValueError):
+                raise ValidationError(_("Năm sinh '%s' không hợp lệ.", by))
+        photo = p.get('photo')
+        if photo:
+            vals['image_1920'] = self._portal_clean_photo(photo)
+        return vals
+
+    @api.model
+    def _portal_clean_photo(self, raw):
+        """data-URL/base64 ảnh → base64 str hợp lệ (guard MIME + dung lượng)."""
+        data = raw
+        if raw.startswith('data:'):
+            try:
+                head, data = raw.split(',', 1)
+            except ValueError:
+                raise ValidationError(_(
+                    "Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép."))
+            mime = head[5:].split(';', 1)[0].lower()
+            if mime and mime not in PHOTO_MIMES:
+                raise ValidationError(_(
+                    "Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép."))
+        try:
+            decoded = base64.b64decode(data, validate=True)
+        except (binascii.Error, ValueError):
+            raise ValidationError(_(
+                "Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép."))
+        if len(decoded) > MAX_PHOTO_BYTES:
+            raise ValidationError(_(
+                "Ảnh nhân viên vượt dung lượng cho phép (tối đa 5 MB)."))
+        # Chạy đúng pipeline mà fields.Image dùng lúc write (resize ≤1920). Ảnh
+        # hỏng/cắt cụt sẽ ném ở đây → trả message thân thiện thay vì 500 khi flush.
+        try:
+            image_process(decoded, size=(1920, 1920))
+        except Exception:
+            raise ValidationError(_(
+                "Ảnh nhân viên không hợp lệ hoặc bị hỏng. Vui lòng chọn ảnh khác."))
+        return data
 
     def write(self, vals):
         if 'result' in vals:

@@ -1530,3 +1530,43 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   chết trên Odoo 19 (nợ chung).
 - Phiên kế: **F12 `exam`** (mobile Thái `ref()` xmlid `wujia_portal_exam.*` — báo Thái trước deploy; hết vi phạm R3 cuối)
   hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F12 — Tách `exam` → `wujia_exam` + controller mỏng (gộp F12a + F12b) · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f12-acceptance-matrix.md` (9/9).
+- Đầu phiên: F11 đã lên UAT (đo chỉ-đọc: `wujia_notification` installed, 141 xmlid). Issue List 8 `Ready for Dev` như F11,
+  reconcile 0 code. Chủ dự án chọn F12.
+- Chủ dự án chốt: tên **`wujia_exam`**, giữ `_name` cả 5 model · **sửa luôn `wujia_mobile_portal_exam` như F8** (báo Thái
+  trước deploy) · gộp a+b, commit + push `main`, deploy để chủ dự án · **"tối đa người/phiếu" một nguồn cả constraint**.
+- UAT đo chỉ-đọc trước (RPC): 3 ca giờ · 3 khoá · 4 kỳ thi · 12 phiếu · 12 thí sinh, 221 xmlid, nhóm Quản lý 1 / Người dùng 0;
+  3 sequence noupdate khớp XML (số kế WJ-CRS 5 · WJ-EXR 17 · WJ-EXS 6), không data noupdate nào khác ⇒ không câu hỏi.
+- Đã làm:
+  - Module L2 mới `wujia_exam` (git mv 5 model, 2 nhóm quyền + privilege, ACL, 2 rule, 3 sequence, 4 view + menu backend,
+    `test_c10_quota`; ACL + menu đổi ref nhóm sang cục bộ; `groups=` trong arch 3 form ghi đủ `wujia_exam.`; `.po` 393 →
+    216 + 177 portal). Hook `imd_names(extra=[privilege, 2 nhóm, 7 menu])` + `migrate_ownership`.
+  - Controller mỏng (729 → 558): trạng thái khung giờ, chọn được ca, lịch tháng, meta khoá, phạm vi cửa hàng, đếm kết quả,
+    **`register_from_portal`** (kiểm + dựng dòng + SĐT/năm sinh/ảnh + membership + savepoint) về model; lớp lỗi
+    `ExamPortalError(kind)` giữ nguyên mã `not_found`/`validation`/`business` và câu báo. `_effective_max_per_registration`
+    (ca, trống thì khoá) dùng cho hướng dẫn, chặn portal và `_check_participant_bounds`.
+  - Mobile Thái: depend + 18 dòng `wujia_portal_exam.` → `wujia_exam.` (4 view + test), `19.0.1.0.1`.
+  - Test: `wujia_exam` 13 (`test_c10_quota` + `test_portal_rules` 7 + `test_split_ownership`) + portal 5 HttpCase
+    (hướng dẫn tối đa, lịch/khung giờ, gửi phiếu → chi tiết + ảnh, 5 mã lỗi + rollback, cửa hàng khác 303/404).
+    `check_layers`, `deploy.yml`, reseed.
+  - Chapter 74: đoạn F12, dòng P7, số `.po`, bước "ref nhóm quyền đổi chủ" (bẫy groups trong arch).
+- Commit: xem `git log` — `feat(F12): tách exam → module nghiệp vụ wujia_exam + controller mỏng` (push `main`).
+- Deploy: **chờ chủ dự án — báo anh Thái trước** (đã sửa `wujia_mobile_portal_exam`). Lệnh:
+  `-i wujia_exam -u wujia_portal_exam,wujia_mobile_portal_exam`. Sau deploy đo chỉ-đọc: 3 version (`wujia_exam 19.0.1.0.0` ·
+  `portal_exam 19.0.6.0.0` · `mobile_portal_exam 19.0.1.0.1`), module mới ~216 xmlid (214 + `rating_ids`), portal còn 5 view,
+  số kế WJ-EXR 17 · WJ-CRS 5 · WJ-EXS 6, nhóm Quản lý 1 người, 10 nút form backend hiện, `/portal/exam` 200.
+- Số đo: hook 214 imd + 30 cons + 1 rel · snapshot 245 đổi chủ, 3 lệch = arch 3 form (groups, cố ý) · HTML/JSON 3 phiên
+  **234/234 giống từng byte, 2 lần** (19 nhánh gửi phiếu) · DB sau ghi giống · focused 49/49 · suite **897/0/0** · test portal
+  mới trên HEAD xanh · DB trắng 13/13 · deploy DB giống UAT có mobile exit 0, mobile 3/3 · mutation **6/6** · Playwright PC
+  1440 + mobile 390, 12 màn, 0 tràn · `check_layers` **0 vi phạm tầng** (lần đầu) · R7 2 (Thái).
+- Lệch plan / quyết định mới: gộp calendar thành `_portal_day_states` (dict ngày → trạng thái; ma trận tuần ở controller);
+  `_max_hint` + nhãn khung giờ ở lại controller. `migrations/` cũ của portal để nguyên.
+- Bài học: **`groups=` trong arch view phải ghi đủ `module.xmlid`** — Odoo 19 `parse(raise_if_not_found=False)` bỏ qua im
+  lặng ⇒ nút ẩn cả với Administrator; snapshot bắt qua md5 arch (F8–F11 soát: chỉ có menuitem, sạch). Test phạm vi ảnh
+  phải cho dòng cửa hàng khác **có ảnh**, không thì 404 vì thiếu ảnh che mất lỗi phạm vi (mutation M5 bản đầu sống).
+- Nợ để lại: (1) tiêu đề PC "Khung giờ ngày —" không điền ngày sau khi chọn (có từ trước, HEAD cũng vậy); (2) 404
+  `/app-assets/data/locales/en.json` (có từ trước).
+- Phiên kế: đo UAT sau deploy F12 → **F13a `return`** (lớn nhất: 1108 dòng model, kế thừa SO/picking, hook picking, wizard
+  SO 0đ FIFO) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
