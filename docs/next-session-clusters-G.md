@@ -27,7 +27,7 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 | Lượt | Issue (STT) | Module `-u` | Trạng thái |
 |---|---|---|---|
 | G1 | `UI-MOB-HEADER-DENSITY-001` (143) + `UI-MOB-BOTTOMNAV-DENSITY-001` (145) → cuối phiên `WJ-ORD-MOB-SPACING-001` (144) | `wujia_portal_layout` + `wujia_portal_sale` + `wujia_portal_exam` | ✅ 26/09 — code + đo xong, commit `feat(G1)` (xem git log); **chưa deploy**, ledger chờ `--apply` |
-| G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_layout` (`wujia_portal_sale` không đụng) | ✅ 29/09 — code + đo xong, commit `feat(G2)` (xem git log); **chưa deploy**, ledger chờ `--apply`. Nghiệm thu `docs/g2-acceptance-matrix.md` |
+| G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_layout` (`wujia_portal_sale` không đụng) | ✅ 29/09 — code + đo xong, commit `6745671`; **đã deploy UAT 30/09**, đo chỉ-đọc đạt; ledger chờ `--apply`. Nghiệm thu `docs/g2-acceptance-matrix.md` |
 | G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` | ☐ (mockup V4 đã có local) |
 | G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ☐ |
 | G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ☐ |

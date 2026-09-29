@@ -1729,7 +1729,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   khối G2 (user 1 cửa hàng có chevron không, nhãn Manager ↔ "Quản lý", mockup 141, dải trên Home, 140 ↔ V4).
 
 ## G2 — Dải cửa hàng mobile (141) + top bar PC giỏ/chuông/khối Cửa hàng (140) · 29/09/2026 · Mac
-- Kết quả: ✅ code + đo xong, **chưa deploy**. 2 issue ghi ledger (`CHƯA DEPLOY`), chờ deploy rồi `qa_sync --apply`.
+- Kết quả: ✅ code + đo xong, **đã deploy UAT 30/09 + đo lại đạt**. 2 issue ghi ledger (`ĐÃ DEPLOY UAT`), chờ `qa_sync --apply`.
 - Chủ dự án chốt: (a) user 1 cửa hàng → **ẩn chevron**, dải tĩnh · (b) nhãn vai trò **tiếng Việt một nguồn**
   (Chủ tiệm / Quản lý / Nhân viên) ở cả mobile lẫn PC · (d) **hiện dải trên Home** theo mockup · (e) chip vai trò trong
   khối theo 140, FYI BA mockup V4 vẽ tách.
@@ -1744,7 +1744,9 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - 11 test mới (tag `wujia_store_switcher_g2`, `wujia_pc_topbar_g2`); `test_e8c_account_menu` đổi 'Owner' → 'Chủ tiệm'.
   - `scripts/qa/wj_shell_g2.py` (Playwright, cờ `--readonly` cho UAT); `docs/g2-acceptance-matrix.md`; ledger 2 entry.
 - Commit: xem git log — `feat(G2): dải cửa hàng mobile có chevron + top bar PC giỏ/chuông/khối Cửa hàng`.
-- Deploy: chưa. Lệnh cho chủ dự án: `-u wujia_portal_base,wujia_portal_layout`.
+- Deploy: ✅ UAT 30/09 (`-u wujia_portal_base,wujia_portal_layout`), chủ dự án làm tay. Đo chỉ-đọc `wj_shell_g2.py --readonly`
+  (`em.hcm`, 1 cửa hàng): mobile 26 route × 3 khổ có dải, không chevron, 0 tràn; PC 3 route × 3 khổ icon giữa, badge 0 chạm,
+  chip trong khối; nhãn VN 5 chỗ; 0 request bị chặn. Ledger → `ĐÃ DEPLOY UAT`. UAT chưa có user nhiều cửa hàng để thử bấm.
 - Số đo (DB `wujia_g2s` = copy `wujia_g1`): mobile 27 route × 360/390/430 × 2 user — `dung.multi` chevron mép W−16, 4/4 vị
   trí bấm mở overlay, nhấn `rgb(224,247,255)`, focus viền 2px; `anh.owner` `<div>` không chevron; tên dài "…" giữ vai trò +
   chevron; 0 tràn. PC 3 route × 1440/1280/1200: lệch tâm icon (−9.4,−9.5) → (0,0), badge "12" ∩ icon 59.4 → 0 px², số 0

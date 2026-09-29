@@ -99,4 +99,17 @@ Cả 3 route cho cùng số ở mỗi khổ (27 phép đo × 2 user, 0 lỗi). 9
   Giao diện EN/ZH vẫn thấy tiếng Việt ở các nhãn này (một nguồn, chưa dịch).
 - User 1 cửa hàng: dải không có chevron, không bấm được (không có gì để chuyển).
 - Trạng thái nhấn/focus đo bằng ép pseudo-class (CDP), chưa bấm trên máy thật.
-- Chưa đo UAT — chờ deploy, rồi chạy `wj_shell_g2.py --readonly`.
+- UAT chưa có tài khoản nhiều cửa hàng ⇒ phần bấm đổi cửa hàng chỉ kiểm trên DB copy (§1).
+
+## 7. Đo UAT chỉ-đọc (30/09/2026, sau deploy `6745671`)
+
+`http://113.161.187.126:8019` · `em.hcm` (Chủ tiệm HCM-01, 1 cửa hàng) · `wj_shell_g2.py --readonly`: chặn mọi request không
+phải GET, chỉ cho qua POST đăng nhập + 2 bộ đếm badge ⇒ **0 request bị chặn**. `_pc_account.css?v=1326` đã nạp.
+
+| Kiểm | Kết quả UAT |
+|---|---|
+| Mobile 26 route × 360/390/430 (có Home) | 78/78 có dải cao 48, `div` tĩnh, "Chủ tiệm", **không chevron** (đúng user 1 cửa hàng), 0 tràn ngang |
+| PC `/portal` · `/portal/order` · `/portal/order/cart` × 1440/1280/1200 | lệch tâm icon giỏ/chuông **(0, 0)**; badge 4/12 ∩ icon **0**; số 0 ẩn; chip vai trò trong khối, nền khối `.18` — 27/27 đạt |
+| Nhãn vai trò 5 chỗ | dải · khối PC · dưới avatar · menu tài khoản · hero Home đều "Chủ tiệm" |
+
+Chưa kiểm trên UAT: bấm đổi cửa hàng (cần user >1 cửa hàng — đã kiểm trên DB copy).
