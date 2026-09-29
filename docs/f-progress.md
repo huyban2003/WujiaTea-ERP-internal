@@ -1719,5 +1719,42 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Bài học: xem "🔴 Bài học G1" trong `next-session-clusters-G.md` (form margin 15, CDP safe area, vân tay thay md5,
   `--any` ngoài media, filestore ⇒ xoá `/web/assets`).
 - Nợ để lại: safe area chưa đo iPhone thật; nhánh Đặt hàng không có danh mục chưa đo trình duyệt; FYI BA 83 → 72.
+- Sheet (27/09): `qa_sync --apply` 3 ID → Ready for Retest, kiểm lại bằng `export?format=csv` khớp cột ID (dòng 136/137/138).
+  🔴 Phát hiện lỗi có từ trước của `qa_sync`: cột Odoo Fit ghi số cứng 17 = **R "Related Reference IDs"** (BA đã chèn cột,
+  Odoo Fit dời sang S) ⇒ mỗi lần sync đè R bằng "Custom". Đã trả R gốc cho 143/144/145 (lấy từ bản dump đầu phiên) và sửa
+  tool dò cột theo **tên header** (thiếu header thì dừng) + đường ledger qua symlink. **6 dòng cũ bị đè R, chưa khôi phục
+  được** (không còn bản gốc): STT 126 `UI-DATALIST-001`, 129 `UI-PAGECONTAINER-001`, 131 `UI-SIDEBAR-001`, 132
+  `UI-BUTTON-001`, 136 `UI-LISTCARD-001`, 139 `UI-FILTER-001` — cần lấy lại qua Version history của Google Sheet.
 - Phiên kế: `qa_sync --apply --only` 3 ID (nếu chưa chạy), rồi **G2** (141 + 140) — hỏi đầu phiên câu (a)–(e) trong
   khối G2 (user 1 cửa hàng có chevron không, nhãn Manager ↔ "Quản lý", mockup 141, dải trên Home, 140 ↔ V4).
+
+## G2 — Dải cửa hàng mobile (141) + top bar PC giỏ/chuông/khối Cửa hàng (140) · 29/09/2026 · Mac
+- Kết quả: ✅ code + đo xong, **chưa deploy**. 2 issue ghi ledger (`CHƯA DEPLOY`), chờ deploy rồi `qa_sync --apply`.
+- Chủ dự án chốt: (a) user 1 cửa hàng → **ẩn chevron**, dải tĩnh · (b) nhãn vai trò **tiếng Việt một nguồn**
+  (Chủ tiệm / Quản lý / Nhân viên) ở cả mobile lẫn PC · (d) **hiện dải trên Home** theo mockup · (e) chip vai trò trong
+  khối theo 140, FYI BA mockup V4 vẽ tách.
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.29.0: `ROLE_LABELS` dời vào `models/wujia_franchise_member.py` + `_portal_role_label()`
+    (controller import lại, không thêm depend); dải mobile thêm chevron **chỉ trong thẻ bấm** (>1 cửa hàng); nhãn VN ở
+    dải, khối PC, menu tài khoản, hero Home mobile; CSS: nền lên `.wujia-store-current-block` (hover tô cả khối, pill
+    trong suốt), bỏ `capitalize`, chevron màu chính `flex: 0 0 auto`.
+  - `wujia_portal_layout` 19.0.59.1.0: circle giỏ/chuông ≥1200 tự khai `inline-flex` căn giữa (gốc: `.nav-link{display:
+    block}` của `web.assets_frontend` nạp sau, hồi quy từ cụm B `157814a` 04/08); icon 19/20 với selector thắng Vuexy
+    `ficon` (0,4,3); badge `top:-8 right:-6`; chữ vai trò dưới avatar VN; `?v=1326`.
+  - 11 test mới (tag `wujia_store_switcher_g2`, `wujia_pc_topbar_g2`); `test_e8c_account_menu` đổi 'Owner' → 'Chủ tiệm'.
+  - `scripts/qa/wj_shell_g2.py` (Playwright, cờ `--readonly` cho UAT); `docs/g2-acceptance-matrix.md`; ledger 2 entry.
+- Commit: xem git log — `feat(G2): dải cửa hàng mobile có chevron + top bar PC giỏ/chuông/khối Cửa hàng`.
+- Deploy: chưa. Lệnh cho chủ dự án: `-u wujia_portal_base,wujia_portal_layout`.
+- Số đo (DB `wujia_g2s` = copy `wujia_g1`): mobile 27 route × 360/390/430 × 2 user — `dung.multi` chevron mép W−16, 4/4 vị
+  trí bấm mở overlay, nhấn `rgb(224,247,255)`, focus viền 2px; `anh.owner` `<div>` không chevron; tên dài "…" giữ vai trò +
+  chevron; 0 tràn. PC 3 route × 1440/1280/1200: lệch tâm icon (−9.4,−9.5) → (0,0), badge "12" ∩ icon 59.4 → 0 px², số 0
+  ẩn, chip vai trò trong khối 430×48. Kênh bên kia: PC 78/81 lệch chỉ ở nền khối + chữ vai trò (3 = trang 403), mobile Δ0
+  ngoài dải. Suite 20 module **941/0/0**; mutation **9/9**; `check_layers` 0 vi phạm Dev.
+- Lệch plan / quyết định mới: plan định đưa chip vào trong `<a>` — làm bằng CSS (nền lên khối) thay vì đổi DOM, giữ
+  nguyên vùng bấm; nhãn VN lan thêm 2 chỗ (chữ dưới avatar PC, hero Home mobile) cho đồng nhất theo (b).
+- Bài học: xem "🔴 Bài học G2" trong `next-session-clusters-G.md` (thứ tự nạp `assets_frontend`, Vuexy `ficon`, transition
+  khi đo `:active`, log chuyển của `wujia_core`, `-u` cho test post_install, `display_name` stored, hai server chung source).
+- Nợ để lại: nhãn vai trò chưa dịch EN/ZH (một nguồn VN); nhấn/focus đo bằng ép pseudo-class, chưa bấm máy thật; cột R 6
+  dòng cũ (mục G1) vẫn chờ khôi phục qua Version history. Server 8032 + DB `wujia_g2s` còn để đo lại (xoá được sau deploy).
+- Phiên kế: deploy G2 → `wj_shell_g2.py --readonly` trên UAT → `qa_sync --apply --only` 2 ID; rồi **G3a** (142 Home PC V4 —
+  khung: hàng đầu 50/50, 4 KPI, bỏ hero + Thao tác nhanh).

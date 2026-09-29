@@ -97,14 +97,10 @@
                                         </span>
                                         <div class="wj-pc-user-nav d-sm-flex d-none">
                                             <span class="wj-pc-user-nav__name" t-out="request.env.user.name"/>
-                                            <!-- UI-03 (Sprint 34): role subtitle dưới tên. Role đã sẵn trong
-                                                 scope (_wujia_active_role set bởi store-picker inherit trước
-                                                 t-call navbar); CSS .wj-pc-user-nav__role có sẵn, chỉ thiếu HTML. -->
-                                            <span class="wj-pc-user-nav__role" t-if="_wujia_active_role">
-                                                <t t-if="_wujia_active_role == 'manager'">Manager</t>
-                                                <t t-elif="_wujia_active_role == 'owner'">Owner</t>
-                                                <t t-elif="_wujia_active_role == 'staff'">Staff</t>
-                                            </span>
+                                            <!-- UI-03 (Sprint 34): role subtitle dưới tên. Role + nhãn đã sẵn
+                                                 trong scope (store-picker inherit của portal_base set trước
+                                                 t-call navbar). -->
+                                            <span class="wj-pc-user-nav__role" t-if="_wujia_active_role" t-out="_wujia_active_role_label"/>
                                         </div>
                                         <i class="feather icon-chevron-down wj-pc-user-nav__chev"/>
                                     </a>

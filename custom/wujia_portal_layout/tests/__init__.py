@@ -18,3 +18,4 @@ from . import test_e7_page_container
 from . import test_e8_sidebar
 from . import test_e8c_account_menu
 from . import test_g1_mobile_density
+from . import test_g2_pc_topbar

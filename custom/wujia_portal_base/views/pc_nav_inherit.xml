@@ -25,11 +25,8 @@
                         <t t-out="_wujia_active_franchise.name or _wujia_active_franchise.display_name"/>
                     </span>
                     <span t-if="_wujia_active_role"
-                          t-attf-class="wujia-store-role-badge wujia-store-role-badge-#{_wujia_active_role} wj-acct-menu__role">
-                        <t t-if="_wujia_active_role == 'manager'">Manager</t>
-                        <t t-elif="_wujia_active_role == 'owner'">Owner</t>
-                        <t t-elif="_wujia_active_role == 'staff'">Staff</t>
-                    </span>
+                          t-attf-class="wujia-store-role-badge wujia-store-role-badge-#{_wujia_active_role} wj-acct-menu__role"
+                          t-out="_wujia_active_role_label"/>
                 </span>
             </div>
             <!-- Modal đổi cửa hàng chỉ render khi có >1 cửa hàng (store_picker_modal) ⇒ cùng điều kiện. -->

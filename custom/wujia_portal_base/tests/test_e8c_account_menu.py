@@ -96,7 +96,7 @@ class TestAccountMenuStore(HttpCase):
             self.assertIn('E8c store E8C1', _text(block))
             chip = block.xpath(".//span[contains(@class, 'wj-acct-menu__role')]")[0]
             self.assertIn('wujia-store-role-badge-owner', chip.get('class'))
-            self.assertEqual(_text(chip), 'Owner')
+            self.assertEqual(_text(chip), 'Chủ tiệm')
 
     def test_doi_cua_hang_chi_khi_nhieu_cua_hang(self):
         single = self._page('e8c_owner')

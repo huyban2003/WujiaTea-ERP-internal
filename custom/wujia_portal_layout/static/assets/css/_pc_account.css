@@ -266,9 +266,25 @@
        giữ nguyên → badge vẫn neo đúng góc. */
     .wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item > a.wujia-header-icon-btn {
         width: 40px; height: 40px; padding: 0;
+        /* UI-PC-TOPBAR-REG-001: `.nav-link{display:block}` của web.assets_frontend nạp sau
+           _components.css nên inline-flex của rule chung thua ⇒ icon dồn góc trên-trái. */
+        display: inline-flex; align-items: center; justify-content: center;
         border-radius: 20px;
         background: var(--wujia-navbar-pill-bg);
         box-sizing: border-box;
+    }
+    /* Giỏ 19 / chuông 20: nét vẽ cao bằng nhau (~16.6px) — glyph giỏ rộng hơn chuông. Phải
+       thắng Vuexy `.header-navbar .navbar-container ul.nav li i.ficon{font-size:1.5rem}` (0,4,3). */
+    .wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item > a.wujia-header-icon-btn > i.icon-shopping-cart {
+        font-size: 19px; line-height: 1;
+    }
+    .wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item > a.wujia-header-icon-btn > i.icon-bell {
+        font-size: 20px; line-height: 1;
+    }
+    /* Badge neo góc trên-phải circle, nằm trên hộp icon (đáy badge y=10 = đỉnh icon) ⇒
+       không che nét với 1–2 chữ số. */
+    .wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item > a.wujia-header-icon-btn > .wujia-header-badge {
+        top: -8px; right: -6px;
     }
     .wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item > a.wujia-header-icon-btn:hover,
     .wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item > a.wujia-header-icon-btn:focus {

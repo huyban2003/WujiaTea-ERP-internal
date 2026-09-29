@@ -289,11 +289,8 @@
                                 </div>
                                 <div t-if="active_role" class="wujia-mhome-hero-right">
                                     <p class="wujia-mhome-hero-label">Vai trò</p>
-                                    <span class="wujia-mhome-role-badge">
-                                        <t t-if="active_role == 'manager'">Manager</t>
-                                        <t t-elif="active_role == 'owner'">Owner</t>
-                                        <t t-elif="active_role == 'staff'">Staff</t>
-                                    </span>
+                                    <span class="wujia-mhome-role-badge"
+                                          t-out="role_labels.get(active_role, active_role)"/>
                                 </div>
                             </div>
                             <!-- 4 KPI nhúng (Đơn hàng / Thông báo / Đổi trả / Công nợ) -->

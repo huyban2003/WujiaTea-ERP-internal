@@ -27,7 +27,7 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 | Lượt | Issue (STT) | Module `-u` | Trạng thái |
 |---|---|---|---|
 | G1 | `UI-MOB-HEADER-DENSITY-001` (143) + `UI-MOB-BOTTOMNAV-DENSITY-001` (145) → cuối phiên `WJ-ORD-MOB-SPACING-001` (144) | `wujia_portal_layout` + `wujia_portal_sale` + `wujia_portal_exam` | ✅ 26/09 — code + đo xong, commit `feat(G1)` (xem git log); **chưa deploy**, ledger chờ `--apply` |
-| G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_sale` (+ `wujia_portal_layout` nếu sửa action circle) | ☐ |
+| G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_layout` (`wujia_portal_sale` không đụng) | ✅ 29/09 — code + đo xong, commit `feat(G2)` (xem git log); **chưa deploy**, ledger chờ `--apply`. Nghiệm thu `docs/g2-acceptance-matrix.md` |
 | G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` | ☐ (mockup V4 đã có local) |
 | G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ☐ |
 | G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ☐ |
@@ -159,6 +159,33 @@ chỉ ghi FYI BA ở LIMIT; không chặn phiên.
   Home đã có cửa hàng + vai trò) — hỏi: bật lại trên Home theo mockup hay giữ ẩn.
 - (e) **Mâu thuẫn 140 ↔ mockup V4 (142)**: topbar của V4 vẫn vẽ pill "Quản lý" **tách ngoài** khối Cửa hàng hiện
   tại, còn 140 đòi chip nằm **trong** khối (theo UI-01). V4 ghi "giữ nguyên topbar" ⇒ theo 140; ghi FYI BA ở LIMIT.
+
+**Chủ dự án chốt 29/09:** (a) 1 cửa hàng → ẩn chevron · (b) nhãn vai trò tiếng Việt một nguồn `ROLE_LABELS`
+(`wujia_portal_base/models/wujia_franchise_member.py`, `member._portal_role_label()`) ở cả mobile lẫn PC · (d) hiện dải
+trên Home · (e) theo 140.
+
+### 🔴 Bài học G2
+
+- **CSS của mình thua `web.assets_frontend` vì thứ tự nạp, không vì specificity**: `.nav-link { display: block }` của
+  Bootstrap Odoo (0,1,0) nạp sau ⇒ đè `.wujia-header-icon-btn { display: inline-flex }` cùng specificity. Circle giỏ/chuông
+  thành `block` từ cụm B `157814a` (04/08) — không ai thấy vì icon vẫn nằm trong circle, chỉ lệch góc. Mọi rule dáng trên
+  phần tử có class Bootstrap (`nav-link`, `badge`, `btn`) phải **tự khai lại `display`** ở rule có specificity cao hơn,
+  và đo bằng computed style, không nhìn ảnh.
+- **Vuexy `ficon` (0,4,3)**: `.header-navbar .navbar-container ul.nav li i.ficon { font-size: 1.5rem }` — đổi cỡ icon topbar
+  phải dùng selector ≥ (0,4,4). Test tĩnh tính specificity (`test_g2_pc_topbar._specificity`).
+- **Transition làm sai computed style lúc đo trạng thái**: ép `:active` bằng CDP `CSS.forcePseudoState` rồi đọc ngay ⇒
+  vẫn nền trắng. Chờ ≥ thời lượng transition (400ms) rồi mới đọc.
+- **Log test không nằm ở `--logfile`**: `wujia_core` chuyển log sang `<logdir>/YYYY/MM/YYYY-MM-DD.log` — tưởng test không
+  chạy vì file log trống.
+- **Test `post_install` cần `-u` module**: mutation mà không `-u` ⇒ "0 tests", dễ tưởng mutation không đỏ.
+- **`display_name` của `wujia.franchise.management` là cột stored**: đo tên dài phải sửa cả `display_name` (SQL tạm, trả
+  lại sau đo), sửa mỗi `name` thì trang vẫn in tên cũ.
+- **Popup chọn cửa hàng là `#wujiaStoreOverlay` + class `wujia-store-overlay--show`** (JS riêng), không phải modal
+  Bootstrap — kịch bản bấm phải chờ đúng id đó.
+- **Hai server local dùng chung source**: server của DB cũ (8031) phục vụ luôn CSS mới (bundle dựng lại theo file) trong
+  khi view vẫn bản cũ ⇒ "trước" phải chụp **trước khi sửa code** (hoặc worktree riêng), không đo "trước" trên DB cũ sau đó.
+- **Probe badge phải bắt chước JS thật**: JS để `hidden` khi số 0; probe gỡ `hidden` sẽ thấy badge "0" hiện (class `badge`
+  của Bootstrap thắng `display: none`) — lỗi của probe, không phải của trang.
 
 ---
 

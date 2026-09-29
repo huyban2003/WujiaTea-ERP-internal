@@ -1,8 +1,20 @@
 from odoo import api, models
 
+# Nhãn vai trò portal — một nguồn cho Home, trang Cửa hàng, dải cửa hàng mobile,
+# khối Cửa hàng hiện tại PC và menu avatar. Portal giữ tiếng Việt.
+ROLE_LABELS = {
+    'owner': 'Chủ tiệm',
+    'manager': 'Quản lý',
+    'staff': 'Nhân viên',
+}
+
 
 class WujiaFranchiseMember(models.Model):
     _inherit = 'wujia.franchise.member'
+
+    def _portal_role_label(self):
+        self.ensure_one()
+        return ROLE_LABELS.get(self.role, self.role or '')
 
     def _notify_franchise_realtime(self, action):
         bus = self.env['bus.bus'].sudo()

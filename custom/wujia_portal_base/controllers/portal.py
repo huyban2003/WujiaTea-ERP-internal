@@ -15,13 +15,9 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     portal_money,
     return_status_label,
 )
+from odoo.addons.wujia_portal_base.models.wujia_franchise_member import ROLE_LABELS
 
 
-ROLE_LABELS = {
-    'owner': 'Chủ tiệm',
-    'manager': 'Quản lý',
-    'staff': 'Nhân viên',
-}
 ROLE_RANK = {'staff': 1, 'manager': 2, 'owner': 3}
 
 # Nhãn VN của wujia.franchise.management.status. Pin cứng tại đây vì source đã chuyển
