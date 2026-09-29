@@ -39,14 +39,8 @@
 .wujia-kpi-icon-warning { background: var(--wujia-warning); }
 .wujia-kpi-icon-danger  { background: var(--wujia-danger); }
 .wujia-kpi-icon-info    { background: var(--wujia-primary-dark); }
-.wujia-kpi-separator {
-    flex-shrink: 0;
-    width: 1px;
-    height: var(--wujia-kpi-separator-height);
-    background: var(--wujia-kpi-separator-color);
-}
 .wujia-kpi-content {
-    flex: 1 1 auto;          /* UI-14: giãn đầy → chevron neo mép phải (margin-left:auto) */
+    flex: 1 1 auto;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -72,12 +66,93 @@
     margin: 0;
     line-height: 1.4;
 }
-.wujia-kpi-arrow {
-    flex-shrink: 0;
-    margin-left: auto;      /* UI-14: neo chevron về mép phải làm affordance "xem chi tiết" */
-    color: var(--wujia-text-secondary);
-    font-size: 18px;        /* UI-14: nhỏ lại cho cân */
+/* ============================================================================
+   G3a — Home PC theo mockup V4 (issue 142 UI-PC-HOME-REDESIGN-001).
+   Bọc ≥992 + tiền tố .wujia-home-pc ⇒ Home mobile không thể đổi theo.
+   Khung/viền/padding card là của SurfaceCard, tiêu đề trong card là của CardHeader —
+   ở đây chỉ bố cục bên trong + nhịp giữa các hàng. KHÔNG khoá chiều cao: hai card
+   hàng đầu cao bằng nhau bằng height:100% (cột .row đã stretch).
+   ========================================================================= */
+@media (min-width: 992px) {
+    .wujia-home-pc .wujia-home-toprow {
+        margin-bottom: 16px;
+        row-gap: 16px;
+    }
+    .wujia-home-pc .wujia-home-store,
+    .wujia-home-pc .wujia-home-window {
+        height: 100%;
+    }
+    .wujia-home-pc .wujia-home-store-body {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .wujia-home-pc .wujia-home-tile {
+        flex: 0 0 56px;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--wujia-mdash-tile-bg);
+        color: var(--wujia-primary);
+        font-size: 24px;
+        line-height: 1;
+    }
+    .wujia-home-pc .wujia-home-store-main {
+        flex: 1 1 auto;
+        min-width: 0;          /* tên dài xuống dòng trong cột, không đẩy pill vai trò ra ngoài */
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .wujia-home-pc .wujia-home-eyebrow,
+    .wujia-home-pc .wujia-kpi-label {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 16px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--wujia-text-secondary);
+    }
+    /* BA: không cắt chữ ⇒ tên dài xuống dòng, không ellipsis. */
+    .wujia-home-pc .wujia-home-store-name {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 24px;
+        color: var(--wujia-text-primary);
+        overflow-wrap: anywhere;
+    }
+    .wujia-home-pc .wujia-home-store-sub {
+        margin: 0;
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--wujia-text-primary);
+        overflow-wrap: anywhere;
+    }
+    .wujia-home-pc .wujia-home-store-role {
+        flex: 0 0 auto;
+        align-self: flex-start;
+    }
+    /* Thẻ Khung giờ: CardHeader lo tiêu đề; thanh tiến độ + caption dùng chung lớp mobile. */
+    .wujia-home-pc .wujia-home-window .wujia-mhome-window-progress {
+        margin: 4px 0 12px;
+    }
+    .wujia-home-pc .wujia-home-window .wujia-mhome-window-caption {
+        font-size: 13px;
+    }
+    /* 4 KPI: icon vuông đặc + nhãn in hoa + số, không vạch ngăn/mũi tên (V4). */
+    .wujia-home-pc .wujia-kpi-card {
+        gap: 16px;
+    }
+    .wujia-home-pc .wujia-kpi-content {
+        gap: 4px;
+    }
 }
+
 /* F3: dời từ portal_layout _components.css */
 @media (max-width: 991.98px) {
     .wujia-kpi-card-link {

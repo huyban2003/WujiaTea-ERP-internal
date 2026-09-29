@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Home mobile: tile KPI "Công nợ" đang là <div> inert "0 ₫" với comment
-         "module /portal/debt đã xoá" (wujia_portal_base/views/portal_home.xml).
-         Module này dựng lại trang ⇒ biến tile thành link thật + số còn phải trả.
+    <!-- Home: tile KPI "Công nợ" ở wujia_portal_base là ô inert "—" (không có nguồn thì
+         không in 0đ). Module này có nguồn ⇒ biến tile thành link thật + số còn phải trả.
 
          Inheritance TỪ module này để wujia_portal_base không phải sửa: gỡ
-         wujia_portal_debt là tile tự về trạng thái inert cũ. -->
+         wujia_portal_debt là tile tự về trạng thái inert cũ.
+
+         G3a (142): Home PC V4 cũng có ô Công nợ. Ô PC ở portal_base đọc khe biến
+         `home_debt_kpi` (không depend module này); ô mobile vẫn thay bằng xpath như cũ.
+         Cả hai dùng CHUNG một lần gọi — get_home_debt_kpi có 1 search_count, gọi hai lần
+         là thêm query cho mọi lượt vào Home. -->
     <template id="portal_home_debt_kpi" name="Wujia Home — KPI Công nợ trỏ /portal/debt"
               inherit_id="wujia_portal_base.portal_home_page">
-        <xpath expr="//div[hasclass('wujia-mhome-hero-kpis')]/div[hasclass('wujia-mhome-kpi')]"
-               position="replace">
+        <!-- Đặt biến TRƯỚC khối PC — khối mobile nằm sau cùng cấp nên cũng thấy. -->
+        <xpath expr="//div[hasclass('wujia-home-wrapper')]/div[hasclass('wujia-home-pc')]" position="before">
             <!-- get_home_debt_kpi (KHÔNG phải get_shell_badge): thêm 1 count để phân biệt
                  "chưa có dữ liệu" (—) với 0đ thật — chỉ chạy ở Home, xem docstring. -->
-            <t t-set="_debt_kpi" t-value="request.env['wujia.portal.debt'].get_home_debt_kpi()"/>
+            <t t-set="home_debt_kpi" t-value="request.env['wujia.portal.debt'].get_home_debt_kpi()"/>
+        </xpath>
+        <xpath expr="//div[hasclass('wujia-mhome-hero-kpis')]/div[hasclass('wujia-mhome-kpi')]"
+               position="replace">
             <a href="/portal/debt" class="wujia-mhome-kpi wj-state-surface">
                 <span class="wujia-mhome-kpi-label">Công nợ</span>
-                <span class="wujia-mhome-kpi-value" t-out="_debt_kpi['remaining_label']"/>
+                <span class="wujia-mhome-kpi-value" t-out="home_debt_kpi['remaining_label']"/>
             </a>
         </xpath>
     </template>

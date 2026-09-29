@@ -28,7 +28,7 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 |---|---|---|---|
 | G1 | `UI-MOB-HEADER-DENSITY-001` (143) + `UI-MOB-BOTTOMNAV-DENSITY-001` (145) → cuối phiên `WJ-ORD-MOB-SPACING-001` (144) | `wujia_portal_layout` + `wujia_portal_sale` + `wujia_portal_exam` | ✅ 26/09 — code + đo xong, commit `feat(G1)` (xem git log); **chưa deploy**, ledger chờ `--apply` |
 | G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_layout` (`wujia_portal_sale` không đụng) | ✅ 29/09 — code + đo xong, commit `6745671`; **đã deploy UAT 30/09**, đo chỉ-đọc đạt; ledger chờ `--apply`. Nghiệm thu `docs/g2-acceptance-matrix.md` |
-| G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` | ☐ (mockup V4 đã có local) |
+| G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` + `wujia_portal_debt` | ✅ 30/09 — code + đo xong, commit `feat(G3a)` (xem git log); **chưa deploy — deploy gộp với G3b**, chưa ghi ledger 142. Nghiệm thu `docs/g3-acceptance-matrix.md` |
 | G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ☐ |
 | G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ☐ |
 
@@ -215,6 +215,51 @@ nguồn Home mobile đang dùng** qua 7 seam `hasattr` sang module L2 (liệt k�
 §3) — ADR-027: `portal_base` **cấm thêm depend**, không kéo query mới khi seam đã có. Perf 1500 user:
 đếm query Home trước/sau (★FR-A đo 17 route × 4 user), Δ query phải giải thích được. Làm **sau G2**
 vì khối "Cửa hàng hiện tại" dùng chung ngôn ngữ dáng với block của G2.
+
+### G3a đã xong (30/09) — cái G3b nhận lại
+
+Khối desktop là `<div class="d-none d-lg-block wujia-home-pc">` và có các phần sau:
+- `PageHeader`.
+- `row wujia-home-toprow`: card `wujia-home-store` | card `wujia-home-window`.
+- `section.wujia-home-kpis`: 4 KPI.
+- **3 block list cũ** (Thông báo · Đơn · Đổi trả), nằm dưới comment "Block list cũ — G3b thay bằng 7 block V4". G3b xoá
+  cả đoạn này.
+
+CSS PC nằm ở `wujia_portal_base/static/src/css/portal_dashboard.css`, khối `@media (min-width: 992px)`. Mọi selector
+phải bắt đầu bằng `.wujia-home-pc ` (test `TestHomePcCss` ép luật này).
+
+Công nợ dùng khe biến `home_debt_kpi`: `wujia_portal_debt` đặt biến **trước** khối PC, khối mobile ở sau cùng cấp nên
+cũng thấy. Đừng gọi `get_home_debt_kpi()` lần hai (test spy sẽ đỏ).
+
+**Seam cho G3b:**
+- Dáng dòng record mobile `.wujia-mdash-row` hiện chỉ có trong `@media (max-width: 991.98px)` ở
+  `wujia_portal_layout/static/assets/css/_components.css:1490+`. PC muốn dùng lại thì thêm rule PC trong
+  `portal_dashboard.css` có tiền tố `.wujia-home-pc`, **không** nới media của layout (sẽ phải `-u` layout, dễ đụng mobile).
+- `HOME_PREVIEW_LIMIT = 2` trùng với số dòng V4 vẽ mỗi block. Nguồn 7 block lấy qua các seam `hasattr` Home mobile đang
+  dùng.
+- "Tổng tiền" của yêu cầu đổi trả: model không có trường số tiền, nên in "—" hoặc hỏi BA. Hotline "Hỗ trợ nhanh": chưa có
+  nguồn, in "—".
+- Chữ "…" duy nhất đang còn trên PC nằm ở 3 block list cũ. G3b phải đo lại cắt chữ ở 4 khổ bằng `wj_home_g3.py`.
+
+### 🔴 Bài học G3a
+
+- **DB copy phải thuộc owner `odoo19`**: `createdb -T` chạy bằng user Mac thì DB thuộc `huyban2003`. Odoo
+  (`db_user = odoo19`, `list_db`) không thấy DB, `/portal` trả 404 rồi chuyển sang `/web/database/selector`. Sửa bằng
+  `alter database <db> owner to odoo19`. `psql` không có `-d` thì hỏng vì không có DB `huyban2003`, nên dùng
+  `-d postgres`.
+- **Đếm query cần server riêng chạy `--log-handler=werkzeug:INFO`.** Server để mặc định không in dòng
+  `"GET /portal" 200 - <nq>`. Log nằm trong `<logdir>/YYYY/MM/<ngày UTC>.log`: 17h55 ngày 30 giờ VN vẫn ghi vào file
+  ngày 29.
+- **Δ query lớn hơn số lệnh gọi đã xoá.** Plan dự tính −3, đo ra −7: `display_name` / đơn vị tính của sản phẩm top được
+  đọc kèm (prefetch). Muốn giải thích Δ thì đo từng đoạn bằng `cr.sql_log_count` trong odoo shell, đừng đếm theo code.
+- **`t-set` chèn bằng xpath `position="before"`** dùng chung phạm vi với mọi anh em phía sau cùng cha. Cách này cho hai
+  kênh dùng chung một lần gọi mà không cần depend.
+- **Test đọc chuỗi arch phải bỏ comment trước**: comment giải thích "không Thao tác nhanh" làm test cấm chuỗi đó tự đỏ.
+  Xem helper `_src()` trong `test_g3a_home_pc.py`.
+- **Patch `request` của controller bằng `new=SimpleNamespace(env=…)`.** Để `patch()` tự tạo MagicMock thì nó soi werkzeug
+  `LocalProxy` và sập ngoài request.
+- **Đổi nhãn trên Home thì grep test của module khác.** F11 (`wujia_portal_notification`) dùng regex bám nhãn PC "Thông
+  báo chưa đọc", và chỉ suite đủ 20 module mới bắt được. Test tag riêng của phiên thì xanh.
 
 ---
 

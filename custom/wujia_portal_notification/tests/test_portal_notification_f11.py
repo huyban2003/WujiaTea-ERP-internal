@@ -33,7 +33,8 @@ class TestPortalNotificationF11(NotificationCommon, HttpCase):
 
     def _home_kpis(self):
         html = self.url_open('/portal', timeout=30).text
-        pc = re.search(r'Thông báo chưa đọc</p>\s*<div class="wujia-kpi-value">(\d+)<', html)
+        # G3a (142): nhãn PC "Thông báo chưa đọc" → "Thông báo" như mobile (mockup V4).
+        pc = re.search(r'Thông báo</p>\s*<div class="wujia-kpi-value">(\d+)<', html)
         mobile = re.search(r'Thông báo</span>\s*<span class="wujia-mhome-kpi-value">(\d+)<', html)
         return int(pc.group(1)), int(mobile.group(1))
 

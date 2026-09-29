@@ -1760,3 +1760,56 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   dòng cũ (mục G1) vẫn chờ khôi phục qua Version history. Server 8032 + DB `wujia_g2s` còn để đo lại (xoá được sau deploy).
 - Phiên kế: deploy G2 → `wj_shell_g2.py --readonly` trên UAT → `qa_sync --apply --only` 2 ID; rồi **G3a** (142 Home PC V4 —
   khung: hàng đầu 50/50, 4 KPI, bỏ hero + Thao tác nhanh).
+
+## G3a — Home PC khung mockup V4 (142) · 30/09/2026 · Mac
+- Kết quả: ✅ code + đo xong, commit. **Chưa deploy**: chủ dự án chốt deploy gộp với G3b (một lần `-u`) để BA không thấy
+  Home PC nửa mới nửa cũ. **Chưa ghi ledger 142**: issue chỉ đóng ở G3b.
+- Đầu phiên: `qa_sync --apply --only` 140/141 → Ready for Retest ("ĐÃ DEPLOY UAT 30/09/2026"). Cột R, S nguyên.
+- Chủ dự án chốt:
+  - chỉ làm G3a;
+  - bỏ KPI "Đơn chờ xử lý" + bảng "Sản phẩm mua nhiều nhất" theo đúng danh sách BA, "chỗ nào limit ráng xử". Vì vậy ô
+    Công nợ PC làm số thật luôn, không để inert.
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.30.0: khối desktop `wujia-home-pc` gồm hàng đầu 50/50 (card Cửa hàng hiện tại: tên,
+    vùng/địa chỉ, pill vai trò `ROLE_LABELS` | card Khung giờ: 3 trạng thái + thanh tiến độ, dùng chung
+    `_order_window_view`) và 4 KPI Đơn hàng · Thông báo · Đổi trả · Công nợ, cùng biến và link với mobile, bỏ mũi
+    tên/vạch ngăn.
+  - Controller xoá `waiting_orders_count` + method `_top_products` và các key top SP.
+  - CSS PC trong `@media ≥992` có tiền tố `.wujia-home-pc`; xoá class chết `.wujia-kpi-arrow` / `.wujia-kpi-separator`.
+  - 3 block list cũ tạm giữ tới G3b.
+  - `wujia_portal_debt` 19.0.4.16.0: đặt khe `home_debt_kpi` một lần trước khối PC; ô PC và ô mobile dùng chung, gỡ
+    module thì ô PC về "—".
+  - Test: 17 test mới (`wujia_home_pc_g3a` 15, `wujia_home_debt_g3a` 2). `test_scan_d5_data_list` bỏ Home. F11 regex đổi
+    theo nhãn "Thông báo".
+  - Công cụ đo: `scripts/qa/wj_home_g3.py`. Nghiệm thu: `docs/g3-acceptance-matrix.md`.
+- Commit: xem git log — `feat(G3a): Home PC khung V4 — hàng đầu cửa hàng|khung giờ + 4 KPI như mobile`.
+- Deploy: ☐ gộp G3b.
+- Số đo (DB `wujia_g3s`, server 8033):
+  - PC 1440/1280/1024/992: 2 card hàng đầu cao bằng nhau (lệch 0, kể cả chuỗi dài); 4 KPI một hàng, đúng thứ tự và
+    link; 0 tràn, 0 mũi tên; 991 ra mobile. Công nợ: `dung.multi` "17,8tr" → `/portal/debt`, `anh.owner` "—".
+  - Mobile 360/390/430 vân tay **Δ0**. 26 route PC khác Δ0 (chỉ lệch do dữ liệu).
+  - Query `/portal` **−7** (46→39, 43→36): 1 count + 2 `_read_group` + 4 đọc kèm.
+  - Mutation **7/7** đỏ.
+  - Suite 20 module 958 test: 1 error ở F11 (regex nhãn cũ). Đã sửa, chạy lại 3 module **384/0/0**.
+  - `check_layers` 0 vi phạm Dev.
+- Lệch plan / quyết định mới:
+  - Plan định cắt tên cửa hàng bằng ellipsis. Đổi sang **xuống dòng** vì BA cấm cắt chữ.
+  - Query −7 chứ không −3 như plan.
+  - Plan định chèn biến Công nợ ở đầu wrapper. Làm bằng `t-set` đặt trước khối PC.
+- Bài học: xem "🔴 Bài học G3a" trong `next-session-clusters-G.md`. Tóm tắt:
+  - owner DB `odoo19`;
+  - werkzeug INFO + log theo ngày UTC;
+  - `cr.sql_log_count` để tách Δ query;
+  - `t-set` dùng chung qua xpath;
+  - bỏ comment trước khi test arch;
+  - patch `request` bằng `new=`;
+  - đổi nhãn Home thì grep test module khác.
+- Nợ để lại:
+  - FYI BA: thanh tiến độ màu token mobile (V4 vẽ xanh); pill vai trò soft (V4 đặc); đơn chờ xử lý xem ở
+    `/portal/purchase-history`, top SP ở Báo cáo.
+  - Token `--wujia-kpi-separator-*` còn trong layout.
+  - 🔎 Topbar PC 992–1199 chật, logo bị khối Cửa hàng che. Có từ trước, không do G3a; báo BA thành issue riêng.
+  - Server 8033 + DB `wujia_g3s` để lại cho G3b.
+- Phiên kế: **G3b** (142): 7 block record thay 3 block list cũ, VNĐ, "Xem tất cả", icon theo loại, chuỗi VI/EN/ZH. Xong
+  thì `-u wujia_portal_base,wujia_portal_debt` một lần + deploy + ledger 142 + `qa_sync`. Seam ở khối "G3a đã xong" trong
+  `next-session-clusters-G.md`.

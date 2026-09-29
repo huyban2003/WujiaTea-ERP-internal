@@ -121,7 +121,7 @@ def _float_to_hhmm(value):
 class WujiaPortal(CustomerPortal):
 
     # ==================================================================
-    # /portal — Dashboard (4 stat card + 4 list block, BA spec)
+    # /portal — Dashboard (PC mockup V4 · mobile Figma Sprint 10)
     # ==================================================================
     @http.route(['/portal'], type='http', auth='user', website=False, sitemap=False)
     def portal_home(self, **kw):
@@ -129,7 +129,7 @@ class WujiaPortal(CustomerPortal):
         accessible_ids = request.env.user._get_accessible_franchise_ids()
         values = self._dashboard_values(franchise_ids)
 
-        # ---- Mobile home hero (Figma BA Sprint 10): cửa hàng + role + khung giờ ----
+        # ---- Cửa hàng + role + khung giờ: hero mobile (Figma Sprint 10) VÀ hàng đầu PC (V4, G3a) ----
         active_fid = get_active_franchise_id()
         Franchise = request.env['wujia.franchise.management'].sudo()
         active_franchise = Franchise.browse(active_fid).exists() if active_fid else Franchise.browse()
@@ -184,7 +184,7 @@ class WujiaPortal(CustomerPortal):
                 .sudo().browse(list(accessible_ids)) if accessible_ids
                 else request.env['wujia.franchise.management'].browse(),
             'active_franchise_id': active_fid,
-            # mobile home (d-lg-none) — desktop không dùng các key này
+            # dùng chung hero mobile + hàng đầu PC (G3a) — một nguồn cho hai kênh
             'active_franchise': active_franchise,
             'active_role': active_role,
             'order_window': self._order_window_view(
@@ -251,7 +251,9 @@ class WujiaPortal(CustomerPortal):
         today = fields.Datetime.now()
         last_30d = today - timedelta(days=30)
 
-        # ---- 4 stat cards ----
+        # ---- 4 KPI (Đơn hàng · Thông báo · Đổi trả; Công nợ do wujia_portal_debt) ----
+        # G3a/142: bỏ "Đơn chờ xử lý" + bảng top sản phẩm (không có trong mockup V4)
+        # ⇒ Home bớt 1 count + 2 _read_group. Top SP vẫn ở trang Báo cáo.
         unread_count = self._safe_count(
             'wujia.notification', 'unread_count', franchise_ids
         )
@@ -260,15 +262,11 @@ class WujiaPortal(CustomerPortal):
             ('date_order', '>=', last_30d),
             ('state', '!=', 'cancel'),
         ]) if franchise_ids else 0
-        waiting_orders_count = SO.search_count([
-            ('franchise_id', 'in', franchise_ids),
-            ('state', 'in', ['draft', 'sent']),
-        ]) if franchise_ids else 0
         return_requests_count = self._safe_count(
             'wujia.return.request', 'open_count', franchise_ids
         )
 
-        # ---- 4 list blocks — mọi block cùng HOME_PREVIEW_LIMIT (WJ-HOME-006) ----
+        # ---- block list — mọi block cùng HOME_PREVIEW_LIMIT (WJ-HOME-006) ----
         latest_notifications = self._safe_list(
             'wujia.notification', franchise_ids, limit=HOME_PREVIEW_LIMIT,
         )
@@ -279,21 +277,14 @@ class WujiaPortal(CustomerPortal):
         latest_returns = self._safe_list(
             'wujia.return.request', franchise_ids, limit=HOME_PREVIEW_LIMIT,
         )
-        top_products, top_currency = self._top_products(franchise_ids, limit=5)
 
         return {
             'unread_count': unread_count,
             'recent_orders_count': recent_orders_count,
-            'waiting_orders_count': waiting_orders_count,
             'return_requests_count': return_requests_count,
             'latest_notifications': latest_notifications,
             'recent_orders': recent_orders,
             'latest_returns': latest_returns,
-            'top_products': top_products,
-            # Ký hiệu/số lẻ cho bảng top sản phẩm — theo currency của chính các đơn
-            # được gộp, không phải của công ty (cụm D).
-            'top_currency_symbol': top_currency.symbol or '',
-            'top_currency_decimals': top_currency.decimal_places or 0,
             'franchise_ids': franchise_ids,
             'wj_dt': fmt_local_dt,
         }
@@ -330,45 +321,6 @@ class WujiaPortal(CustomerPortal):
             return Model.search(Model._portal_recent_domain(franchise_ids),
                                 order='request_date desc', limit=limit)
         return []
-
-    def _top_products(self, franchise_ids, limit=5):
-        """Top product 90 ngày (BA spec). 1 _read_group, không loop search."""
-        if not franchise_ids:
-            return [], request.env.company.currency_id
-        last_90d = fields.Datetime.now() - timedelta(days=90)
-        SOL = request.env['sale.order.line'].sudo()
-        groups = SOL._read_group(
-            domain=[
-                ('order_id.franchise_id', 'in', list(franchise_ids)),
-                ('order_id.state', 'in', ['sale', 'done']),
-                ('order_id.date_order', '>=', last_90d),
-            ],
-            groupby=['product_id'],
-            aggregates=['product_uom_qty:sum', 'price_total:sum'],
-            limit=limit,
-            order='product_uom_qty:sum desc',
-        )
-        # `price_total:sum` cộng thẳng số của các đơn, KHÔNG quy đổi — nên ký hiệu
-        # phải là currency của chính các đơn đó. Cùng bộ lọc, group theo currency:
-        # đúng một currency → lấy currency ấy; trộn nhiều currency thì con số gộp
-        # vốn đã vô nghĩa, rơi về currency công ty. 1 query gộp, không loop.
-        currencies = request.env['sale.order'].sudo()._read_group(
-            domain=[
-                ('franchise_id', 'in', list(franchise_ids)),
-                ('state', 'in', ['sale', 'done']),
-                ('date_order', '>=', last_90d),
-            ],
-            groupby=['currency_id'],
-            aggregates=[],
-        )
-        currency = currencies[0][0] if len(currencies) == 1 else request.env.company.currency_id
-        rows = [{
-            'name': product.display_name,
-            'qty': qty or 0,
-            'uom': product.uom_id.name or '',
-            'total': total or 0,
-        } for product, qty, total in groups]
-        return rows, currency
 
     # ==================================================================
     # Active-franchise (store picker) — cookie-based, no DB hit

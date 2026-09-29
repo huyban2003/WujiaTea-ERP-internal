@@ -22,8 +22,9 @@ TMPL = 'wujia_portal_layout.wj_data_list'
 class TestDataListCallSites(TransactionCase):
     """3 call site của lượt D5b — semantic + guard pager, đọc thẳng file view."""
 
+    # G3a (142): Home PC bỏ bảng top sản phẩm (mockup V4) ⇒ Home hết DataList dạng bảng;
+    # guard "Home không có bảng" nằm ở test_g3a_home_pc.
     CALL_SITES = [
-        ('wujia_portal_base', 'portal_home.xml', 4),
         ('wujia_portal_return', 'portal_return_list.xml', 7),
         ('wujia_portal_support', 'portal_support.xml', 8),
         # D5c — họ wj-pc-table
@@ -35,8 +36,7 @@ class TestDataListCallSites(TransactionCase):
     def test_moi_th_deu_co_scope(self):
         for module, filename, n_cols in self.CALL_SITES:
             root = _view(module, filename)
-            # D5d: portal_home.xml nay có 4 DataList (3 preview + bảng top SP) ⇒ chọn
-            # theo cấu trúc chứ không theo số lượng.
+            # Chọn theo cấu trúc (DataList có <thead>) chứ không theo số lượng call.
             calls = root.xpath('//t[@t-call="wujia_portal_layout.wj_data_list"][.//thead]')
             self.assertEqual(len(calls), 1, '%s: phải có đúng 1 DataList dạng bảng' % module)
             ths = calls[0].xpath('.//thead//th')
