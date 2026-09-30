@@ -1865,3 +1865,45 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - 🔎 Topbar PC 992–1199 (từ G3a) vẫn chờ BA tách issue.
   - Server 8033 + DB `wujia_g3s` xoá được sau deploy.
 - Phiên kế: **G4** (146 `WJ-PORTAL-ROUTING-001`, điều hướng `/`). Xoá server 8033 + DB `wujia_g3s` khi tiện.
+
+## H150/151 — Home: giờ + trạng thái đơn gần đây giống Lịch sử (150 `WJ-HOME-009`, 151 `WJ-HOME-010`) · 30/09/2026 · Mac
+- Kết quả: ✅ code + đo xong, commit, đã push `0cd1f0a`. Chủ dự án tự deploy. Ledger 2 entry ghi "CHƯA DEPLOY", chờ đo UAT
+  rồi `qa_sync --apply --only` từng ID.
+- Đầu phiên:
+  - Định làm G4, nhưng **STT 146 không còn trên sheet** (145 → 147). Chủ dự án chuyển sang 150 + 151 (status `New`, cho
+    làm trước). G4 ⏸, cách làm đã chốt, ghi ở khối G4 `next-session-clusters-G.md`.
+  - BA mở 147–151 cùng lứa, đều từ đơn test S00075.
+- Đã làm:
+  - 150: chẩn đoán **đã hết từ G3b** — block PC cũ in `date_order` UTC, G3b thay bằng `wj_dt`. UAT chỉ-đọc `em.hcm`:
+    S00075 PC = mobile = chi tiết Lịch sử = 22:57 29/09. Chỉ thêm test chặn hồi quy.
+  - 151: Home có bảng nhãn riêng `MOBILE_ORDER_BADGES` (draft → "Nháp"). Dời luật trạng thái SO của Lịch sử xuống
+    `wujia_portal_base/controllers/utils.py` (`portal_order_status`, `portal_order_badge`). Home PC + mobile gọi
+    `wj_order_badge(o)`. Lịch sử import lại (alias `_state_meta` / `_order_status` cho `portal_sale` + test).
+  - Xoá `MOBILE_ORDER_BADGES` + `wj_badge_default`. `portal_base` 19.0.7.32.0 · `purchase_history` 19.0.3.20.0.
+- Commit: `0cd1f0a` — `fix(WJ-HOME-009/010): Home dùng chung luật trạng thái đơn với Lịch sử + test giờ PC`.
+- Deploy: đã push; chủ dự án tự deploy. UAT lúc ghi mục này còn 19.0.7.31.0.
+- Số đo (DB `wujia_g3s`, server 8033):
+  - Nhãn Home trước/sau: "Nháp" neutral → "Chờ xác nhận" pending (3 user). Đơn 1799/12 khớp chữ + màu + giờ với chi
+    tiết Lịch sử.
+  - Query `/portal` 27/36/36 → 27/36/36 **Δ0**.
+  - `wj_home_g3.py` 6 khổ PC: 0 tràn, 0 cắt chữ, 0 badge đè, Δh 0. Mobile đổi vân tay đúng do chữ nhãn.
+  - Test mới 9 (tag `wujia_home_order_status`); mutation **6/6** đỏ. `-u` 2 module + test 3 module 393/0/0.
+  - Suite 20 module (`-u` cả 20, có `wujia_sale`): 939, 0 failed, **2 error ở `wujia_sale`** (fixture tạo quant cho
+    hàng consumable) — không liên quan, chưa sửa.
+  - `check_layers` 0 vi phạm tầng (R7 2 dòng ở `wujia_franchise` có sẵn).
+- Lệch plan / quyết định mới:
+  - Test mới đặt ở `wujia_portal_purchase_history/tests/`, không ở `portal_base`, vì phải so với `_history_row_vals`.
+  - Nghiệm thu ghi ở `docs/g3-acceptance-matrix.md` §12 (§11 đã có sẵn).
+- Bài học:
+  - 146 biến khỏi sheet mà `issue_queue --dev` không báo gì (chỉ ra 0). Đầu phiên nên liệt kê STT cuối sheet so với
+    bảng cụm đang làm.
+  - Bảng nhãn "mobile-riêng" trong `portal_base` là nguồn lệch. Mọi nhãn trạng thái SO phải đi qua `portal_order_status`.
+  - Suite có `wujia_sale` ra 2 error fixture — biết trước để khỏi tưởng hồi quy.
+- Nợ để lại:
+  - Sau deploy: đo UAT chỉ-đọc S00075 trên Home = "Chờ xác nhận", đổi `build_override` 2 entry sang "ĐÃ DEPLOY UAT",
+    `qa_sync --apply --only WJ-HOME-009` và `--only WJ-HOME-010`.
+  - 2 error test `wujia_sale` (`test_06_filters_return_right_orders`, setUpClass `TestWujiaSupplyDemandReport`).
+  - Hỏi BA: 146 xoá hay chuyển chỗ.
+  - Server 8033 + DB `wujia_g3s` xoá được.
+- Phiên kế: **148 `WJ-ORD-028`** (High — hộp xác nhận trước khi gửi đơn, chống double-submit), rồi 147 (tìm kiếm giữ
+  query cũ) và 149 (ẩn "Ngày xác nhận" khi đơn còn nháp). Cả ba đang `New`, hỏi chủ dự án có làm trước không.

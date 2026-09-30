@@ -30,7 +30,7 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 | G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_layout` (`wujia_portal_sale` không đụng) | ✅ 29/09 — code + đo xong, commit `6745671`; **đã deploy UAT 30/09**, đo chỉ-đọc đạt; ledger chờ `--apply`. Nghiệm thu `docs/g2-acceptance-matrix.md` |
 | G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` + `wujia_portal_debt` | ✅ 30/09 — code + đo xong, commit `feat(G3a)` (xem git log); deploy UAT 30/09 cùng G3b, ledger 142 ghi ở G3b. Nghiệm thu `docs/g3-acceptance-matrix.md` |
 | G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ✅ 30/09 — code + đo xong, commit `feat(G3b)` (xem git log), deploy UAT 30/09 16:04 cùng G3a, đo chỉ-đọc sạch, 142 → Ready for Retest. Nghiệm thu `docs/g3-acceptance-matrix.md` §6–§10 (12/12) |
-| G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ☐ |
+| G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ⏸ 30/09 — **dòng 146 không còn trên sheet** (STT nhảy 145 → 147), chờ BA xác nhận xoá hay chuyển chỗ. Cách làm đã chốt, xem khối G4 |
 
 **Reconcile 26/09** (`git log --all -S"<ID>"` + `grep -rn "<ID>" custom/ docs/qa-issue-ledger.yaml`
 cho cả 7 ID): commit nhắc tới chỉ là docs (`1c4f1a0`, `2835f8e`, `8ef3081` — ghi chú review/chapter),
@@ -307,5 +307,18 @@ auth.py:79`) — AC4 bám vào đây.
 **Câu hỏi treo (hỏi đầu phiên):** `portal_base` không được depend `website` ⇒ fork cách giành `/`
 (kế thừa `web` Home + xử lý khi `website` có cài theo thứ tự MRO, hay tắt trang chủ website bằng cấu
 hình). Đầu phiên: đọc RPC chỉ-đọc UAT `ir.module.module` xem `website` có `installed` không, rồi hỏi.
+
+**Đã soi + chủ dự án chốt 30/09 (đừng hỏi lại):**
+- UAT: `website` + `website_sale` **installed**, `website.homepage_url` rỗng ⇒ `/` trả 200 "Home | My Website".
+  `/portal` khi chưa đăng nhập → `/web/login?redirect=/portal` (không phải `/portal/login`).
+- **Override `Home.index` KHÔNG ăn**: `website.Website` kế thừa `portal.Home`, `portal` depend `auth_signup` ⇒ lá
+  `WujiaAuthController(AuthSignupHome)` định nghĩa trước; `odoo/http.py:872` ghép `type(..., reversed(leaf_controllers))`
+  ⇒ lá website đứng trước trong MRO và thắng. `homepage_url=/portal` không tách được user nội bộ / cửa hàng.
+- **Cách chốt:** kế thừa model `ir.http` trong `wujia_portal_base`, `_pre_dispatch` bắt rule `/` (cả `/<lang>/` nếu
+  website đổi) → chưa đăng nhập `/portal/login` · `base.group_user` → `/odoo` (= `/web` bản 19) · còn lại `/portal`.
+  Không depend `website`, cùng hành vi dù `website` có cài hay không. AC4 (`/portal/login` POST) code hiện đã đúng.
+- **Phạm vi hết phiên chốt rộng:** mọi route `/portal/*` hết phiên/chưa đăng nhập → `/portal/login?redirect=<url>`
+  (thay vì `/web/login`), link sâu mở lại đúng trang sau đăng nhập (AC5). Test hồi quy login/logout/hết phiên PC + mobile,
+  không redirect loop, `/web/login` của user nội bộ giữ nguyên.
 
 ---
