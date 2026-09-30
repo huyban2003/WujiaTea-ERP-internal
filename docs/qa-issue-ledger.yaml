@@ -2520,11 +2520,11 @@ UI-PC-HOME-REDESIGN-001:
 # 30/09/2026 — 150 WJ-HOME-009 + 151 WJ-HOME-010: đơn gần đây trên Home nói giống Lịch sử (commit 0cd1f0a).
 #   150 đã hết từ G3b d8f89bf (block PC cũ in giờ UTC bị xoá) — đo UAT S00075 PC 22:57; phiên này thêm test.
 #   151: Home dùng chung luật trạng thái của Lịch sử (portal_base.utils). Bảng đo: docs/g3-acceptance-matrix.md §12.
-# CHƯA DEPLOY ⇒ build_override; sau deploy đổi sang "ĐÃ DEPLOY UAT" rồi qa_sync --apply --only <ID>.
+# Đã deploy UAT 30/09/2026 (portal_base 19.0.7.32.0), đo chỉ-đọc đạt.
 WJ-HOME-009:
   sprint: "2026-09-30-H150"
   commit: "d8f89bf + 0cd1f0a"
-  build_override: "CHƯA DEPLOY — đã push 0cd1f0a 30/09/2026, chờ deploy UAT"
+  build_override: "ĐÃ DEPLOY UAT 30/09/2026 — sẵn sàng retest | 30/09/2026 | Sprint 2026-09-30-H150 | bản mã d8f89bf + 0cd1f0a | Đo lại CHỈ ĐỌC trên máy chạy thử với tài khoản chủ tiệm em.hcm và anh.owner, chỉ mở trang: S00075 ghi 22:57 29/09/2026 trên Trang chủ máy tính, Trang chủ điện thoại và chi tiết Lịch sử đặt hàng; ba đơn khác (S00072, và hai đơn của anh.owner) cũng trùng ngày giờ ở cả ba nơi. Bảng đo: docs/g3-acceptance-matrix.md §12"
   url: "/portal (Trang chủ máy tính và điện thoại) — khối Đơn hàng gần đây; đối chiếu /portal/purchase-history và trang chi tiết đơn S00075"
   odoo_fit: "Custom"
   fix: "Giờ đặt hàng trên Trang chủ máy tính đã được quy đổi theo múi giờ của người dùng từ lượt dựng lại Trang chủ máy tính (G3b, lên máy chạy thử 30/09 16:04): khối Đơn hàng gần đây cũ in thẳng giờ gốc của hệ thống (lệch 7 tiếng) đã bị thay bằng khối mới dùng chung cách hiển thị giờ với Trang chủ điện thoại và Lịch sử đặt hàng. BA đo S00075 trước lượt đó nên còn thấy 15:57. Lượt này thêm bài kiểm tra tự động để giờ trên máy tính không lệch lại"
@@ -2534,7 +2534,7 @@ WJ-HOME-009:
 WJ-HOME-010:
   sprint: "2026-09-30-H150"
   commit: "0cd1f0a"
-  build_override: "CHƯA DEPLOY — đã push 0cd1f0a 30/09/2026, chờ deploy UAT"
+  build_override: "ĐÃ DEPLOY UAT 30/09/2026 — sẵn sàng retest | 30/09/2026 | Sprint 2026-09-30-H150 | bản mã 0cd1f0a | Đo lại CHỈ ĐỌC trên máy chạy thử với tài khoản chủ tiệm em.hcm và anh.owner, chỉ mở trang: S00075 và S00072 ghi Chờ xác nhận màu cam trên Trang chủ máy tính, Trang chủ điện thoại và chi tiết Lịch sử; đơn đã xác nhận của anh.owner ghi Đã xác nhận màu xanh dương ở cả ba nơi. Trang chủ máy tính 1440, 1280, 1200, 1199, 1024, 992: không cuộn ngang, không chữ bị cắt, nhãn không đè chữ; 991 ra điện thoại. Bảng đo: docs/g3-acceptance-matrix.md §12"
   url: "/portal (Trang chủ máy tính và điện thoại) — khối Đơn hàng gần đây; đối chiếu /portal/purchase-history và trang chi tiết đơn"
   odoo_fit: "Custom"
   fix: "Trang chủ trước đây có bảng tên trạng thái đơn riêng (đơn chờ duyệt ghi Nháp màu xám), khác với Lịch sử đặt hàng (Chờ xác nhận màu cam). Nay Trang chủ máy tính và điện thoại dùng chung đúng một bảng trạng thái với Lịch sử đặt hàng và màn kết quả gửi đơn: đơn chờ duyệt ghi Chờ xác nhận, đơn đã gửi ghi Đã gửi, đơn đã xác nhận ghi Đã xác nhận, và khi chuyến giao của đơn đang chạy hoặc đã giao xong thì ghi Đang giao hoặc Hoàn tất như Lịch sử. Màu nhãn lấy theo tên nhãn nên cùng một đơn có cùng màu ở mọi nơi"

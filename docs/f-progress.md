@@ -1867,8 +1867,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: **G4** (146 `WJ-PORTAL-ROUTING-001`, điều hướng `/`). Xoá server 8033 + DB `wujia_g3s` khi tiện.
 
 ## H150/151 — Home: giờ + trạng thái đơn gần đây giống Lịch sử (150 `WJ-HOME-009`, 151 `WJ-HOME-010`) · 30/09/2026 · Mac
-- Kết quả: ✅ code + đo xong, commit, đã push `0cd1f0a`. Chủ dự án tự deploy. Ledger 2 entry ghi "CHƯA DEPLOY", chờ đo UAT
-  rồi `qa_sync --apply --only` từng ID.
+- Kết quả: ✅ code + đo + deploy UAT + đo UAT chỉ-đọc; 150 + 151 → Ready for Retest.
 - Đầu phiên:
   - Định làm G4, nhưng **STT 146 không còn trên sheet** (145 → 147). Chủ dự án chuyển sang 150 + 151 (status `New`, cho
     làm trước). G4 ⏸, cách làm đã chốt, ghi ở khối G4 `next-session-clusters-G.md`.
@@ -1881,7 +1880,10 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     `wj_order_badge(o)`. Lịch sử import lại (alias `_state_meta` / `_order_status` cho `portal_sale` + test).
   - Xoá `MOBILE_ORDER_BADGES` + `wj_badge_default`. `portal_base` 19.0.7.32.0 · `purchase_history` 19.0.3.20.0.
 - Commit: `0cd1f0a` — `fix(WJ-HOME-009/010): Home dùng chung luật trạng thái đơn với Lịch sử + test giờ PC`.
-- Deploy: đã push; chủ dự án tự deploy. UAT lúc ghi mục này còn 19.0.7.31.0.
+- Deploy: ✅ UAT `wujia_portal_base` 19.0.7.32.0 · `purchase_history` 19.0.3.20.0 (30/09 16:45). Đo chỉ-đọc `em.hcm` +
+  `anh.owner`: 4 đơn trùng chữ/màu/giờ ở Home PC, Home mobile, chi tiết Lịch sử (S00075 22:57 · Chờ xác nhận); 6 khổ PC
+  0 tràn/cắt/đè. `qa_sync --apply` → 150 + 151 **Ready for Retest** (6 ô mỗi dòng + 1 History mỗi issue; bridge trả
+  non-JSON/404 nhưng đã ghi — đọc lại xác nhận). `dung.multi` không đăng nhập được UAT (mật khẩu khác local).
 - Số đo (DB `wujia_g3s`, server 8033):
   - Nhãn Home trước/sau: "Nháp" neutral → "Chờ xác nhận" pending (3 user). Đơn 1799/12 khớp chữ + màu + giờ với chi
     tiết Lịch sử.
@@ -1900,8 +1902,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Bảng nhãn "mobile-riêng" trong `portal_base` là nguồn lệch. Mọi nhãn trạng thái SO phải đi qua `portal_order_status`.
   - Suite có `wujia_sale` ra 2 error fixture — biết trước để khỏi tưởng hồi quy.
 - Nợ để lại:
-  - Sau deploy: đo UAT chỉ-đọc S00075 trên Home = "Chờ xác nhận", đổi `build_override` 2 entry sang "ĐÃ DEPLOY UAT",
-    `qa_sync --apply --only WJ-HOME-009` và `--only WJ-HOME-010`.
+  - FYI: Home UAT in tiền `$` (dữ liệu/đơn vị tiền của đơn), ledger G3b ghi "UAT là VND nên in ₫" — cần soi lại.
   - 2 error test `wujia_sale` (`test_06_filters_return_right_orders`, setUpClass `TestWujiaSupplyDemandReport`).
   - Hỏi BA: 146 xoá hay chuyển chỗ.
   - Server 8033 + DB `wujia_g3s` xoá được.
