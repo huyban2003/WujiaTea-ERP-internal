@@ -1834,7 +1834,10 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     `test_scan_d5_data_list` (preview 5 block, COMPACT_SITES bỏ Home, mobile loại `.wujia-home-pc`, mdash 10 → 13).
   - `scripts/qa/wj_home_g3.py` thêm 1200/1199, probe 7 block (cột theo hàng, Δh, badge đè, chevron, block cũ).
 - Commit: xem git log — `feat(G3b): Home PC 7 block record theo V4 …`.
-- Deploy: ☐ chờ duyệt (push `main` = deploy UAT; `-u wujia_portal_base` kéo theo `wujia_portal_debt`).
+- Deploy: ✅ push `d8f89bf` 16:01, UAT nhận 16:04 (G3a `160d13e` push 01:16 trước đó nhưng UAT chưa nhận; lượt này đưa cả
+  hai lên). Đo chỉ-đọc `em.hcm` 6 khổ PC: 7 block đúng thứ tự, 3 cột 365 ở 1440, 2 cột 992–1399, Δh 0, 0 tràn/chevron/badge
+  đè, Công nợ "4,2tr"; mobile chỉ lệch 1px ở chữ đếm lùi khung giờ. Ledger "ĐÃ DEPLOY UAT" → `qa_sync --apply --only`
+  142 → **Ready for Retest** (6 ô + 1 History). `issue_queue --dev` còn 0.
 - Số đo (DB `wujia_g3s`, server 8033):
   - 7 khổ × 3 user: 0 tràn, 0 chữ bị cắt, 0 badge đè, 0 chevron, 0 block cũ; 3 cột 365px ở 1440, 2 cột 992–1399, Δh 0
     trong hàng; 991 ra mobile.
@@ -1861,5 +1864,4 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     "—"; hotline = `company.phone`; Chat UI-only; Người phụ trách chỉ tên.
   - 🔎 Topbar PC 992–1199 (từ G3a) vẫn chờ BA tách issue.
   - Server 8033 + DB `wujia_g3s` xoá được sau deploy.
-- Phiên kế: sau deploy, chạy `wj_home_g3.py` chỉ-đọc trên UAT → ledger "ĐÃ DEPLOY UAT" → `qa_sync --apply --only
-  UI-PC-HOME-REDESIGN-001`; rồi **G4** (146 `WJ-PORTAL-ROUTING-001`, điều hướng `/`).
+- Phiên kế: **G4** (146 `WJ-PORTAL-ROUTING-001`, điều hướng `/`). Xoá server 8033 + DB `wujia_g3s` khi tiện.

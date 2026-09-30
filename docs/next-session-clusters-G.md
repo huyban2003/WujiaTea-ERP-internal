@@ -28,8 +28,8 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 |---|---|---|---|
 | G1 | `UI-MOB-HEADER-DENSITY-001` (143) + `UI-MOB-BOTTOMNAV-DENSITY-001` (145) → cuối phiên `WJ-ORD-MOB-SPACING-001` (144) | `wujia_portal_layout` + `wujia_portal_sale` + `wujia_portal_exam` | ✅ 26/09 — code + đo xong, commit `feat(G1)` (xem git log); **chưa deploy**, ledger chờ `--apply` |
 | G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_layout` (`wujia_portal_sale` không đụng) | ✅ 29/09 — code + đo xong, commit `6745671`; **đã deploy UAT 30/09**, đo chỉ-đọc đạt; ledger chờ `--apply`. Nghiệm thu `docs/g2-acceptance-matrix.md` |
-| G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` + `wujia_portal_debt` | ✅ 30/09 — code + đo xong, commit `feat(G3a)` (xem git log); **chưa deploy — deploy gộp với G3b**, chưa ghi ledger 142. Nghiệm thu `docs/g3-acceptance-matrix.md` |
-| G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ✅ 30/09 — code + đo xong, commit `feat(G3b)` (xem git log), ledger 142 ghi; deploy gộp G3a (một lần `-u`). Nghiệm thu `docs/g3-acceptance-matrix.md` §6–§10 (12/12) |
+| G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` + `wujia_portal_debt` | ✅ 30/09 — code + đo xong, commit `feat(G3a)` (xem git log); deploy UAT 30/09 cùng G3b, ledger 142 ghi ở G3b. Nghiệm thu `docs/g3-acceptance-matrix.md` |
+| G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ✅ 30/09 — code + đo xong, commit `feat(G3b)` (xem git log), deploy UAT 30/09 16:04 cùng G3a, đo chỉ-đọc sạch, 142 → Ready for Retest. Nghiệm thu `docs/g3-acceptance-matrix.md` §6–§10 (12/12) |
 | G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ☐ |
 
 **Reconcile 26/09** (`git log --all -S"<ID>"` + `grep -rn "<ID>" custom/ docs/qa-issue-ledger.yaml`

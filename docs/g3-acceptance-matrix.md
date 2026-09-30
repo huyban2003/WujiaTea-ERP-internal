@@ -202,3 +202,21 @@ Controller không sửa.
 - **Người phụ trách** in tên chủ tiệm. V4 vẽ kèm "(Chủ HCM-01)"; mobile cũng chỉ in tên.
 - **Chuỗi VI/EN/ZH**: Portal chỉ có chuỗi giao diện tiếng Việt (không có i18n EN/ZH). Đã đo bằng dữ liệu dài 3 thứ tiếng.
 - **Tiền tệ** theo currency của đơn / cửa hàng (một helper `portal_money`). Dữ liệu UAT là VND nên in `₫`.
+
+## 11. Sau deploy UAT (30/09/2026 16:04, chỉ đọc)
+
+Push `d8f89bf` đưa cả G3a và G3b lên UAT (G3a `160d13e` đã push trước đó nhưng UAT chưa nhận). Đo `wj_home_g3.py` với
+`em.hcm`, chỉ mở trang:
+
+| Khổ | Hàng đầu (w, Δh) | KPI | Cột block | Δh trong hàng | Tràn · chevron · badge đè · block cũ |
+|---|---|---|---|---|---|
+| 1440 | 549 \| 549, 0 | Đơn hàng 28 · Thông báo 1 · Đổi trả 2 · Công nợ 4,2tr | 3 (365) | 0 | 0 · 0 · 0 · 0 |
+| 1280 | 469 \| 469, 0 | như trên | 2 (476) | 0 | 0 · 0 · 0 · 0 |
+| 1200 | 429 \| 429, 0 | như trên | 2 (436) | 0 | 0 · 0 · 0 · 0 |
+| 1199 | 561 \| 561, 0 | như trên | 2 (568) | 0 | 0 · 0 · 0 · 0 |
+| 1024 | 473 \| 473, 0 | như trên | 2 (480) | 0 | 0 · 0 · 0 · 0 |
+| 992 | 457 \| 457, 0 | như trên | 2 (464) | 0 | 0 · 0 · 0 · 0 |
+| 991 | khối PC ẩn, Home mobile hiện | | | | |
+
+"Xem tất cả" 5 block đúng href; Giao hàng "1 đơn chưa giao". Mobile 360/390/430 so với lượt đo UAT ngay trước deploy:
+chỉ lệch 1px ở viên "Đang mở · còn hh:mm" (chữ đếm lùi), bố cục còn lại trùng.
