@@ -34,14 +34,24 @@
         });
     }, true);
 
+    function release(form) {
+        delete form.dataset.wjSubmitting;
+        actionButtons(form).forEach(function (btn) {
+            btn.classList.remove("is-loading", "is-disabled");
+        });
+    }
+
+    /* Form gửi bằng JS rồi Ở LẠI trang (lọc không reload `wj_ajax_list`) phải tự báo xong
+       bằng sự kiện này, nếu không cờ dính mãi và mọi lần submit sau bị chặn im (WJ-ORD-027). */
+    document.addEventListener("wj:form:release", function (ev) {
+        if (ev.target && ev.target.tagName === "FORM") {
+            release(ev.target);
+        }
+    });
+
     /* Quay lại bằng nút Back của trình duyệt thì trang lấy từ bfcache, form vẫn
        mang cờ cũ ⇒ mọi nút chết. Gỡ cờ khi trang hiện lại. */
     window.addEventListener("pageshow", function () {
-        document.querySelectorAll("form[data-wj-submitting]").forEach(function (form) {
-            delete form.dataset.wjSubmitting;
-            actionButtons(form).forEach(function (btn) {
-                btn.classList.remove("is-loading", "is-disabled");
-            });
-        });
+        document.querySelectorAll("form[data-wj-submitting]").forEach(release);
     });
 })();

@@ -939,3 +939,50 @@
     outline: 2px solid var(--wujia-cta);
     outline-offset: 2px;
 }
+
+/* ==========================================================================
+   WJ-ORD-028 (G5) — hộp xác nhận gửi đơn. Dáng nền = Modal khung `wj-pc-modal__*`
+   (_pc_components.css); ở đây chỉ phần riêng: danh sách tóm tắt + nút ở màn hẹp.
+   z-index 1050 bằng overlay "Đang tạo đơn" — overlay đứng SAU trong DOM nên phủ lên hộp khi gửi.
+   ========================================================================== */
+.wj-order-confirm[hidden] { display: none; }
+.wj-order-confirm { padding: 16px; }
+.wj-order-confirm__panel { max-height: calc(100vh - 32px); overflow-y: auto; }
+.wj-order-confirm__changed {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--wujia-warning-bg);
+    color: var(--wujia-text-primary);
+    font-size: 14px;
+}
+.wj-order-confirm__changed[hidden] { display: none; }
+.wj-order-confirm__list { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.wj-order-confirm__row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.wj-order-confirm__row dt { flex: 0 0 auto; margin: 0; font-size: 14px; font-weight: 500; color: var(--wujia-text-subtitle); }
+.wj-order-confirm__row dd {
+    margin: 0;
+    min-width: 0;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--wujia-text-primary);
+    overflow-wrap: anywhere;          /* tên cửa hàng dài xuống dòng, không cắt chữ */
+}
+.wj-order-confirm__row--grand dd { font-size: 18px; font-weight: 700; color: var(--wujia-primary); }
+.wj-order-confirm__row--note { flex-direction: column; align-items: stretch; gap: 4px; }
+.wj-order-confirm__row--note dd {
+    text-align: left;
+    font-weight: 500;
+    white-space: pre-line;
+    max-height: 96px;
+    overflow-y: auto;
+}
+body.wj-order-confirm-open { overflow: hidden; }
+
+@media (max-width: 991.98px) {
+    .wj-order-confirm__panel { padding: 20px; border-radius: 16px; }
+    .wj-order-confirm .wj-pc-modal__title { font-size: 20px; }
+    /* Hai nút chia đôi hàng, vùng chạm ≥ 44 như BottomNav/Button chuẩn mobile. */
+    .wj-order-confirm__actions > .wj-btn { flex: 1 1 0; min-height: 44px; }
+}

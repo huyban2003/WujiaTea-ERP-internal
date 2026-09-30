@@ -299,6 +299,8 @@ class WujiaPortalSale(http.Controller):
             total_tax_amount += taxed['tax_amount']
         return {
             'cart_id': cart.id if cart else False,
+            # WJ-ORD-028: tên cửa hàng cho hộp xác nhận gửi đơn (đọc từ data-* của form gửi).
+            'store_name': (franchise.name or '') if franchise else '',
             'note': (cart.note or '') if cart else '',
             'line_count': len(lines_data),
             'total_qty': total_qty,
@@ -772,9 +774,18 @@ class WujiaPortalSale(http.Controller):
         except PortalOrderError as e:
             if e.code == 'ORDER_TIME_CLOSED':
                 return self._submit_time_closed(post)
+            if e.code == 'CART_EMPTY':
+                # WJ-ORD-028: lần gửi lặp gặp giỏ đã trống ⇒ về đúng đơn vừa tạo, không báo "giỏ trống".
+                recent = request.env['wujia.portal.cart'].sudo()._portal_just_submitted_order(
+                    fid, request.env.uid)
+                if recent:
+                    return self._submit_done_redirect(recent, post)
             return request.redirect(f'/portal/order/cart?error={e.code}')
         state = self._cart_state(cart, franchise)
         self._publish_cart_event(fid, state, 'submit')
+        return self._submit_done_redirect(order, post)
+
+    def _submit_done_redirect(self, order, post):
         # Mobile → màn "Đặt hàng thành công" (Figma 4963:2 màn 03); PC giữ nguyên
         # redirect sang trang chi tiết đơn như Sprint PC-1.
         if self._is_mobile_flow(post):

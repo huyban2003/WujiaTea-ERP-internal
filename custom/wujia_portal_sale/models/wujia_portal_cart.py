@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 import psycopg2
 from psycopg2 import errors as pg_errors
@@ -12,6 +13,8 @@ from odoo.addons.wujia_order_window.models.sale_order import OrderWindowClosed
 _logger = logging.getLogger(__name__)
 
 INT_MAX = 2147483647
+# WJ-ORD-028: cửa sổ coi một lần gửi lặp (double-click lọt, Back rồi gửi lại) là CÙNG một lần gửi.
+RESUBMIT_WINDOW = timedelta(minutes=2)
 
 
 class PortalOrderError(UserError):
@@ -86,6 +89,21 @@ class WujiaPortalCart(models.Model):
                 return self.line_ids
         except pg_errors.LockNotAvailable:
             raise PortalOrderError('CART_IS_PROCESSING')
+
+    @api.model
+    def _portal_just_submitted_order(self, franchise_id, user_id):
+        """Đơn portal mà CHÍNH user này vừa gửi cho cửa hàng này (≤ RESUBMIT_WINDOW), còn chờ xác nhận.
+
+        WJ-ORD-028: lần gửi thứ hai lọt qua lớp giao diện (double-click, Back rồi gửi lại) gặp giỏ
+        đã trống ⇒ `CART_EMPTY`. Khoá giỏ NOWAIT đã bảo đảm chỉ ra MỘT đơn; hàm này chỉ để controller
+        dẫn người dùng tới đơn vừa tạo thay vì báo "giỏ trống" gây hiểu là chưa gửi được."""
+        return self.env['sale.order'].search([
+            ('franchise_id', '=', franchise_id),
+            ('is_portal_order', '=', True),
+            ('portal_requester_user_id', '=', user_id),
+            ('state', 'in', ('draft', 'sent')),
+            ('create_date', '>=', fields.Datetime.now() - RESUBMIT_WINDOW),
+        ], order='id desc', limit=1)
 
     def action_submit_order(self, note=None):
         """Giỏ → SO draft portal (BA: không action_confirm). Raise PortalOrderError(code).

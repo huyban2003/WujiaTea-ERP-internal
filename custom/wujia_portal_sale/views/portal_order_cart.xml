@@ -103,7 +103,12 @@
             <!-- FUNC-MOB-ORDER-005: form bao CẢ ghi chú (cuộn trong flow) LẪN thanh
                  tổng cố định → portal_note gửi ĐỒNG BỘ khi submit (đúng như PC),
                  KHÔNG phình thanh cố định (WJ-ORD-013). Autosave qua hook wj-cart-note. -->
-            <form method="POST" action="/portal/order/submit" class="wj-mcart-form">
+            <form method="POST" action="/portal/order/submit" class="wj-mcart-form"
+                  data-wj-confirm-form="1"
+                  t-att-data-oc-store="cart_state['store_name'] if cart_state else ''"
+                  t-att-data-oc-lines="cart_state['line_count'] if cart_state else 0"
+                  t-att-data-oc-qty="cart_state['total_qty'] if cart_state else 0"
+                  t-att-data-oc-total="money(cart_state['total_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals']) if cart_state else ''">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                 <!-- Figma 4963:2: chỉ luồng mobile đi vào màn kết quả riêng (submitted /
                      rejected). PC không gửi field này → giữ redirect cũ đã retest. -->
@@ -140,7 +145,10 @@
                         </div>
                     </div>
                     <!-- WJ-ORD-006: ngoài giờ → disable + hint (server chặn ORDER_TIME_CLOSED) -->
+                    <!-- WJ-ORD-028: click mở hộp xác nhận; chỉ nút "Xác nhận gửi đơn" mới gửi form. -->
                     <button type="submit" class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wujia-mcart-submit"
+                            data-wj-confirm-open="1"
+                            t-att-data-wj-window-closed="'1' if (order_window_enabled and not order_window_open) else None"
                             t-att-disabled="'disabled' if (order_window_enabled and not order_window_open) else None">Gửi đơn đặt hàng</button>
                     <p t-if="order_window_enabled and not order_window_open" class="wujia-mcart-submit-hint">
                         Ngoài khung giờ — gửi lại lúc <t t-out="order_window_reopen"/>.
@@ -186,6 +194,8 @@
                     </div>
                     <t t-call="wujia_portal_sale.mcart_panel"/>
                 </div>
+
+                <t t-call="wujia_portal_sale.order_confirm_modal"/>
 
                 <!-- Figma 4963:2 màn 02 — overlay "Đang tạo đơn" khoá thao tác trong lúc
                      server xử lý submit. ĐẶT NGOÀI .wujia-mcart: cart sync swap innerHTML

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WJ-ORD-028 (G5) — hộp xác nhận cuối trước khi gửi đơn, dùng chung PC + mobile.
+
+         Dáng = Modal của khung (`wj-pc-modal__*`, `_pc_components.css`): panel 420, tự co
+         `100vw - 32px` ở mobile nên không dựng component thứ hai. Đặt ở CẤP TRANG, ngoài panel
+         giỏ: cart sync thay innerHTML panel mỗi lần reconcile, modal nằm trong sẽ bị xoá khi đang mở.
+
+         Số liệu không render ở đây — JS đọc `data-oc-*` của CHÍNH form gửi đơn lúc mở (form nằm trong
+         panel được thay mới nên số luôn khớp giỏ hiện tại), ghi chú đọc từ ô đang gõ. -->
+    <template id="order_confirm_modal" name="Wujia Portal — Xác nhận gửi đơn">
+        <div class="wj-pc-modal__backdrop wj-order-confirm" id="wjOrderConfirm" hidden="hidden">
+            <div class="wj-pc-modal__panel wj-order-confirm__panel" role="dialog" aria-modal="true"
+                 aria-labelledby="wjOrderConfirmTitle" aria-describedby="wjOrderConfirmDesc">
+                <h2 class="wj-pc-modal__title" id="wjOrderConfirmTitle">Xác nhận gửi đơn</h2>
+                <p class="wj-pc-modal__body" id="wjOrderConfirmDesc">Kiểm tra lại thông tin trước khi gửi đơn cho Ngô Gia.</p>
+                <p class="wj-order-confirm__changed" data-wj-oc="changed" role="alert" hidden="hidden">
+                    Giỏ hàng vừa thay đổi. Vui lòng kiểm tra lại trước khi gửi.
+                </p>
+                <hr class="wj-pc-modal__divider"/>
+                <dl class="wj-order-confirm__list">
+                    <div class="wj-order-confirm__row">
+                        <dt>Cửa hàng</dt>
+                        <dd data-wj-oc="store"/>
+                    </div>
+                    <div class="wj-order-confirm__row">
+                        <dt>Số mặt hàng</dt>
+                        <dd data-wj-oc="lines"/>
+                    </div>
+                    <div class="wj-order-confirm__row">
+                        <dt>Tổng số lượng</dt>
+                        <dd data-wj-oc="qty"/>
+                    </div>
+                    <div class="wj-order-confirm__row wj-order-confirm__row--grand">
+                        <dt>Tổng thanh toán</dt>
+                        <dd data-wj-oc="total"/>
+                    </div>
+                    <div class="wj-order-confirm__row wj-order-confirm__row--note">
+                        <dt>Ghi chú</dt>
+                        <dd data-wj-oc="note"/>
+                    </div>
+                </dl>
+                <div class="wj-pc-modal__actions wj-order-confirm__actions">
+                    <button type="button" class="wj-btn wj-btn--secondary" data-wj-oc-action="cancel">Hủy</button>
+                    <button type="button" class="wj-btn wj-btn--primary" data-wj-oc-action="confirm">Xác nhận gửi đơn</button>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

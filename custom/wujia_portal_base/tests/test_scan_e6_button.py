@@ -341,7 +341,12 @@ BOUNDARY_ORDER = (
 # phía là giỏ hàng chết lặng (không lỗi JS, chỉ là nút bấm không làm gì).
 MOC_JS = (
     ('btn-add-cart-detail', 'portal_order_product_detail.xml', 'portal_order.js'),
-    ('wujia-mcart-submit', 'portal_order_cart.xml', 'portal_order.js'),
+    # G5 (WJ-ORD-028): nút gửi đơn PC + mobile chỉ mở hộp xác nhận, JS bắt qua data-attr
+    # thay cho lớp `wujia-mcart-submit` (lớp đó còn ở view, chỉ là móc đo QA).
+    ('data-wj-confirm-open', 'portal_order_cart.xml', 'portal_order.js'),
+    ('data-wj-confirm-open', 'pc_cart_panel.xml', 'portal_order.js'),
+    ('data-wj-confirm-form', 'portal_order_cart.xml', 'portal_order.js'),
+    ('data-wj-confirm-form', 'pc_cart_panel.xml', 'portal_order.js'),
 )
 
 
