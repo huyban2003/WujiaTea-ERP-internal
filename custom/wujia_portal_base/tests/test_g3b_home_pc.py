@@ -99,7 +99,7 @@ class TestHomePcBlocksArch(TransactionCase):
                     't-foreach="latest_notifications"', 't-foreach="articles"',
                     "money(o.amount_total, o.currency_id.symbol, o.currency_id.decimal_places)",
                     "money(it['total'], store_currency_symbol, store_currency_decimals)",
-                    'wj_return_status(r)', 'm_order_badges.get(o.state', 'm_hotline',
+                    'wj_return_status(r)', 'wj_order_badge(o)', 'm_hotline',
                     'active_franchise.main_owner_member_id.user_id.name'):
             self.assertIn(var, src)
             self.assertIn(var, mobile)

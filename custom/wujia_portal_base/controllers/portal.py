@@ -5,14 +5,13 @@ from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.wujia_portal_layout.controllers.utils import safe_local_path
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    MOBILE_ORDER_BADGES,
     PAGE_SIZE_OPTIONS,
     build_pager,
-    status_badge,
     fmt_local_dt,
     get_upcoming_batches,
     parse_page_size,
     portal_money,
+    portal_order_badge,
     return_status_label,
 )
 from odoo.addons.wujia_portal_base.models.wujia_franchise_member import ROLE_LABELS
@@ -168,9 +167,8 @@ class WujiaPortal(CustomerPortal):
             # Sprint 17 dashboard-merge keys (mobile home d-lg-none)
             'm_upcoming_batches': upcoming['items'],
             'm_undelivered_count': upcoming['undelivered_count'],
-            'm_order_badges': MOBILE_ORDER_BADGES,
+            'wj_order_badge': portal_order_badge,
             'wj_return_status': return_status_label,
-            'wj_badge_default': status_badge('neutral'),
             'articles': articles,
             'm_hotline': request.env.company.sudo().phone or '',
             'title': _('Trang chủ - Portal'),

@@ -484,13 +484,57 @@ def status_badge_for(label, default='neutral'):
     return status_badge(STATUS_VARIANT_BY_LABEL.get(label, default))
 
 
-MOBILE_ORDER_BADGES = {
-    'draft':  ('Nháp', status_badge('neutral')),
-    'sent':   ('Đã gửi', status_badge('pending')),
-    'sale':   ('Đã xác nhận', status_badge('info')),
-    'done':   ('Hoàn tất', status_badge('success')),
-    'cancel': ('Đã hủy', status_badge('danger')),
+# ---------------------------------------------------------------------------
+# Trạng thái SO trên cổng — NGUỒN DUY NHẤT cho Home (PC + mobile), Lịch sử đặt hàng
+# và màn kết quả gửi đơn. WJ-HOME-010: Home từng có bảng riêng (draft → "Nháp") nên
+# cùng một đơn hiện hai tên khác nhau. Dời từ wujia_portal_purchase_history về đây vì
+# portal_base không được import ngược lên module phụ thuộc nó.
+# ---------------------------------------------------------------------------
+
+# state → (label VN, status_type). status_type = key ngữ nghĩa, template map sang badge CSS
+# riêng (PC/mobile). 'cancel' KHÔNG có ở đây — đơn huỷ bị loại khỏi lịch sử và Home (BA).
+# State custom thêm về sau rơi về DEFAULT_STATE_META (BA: nhãn an toàn "Đang xử lý").
+SALE_STATE_META = {
+    'draft': ('Chờ xác nhận', 'pending'),
+    'sent': ('Đã gửi', 'sent'),
+    'sale': ('Đã xác nhận', 'confirmed'),
 }
+DEFAULT_STATE_META = ('Đang xử lý', 'pending')
+
+# WJ-PH-003 — phương án (a) chủ dự án chốt 03/08: cửa hàng chỉ nhìn MỘT cột trạng thái.
+# sale.order.state của Odoo 19 chỉ có draft/sent/sale/cancel; "Đang giao"/"Hoàn tất" suy từ
+# batch_id.delivery_batch_status và ĐÈ trạng thái đơn khi đơn đã xác nhận.
+DELIVERY_OVERRIDE_META = {
+    'delivering': ('Đang giao', 'transit'),
+    'done': ('Hoàn tất', 'done'),
+}
+# Trạng thái chuyến KHÔNG đè nhãn đơn (chuyến huỷ/chưa đi không làm đơn đổi trạng thái).
+# False = batch cũ chưa có delivery_batch_status — vẫn phải nằm trong nhóm "Đã xác nhận".
+DELIVERY_NEUTRAL_STATUSES = ['draft', 'assigned', 'loading', 'cancelled', False]
+
+
+def portal_order_state_meta(state):
+    return SALE_STATE_META.get(state, DEFAULT_STATE_META)
+
+
+def portal_order_status(order):
+    """(label, status_type) hiển thị — trạng thái giao đè trạng thái đơn khi đơn đã xác nhận.
+
+    delivery_batch_status thuộc wujia_delivery (portal_base không depend) → guard _fields.
+    """
+    if order.state == 'sale':
+        batch = order.batch_id
+        if batch and 'delivery_batch_status' in batch._fields:
+            override = DELIVERY_OVERRIDE_META.get(batch.delivery_batch_status)
+            if override:
+                return override
+    return portal_order_state_meta(order.state)
+
+
+def portal_order_badge(order):
+    """(label, class badge) cho template — màu theo NHÃN, cùng cách Lịch sử tô badge."""
+    label = portal_order_status(order)[0]
+    return label, status_badge_for(label)
 
 # CMP-SB-001: cả hai bậc giao hàng đều là processing theo ví dụ BA.
 MOBILE_BATCH_BADGES = {

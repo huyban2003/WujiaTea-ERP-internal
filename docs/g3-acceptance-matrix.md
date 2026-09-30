@@ -220,3 +220,50 @@ Push `d8f89bf` đưa cả G3a và G3b lên UAT (G3a `160d13e` đã push trước
 
 "Xem tất cả" 5 block đúng href; Giao hàng "1 đơn chưa giao". Mobile 360/390/430 so với lượt đo UAT ngay trước deploy:
 chỉ lệch 1px ở viên "Đang mở · còn hh:mm" (chữ đếm lùi), bố cục còn lại trùng.
+
+## 12. Issue 150 `WJ-HOME-009` + 151 `WJ-HOME-010` — đơn gần đây trên Home (30/09/2026)
+
+Hai issue BA mở sau G3 (status `New`, chủ dự án cho làm trước). Cùng đơn S00075 (draft, `date_order` 15:57 UTC).
+
+**Chẩn đoán**
+- 150: block PC **cũ** (trước G3b, `160d13e` `portal_home.xml:224`) in `order.date_order.strftime(...)` không đổi múi giờ.
+  G3b (`d8f89bf`) xoá block đó và dùng `wj_dt` như mobile. BA đo S00075 trước khi G3b lên UAT (30/09 16:04).
+  Đo UAT chỉ-đọc sau deploy G3b, `em.hcm`: Home PC **22:57 29/09/2026** = mobile = Lịch sử. ⇒ đã sửa, phiên này chỉ thêm
+  test chặn hồi quy.
+- 151: Home dùng bảng riêng `MOBILE_ORDER_BADGES` (draft → "Nháp" neutral; không có nhãn giao hàng đè), Lịch sử dùng
+  `SALE_STATE_META` + `DELIVERY_OVERRIDE_META`. Sửa: dời luật trạng thái xuống `wujia_portal_base/controllers/utils.py`
+  (`portal_order_status`, `portal_order_badge`), Home PC + mobile gọi `wj_order_badge(o)`, Lịch sử import cùng hàm (tên cũ
+  `_state_meta`/`_order_status` giữ làm alias). Xoá `MOBILE_ORDER_BADGES`.
+
+**Theo "Kết quả mong muốn" (nguyên văn cột H)**
+
+| # | Tiêu chí | Kết quả | Bằng chứng |
+|---|---|---|---|
+| 150-1 | Cùng SO, tz Asia/Ho_Chi_Minh: Home PC, Home mobile, danh sách + chi tiết Lịch sử cùng ngày giờ | ✅ | UAT S00075 PC/mobile/chi tiết 22:57 29/09; test `test_vietnam_user_sees_2257_on_pc_and_mobile` |
+| 150-2 | S00075 hiện 22:57 29/09/2026 mọi nơi | ✅ | UAT chỉ-đọc `em.hcm` |
+| 150-3 | tz khác + tz trống theo fallback dự án | ✅ | test Tokyo → 00:57 30/09; tz rỗng → `DEFAULT_PORTAL_TZ` 22:57 |
+| 150-4 | Không sửa dữ liệu nguồn | ✅ | chỉ presentation (`wj_dt`) |
+| 151-1 | Cùng SO: nhãn + màu badge giống nhau ở Home PC, Home mobile, danh sách, chi tiết Lịch sử | ✅ | test so 4 nơi × 5 trạng thái; local `anh.owner` đơn 1799/12 |
+| 151-2 | S00075 ở trạng thái hiện tại hiện "Chờ xác nhận" trên Home | ✅ local (draft) · UAT sau deploy | local 3 user: draft → "Chờ xác nhận" pending |
+| 151-3 | Kiểm draft/sent/sale/done/cancel | ✅ | sale.order Odoo 19 không có `done`: "Hoàn tất" = chuyến done đè (như Lịch sử); cancel bị loại khỏi Home và Lịch sử (test) |
+| 151-4 | Không đổi quyền, dữ liệu, workflow | ✅ | không đụng model/ACL, domain Home giữ nguyên |
+
+**Đo** (DB `wujia_g3s`, server 8033)
+- Query `/portal` trước/sau: 27/36/36 → 27/36/36, **Δ0** (`batch_id` store + index, prefetch).
+- `wj_home_g3.py` 1440/1280/1200/1199/1024/992: 0 tràn, 0 chữ bị cắt, 0 badge đè, Δh 0; 991 ra mobile. "Chờ xác nhận"
+  vừa trong card 464px ở 992.
+- Mobile 360/390/430: vân tay đổi đúng do chữ nhãn "Nháp" → "Chờ xác nhận"; không tràn.
+
+**Test**
+- `wujia_portal_purchase_history/tests/test_home_order_status.py` 9 test (tag `wujia_home_order_status`).
+- Mutation (block PC về bảng cũ + `strftime` UTC): **6/6** ca có thay đổi đỏ (draft, đang giao, hoàn tất, 3 ca giờ);
+  sent / sale-không-chuyến xanh vì nhãn cũ vốn trùng.
+- `-u` 2 module + test 3 module: 393/0/0. Suite 20 module (`-u` cả 20, có `wujia_sale`): 939 test, **0 failed, 2 error
+  ở `wujia_sale`** (`ValidationError: Quants cannot be created for consumables` trong fixture test — không liên quan, phiên
+  này không đụng `wujia_sale`).
+- `check_layers`: 0 vi phạm tầng; R7 2 dòng ở `wujia_franchise` (code anh Thái, có từ trước).
+
+**LIMIT / FYI BA**
+- Home dùng đúng bộ nhãn của Lịch sử, nên đơn đã xác nhận mà chuyến đang giao / đã giao xong hiện "Đang giao" /
+  "Hoàn tất" (trước đây Home luôn "Đã xác nhận").
+- Nhãn "Đã gửi" (state `sent`) giữ như Lịch sử.
