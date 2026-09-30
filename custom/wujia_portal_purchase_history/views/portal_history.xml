@@ -68,7 +68,8 @@
                             <a t-attf-href="/portal/purchase-history/#{r['id']}" class="wj-pc-link" t-out="r['name']"/>
                         </td>
                         <td class="wj-pc-td--muted" t-out="r['create_date'] and r['create_date'].strftime('%d/%m/%Y %H:%M') or '—'"/>
-                        <td class="wj-pc-td--muted" t-out="r['date_order'] and r['date_order'].strftime('%d/%m/%Y') or '—'"/>
+                        <!-- WJ-ORD-029: draft/sent chưa có ngày xác nhận ⇒ "—" (date_order của báo giá chỉ là giờ tạo). -->
+                        <td class="wj-pc-td--muted" t-out="r['confirm_date'] and r['confirm_date'].strftime('%d/%m/%Y') or '—'"/>
                         <td t-out="r['requester_display']"/>
                         <td class="text-end wj-pc-td--amount" t-out="money(r['amount_total'], r['currency_symbol'], r['currency_decimals'])"/>
                         <td t-out="r['batch_name'] or 'Chưa giao'"/>
@@ -357,7 +358,7 @@
                                      bị đẩy theo mép của nó, trôi khỏi mã đơn — ảnh chụp bắt được,
                                      mọi số đo vẫn Pass. -->
                                 <p class="wj-pc-order-head__meta">
-                                    Ngày tạo <t t-out="h['create_date'] and h['create_date'].strftime('%d/%m/%Y %H:%M') or '—'"/>
+                                    Ngày đặt hàng <t t-out="h['create_date'] and h['create_date'].strftime('%d/%m/%Y %H:%M') or '—'"/>
                                     · Người đặt <t t-out="h['requester_display']"/>
                                 </p>
                             </div>
@@ -379,12 +380,13 @@
                                 </t>
                                 <div class="wj-pc-kv-grid">
                                     <div class="wj-pc-kv">
-                                        <span class="wj-pc-kv__label">Ngày tạo</span>
+                                        <span class="wj-pc-kv__label">Ngày đặt hàng</span>
                                         <span class="wj-pc-kv__value" t-out="h['create_date'] and h['create_date'].strftime('%d/%m/%Y %H:%M') or '—'"/>
                                     </div>
-                                    <div class="wj-pc-kv">
+                                    <!-- WJ-ORD-029: chỉ đơn đã xác nhận mới có dòng này (chủ dự án chốt 30/09: ẩn hẳn, không "—"). -->
+                                    <div class="wj-pc-kv" t-if="h['confirm_date']">
                                         <span class="wj-pc-kv__label">Ngày xác nhận</span>
-                                        <span class="wj-pc-kv__value" t-out="h['date_order'] and h['date_order'].strftime('%d/%m/%Y %H:%M') or '—'"/>
+                                        <span class="wj-pc-kv__value" t-out="h['confirm_date'].strftime('%d/%m/%Y %H:%M')"/>
                                     </div>
                                     <div class="wj-pc-kv">
                                         <span class="wj-pc-kv__label">Người đặt</span>

@@ -83,6 +83,15 @@ def _requester_display(order):
     return order.portal_requester_user_id.name or BACKEND_REQUESTER_LABEL
 
 
+def _confirm_date(order, tz):
+    """WJ-ORD-029: "Ngày xác nhận" chỉ có nghĩa khi đơn ĐÃ xác nhận.
+
+    Odoo đặt `date_order` = lúc tạo cho báo giá rồi ghi đè lúc `action_confirm`, nên với
+    draft/sent nó chỉ là giờ tạo đội lốt ngày xác nhận. Odoo 19 không còn state `done`;
+    "Đang giao"/"Hoàn tất" suy từ chuyến giao nhưng đơn vẫn ở `sale` ⇒ vẫn có ngày."""
+    return to_local_dt(order.date_order, tz) if order.state == 'sale' else None
+
+
 def _history_row_vals(order, line_count_map, batch_status_labels, tz):
     """Dataset lõi 1 dòng list — dùng chung PC + mobile."""
     label, status_type = _order_status(order)
@@ -93,6 +102,7 @@ def _history_row_vals(order, line_count_map, batch_status_labels, tz):
         # Odoo lưu naive UTC → đổi sang giờ user, template giữ nguyên .strftime (WJ-PH-002).
         'create_date': to_local_dt(order.create_date, tz),
         'date_order': to_local_dt(order.date_order, tz),
+        'confirm_date': _confirm_date(order, tz),
         'state_label': label,
         'status_type': status_type,
         # CMP-SB-001: variant lấy từ NHÃN qua map dùng chung — PC và mobile
@@ -146,6 +156,7 @@ def _history_detail_vals(order, batch_status_labels, tz):
         'name': order.name,
         'create_date': to_local_dt(order.create_date, tz),
         'date_order': to_local_dt(order.date_order, tz),
+        'confirm_date': _confirm_date(order, tz),
         'state_label': label,
         'status_type': status_type,
         # CMP-SB-001: variant lấy từ NHÃN qua map dùng chung — PC và mobile
