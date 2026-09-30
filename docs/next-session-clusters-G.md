@@ -31,8 +31,8 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 | G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` + `wujia_portal_debt` | ✅ 30/09 — code + đo xong, commit `feat(G3a)` (xem git log); deploy UAT 30/09 cùng G3b, ledger 142 ghi ở G3b. Nghiệm thu `docs/g3-acceptance-matrix.md` |
 | G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ✅ 30/09 — code + đo xong, commit `feat(G3b)` (xem git log), deploy UAT 30/09 16:04 cùng G3a, đo chỉ-đọc sạch, 142 → Ready for Retest. Nghiệm thu `docs/g3-acceptance-matrix.md` §6–§10 (12/12) |
 | G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ⏸ 30/09 — **dòng 146 không còn trên sheet** (STT nhảy 145 → 147), chờ BA xác nhận xoá hay chuyển chỗ. Cách làm đã chốt, xem khối G4 |
-| G5 | `WJ-ORD-028` (148, High) → `WJ-ORD-027` (147) | `wujia_portal_sale` (+ `wujia_portal_base` nếu gốc 147 ở `wj_ajax_list.js`) | ▶ 30/09 — đang làm |
-| G6 | `WJ-ORD-029` (149) | `wujia_portal_purchase_history` | ☐ 30/09 — làm ngay sau G5 cùng phiên |
+| G5 | `WJ-ORD-028` (148, High) → `WJ-ORD-027` (147) | `wujia_portal_sale` + `wujia_portal_base` + `wujia_portal_layout` | ✅ 30/09 — code + đo xong, commit `887da0a`, push 30/09 ~19:05 · ĐÃ DEPLOY UAT 19:46 (cùng G6) · Nghiệm thu `docs/g5-acceptance-matrix.md` (148 6/6, 147 4/4) |
+| G6 | `WJ-ORD-029` (149) | `wujia_portal_purchase_history` | ✅ 30/09 — code + đo xong, commit `9efa67f`, push 30/09 19:39 · ĐÃ DEPLOY UAT 19:46, đo UAT chỉ-đọc 12/12 · Nghiệm thu `docs/g6-acceptance-matrix.md` (5/5) |
 
 **Reconcile 26/09** (`git log --all -S"<ID>"` + `grep -rn "<ID>" custom/ docs/qa-issue-ledger.yaml`
 cho cả 7 ID): commit nhắc tới chỉ là docs (`1c4f1a0`, `2835f8e`, `8ef3081` — ghi chú review/chapter),
@@ -355,6 +355,26 @@ route `portal_order_submit` (`controllers/portal.py`); modal PC mẫu `wj-pc-mod
 form mobile cùng `name=keyword` trên `/portal/order`; lọc không reload `wujia_portal_base/static/src/js/wj_ajax_list.js`
 (dùng chung 11 màn); fragment `/portal/order/results`. Đua submit: `scripts/qa/cart_race.py`.
 
+### 🔴 Bài học G5
+
+- **Khoá dùng chung phải có đường nhả cho trang không tải lại.** CMP-BTN-001 (E6a) cắm cờ `wjSubmitting` lên form và chỉ
+  gỡ ở `pageshow`. Mọi form gửi bằng JS rồi Ở LẠI trang (lọc `wj_ajax_list`) chỉ gửi được 1 lần — 147 là triệu chứng
+  trên 11 màn, BA chỉ thấy ở Đặt hàng. Nay: `wj:form:release` (bắn trên form) là hợp đồng nhả khoá; trang nào tự
+  submit bằng JS mà không rời trang phải bắn nó.
+- **Không kiểm lại cờ của lớp khác.** Listener overlay mobile tự kiểm `wjSubmitting` — cờ do khoá chung (pha capture)
+  cắm TRƯỚC ⇒ tự chặn lần gửi đầu: nút "Gửi đơn đặt hàng" mobile chết lặng từ E6a, không test nào bắt vì không có
+  test bấm thật. Bộ đo tạo đơn thật (`wj_order_confirm.py`, chỉ localhost) bắt được ngay.
+- **Đo "gửi lại" phải so URL, không chỉ đếm request.** Lượt đầu bộ `wj_resubmit` đếm 0 request ở 3 màn vì chúng tải
+  route fragment `<path>/results` — khớp cả `path` lẫn `path + '/results'`.
+- **Test E6 ghim móc JS** (`MOC_JS`): đổi cách JS bắt nút (lớp → data-attr) thì sửa móc trong test, đừng nhét lại lớp
+  cũ vào JS cho xanh.
+- **Kế thừa class test của module khác:** import MODULE (`from . import test_f6 as f6`), không import class — loader
+  Odoo gom mọi TestCase trong namespace nên sẽ chạy lại cả F6. Tắt test cha bằng gán `None`, nhưng chỉ cho method
+  (`test_cursor_lock_timeout` cũng bắt đầu bằng `test_` — gán None ⇒ mọi request HttpCase 500).
+- **Đo trước/sau cùng DB, cùng giỏ:** git worktree HEAD làm `--addons-path` + `-u` qua lại; vân tay `wj_density` là
+  hộp + style (không gồm chữ) — đổi chữ không xê dịch sẽ ra Δ0, nội dung chữ phải có bộ đo riêng.
+- Runner deploy có thể bỏ lỡ một lượt push (lần 2: G3a, G5) — luôn đọc version UAT qua XML-RPC, đừng tin "đã push".
+
 ---
 
 ## G6 — Lịch sử: "Ngày xác nhận" chỉ khi đơn đã xác nhận (149)
@@ -369,3 +389,12 @@ sale/done THEN hiển thị Ngày xác nhận = date_order theo timezone ngườ
 
 **Seam:** `_history_row_vals` / `_history_detail_vals` (`wujia_portal_purchase_history/controllers/portal.py`) + `views/portal_history.xml`
 (cột PC, kv chi tiết). Lọc ngày đã dùng `create_date` — không đổi. Đơn huỷ bị loại khỏi Lịch sử ⇒ nhánh cancel ghi LIMIT.
+
+### 🔴 Bài học G6
+
+- `sale.order.date_order` của Odoo = giờ tạo cho báo giá, bị ghi đè lúc `action_confirm` ⇒ KHÔNG bao giờ in nó dưới
+  nhãn "Ngày xác nhận" mà không kiểm `state == 'sale'`. Tách key mới (`confirm_date`) thay vì đổi nghĩa key cũ để
+  caller khác (Home) không vỡ.
+- Ẩn một ô trong lưới kv 2 cột: đo lại chiều cao 2 card cạnh nhau (ở đây vẫn bằng nhau vì card giao hàng 4 ô).
+- Bộ đo chỉ-đọc cho user nhiều cửa hàng phải cho lọt `/portal/franchise/switch` (overlay bắt chọn cửa hàng lúc vào);
+  thiếu thì điều hướng bị huỷ → `chrome-error://`.

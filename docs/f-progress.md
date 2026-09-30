@@ -1927,3 +1927,25 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Lỗi chỉ ở một khổ đúng mốc (992) ⇒ quét ±1px quanh mốc breakpoint, và so computed style 2 khổ để ra ngay thuộc tính gây lỗi.
 - Nợ để lại: lượt sửa top bar 992 (`wujia_portal_layout`); quyết tiền tệ bảng giá UAT; G4 chờ BA.
 - Phiên kế: sửa top bar 992 (nhỏ), rồi 148 `WJ-ORD-028` · 147 · 149 (đang `New`, hỏi chủ dự án).
+
+## G5 (147 + 148) + G6 (149) · 30/09/2026 · Mac
+- Kết quả: ✅ code + đo + push + **UAT nhận 19:46:49** (`portal_layout` 19.0.59.2.0 · `portal_base` 19.0.7.33.0 ·
+  `portal_sale` 19.0.4.27.0 · `purchase_history` 19.0.3.21.0). Commit `887da0a` (G5) · `9efa67f` (G6).
+  Nghiệm thu `docs/g5-acceptance-matrix.md` (148 6/6, 147 4/4) · `docs/g6-acceptance-matrix.md` (5/5).
+- G5: hộp xác nhận gửi đơn PC + mobile; gửi lặp khi giỏ rỗng ⇒ về đơn vừa tạo (không đổi schema). 147 gốc = khoá
+  CMP-BTN-001 (E6a) không nhả khi lọc AJAX ⇒ dính cả 11 màn danh sách; sửa bằng `wj:form:release`. Sửa kèm: nút gửi đơn
+  mobile không POST (từ E6a). Test 13, mutation 12/12, suite 1006 (1 FAIL móc E6 đã sửa, 1 error fixture `wujia_sale` có
+  sẵn), query Δ0 27 route, mobile Δ0.
+- G6: `confirm_date` chỉ khi `state == 'sale'`; cột PC "—", chi tiết ẩn dòng, nhãn "Ngày đặt hàng". Test 7, mutation 7/7,
+  393/0/0, query Δ0. **UAT đo chỉ-đọc `wj_history_g6.py` em.hcm S00075/S00043: 12/12 đạt.**
+- Ledger 3 entry đã ghi (`WJ-ORD-027/028/029`), `build_override` còn "CHƯA ĐO UAT"; `qa_sync` dry-run OK, **chưa `--apply`**.
+- Việc dở cho phiên kế (user dừng phiên):
+  1. UAT chỉ-đọc G5: `wj_order_confirm_probe.py --base UAT --login em.hcm` (chỉ mở hộp rồi Hủy, cần giỏ HCM-01 có hàng,
+     không tự thêm) + `wj_resubmit.py --base UAT --login em.hcm`.
+  2. Sửa `build_override` 3 entry → "ĐÃ DEPLOY UAT 30/09/2026 …" rồi `qa_sync.py --apply --only <ID>` từng ID (python env
+     `odoo19` — python hệ thống thiếu `yaml`), verify CSV.
+  3. Cập nhật header + §5 `wujia-compact-summary.md` (đang chậm từ G2) — gộp G3→G6.
+  4. Push commit docs này (push = deploy, cần cổng duyệt).
+  5. Báo BA: 147 dính cả 11 màn; nút gửi đơn mobile trước G5 không gửi được; S00074 là ví dụ rõ của 149.
+- Nợ: top bar PC vỡ ở 992; bảng giá UAT USD; G4 chờ BA; server 8055 + DB `wujia_g5s`, `wujia_g3s` + worktree
+  `scratchpad/g5/base_wt` (`git worktree prune`) xoá được.
