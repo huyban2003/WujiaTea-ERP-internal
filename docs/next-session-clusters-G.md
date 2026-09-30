@@ -1,4 +1,4 @@
-# Cụm G1–G4 — prompt cho từng session
+# Cụm G1–G6 — prompt cho từng session
 
 **Nguồn:** phiên phân cụm 2026-09-26 (7 issue `Ready for Dev` STT 140–146 trên `5. Issue List`, tra
 bằng `issue_queue.py --dev` cùng ngày; Owner=Dev, Need BA Confirm=No, 0 `Retest Failed`). Kế hoạch
@@ -31,6 +31,8 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 | G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` + `wujia_portal_debt` | ✅ 30/09 — code + đo xong, commit `feat(G3a)` (xem git log); deploy UAT 30/09 cùng G3b, ledger 142 ghi ở G3b. Nghiệm thu `docs/g3-acceptance-matrix.md` |
 | G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ✅ 30/09 — code + đo xong, commit `feat(G3b)` (xem git log), deploy UAT 30/09 16:04 cùng G3a, đo chỉ-đọc sạch, 142 → Ready for Retest. Nghiệm thu `docs/g3-acceptance-matrix.md` §6–§10 (12/12) |
 | G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ⏸ 30/09 — **dòng 146 không còn trên sheet** (STT nhảy 145 → 147), chờ BA xác nhận xoá hay chuyển chỗ. Cách làm đã chốt, xem khối G4 |
+| G5 | `WJ-ORD-028` (148, High) → `WJ-ORD-027` (147) | `wujia_portal_sale` (+ `wujia_portal_base` nếu gốc 147 ở `wj_ajax_list.js`) | ▶ 30/09 — đang làm |
+| G6 | `WJ-ORD-029` (149) | `wujia_portal_purchase_history` | ☐ 30/09 — làm ngay sau G5 cùng phiên |
 
 **Reconcile 26/09** (`git log --all -S"<ID>"` + `grep -rn "<ID>" custom/ docs/qa-issue-ledger.yaml`
 cho cả 7 ID): commit nhắc tới chỉ là docs (`1c4f1a0`, `2835f8e`, `8ef3081` — ghi chú review/chapter),
@@ -322,3 +324,48 @@ hình). Đầu phiên: đọc RPC chỉ-đọc UAT `ir.module.module` xem `websi
   không redirect loop, `/web/login` của user nội bộ giữ nguyên.
 
 ---
+
+**Vì sao bỏ G4 (ghi 30/09):** BA xoá dòng 146 khỏi sheet sau khi phân cụm; lúc đó G4 **chưa có dòng code nào** (git + UAT
+đều không có). Khối trên giữ nguyên để làm tiếp nếu BA mở lại. Lứa mới đánh số tiếp **G5, G6**.
+
+---
+
+## G5 — Đặt hàng: hộp xác nhận gửi đơn (148) + tìm/lọc giữ query cũ (147)
+
+**Nguồn:** `issue_queue.py --dev` 30/09 ra 3 issue BA mở 29/09 (exploratory UAT, đơn test S00075). Reconcile
+`git log --all -S` + `grep custom/` + ledger: 0 dòng code (028 chỉ có dòng nhắc trong nhật ký `de5b913`).
+Plan phiên: `~/.claude/plans/wondrous-munching-taco.md`.
+
+**148 `WJ-ORD-028` (High, POR-018) — AC nguyên văn BA:** GIVEN giỏ có dữ liệu WHEN bấm "Gửi đơn đặt hàng" THEN chưa
+tạo SO và hiển thị modal tóm tắt. WHEN bấm Hủy THEN đóng modal, giữ nguyên giỏ và không tạo dữ liệu. WHEN bấm Xác nhận
+THEN tạo đúng một SO, chuyển sang màn kết quả và làm rỗng giỏ. Double-click/refresh không tạo đơn trùng. Modal tối thiểu:
+số mặt hàng, tổng số lượng, tổng thanh toán, cửa hàng đang thao tác, ghi chú; 2 action Hủy | Xác nhận gửi đơn.
+
+**147 `WJ-ORD-027` (Medium, POR-015) — AC nguyên văn BA:** GIVEN đang có kết quả Matcha WHEN đổi keyword sang chuỗi
+không tồn tại và bấm Tìm kiếm THEN URL/query dùng keyword mới và hiển thị trạng thái không có kết quả. GIVEN đổi danh
+mục THEN request và danh sách dùng đúng danh mục mới. Desktop/mobile tương đương; Enter và click tương đương; không giữ
+kết quả cũ. Đề xuất: reset về trang 1, giữ điều kiện khi phân trang và Back/Forward.
+
+**Chủ dự án chốt 30/09 (đừng hỏi lại):** 148 **không đổi schema** — khoá nút + overlay cả PC lẫn mobile; server giữ
+khoá NOWAIT `_lock_lines`; submit gặp `CART_EMPTY` mà có đơn portal draft/sent của đúng cửa hàng + user vừa tạo ≤2 phút
+⇒ chuyển sang màn kết quả của đơn đó thay vì báo giỏ trống. 147 **tái hiện trước rồi mới sửa ở gốc**.
+
+**Seam:** nút submit `pc_cart_panel.xml:123` · `portal_order_cart.xml:143`; overlay mobile `portal_order.js` (#wj-order-submitting);
+route `portal_order_submit` (`controllers/portal.py`); modal PC mẫu `wj-pc-modal` (`wujia_portal_debt`). 147: form FilterBar PC +
+form mobile cùng `name=keyword` trên `/portal/order`; lọc không reload `wujia_portal_base/static/src/js/wj_ajax_list.js`
+(dùng chung 11 màn); fragment `/portal/order/results`. Đua submit: `scripts/qa/cart_race.py`.
+
+---
+
+## G6 — Lịch sử: "Ngày xác nhận" chỉ khi đơn đã xác nhận (149)
+
+**149 `WJ-ORD-029` (Medium, POR-013) — AC nguyên văn BA:** GIVEN SO ở draft hoặc sent WHEN mở list/detail lịch sử THEN
+không hiển thị "Ngày xác nhận"; trạng thái vẫn là Chờ xác nhận và có thể hiển thị Ngày đặt hàng = create_date. GIVEN SO ở
+sale/done THEN hiển thị Ngày xác nhận = date_order theo timezone người dùng. Filter/sort/label dùng đúng nghĩa; không thay
+đổi dữ liệu sale.order.
+
+**Chủ dự án chốt 30/09:** cột "Ngày xác nhận" bảng PC ghi "—" khi draft/sent; chi tiết ẩn hẳn dòng, nhãn "Ngày tạo" →
+"Ngày đặt hàng" (vẫn `create_date`). Chỉ `state == 'sale'` mới có ngày xác nhận (Odoo 19 không có `done`).
+
+**Seam:** `_history_row_vals` / `_history_detail_vals` (`wujia_portal_purchase_history/controllers/portal.py`) + `views/portal_history.xml`
+(cột PC, kv chi tiết). Lọc ngày đã dùng `create_date` — không đổi. Đơn huỷ bị loại khỏi Lịch sử ⇒ nhánh cancel ghi LIMIT.

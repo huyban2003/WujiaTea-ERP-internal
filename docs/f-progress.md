@@ -1908,3 +1908,22 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Server 8033 + DB `wujia_g3s` xoá được.
 - Phiên kế: **148 `WJ-ORD-028`** (High — hộp xác nhận trước khi gửi đơn, chống double-submit), rồi 147 (tìm kiếm giữ
   query cũ) và 149 (ẩn "Ngày xác nhận" khi đơn còn nháp). Cả ba đang `New`, hỏi chủ dự án có làm trước không.
+
+## Review cụm G trên UAT (G1 · G2 · G3a/b · H150/151) · 30/09/2026 · Mac
+- Kết quả: ✅ review xong, chỉ đọc, 0 dòng code. Báo cáo `docs/g-review-uat.md`: 25 dòng AC → 20 ✅ · 1 ❌ · 4 LIMIT (95 % dòng
+  đo được).
+- Đầu phiên: chủ dự án tưởng G4 đã xong; git + UAT không có G4, session "Wujia issue G4" xác nhận chưa có dòng code (146 mất
+  khỏi sheet) ⇒ review bỏ G4.
+- Đã làm: version UAT = HEAD `ee22cb5` (6 module); `wj_density` mobile 26 route × 3 khổ × safe area 0/34; `wj_shell_g2`;
+  `wj_home_g3` (bản chép chặn ghi) 6 khổ PC + 3 mobile; đối chiếu S00075 Home ↔ Lịch sử; soát ảnh PC + mobile. 0 request bị chặn.
+- Phát hiện:
+  - ❌ Top bar PC vỡ ở **đúng 992**: hamburger `li.mobile-menu.mr-auto` nhận `margin-right` 451.7px ⇒ khối Cửa hàng rớt hàng,
+    bị header cắt. 993+ bình thường. Có từ trước G2 (G2 không đổi width/margin khối).
+  - LIMIT: bảng giá `Default` UAT là USD (công ty VND) ⇒ đơn portal in `$`; cần chủ dự án đổi cấu hình, không phải lỗi code.
+  - Nhỏ: pill ngôn ngữ 992–1199 chỉ có cờ · mã chuyến giao xuống dòng giữa chữ ở card hẹp · bảng Công nợ 992 cắt cột Thao tác.
+- Bài học:
+  - UAT chập chờn (`goto` quá 30 s) khi chạy 2 bộ đo song song ⇒ chạy tuần tự, đặt timeout 90 s cho script phụ.
+  - `wj_density` chỉ đo sheet "Thêm" khi có `--shots`; lượt safe area phải bật `--shots` mới có số sheet.
+  - Lỗi chỉ ở một khổ đúng mốc (992) ⇒ quét ±1px quanh mốc breakpoint, và so computed style 2 khổ để ra ngay thuộc tính gây lỗi.
+- Nợ để lại: lượt sửa top bar 992 (`wujia_portal_layout`); quyết tiền tệ bảng giá UAT; G4 chờ BA.
+- Phiên kế: sửa top bar 992 (nhỏ), rồi 148 `WJ-ORD-028` · 147 · 149 (đang `New`, hỏi chủ dự án).
