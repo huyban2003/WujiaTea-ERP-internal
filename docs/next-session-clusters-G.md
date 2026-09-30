@@ -398,3 +398,5 @@ sale/done THEN hiển thị Ngày xác nhận = date_order theo timezone ngườ
 - Ẩn một ô trong lưới kv 2 cột: đo lại chiều cao 2 card cạnh nhau (ở đây vẫn bằng nhau vì card giao hàng 4 ô).
 - Bộ đo chỉ-đọc cho user nhiều cửa hàng phải cho lọt `/portal/franchise/switch` (overlay bắt chọn cửa hàng lúc vào);
   thiếu thì điều hướng bị huỷ → `chrome-error://`.
+- `qa_sync --apply` văng `JSONDecodeError` **sau khi** bridge đã ghi 6 ô ⇒ bước History bị bỏ. Đọc lại bằng CSV
+  trước; đừng chạy lại `--apply` (History sẽ ghi "cũ = Ready for Retest"), chỉ `append_row` dòng thiếu rồi đọc lại.

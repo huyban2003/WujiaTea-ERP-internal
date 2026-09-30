@@ -1938,14 +1938,16 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   sẵn), query Δ0 27 route, mobile Δ0.
 - G6: `confirm_date` chỉ khi `state == 'sale'`; cột PC "—", chi tiết ẩn dòng, nhãn "Ngày đặt hàng". Test 7, mutation 7/7,
   393/0/0, query Δ0. **UAT đo chỉ-đọc `wj_history_g6.py` em.hcm S00075/S00043: 12/12 đạt.**
-- Ledger 3 entry đã ghi (`WJ-ORD-027/028/029`), `build_override` còn "CHƯA ĐO UAT"; `qa_sync` dry-run OK, **chưa `--apply`**.
-- Việc dở cho phiên kế (user dừng phiên):
-  1. UAT chỉ-đọc G5: `wj_order_confirm_probe.py --base UAT --login em.hcm` (chỉ mở hộp rồi Hủy, cần giỏ HCM-01 có hàng,
-     không tự thêm) + `wj_resubmit.py --base UAT --login em.hcm`.
-  2. Sửa `build_override` 3 entry → "ĐÃ DEPLOY UAT 30/09/2026 …" rồi `qa_sync.py --apply --only <ID>` từng ID (python env
-     `odoo19` — python hệ thống thiếu `yaml`), verify CSV.
-  3. Cập nhật header + §5 `wujia-compact-summary.md` (đang chậm từ G2) — gộp G3→G6.
-  4. Push commit docs này (push = deploy, cần cổng duyệt).
-  5. Báo BA: 147 dính cả 11 màn; nút gửi đơn mobile trước G5 không gửi được; S00074 là ví dụ rõ của 149.
+- **Tiếp phiên (sau khi user dừng), đã xong:**
+  - UAT chỉ-đọc G5 (em.hcm): `wj_order_confirm_probe.py` **8/8** (chỉ mở hộp rồi Hủy, 0 request gửi đơn) ·
+    `wj_resubmit.py` **21/21**.
+  - Ledger 3 entry → "ĐÃ DEPLOY UAT 30/09/2026 — sẵn sàng retest"; `qa_sync --apply --only` từng ID. Verify CSV:
+    027/028/029 đều **Ready for Retest**, mỗi ID đúng 1 dòng `7. ISSUE HISTORY`.
+  - ⚠️ 029: bridge ghi xong 6 ô rồi trả **không phải JSON** ⇒ `qa_sync` văng trước bước History. Không chạy lại
+    `--apply` (sẽ ghi History "cũ = Ready for Retest"): tự `append_row` 1 dòng "Ready for Dev → Ready for Retest",
+    bridge lại trả non-JSON nhưng đọc CSV thấy đúng 1 dòng. **Luật: lỗi JSON từ bridge ⇒ đọc CSV trước, không ghi lại.**
+  - Compact summary header + §5 gộp G3→G6.
+- Còn lại: báo BA (147 dính cả 11 màn; nút gửi đơn mobile trước G5 không gửi được; S00074 là ví dụ rõ của 149) ·
+  BA retest 027/028/029 + 142 + 150/151.
 - Nợ: top bar PC vỡ ở 992; bảng giá UAT USD; G4 chờ BA; server 8055 + DB `wujia_g5s`, `wujia_g3s` + worktree
   `scratchpad/g5/base_wt` (`git worktree prune`) xoá được.

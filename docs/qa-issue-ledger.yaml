@@ -2550,7 +2550,7 @@ WJ-HOME-010:
 WJ-ORD-028:
   sprint: "2026-09-30-G5"
   commit: "887da0a"
-  build_override: "CHƯA ĐO UAT"
+  build_override: "ĐÃ DEPLOY UAT 30/09/2026 — sẵn sàng retest | 30/09/2026 | Sprint 2026-09-30-G5 | bản mã 887da0a | Đo lại CHỈ ĐỌC trên máy chạy thử bằng trình duyệt thật với tài khoản chủ tiệm em.hcm, mọi lệnh gửi đơn bị chặn ngay trong trình duyệt nên không tạo đơn: Giỏ hàng điện thoại 360, 390, 430 và máy tính 1440, 1024, 992, panel giỏ trang Đặt hàng máy tính 1440 và 992 — bấm Gửi đơn đặt hàng mở hộp Xác nhận gửi đơn với đúng số mặt hàng, số lượng, tổng tiền của giỏ; hộp nằm gọn trong màn hình, nút cao 44 trên điện thoại và 40 trên máy tính, con trỏ đứng ở Hủy, phím Tab không thoát khỏi hộp; bấm Hủy đóng hộp, giỏ giữ nguyên, không có lệnh gửi đơn nào. Không bấm Xác nhận trên máy chạy thử để tránh tạo đơn thật; luồng tạo đúng một đơn, bấm đúp, F5 đã đo trên bản sao dữ liệu. Bảng đo: docs/g5-acceptance-matrix.md"
   url: "/portal/order/cart (giỏ hàng, máy tính và điện thoại) và /portal/order (panel giỏ bên phải trên máy tính) — nút Gửi đơn đặt hàng"
   odoo_fit: "Custom"
   fix: "Bấm Gửi đơn đặt hàng nay chưa tạo đơn mà mở hộp Xác nhận gửi đơn tóm tắt cửa hàng đang thao tác, số mặt hàng, tổng số lượng, tổng thanh toán và ghi chú đang gõ; hai nút Hủy và Xác nhận gửi đơn. Hủy (hoặc phím Esc, hoặc bấm ra ngoài hộp) đóng hộp, giỏ và ghi chú giữ nguyên, không tạo gì. Xác nhận gửi đơn mới tạo đơn, chuyển sang màn kết quả (điện thoại: màn Đặt hàng thành công; máy tính: chi tiết đơn) và làm rỗng giỏ. Chống trùng ba lớp: nút Xác nhận tự khoá sau lần bấm đầu; hệ thống khoá giỏ khi đang tạo đơn nên hai người cùng cửa hàng bấm cùng lúc chỉ ra một đơn; lần gửi lặp tới sau khi giỏ đã rỗng (bấm Back rồi gửi lại, mạng chậm gửi hai lần) được dẫn về đúng đơn vừa tạo thay vì báo giỏ trống. Mặc định con trỏ đứng ở nút Hủy để bấm Enter vội không tạo đơn. Sửa kèm lỗi tìm thấy khi đo: trên điện thoại nút Gửi đơn đặt hàng không gửi gì (bấm không có phản hồi) do hai lớp chống bấm lặp chặn lẫn nhau; nay gửi bình thường"
@@ -2560,7 +2560,7 @@ WJ-ORD-028:
 WJ-ORD-027:
   sprint: "2026-09-30-G5"
   commit: "887da0a"
-  build_override: "CHƯA ĐO UAT"
+  build_override: "ĐÃ DEPLOY UAT 30/09/2026 — sẵn sàng retest | 30/09/2026 | Sprint 2026-09-30-G5 | bản mã 887da0a | Đo lại CHỈ ĐỌC trên máy chạy thử với tài khoản chủ tiệm em.hcm: 11 trang danh sách (Đặt hàng, Lịch sử đặt hàng, Giao hàng, Đổi trả, Thông báo, Kiến thức, Hỗ trợ, Yêu cầu thông tin, Đăng ký thi, Báo cáo, Lịch sử thanh toán) trên máy tính 1440 và điện thoại 390, mỗi trang đổi điều kiện lọc ba lần liên tiếp: 21 trên 21 lượt lần nào cũng gửi đúng điều kiện mới và địa chỉ trang đổi theo (một trang điện thoại không có ô lọc). Bảng đo: docs/g5-acceptance-matrix.md"
   url: "/portal/order (Đặt hàng — ô tìm sản phẩm và chip danh mục, máy tính và điện thoại); cùng lỗi ở mọi trang danh sách có ô lọc: Lịch sử đặt hàng, Giao hàng, Đổi trả, Thông báo, Kiến thức, Hỗ trợ, Yêu cầu thông tin, Đăng ký thi, Báo cáo, Công nợ"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: lớp chống bấm lặp dùng chung cho mọi nút (đưa vào ngày 20/09) khoá ô lọc sau lần gửi đầu và chỉ mở khoá khi trang tải lại; các trang danh sách lọc không tải lại trang nên từ lần tìm thứ hai trở đi yêu cầu bị chặn im, danh sách và địa chỉ trang giữ kết quả cũ (Matcha). Lỗi này có ở cả 11 trang danh sách, không riêng Đặt hàng. Nay mỗi lần lọc xong (hoặc bị lần lọc sau thay thế) ô lọc được mở khoá, nên đổi từ khoá, đổi danh mục, bấm Tìm hay nhấn Enter bao nhiêu lần cũng gửi đúng điều kiện mới; từ khoá không có sản phẩm thì hiện Không có sản phẩm phù hợp. Sửa kèm: ô tìm trên điện thoại giữ đúng danh mục đang chọn khi tìm sau lúc bấm chip"
@@ -2574,7 +2574,7 @@ WJ-ORD-027:
 WJ-ORD-029:
   sprint: "2026-09-30-G6"
   commit: "9efa67f"
-  build_override: "CHƯA ĐO UAT"
+  build_override: "ĐÃ DEPLOY UAT 30/09/2026 — sẵn sàng retest | 30/09/2026 | Sprint 2026-09-30-G6 | bản mã 9efa67f | Đo lại CHỈ ĐỌC trên máy chạy thử với tài khoản chủ tiệm em.hcm, chỉ mở trang: máy tính 1440, 1024, 992 — S00075 (Chờ xác nhận) cột Ngày xác nhận ghi dấu gạch, chi tiết không có dòng Ngày xác nhận, có Ngày đặt hàng; S00043 (Đã xác nhận) cột và chi tiết ghi 05/09/2026, giờ Việt Nam; hai khối thông tin cao bằng nhau, không cuộn ngang. Điện thoại 360, 390, 430 không có chữ Ngày xác nhận ở đơn chưa xác nhận. Bảng đo: docs/g6-acceptance-matrix.md"
   url: "/portal/purchase-history (bảng trên máy tính, cột Ngày xác nhận) và trang chi tiết đơn /portal/purchase-history/<mã> — đơn Chờ xác nhận (vd S00075) và đơn Đã xác nhận"
   odoo_fit: "Standard + Custom"
   fix: "Hệ thống bán hàng gán ngày đơn bằng giờ tạo cho đơn chưa duyệt và chỉ đổi thành giờ xác nhận khi đơn được xác nhận; cổng in thẳng ngày này dưới nhãn Ngày xác nhận nên đơn Chờ xác nhận (S00075) trông như đã xác nhận. Nay Ngày xác nhận chỉ hiện khi đơn đã được xác nhận (kể cả khi đơn đang giao hoặc đã giao xong), theo múi giờ của người dùng. Đơn Chờ xác nhận hoặc Đã gửi: cột Ngày xác nhận trong bảng máy tính ghi dấu gạch, trang chi tiết không còn dòng Ngày xác nhận; nhãn Ngày tạo ở trang chi tiết đổi thành Ngày đặt hàng (vẫn là giờ tạo đơn)"
