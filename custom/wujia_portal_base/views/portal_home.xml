@@ -6,6 +6,8 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="title">Trang chủ</t>
             <div class="content-wrapper wujia-home-wrapper">
+                <!-- Màu badge loại thông báo — một nguồn cho block PC và mobile (anh em cùng cha ⇒ cùng phạm vi) -->
+                <t t-set="noti_badge_map" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}"/>
                 <!-- ======== DESKTOP (≥992px) — mockup V4 (G3a khung · G3b 7 block) ======== -->
                 <div class="d-none d-lg-block wujia-home-pc">
                 <div class="content-header row">
@@ -155,119 +157,271 @@
                         </div>
                     </section>
 
-                    <!-- ============ Block list cũ — G3b thay bằng 7 block V4 ============ -->
-                    <div class="row">
-                        <!-- Latest notifications (UI-12, Sprint 9.13) -->
-                        <div class="col-lg-6 col-12 mb-2">
-                            <t t-call="wujia_portal_layout.wj_surface_card">
-                                <t t-set="sc_density" t-value="'regular'"/>
-                                <t t-set="sc_class" t-value="'wujia-content-card'"/>
-                            <t t-call="wujia_portal_layout.wj_card_header">
-                                <t t-set="ch_title">Thông báo mới nhất</t>
-                                <t t-set="ch_level" t-value="4"/>
-                                <t t-set="ch_platform" t-value="'pc'"/>
-                                <t t-set="ch_icon" t-value="'bell'"/>
-                                <t t-set="ch_action_url" t-value="'/portal/notification'"/>
-                                <t t-set="ch_action_icon" t-value="'chevron-right'"/>
-                            </t>
-                            <t t-call="wujia_portal_layout.wj_data_list">
-                                <t t-set="dl_variant" t-value="'compact-row'"/>
-                                <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
-                                <t t-set="dl_empty" t-value="not latest_notifications"/>
-                                <t t-set="dl_state">
-                                    <div class="wujia-content-card-empty">Chưa có thông báo nào.</div>
-                                </t>
-                                <ul class="wujia-content-card-body">
-                                    <li t-foreach="latest_notifications" t-as="noti" class="wj-data-item wujia-content-card-row">
-                                        <span class="wujia-content-card-row-bullet"/>
-                                        <div class="wujia-content-card-row-content">
-                                            <a t-attf-href="/portal/notification/#{noti.id}" t-out="noti.name"/>
-                                        </div>
-                                        <span class="wujia-content-card-row-date" t-out="wj_dt(noti.published_date, '%H:%M %d/%m/%Y')"/>
-                                        <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(noti.type_id.code, 'wujia-badge-muted')"/>
-                                        <span t-if="noti.type_id" t-attf-class="wujia-badge #{noti_badge_cls}" t-out="noti.type_id.name"/>
-                                        <span t-else=""/>
-                                    </li>
-                                </ul>
-                            </t>
-                            </t>
-                        </div>
-
-                        <!-- Recent orders (UI-12, Sprint 9.13) -->
-                        <div class="col-lg-6 col-12 mb-2">
-                            <t t-call="wujia_portal_layout.wj_surface_card">
-                                <t t-set="sc_density" t-value="'regular'"/>
-                                <t t-set="sc_class" t-value="'wujia-content-card'"/>
+                    <!-- ============ G3b / 142 — 7 block record theo mockup V4 ============
+                         Lưới CSS riêng (.wujia-home-blocks): 2 cột ≥992, 3 cột ≥1400; Thông tin cửa hàng
+                         rộng cả hàng. Mỗi dòng CHÉP từ block mobile tương ứng: cùng biến, chữ, badge,
+                         link chi tiết ⇒ 0 query riêng cho PC. Góc phải chỉ "Xem tất cả", không chevron. -->
+                    <div class="wujia-home-blocks">
+                        <!-- 1. Đơn hàng gần đây -->
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_density" t-value="'regular'"/>
+                            <t t-set="sc_class" t-value="'wujia-home-block wujia-home-block--orders'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Đơn hàng gần đây</t>
-                                <t t-set="ch_level" t-value="4"/>
+                                <t t-set="ch_level" t-value="2"/>
                                 <t t-set="ch_platform" t-value="'pc'"/>
-                                <t t-set="ch_icon" t-value="'shopping-cart'"/>
+                                <t t-set="ch_icon" t-value="'file-text'"/>
                                 <t t-set="ch_action_url" t-value="'/portal/purchase-history'"/>
-                                <t t-set="ch_action_icon" t-value="'chevron-right'"/>
                             </t>
-                            <t t-call="wujia_portal_layout.wj_data_list">
+                            <div t-if="not recent_orders" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-file-text"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Chưa có đơn hàng</p>
+                                    <p class="wj-empty-state-sub">Đơn hàng mới sẽ hiển thị tại đây sau khi được tạo.</p>
+                                </div>
+                            </div>
+                            <t t-else="" t-call="wujia_portal_layout.wj_data_list">
                                 <t t-set="dl_variant" t-value="'compact-row'"/>
                                 <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
-                                <t t-set="dl_empty" t-value="not recent_orders"/>
-                                <t t-set="dl_state">
-                                    <div class="wujia-content-card-empty">Chưa có đơn hàng nào.</div>
+                                <t t-foreach="recent_orders" t-as="o">
+                                    <a t-attf-href="/portal/purchase-history/#{o.id}" class="wujia-mdash-row is-stacked wj-data-item">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title is-lg is-code" t-out="o.name"/>
+                                            <span class="wujia-mdash-row-sub"
+                                                  t-out="o.date_order and wj_dt(o.date_order, '%H:%M %d/%m/%Y') or ''"/>
+                                            <span class="wujia-mdash-row-sub is-strong"
+                                                  t-out="money(o.amount_total, o.currency_id.symbol, o.currency_id.decimal_places)"/>
+                                        </span>
+                                        <t t-set="lbl" t-value="m_order_badges.get(o.state, (o.state, wj_badge_default))"/>
+                                        <span t-attf-class="wj-status-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                    </a>
                                 </t>
-                                <ul class="wujia-content-card-body">
-                                    <li t-foreach="recent_orders" t-as="order" class="wj-data-item wujia-content-card-row">
-                                        <span class="wujia-content-card-row-bullet"/>
-                                        <div class="wujia-content-card-row-content">
-                                            <a t-attf-href="/portal/purchase-history/#{order.id}">
-                                                Đơn hàng <t t-out="order.name"/>
-                                            </a>
-                                        </div>
-                                        <span class="wujia-content-card-row-date" t-out="order.date_order and order.date_order.strftime('%H:%M %d/%m/%Y') or ''"/>
-                                        <t t-set="order_badge_cls" t-value="m_order_badges.get(order.state, ('', wj_badge_default))[1]"/>
-                                        <t t-set="order_state_label" t-value="{'draft': 'Nháp', 'sent': 'Đã gửi', 'sale': 'Đã xác nhận', 'done': 'Hoàn thành', 'cancel': 'Đã huỷ'}.get(order.state, order.state)"/>
-                                        <span t-attf-class="wj-status-badge #{order_badge_cls}" t-out="order_state_label"/>
-                                    </li>
-                                </ul>
                             </t>
-                            </t>
-                        </div>
+                        </t>
 
-                        <!-- Latest return requests (UI-12, Sprint 9.13) -->
-                        <div class="col-lg-6 col-12 mb-2">
-                            <t t-call="wujia_portal_layout.wj_surface_card">
-                                <t t-set="sc_density" t-value="'regular'"/>
-                                <t t-set="sc_class" t-value="'wujia-content-card'"/>
+                        <!-- 2. Yêu cầu đổi trả gần đây -->
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_density" t-value="'regular'"/>
+                            <t t-set="sc_class" t-value="'wujia-home-block wujia-home-block--returns'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Yêu cầu đổi trả gần đây</t>
-                                <t t-set="ch_level" t-value="4"/>
+                                <t t-set="ch_level" t-value="2"/>
                                 <t t-set="ch_platform" t-value="'pc'"/>
                                 <t t-set="ch_icon" t-value="'corner-up-left'"/>
                                 <t t-set="ch_action_url" t-value="'/portal/return'"/>
-                                <t t-set="ch_action_icon" t-value="'chevron-right'"/>
                             </t>
-                            <t t-call="wujia_portal_layout.wj_data_list">
+                            <div t-if="not latest_returns" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-corner-up-left"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Chưa có yêu cầu đổi trả</p>
+                                    <p class="wj-empty-state-sub">Yêu cầu mới sẽ hiển thị tại đây sau khi được tạo.</p>
+                                </div>
+                            </div>
+                            <t t-else="" t-call="wujia_portal_layout.wj_data_list">
                                 <t t-set="dl_variant" t-value="'compact-row'"/>
                                 <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
-                                <t t-set="dl_empty" t-value="not latest_returns"/>
-                                <t t-set="dl_state">
-                                    <div class="wujia-content-card-empty">Chưa có yêu cầu nào.</div>
+                                <t t-foreach="latest_returns" t-as="r">
+                                    <a t-attf-href="/portal/return/#{r.id}" class="wujia-mdash-row is-stacked wj-data-item">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-corner-up-left"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title is-code" t-out="r.name"/>
+                                            <span class="wujia-mdash-row-sub">
+                                                Ngày yêu cầu: <t t-out="r.request_date and r.request_date.strftime('%d/%m/%Y') or '—'"/>
+                                            </span>
+                                            <span class="wujia-mdash-row-sub is-strong">
+                                                Lý do: <t t-out="r.issue_type_id.name or '—'"/>
+                                            </span>
+                                            <!-- UI-only: model chưa có field tổng tiền (như mobile, NOTE BA) -->
+                                            <span class="wujia-mdash-row-sub is-strong is-xs">Tổng tiền: —</span>
+                                        </span>
+                                        <t t-set="lbl" t-value="wj_return_status(r)"/>
+                                        <span t-attf-class="wj-status-badge #{lbl[1]}" t-out="lbl[0]"/>
+                                    </a>
                                 </t>
-                                <ul class="wujia-content-card-body">
-                                    <li t-foreach="latest_returns" t-as="rr" class="wj-data-item wujia-content-card-row">
-                                        <span class="wujia-content-card-row-bullet"/>
-                                        <div class="wujia-content-card-row-content">
-                                            <a t-attf-href="/portal/return/#{rr.id}">
-                                                Đổi trả <t t-out="rr.name or '—'"/>
-                                            </a>
-                                        </div>
-                                        <span class="wujia-content-card-row-date" t-out="rr.request_date and rr.request_date.strftime('%H:%M %d/%m/%Y') or ''"/>
-                                        <t t-set="rr_lbl" t-value="wj_return_status(rr)"/>
-                                        <span t-attf-class="wj-status-badge #{rr_lbl[1]}" t-out="rr_lbl[0]"/>
-                                    </li>
-                                </ul>
                             </t>
-                            </t>
-                        </div>
+                        </t>
 
+                        <!-- 3. Giao hàng sắp tới — số đơn chưa giao là dòng phụ, góc phải "Xem tất cả" (chốt 30/09) -->
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_density" t-value="'regular'"/>
+                            <t t-set="sc_class" t-value="'wujia-home-block wujia-home-block--delivery'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Giao hàng sắp tới</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_icon" t-value="'truck'"/>
+                                <t t-set="ch_subtitle" t-value="'%s đơn chưa giao' % (m_undelivered_count or 0)"/>
+                                <t t-set="ch_action_url" t-value="'/portal/delivery'"/>
+                            </t>
+                            <div t-if="not m_upcoming_batches" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-truck"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Chưa có chuyến giao sắp tới</p>
+                                    <p class="wj-empty-state-sub">Lịch giao sẽ hiển thị khi đơn hàng được xác nhận.</p>
+                                </div>
+                            </div>
+                            <t t-else="" t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
+                                <t t-foreach="m_upcoming_batches" t-as="it">
+                                    <a t-attf-href="/portal/delivery/#{it['batch'].id}" class="wujia-mdash-row is-stacked wj-data-item">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-truck"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title is-code" t-out="it['batch'].name"/>
+                                            <span class="wujia-mdash-row-sub is-strong"><t t-out="it['when_label']"/>: <t t-out="it['when']"/></span>
+                                            <span class="wujia-mdash-row-sub">Đơn chưa giao: <t t-out="it['order_count']"/> đơn</span>
+                                            <span class="wujia-mdash-row-sub" t-out="it['order_names']"/>
+                                            <span class="wujia-mdash-row-sub is-strong">
+                                                Tổng tiền: <t t-out="money(it['total'], store_currency_symbol, store_currency_decimals)"/>
+                                            </span>
+                                        </span>
+                                        <span t-attf-class="wj-status-badge #{it['badge'][1]}" t-out="it['badge'][0]"/>
+                                    </a>
+                                </t>
+                            </t>
+                        </t>
+
+                        <!-- 4. Thông báo nổi bật — ô icon chuông như mobile (chốt 30/09, không dùng chấm V4) -->
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_density" t-value="'regular'"/>
+                            <t t-set="sc_class" t-value="'wujia-home-block wujia-home-block--noti'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Thông báo nổi bật</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_icon" t-value="'bell'"/>
+                                <t t-set="ch_action_url" t-value="'/portal/notification'"/>
+                            </t>
+                            <div t-if="not latest_notifications" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-bell"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Bạn đã xem hết thông báo</p>
+                                    <p class="wj-empty-state-sub">Thông báo quan trọng mới sẽ xuất hiện tại đây.</p>
+                                </div>
+                            </div>
+                            <t t-else="" t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
+                                <t t-foreach="latest_notifications" t-as="noti">
+                                    <a t-attf-href="/portal/notification/#{noti.id}" class="wujia-mdash-row wj-data-item">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-bell"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title is-sm" t-out="noti.name"/>
+                                            <span class="wujia-mdash-row-sub" t-out="wj_dt(noti.published_date, '%H:%M %d/%m/%Y')"/>
+                                        </span>
+                                        <span t-if="noti.type_id"
+                                              t-attf-class="wujia-badge #{noti_badge_map.get(noti.type_id.code, 'wujia-badge-muted')}"
+                                              t-out="noti.type_id.name"/>
+                                    </a>
+                                </t>
+                            </t>
+                        </t>
+
+                        <!-- 5. Bài viết / Kiến thức mới -->
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_density" t-value="'regular'"/>
+                            <t t-set="sc_class" t-value="'wujia-home-block wujia-home-block--knowledge'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Bài viết / Kiến thức mới</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_icon" t-value="'book'"/>
+                                <t t-set="ch_action_url" t-value="'/portal/knowledge'"/>
+                            </t>
+                            <div t-if="not articles" class="wj-empty-state wj-empty-state--row">
+                                <span class="wj-empty-state-icon"><i class="feather icon-book"/></span>
+                                <div class="wj-empty-state-body">
+                                    <p class="wj-empty-state-title">Chưa có bài viết mới</p>
+                                    <p class="wj-empty-state-sub">Tài liệu hướng dẫn mới nhất sẽ được cập nhật tại đây.</p>
+                                </div>
+                            </div>
+                            <t t-else="" t-call="wujia_portal_layout.wj_data_list">
+                                <t t-set="dl_variant" t-value="'compact-row'"/>
+                                <t t-set="dl_class" t-value="'wj-data-list--inset'"/>
+                                <t t-foreach="articles" t-as="art">
+                                    <a t-attf-href="/portal/knowledge/#{art.slug}" class="wujia-mdash-row wj-data-item">
+                                        <span class="wujia-mdash-tile"><i class="feather icon-file-text"/></span>
+                                        <span class="wujia-mdash-row-main">
+                                            <span class="wujia-mdash-row-title is-sm" t-out="art.name"/>
+                                            <span class="wujia-mdash-row-sub is-xs"
+                                                  t-out="art.publish_date and wj_dt(art.publish_date, '%d/%m/%Y') or ''"/>
+                                        </span>
+                                    </a>
+                                </t>
+                            </t>
+                        </t>
+
+                        <!-- 6. Hỗ trợ nhanh (Chat UI-only href # — chưa có channel, như mobile) -->
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_density" t-value="'regular'"/>
+                            <t t-set="sc_class" t-value="'wujia-home-block wujia-home-block--support'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Hỗ trợ nhanh</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_icon" t-value="'headphones'"/>
+                            </t>
+                            <div class="wujia-home-support">
+                                <a href="/portal/support/new" class="wujia-mdash-row wj-state-surface">
+                                    <span class="wujia-mdash-tile"><i class="feather icon-headphones"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-title is-sm">Tạo yêu cầu hỗ trợ</span>
+                                        <span class="wujia-mdash-row-sub">Gửi yêu cầu và theo dõi phản hồi</span>
+                                    </span>
+                                </a>
+                                <a t-attf-href="tel:#{m_hotline or ''}" class="wujia-mdash-row wj-state-surface">
+                                    <span class="wujia-mdash-tile"><i class="feather icon-phone-call"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-title is-sm">Gọi hotline</span>
+                                        <span class="wujia-mdash-row-sub is-primary" t-out="m_hotline or '—'"/>
+                                    </span>
+                                </a>
+                                <a href="#" class="wujia-mdash-row wj-state-surface">
+                                    <span class="wujia-mdash-tile"><i class="feather icon-message-circle"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-title is-sm">Chat với chúng tôi</span>
+                                        <span class="wujia-mdash-row-sub is-primary">Thời gian: 8:00 - 17:30</span>
+                                    </span>
+                                </a>
+                            </div>
+                        </t>
+
+                        <!-- 7. Thông tin cửa hàng — rộng cả hàng, 3 ô ngang (V4) -->
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_density" t-value="'regular'"/>
+                            <t t-set="sc_class" t-value="'wujia-home-block wujia-home-block--info'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Thông tin cửa hàng</t>
+                                <t t-set="ch_level" t-value="2"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                                <t t-set="ch_icon" t-value="'map-pin'"/>
+                            </t>
+                            <div class="wujia-home-info">
+                                <div class="wujia-home-info-cell">
+                                    <span class="wujia-mdash-ico"><i class="feather icon-map-pin"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-sub">Địa chỉ</span>
+                                        <span class="wujia-mdash-row-sub is-strong" t-out="active_franchise.address or '—'"/>
+                                    </span>
+                                </div>
+                                <div class="wujia-home-info-cell">
+                                    <span class="wujia-mdash-ico"><i class="feather icon-phone"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-sub">Điện thoại</span>
+                                        <span class="wujia-mdash-row-sub is-strong" t-out="active_franchise.phone or '—'"/>
+                                    </span>
+                                </div>
+                                <div class="wujia-home-info-cell">
+                                    <span class="wujia-mdash-ico"><i class="feather icon-user"/></span>
+                                    <span class="wujia-mdash-row-main">
+                                        <span class="wujia-mdash-row-sub">Người phụ trách</span>
+                                        <span class="wujia-mdash-row-sub is-strong"
+                                              t-out="active_franchise.main_owner_member_id.user_id.name or '—'"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </t>
                     </div>
                 </div>
                 </div>
@@ -405,7 +559,7 @@
                                 <t t-call="wujia_portal_layout.wj_data_list">
                                     <t t-set="dl_variant" t-value="'compact-row'"/>
                                     <t t-foreach="latest_notifications" t-as="noti">
-                                        <t t-set="noti_badge_cls" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}.get(noti.type_id.code, 'wujia-badge-muted')"/>
+                                        <t t-set="noti_badge_cls" t-value="noti_badge_map.get(noti.type_id.code, 'wujia-badge-muted')"/>
                                         <a t-attf-href="/portal/notification/#{noti.id}" class="wujia-mdash-row wj-data-item">
                                             <span class="wujia-mdash-tile"><i class="feather icon-bell"/></span>
                                             <span class="wujia-mdash-row-main">

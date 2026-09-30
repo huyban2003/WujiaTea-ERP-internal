@@ -29,7 +29,7 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 | G1 | `UI-MOB-HEADER-DENSITY-001` (143) + `UI-MOB-BOTTOMNAV-DENSITY-001` (145) → cuối phiên `WJ-ORD-MOB-SPACING-001` (144) | `wujia_portal_layout` + `wujia_portal_sale` + `wujia_portal_exam` | ✅ 26/09 — code + đo xong, commit `feat(G1)` (xem git log); **chưa deploy**, ledger chờ `--apply` |
 | G2 | `UI-MOB-STORE-SWITCHER-001` (141) + `UI-PC-TOPBAR-REG-001` (140) | `wujia_portal_base` + `wujia_portal_layout` (`wujia_portal_sale` không đụng) | ✅ 29/09 — code + đo xong, commit `6745671`; **đã deploy UAT 30/09**, đo chỉ-đọc đạt; ledger chờ `--apply`. Nghiệm thu `docs/g2-acceptance-matrix.md` |
 | G3a | `UI-PC-HOME-REDESIGN-001` (142) — khung | `wujia_portal_base` + `wujia_portal_debt` | ✅ 30/09 — code + đo xong, commit `feat(G3a)` (xem git log); **chưa deploy — deploy gộp với G3b**, chưa ghi ledger 142. Nghiệm thu `docs/g3-acceptance-matrix.md` |
-| G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ☐ |
+| G3b | `UI-PC-HOME-REDESIGN-001` (142) — block + responsive, đóng issue | `wujia_portal_base` | ✅ 30/09 — code + đo xong, commit `feat(G3b)` (xem git log), ledger 142 ghi; deploy gộp G3a (một lần `-u`). Nghiệm thu `docs/g3-acceptance-matrix.md` §6–§10 (12/12) |
 | G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ☐ |
 
 **Reconcile 26/09** (`git log --all -S"<ID>"` + `grep -rn "<ID>" custom/ docs/qa-issue-ledger.yaml`
@@ -232,9 +232,10 @@ Công nợ dùng khe biến `home_debt_kpi`: `wujia_portal_debt` đặt biến *
 cũng thấy. Đừng gọi `get_home_debt_kpi()` lần hai (test spy sẽ đỏ).
 
 **Seam cho G3b:**
-- Dáng dòng record mobile `.wujia-mdash-row` hiện chỉ có trong `@media (max-width: 991.98px)` ở
-  `wujia_portal_layout/static/assets/css/_components.css:1490+`. PC muốn dùng lại thì thêm rule PC trong
-  `portal_dashboard.css` có tiền tố `.wujia-home-pc`, **không** nới media của layout (sẽ phải `-u` layout, dễ đụng mobile).
+- ~~Dáng dòng record mobile `.wujia-mdash-row` hiện chỉ có trong `@media (max-width: 991.98px)`.~~ **Sửa ở G3b:** các rule
+  `.wujia-mdash-*` ở `wujia_portal_layout/static/assets/css/_components.css:1464–1558` nằm **ngoài** mọi `@media` (khối
+  media 1310–1461 đóng trước đó), nên PC cũng nhận. G3b dùng lại markup mobile, chỉ thêm rule PC có tiền tố
+  `.wujia-home-pc` để gỡ `nowrap`/ellipsis. Không nới media của layout.
 - `HOME_PREVIEW_LIMIT = 2` trùng với số dòng V4 vẽ mỗi block. Nguồn 7 block lấy qua các seam `hasattr` Home mobile đang
   dùng.
 - "Tổng tiền" của yêu cầu đổi trả: model không có trường số tiền, nên in "—" hoặc hỏi BA. Hotline "Hỗ trợ nhanh": chưa có
@@ -260,6 +261,31 @@ cũng thấy. Đừng gọi `get_home_debt_kpi()` lần hai (test spy sẽ đỏ
   `LocalProxy` và sập ngoài request.
 - **Đổi nhãn trên Home thì grep test của module khác.** F11 (`wujia_portal_notification`) dùng regex bám nhãn PC "Thông
   báo chưa đọc", và chỉ suite đủ 20 module mới bắt được. Test tag riêng của phiên thì xanh.
+
+### 🔴 Bài học G3b
+
+- **Sửa CSS mà không `-u` thì bundle cũ vẫn phục vụ.** Server đang chạy không build lại `web.assets_frontend` khi file CSS
+  đổi. Đo ngay sau khi sửa thì xoá `delete from ir_attachment where url like '/web/assets/%'` rồi tải lại trang.
+- **Đừng tin ghi chú seam về media query, mở file ra đếm ngoặc.** Ghi chú G3a nói `.wujia-mdash-*` chỉ ở mobile; thực tế
+  nằm ngoài `@media`. Soi sai sẽ dẫn tới chép cả khối dáng dòng sang PC.
+- **Trang cổng nạp cả BS5 (`web.assets_frontend`) và BS4 `bootstrap.css` của Vuexy.** `.col-lg-6` nạp sau có thể đè
+  `.col-xxl-4`, nên lưới nhiều ngưỡng dùng CSS grid riêng (`grid-template-columns`) thay cho class cột.
+- **Sidebar PC chỉ hiện từ 1200.** Vùng nội dung ở 1200 (~890) hẹp hơn ở 1199 (~1150). Chọn ngưỡng cột theo bề rộng vùng
+  nội dung đo được, đừng theo khổ màn. Đo cả 1200 và 1199.
+- **CardHeader trong card hẹp tự xuống dòng**: `flex-wrap` mặc định đẩy "Xem tất cả" xuống dòng riêng khi tiêu đề dài.
+  Trong card hẹp đặt `nowrap` + `__lead{flex:1 1 0}` + `__action{flex:0 0 auto}`.
+- **Empty state `--row` có khung riêng** (nền, viền, min-height). Đặt trong SurfaceCard thì thành card lồng card, phải bỏ khung
+  trong phạm vi PC.
+- **`conda run` không chuyền stdin**: heredoc vào `conda run -n odoo19 python -` chạy rỗng, không báo lỗi. Gọi thẳng
+  `/opt/homebrew/Caskroom/miniconda/base/envs/odoo19/bin/python`.
+- **BSD `sed` trên Mac** không nhận `sed -n "$((n-1)),…"` khi biểu thức ra số âm/rỗng ("illegal option"). Dùng Read tool
+  hoặc `awk 'NR>=a && NR<=b'`.
+- **`-u wujia_portal_base` kéo theo module phụ thuộc** (`wujia_portal_debt` …) nên một lệnh `-u` phủ cả hai. `deploy.yml`
+  cũng chỉ ghi `wujia_portal_base`; debt đi theo.
+- **Push lên `main` tự deploy UAT** (runner self-hosted của `.github/workflows/deploy.yml`). Push = deploy, phải qua cổng
+  duyệt.
+- **Test render tài khoản chủ tiệm**: ô Người phụ trách in tên chính chủ, không ra "—". Test "—" chỉ bám ô Địa chỉ /
+  Điện thoại của cửa hàng mới.
 
 ---
 

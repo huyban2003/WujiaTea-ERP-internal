@@ -22,3 +22,4 @@ from . import test_e8c_account_menu
 from . import test_scan_g1_density
 from . import test_g2_store_switcher
 from . import test_g3a_home_pc
+from . import test_g3b_home_pc

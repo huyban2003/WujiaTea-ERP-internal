@@ -1813,3 +1813,53 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: **G3b** (142): 7 block record thay 3 block list cũ, VNĐ, "Xem tất cả", icon theo loại, chuỗi VI/EN/ZH. Xong
   thì `-u wujia_portal_base,wujia_portal_debt` một lần + deploy + ledger 142 + `qa_sync`. Seam ở khối "G3a đã xong" trong
   `next-session-clusters-G.md`.
+
+## G3b — Home PC 7 block record theo mockup V4, đóng 142 · 30/09/2026 · Mac
+- Kết quả: ✅ code + đo xong, commit; ledger `UI-PC-HOME-REDESIGN-001` ghi ("CHƯA DEPLOY"). Nghiệm thu 12/12 = 100% "Kết
+  quả mong muốn" (`docs/g3-acceptance-matrix.md` §6). **Deploy G3a + G3b gộp một lần**: chờ cổng duyệt push `main`.
+- Chủ dự án chốt:
+  - Giao hàng: "N đơn chưa giao" là dòng phụ, góc phải "Xem tất cả" → `/portal/delivery`;
+  - lưới **2 cột 992–1399, 3 cột từ 1400** (đổi từ "3 cột từ 1200" sau khi đo ra sidebar chỉ hiện từ 1200, cột sẽ còn
+    ~280px);
+  - chuỗi VI/EN/ZH đo bằng dữ liệu dài; dòng Thông báo dùng ô icon chuông như mobile.
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.31.0: xoá 3 block list cũ, thay bằng `div.wujia-home-blocks` với 7 SurfaceCard + CardHeader
+    PC (icon theo loại, "Xem tất cả" 5 block, không mũi tên). Dòng chép từ block mobile: cùng biến, `portal_money`, badge,
+    link. Hỗ trợ nhanh 3 lối tắt; Thông tin cửa hàng rộng cả hàng, 3 ô có vạch ngăn.
+  - Map màu loại thông báo gom về **một** `noti_badge_map` (`t-set` trước khối PC) cho cả mobile và PC.
+  - CSS trong `@media ≥992` + `≥1400`, tiền tố `.wujia-home-pc`: CSS grid 2→3 cột, gỡ ellipsis tiêu đề/dòng phụ, CardHeader
+    `nowrap`, empty state không khung lồng.
+  - Controller **không sửa**.
+  - Test: `test_g3b_home_pc.py` 17 test (tag `wujia_home_pc_g3b`); sửa theo `test_scan_d3_card_header` (5 → 9),
+    `test_scan_d5_data_list` (preview 5 block, COMPACT_SITES bỏ Home, mobile loại `.wujia-home-pc`, mdash 10 → 13).
+  - `scripts/qa/wj_home_g3.py` thêm 1200/1199, probe 7 block (cột theo hàng, Δh, badge đè, chevron, block cũ).
+- Commit: xem git log — `feat(G3b): Home PC 7 block record theo V4 …`.
+- Deploy: ☐ chờ duyệt (push `main` = deploy UAT; `-u wujia_portal_base` kéo theo `wujia_portal_debt`).
+- Số đo (DB `wujia_g3s`, server 8033):
+  - 7 khổ × 3 user: 0 tràn, 0 chữ bị cắt, 0 badge đè, 0 chevron, 0 block cũ; 3 cột 365px ở 1440, 2 cột 992–1399, Δh 0
+    trong hàng; 991 ra mobile.
+  - Chuỗi dài VI/EN/ZH (đơn, đổi trả, thông báo, bài viết, cửa hàng): 0 cắt, 0 tràn; trả dữ liệu từ bản lưu SQL.
+  - Mobile Δ0 (`dung.multi` md5 trùng; 2 user còn lại chỉ lệch chữ đếm lùi khung giờ).
+  - Query `/portal` 39/36/36 **Δ0** so với G3a.
+  - 13 selector G3b: 64 phần tử ở `/portal`, 0 ở 26 route khác.
+  - Mutation **7/7** đỏ. `wujia_portal_base` 315/0/0. Suite 20 module **975/0/0**. `check_layers` 0 vi phạm Dev.
+- Lệch plan / quyết định mới:
+  - Plan dùng `col-xl-4 col-lg-6`; đổi sang CSS grid vì BS4/BS5 xung đột thứ tự nạp.
+  - Ngưỡng 3 cột 1200 → 1400 (hỏi lại chủ dự án sau khi đo).
+  - Plan nói phải thêm dáng dòng PC; thực tế `.wujia-mdash-*` đã áp toàn cục, chỉ gỡ ellipsis.
+- Bài học: xem "🔴 Bài học G3b" trong `next-session-clusters-G.md`. Tóm tắt:
+  - bundle cũ khi chưa `-u`;
+  - mdash toàn cục;
+  - BS4/BS5 → CSS grid;
+  - sidebar từ 1200;
+  - CardHeader wrap trong card hẹp;
+  - `conda run` nuốt stdin;
+  - `-u` kéo theo debt;
+  - push = deploy.
+- Nợ để lại:
+  - FYI BA (matrix §10): Xem tất cả ở Giao hàng; lưới 2 cột 992–1399; tile chuông; tiêu đề dài 2 dòng; Tổng tiền đổi trả
+    "—"; hotline = `company.phone`; Chat UI-only; Người phụ trách chỉ tên.
+  - 🔎 Topbar PC 992–1199 (từ G3a) vẫn chờ BA tách issue.
+  - Server 8033 + DB `wujia_g3s` xoá được sau deploy.
+- Phiên kế: sau deploy, chạy `wj_home_g3.py` chỉ-đọc trên UAT → ledger "ĐÃ DEPLOY UAT" → `qa_sync --apply --only
+  UI-PC-HOME-REDESIGN-001`; rồi **G4** (146 `WJ-PORTAL-ROUTING-001`, điều hướng `/`).

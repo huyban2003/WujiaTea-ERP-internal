@@ -151,6 +151,75 @@
     .wujia-home-pc .wujia-kpi-content {
         gap: 4px;
     }
+    /* G3b — 7 block record. Lưới CSS riêng, không dùng .col-*: trang nạp cả Bootstrap 5
+       (web.assets_frontend) lẫn bootstrap.css BS4 của Vuexy, .col-lg-6 nạp sau sẽ đè .col-xxl-4.
+       2 cột ở 992–1399 (1200–1399 còn sidebar 264), 3 cột từ 1400 (khối dưới). */
+    .wujia-home-pc .wujia-home-blocks {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+    .wujia-home-pc .wujia-home-block--info {
+        grid-column: 1 / -1;
+    }
+    /* "Xem tất cả" giữ cùng hàng tiêu đề (V4): card ~340–480px, header gốc flex-wrap đẩy
+       action xuống dòng riêng. Ở đây tiêu đề tự xuống dòng trong lead (spec CardHeader cho
+       tới 2 dòng, không ellipsis), action không co. */
+    .wujia-home-pc .wujia-home-block .wj-card-header {
+        flex-wrap: nowrap;
+    }
+    .wujia-home-pc .wujia-home-block .wj-card-header__lead {
+        flex: 1 1 0;
+    }
+    .wujia-home-pc .wujia-home-block .wj-card-header__action {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+    /* Trạng thái rỗng nằm TRONG card: bỏ khung của bản mobile (đứng riêng) để không lồng card. */
+    .wujia-home-pc .wujia-home-block .wj-empty-state--row {
+        min-height: 0;
+        padding: 12px 0;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+    }
+    /* Dòng record dùng lại dáng .wujia-mdash-row của mobile (rule gốc ở layout, áp mọi khổ);
+       PC chỉ gỡ cắt chữ: BA cấm "…" ⇒ tiêu đề/dòng phụ xuống dòng. */
+    .wujia-home-pc .wujia-mdash-row-title,
+    .wujia-home-pc .wujia-mdash-row-sub {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+    }
+    .wujia-home-pc .wujia-home-support {
+        display: flex;
+        flex-direction: column;
+    }
+    /* Thông tin cửa hàng: 3 ô ngang, vạch ngăn dọc (V4). */
+    .wujia-home-pc .wujia-home-info {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .wujia-home-pc .wujia-home-info-cell {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        min-width: 0;
+        padding: 4px 16px;
+    }
+    .wujia-home-pc .wujia-home-info-cell:first-child {
+        padding-left: 0;
+    }
+    .wujia-home-pc .wujia-home-info-cell + .wujia-home-info-cell {
+        border-left: 1px solid var(--wujia-border);
+    }
+}
+@media (min-width: 1400px) {
+    .wujia-home-pc .wujia-home-blocks {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 /* F3: dời từ portal_layout _components.css */

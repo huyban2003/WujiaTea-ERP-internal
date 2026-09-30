@@ -27,7 +27,8 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_support.portal_support_form': 1,
         'wujia_portal_support.portal_support_detail': 6,  # +1 thẻ "File đính kèm" mobile (26/09)
         # D3b — nhóm màn kế tiếp
-        'wujia_portal_base.portal_home_page': 5,
+        # G3b/142: Khung giờ (PC + mobile) + 7 block Home PC V4 (3 block list cũ đã bỏ)
+        'wujia_portal_base.portal_home_page': 9,
         'wujia_portal_base.portal_franchise_profile_full': 4,
         'wujia_portal_knowledge.portal_knowledge_list': 2,
         'wujia_portal_knowledge.portal_knowledge_detail': 3,

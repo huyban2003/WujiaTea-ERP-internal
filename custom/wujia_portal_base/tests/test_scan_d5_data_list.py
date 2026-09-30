@@ -60,12 +60,13 @@ class TestDataListCallSites(TransactionCase):
 
     def test_home_preview_khong_gan_pagination(self):
         """BA: preview dashboard dùng "Xem tất cả" ở CardHeader, KHÔNG pager.
-        D5d: ghim cho CẢ BA khối preview, không chỉ khối top sản phẩm."""
+        G3b/142: 3 block list cũ (ul.wujia-content-card-body) thay bằng 5 block record V4
+        có danh sách (Hỗ trợ nhanh / Thông tin cửa hàng không phải danh sách)."""
         root = _view('wujia_portal_base', 'portal_home.xml')
         previews = root.xpath(
-            '//t[@t-call="wujia_portal_layout.wj_data_list"][not(.//thead)]'
-            '[.//ul[@class="wujia-content-card-body"]]')
-        self.assertEqual(len(previews), 3, 'phải đủ 3 khối preview dashboard')
+            '//div[contains(concat(" ", @class, " "), " wujia-home-blocks ")]'
+            '//t[@t-call="wujia_portal_layout.wj_data_list"]')
+        self.assertEqual(len(previews), 5, 'phải đủ 5 khối preview record Home PC')
         for call in previews:
             self.assertFalse(call.xpath('.//t[@t-set="dl_pager"]'))
             self.assertFalse(call.xpath('.//nav'))
@@ -173,8 +174,9 @@ class TestDataListCompactRow(TransactionCase):
     # (module, file, số call site, họ cũ item còn phải mang — None = đã sang CMP-LC-001)
     # E5b1: danh sách PC Kiến thức đã về ListCard ⇒ item bỏ họ `wujia-content-card-row`,
     # CSS con (bullet/date) chuyển sang lớp riêng; hợp đồng ruột ở test_scan_e5_list_card.
+    # G3b/142: Home PC bỏ họ `wujia-content-card-row` (3 block list cũ) — 7 block V4 dùng
+    # dòng `wujia-mdash-row` như mobile, hợp đồng ở test_g3b_home_pc.py.
     COMPACT_SITES = [
-        ('wujia_portal_base', 'portal_home.xml', 3, 'wujia-content-card-row'),
         ('wujia_portal_knowledge', 'portal_knowledge.xml', 1, None),
     ]
 
@@ -289,12 +291,14 @@ class TestDataListCompactRowMobile(TransactionCase):
     HO = ('wujia-mdash-row',)
 
     def _mobile_calls(self, module, filename):
-        """Call site compact-row KHÔNG phải của D5d (D5d dùng ul.wujia-content-card-body)."""
+        """Call site compact-row KHÔNG phải của D5d (D5d dùng ul.wujia-content-card-body).
+        G3b: bỏ khối Home PC (`.wujia-home-pc`) — cùng họ mdash nhưng hợp đồng ở test_g3b."""
         root = _view(module, filename)
         return root.xpath(
             '//t[@t-call="wujia_portal_layout.wj_data_list"]'
             '[t[@t-set="dl_variant"][@t-value="\'compact-row\'"]]'
-            '[not(.//ul[@class="wujia-content-card-body"])]')
+            '[not(.//ul[@class="wujia-content-card-body"])]'
+            '[not(ancestor::div[contains(concat(" ", @class, " "), " wujia-home-pc ")])]')
 
     def _items(self, call):
         out = []
@@ -330,8 +334,9 @@ class TestDataListCompactRowMobile(TransactionCase):
         self.assertEqual(len(stacked), 3, 'số khối is-stacked đổi')
 
     def test_muoi_hang_mdash_khong_phai_danh_sach_giu_nguyen(self):
-        """`wujia-mdash-row` còn 10 chỗ KHÔNG phải danh sách record (lối tắt Home,
-        hàng thông tin tĩnh Home/support) — đụng vào là đổi dáng 10 chỗ ngoài phạm vi."""
+        """`wujia-mdash-row` còn 13 chỗ KHÔNG phải danh sách record (lối tắt Home,
+        hàng thông tin tĩnh Home/support; G3b +3 lối tắt Hỗ trợ nhanh của Home PC) — đụng
+        vào là đổi dáng 13 chỗ ngoài phạm vi."""
         con_lai = 0
         for module, filename in (('wujia_portal_base', 'portal_home.xml'),
                                  ('wujia_portal_support', 'portal_support.xml')):
@@ -340,7 +345,7 @@ class TestDataListCompactRowMobile(TransactionCase):
                 cls = el.get('class') or el.get('t-attf-class') or ''
                 if re.match(r'wujia-mdash-row(\s|$)', cls) and 'wj-data-item' not in cls.split():
                     con_lai += 1
-        self.assertEqual(con_lai, 10, 'số hàng mdash ngoài phạm vi đổi')
+        self.assertEqual(con_lai, 13, 'số hàng mdash ngoài phạm vi đổi')
 
     def test_mot_chu_so_huu_dang_bon_ho(self):
         """Rule cũ chỉ được chạm hàng CHƯA migrate. Xét compound CUỐI của mỗi

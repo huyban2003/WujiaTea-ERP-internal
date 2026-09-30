@@ -18,7 +18,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from wj_density import LAYOUT_PROBE, login  # noqa: E402
 
-PC = [(1440, 1019), (1280, 900), (1024, 800), (992, 800)]
+PC = [(1440, 1019), (1280, 900), (1200, 900), (1199, 900), (1024, 800), (992, 800)]
 MOBILE = [(360, 800), (390, 844), (430, 932)]
 
 PC_PROBE = r"""
@@ -49,6 +49,25 @@ PC_PROBE = r"""
     arrows: pc.querySelectorAll('.wujia-kpi-arrow, .wujia-kpi-card .icon-chevron-right').length,
     headings: [...pc.querySelectorAll('h1,h2,h3,h4')].map(h => h.textContent.trim()),
     clipped,
+    // G3b — 7 block: tiêu đề, link "Xem tất cả", hộp, số cột theo hàng, badge đè chữ.
+    blocks: [...pc.querySelectorAll('.wujia-home-block')].map(b => {
+      const t = b.querySelector('.wj-card-header__title');
+      const a = b.querySelector('.wj-card-header__action');
+      const rows = [...b.querySelectorAll('.wujia-mdash-row')].map(r => {
+        const main = r.querySelector('.wujia-mdash-row-main'), badge = r.querySelector('.wj-status-badge, .wujia-badge');
+        let hit = 0;
+        if (main && badge) { const m = main.getBoundingClientRect(), g = badge.getBoundingClientRect();
+          hit = Math.max(0, Math.min(m.right, g.right) - Math.max(m.left, g.left)) *
+                Math.max(0, Math.min(m.bottom, g.bottom) - Math.max(m.top, g.top)); }
+        return {text: r.innerText.replace(/\s+/g, ' ').trim().slice(0, 60), h: Math.round(r.getBoundingClientRect().height),
+                badgeHit: Math.round(hit), icon: (r.querySelector('.wujia-mdash-tile i, .wujia-mdash-ico i') || {}).className || null};
+      });
+      return {title: t && t.textContent.trim(), action: a && a.textContent.trim(), href: a && a.getAttribute('href'),
+              sub: (b.querySelector('.wj-card-header__subtitle') || {}).textContent || null,
+              box: R(b), rows, empty: !!b.querySelector('.wj-empty-state')};
+    }),
+    oldBlocks: pc.querySelectorAll('.wujia-content-card').length,
+    chevrons: pc.querySelectorAll('.icon-chevron-right, .icon-arrow-right').length,
     pageH: document.documentElement.scrollHeight,
   };
 }
@@ -99,6 +118,17 @@ def summary(res):
         print(f'  PC {w}: tràn={d["overflowX"]} mũi tên={d["arrows"]} {row}')
         print('         KPI:', ' · '.join(f"{k['label']}={k['value']}→{k['href']} {k['box'][2]}×{k['box'][3]}@y{k['box'][1]}"
                                           for k in d['kpis']))
+        bl = d.get('blocks') or []
+        if bl:
+            tops = sorted({b['box'][1] for b in bl})
+            per_row = [[b for b in bl if b['box'][1] == y] for y in tops]
+            print('         block:', ' | '.join(
+                f"{len(r)} cột Δh={max(b['box'][3] for b in r) - min(b['box'][3] for b in r)}" for r in per_row),
+                  f"chevron={d['chevrons']} cũ={d['oldBlocks']}",
+                  'badge đè=%d' % sum(x['badgeHit'] for b in bl for x in b['rows']))
+            for b in bl:
+                print(f"           · {b['title']} [{b['action']}→{b['href']}] sub={b['sub']!r} "
+                      f"{b['box'][2]}×{b['box'][3]} rows={len(b['rows'])} rỗng={b['empty']}")
         bad = [c for c in d['clipped'] if not c['ellipsis']]
         if d['clipped']:
             print('         cắt chữ:', d['clipped'][:6], '(KHÔNG ellipsis: %d)' % len(bad))
