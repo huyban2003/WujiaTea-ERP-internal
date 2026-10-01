@@ -10,7 +10,7 @@ import re
 
 from odoo.tests import TransactionCase, tagged
 
-from .test_g1_mobile_density import _css, _media_blocks, _rules
+from .test_g1_mobile_density import _css, _media_blocks, _outside_media, _rules
 
 PC_MQ = '@media (min-width: 1200px)'
 BTN = ('.wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item'
@@ -63,3 +63,42 @@ class TestPcTopbarG2(TransactionCase):
         base = [b for s, b in _rules(comps) if s == '.wujia-header-badge']
         self.assertIn('top: 2px', base[0])
         self.assertIn('right: 0', base[0])
+
+
+DRAWER_MQ = '@media (min-width: 992px) and (max-width: 1199.98px)'
+
+
+@tagged('post_install', '-at_install', 'wujia_pc_topbar_992')
+class TestPcTopbarDrawer(TransactionCase):
+    """992–1199: hàng trái (logo + hamburger + khối Cửa hàng) không được xuống dòng.
+
+    Trước đây `ul.nav` giữ `flex-wrap: wrap` của Bootstrap ⇒ dưới ~1034 khối Cửa hàng rớt dòng 2,
+    `mr-auto` của hamburger nhận 423px, header cắt khối. Đo `anh.owner` 992/993/1000: khối ở y=34.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.css = _css('_pc_account.css')
+        self.rules = [r for blk in _media_blocks(self.css, DRAWER_MQ) for r in _rules(blk)]
+
+    def _body(self, selector):
+        hits = [b for s, b in self.rules if s == selector]
+        self.assertTrue(hits, 'thiếu rule 992–1199: %s' % selector)
+        return hits[0]
+
+    def test_hang_trai_khong_xuong_dong_va_co_duoc(self):
+        self.assertIn('flex-wrap: nowrap', self._body('.wujia-navbar .bookmark-wrapper > .navbar-nav'))
+        self.assertIn('min-width: 0', self._body('.wujia-navbar .bookmark-wrapper > .navbar-nav'))
+        self.assertIn('min-width: 0', self._body('.wujia-navbar .bookmark-wrapper'))
+        # thiếu mắt này thì collapse phình quá khung, cụm phải bị đẩy ra ngoài mép (đo 1003 > 978)
+        self.assertIn('min-width: 0', self._body('.wujia-navbar .navbar-collapse'))
+
+    def test_pill_ngon_ngu_bo_be_rong_118(self):
+        """Nhãn ngôn ngữ ẩn ở dải này (_components.css) ⇒ pill 118 chỉ còn cờ 20, thừa 70px."""
+        self.assertIn('width: auto !important', self._body('.wujia-navbar .dropdown-language > .nav-link'))
+        # ≥1200 giữ đúng pill 118 của Figma
+        root = [b for s, b in _rules(_outside_media(self.css))
+                if s == '.wujia-navbar .dropdown-language > .nav-link']
+        self.assertIn('width: 118px !important', root[0])
+        # khối 992–1199 phải đứng SAU rule gốc (cùng specificity, cùng !important)
+        self.assertGreater(self.css.find(DRAWER_MQ), self.css.find('width: 118px !important'))

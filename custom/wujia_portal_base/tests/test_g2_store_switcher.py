@@ -109,6 +109,21 @@ class TestStoreBlockCssG2(TransactionCase):
                   if '.wujia-store-current-block .wujia-active-store-badge:hover' in s]
         self.assertTrue(bodies and 'transparent' in bodies[0])
 
+    def test_khoi_co_duoc_o_992_1199(self):
+        """992–1199 hàng trái không xuống dòng ⇒ khối co được khi thiếu chỗ (tên ellipsis), không rớt dòng."""
+        css = _strip_comments(self.css)
+        mq = '@media (min-width: 992px) and (max-width: 1199.98px)'
+        i = css.find(mq)
+        self.assertGreaterEqual(i, 0)
+        blk = css[css.index('{', i):]
+        body = re.search(r'\.wujia-store-current-block\s*\{([^{}]*)\}', blk).group(1)
+        self.assertIn('min-width: 0', body)
+        # `width: auto` làm khối ôm chữ, co cả khi còn chỗ (đo: 273 thay vì 430 ở 1199)
+        self.assertNotIn('width: auto', body)
+        self.assertRegex(blk, r'li:has\(> \.wujia-store-current-block\)\s*\{\s*min-width: 0')
+        # ≥1200 vẫn 430 cố định theo Figma
+        self.assertIn('width: 430px', _rule(self.css, '.wujia-store-current-block'))
+
     def test_nhan_viet_khong_bi_viet_hoa_tung_chu(self):
         self.assertNotIn('capitalize', _rule(self.css, '.wujia-store-role-badge'))
 
