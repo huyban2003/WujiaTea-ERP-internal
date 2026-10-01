@@ -1970,3 +1970,29 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   dọn server/DB đo · `auto_install` · 7 câu hỏi ADR-027).
 - Phiên kế: `issue_queue.py --dev` (BA retest 11 ID có thể trả Retest Failed); nếu trống ⇒ sửa top bar PC 992
   (`wujia_portal_layout`, nhỏ).
+
+## Top bar PC 992–1199 (nợ review cụm G) · 01/10/2026 · Mac
+- Kết quả: ✅ code + test + đo local, commit `bea5fa8`. **Chưa push / chưa deploy UAT** — push bị chặn ở phía Claude
+  (máy không ra được github cổng 22; SSH 443 chạy được nhưng lệnh push không được phép), chủ dự án push tay.
+  Không có issue trên sheet (BA chưa tách) ⇒ không ledger, không `qa_sync`.
+- Đầu phiên: `issue_queue --dev` = 0 (16 Ready for Retest, 3 Need Clarification, STT cuối 151).
+- Chẩn đoán (đo local 8055 `wujia_g5s`, `anh.owner`): không phải lỗi "đúng 992". Hàng trái 104 + 44 + 452 = 600 + cụm
+  phải 406 cần ~1034px; hẹp hơn thì `ul.nav` (Bootstrap `flex-wrap: wrap`) đẩy khối Cửa hàng xuống dòng 2 và `mr-auto`
+  của hamburger nhận 423px. UAT `em.hcm` tên ngắn nên chỉ lộ ở 992.
+- Đã làm (chỉ `@media (min-width: 992px) and (max-width: 1199.98px)`):
+  - `wujia_portal_layout` 19.0.59.3.0 (`_pc_account.css`, `?v=1328`): pill ngôn ngữ `width: auto` (nhãn đã ẩn ở dải
+    này, 118 → 55); `navbar-collapse` / `bookmark-wrapper` / `ul` `min-width: 0`, `ul` `nowrap`.
+  - `wujia_portal_base` 19.0.7.34.0 (`store_picker.css`): `<li>` chứa khối + khối `min-width: 0` — giữ 430 khi đủ chỗ.
+- Số đo: 992–1199 (9 khổ) khối ở hàng 1 (y=12), hamburger mr 0; 16 ca tên cửa hàng/user dài × 4 khổ: 1 hàng, chip
+  trong khối, 0 đè, 0 tràn; ép cụm phải +60/+120/+200 ⇒ khối co 405/345/265, cụm phải giữ mép 992. ≥1200 không đổi;
+  `wj_shell_g2` PC 27 + mobile 75 trang 0 lỗi. Test 3 (tag `wujia_pc_topbar_992` + 1 trong `wujia_store_switcher_g2`),
+  mutation **5/5**, 4 module (`layout`, `base`, `debt`, `exam`) **653/0/0**.
+- Lệch / quyết định: bản đầu dùng `width: auto` cho khối ⇒ khối ôm chữ, co còn 273 cả khi đủ chỗ — bỏ. Thiếu
+  `min-width: 0` ở `navbar-collapse` thì khối không co mà cụm phải bị đẩy ra ngoài mép (1003 > 978) — thêm.
+- Bài học:
+  - Lỗi "chỉ ở một mốc" có thể là ngưỡng phụ thuộc dữ liệu (độ dài tên) — đo bằng user tên dài + ép DOM trước khi kết luận.
+  - Flex co được phải có `min-width: 0` ở MỌI mắt từ container co tới phần tử co; kiểm bằng ép cụm bên cạnh rộng ra.
+  - UAT + github cổng 22 cùng không vào được từ mạng này ⇒ đo trên server local có version = UAT.
+- Nợ để lại: deploy UAT (`-u wujia_portal_layout,wujia_portal_base`) + đo lại chỉ-đọc 992/993/1000/1199 với `em.hcm`;
+  FYI BA: pill ngôn ngữ 992–1199 chỉ còn cờ (đã vậy từ trước về chữ, nay cả bề rộng).
+- Phiên kế: sau deploy đo UAT; `issue_queue.py --dev`.
