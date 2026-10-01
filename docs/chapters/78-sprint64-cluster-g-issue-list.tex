@@ -1,0 +1,220 @@
+\chapter{Sprint 64 --- Cụm G: Issue List lứa 140--151, G1 $\to$ G6 (2026-09-26 $\to$ 09-30)}
+
+\emph{Chapter này ghi lại cụm G: lứa issue BA mở trên tab \texttt{5. Issue List} sau khi khối A (chapter 77) khép.
+Mười hai issue (11 có code, 146 tạm dừng), bảy lượt code, một lượt review trên UAT. Mỗi lượt lên UAT ngay trong ngày, đo lại ở chế độ chỉ-đọc rồi
+mới chuyển sheet sang \emph{Ready for Retest}. Dev không tự đóng \emph{Done}. Nhật ký ở \texttt{docs/f-progress.md}; prompt
+và bài học từng lượt ở \texttt{docs/next-session-clusters-G.md}; nghiệm thu ở \texttt{docs/g1-} \ldots\
+\texttt{g6-acceptance-matrix.md}; review UAT ở \texttt{docs/g-review-uat.md}.}
+
+\section{Vì sao có cụm G}
+
+Ngày 26/09, \texttt{issue\_queue.py --dev} trả 7 issue \emph{Ready for Dev} (STT 140--146). Reconcile bằng
+\texttt{git log --all -S"<ID>"} và \texttt{grep} trong \texttt{custom/} cho cả 7: chỉ có dòng nhắc trong docs, 0 dòng code.
+Vậy cả 7 đều phải làm thật, không có lượt ``chỉ ghi ledger''. Chủ dự án chốt ba điều:
+\begin{enumerate}[nosep]
+\item Chuẩn hoá component trước, trang sau: G1 component mobile $\to$ G2 shell $\to$ G3 Home PC $\to$ G4 routing.
+\item 144 làm cuối G1, đo sau khi 143 đã đổi token (BA ghi 144 phụ thuộc 143).
+\item Mỗi cụm một phiên, một lần \texttt{-u}, một lần deploy; cụm lớn (G3) tách a/b.
+\end{enumerate}
+Ngày 29/09, BA chạy exploratory trên UAT bằng đơn test S00075 và mở thêm 147--151. Cùng lúc, dòng 146 biến khỏi sheet.
+Hai issue Home (150, 151) làm ngay thành lượt H150/151. Ba issue Đặt hàng/Lịch sử đánh số tiếp G5, G6.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}X}
+\toprule
+Lượt & Issue (STT) & Commit & Module (version sau lượt) \\
+\midrule
+G1 & \texttt{UI-MOB-HEADER-DENSITY-001} (143), \texttt{UI-MOB-BOTTOMNAV-DENSITY-001} (145), \texttt{WJ-ORD-MOB-SPACING-001} (144) &
+  \texttt{fcce811} & \texttt{portal\_layout} 19.0.59.0.0 · \texttt{portal\_exam} 19.0.6.1.0 · \texttt{portal\_sale} 19.0.4.26.0 \\
+G2 & \texttt{UI-MOB-STORE-SWITCHER-001} (141), \texttt{UI-PC-TOPBAR-REG-001} (140) &
+  \texttt{6745671} & \texttt{portal\_base} 19.0.7.29.0 · \texttt{portal\_layout} 19.0.59.1.0 \\
+G3a & \texttt{UI-PC-HOME-REDESIGN-001} (142) --- khung &
+  \texttt{160d13e} & \texttt{portal\_base} 19.0.7.30.0 · \texttt{portal\_debt} 19.0.4.16.0 \\
+G3b & \texttt{UI-PC-HOME-REDESIGN-001} (142) --- 7 block &
+  \texttt{d8f89bf} & \texttt{portal\_base} 19.0.7.31.0 \\
+H150/151 & \texttt{WJ-HOME-009} (150), \texttt{WJ-HOME-010} (151) &
+  \texttt{0cd1f0a} & \texttt{portal\_base} 19.0.7.32.0 · \texttt{purchase\_history} 19.0.3.20.0 \\
+G4 & \texttt{WJ-PORTAL-ROUTING-001} (146) & --- & Tạm dừng: BA xoá dòng khỏi sheet, 0 dòng code \\
+G5 & \texttt{WJ-ORD-028} (148), \texttt{WJ-ORD-027} (147) &
+  \texttt{887da0a} & \texttt{portal\_layout} 19.0.59.2.0 · \texttt{portal\_base} 19.0.7.33.0 · \texttt{portal\_sale} 19.0.4.27.0 \\
+G6 & \texttt{WJ-ORD-029} (149) &
+  \texttt{9efa67f} & \texttt{purchase\_history} 19.0.3.21.0 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Cuối sprint, cả 11 issue có code đều ở \emph{Ready for Retest} trên sheet, đã đọc lại bằng CSV.
+\texttt{issue\_queue.py --dev} ngày 01/10 trả 0.
+
+\section{G1 --- Mật độ mobile: PageHeader, SectionHeader, BottomNav, nhịp Đặt hàng}
+
+BA đo trên UAT thấy đầu trang mobile chiếm nhiều chỗ. Sửa ở token dùng chung, nên mọi trang portal mobile đều được:
+\begin{itemize}[nosep]
+\item \textbf{143}: PageHeader mobile 52 $\to$ \textbf{44} cho cả 3 kiểu (tiêu đề / có nút lùi / có nút tạo). Chủ dự án chốt
+  ba kiểu cùng chiều cao. SectionHeader mobile còn 18/24px, chỉ đổi trong \texttt{@media} mobile.
+\item \textbf{145}: thanh điều hướng dưới 83 $\to$ \textbf{72 + vùng an toàn}, mỗi mục 50, nhãn 12, badge neo góc icon.
+  Sửa kèm công thức \texttt{--wujia-mnav-total} sai từ trước: sheet ``Thêm'' và nút nổi của màn Thi giờ bám đúng mép
+  trên thanh, kể cả khi máy có vùng an toàn.
+\item \textbf{144} (làm cuối): trang Đặt hàng mobile, ô tìm $\to$ chip 23 $\to$ \textbf{12}px, chip $\to$ ``Danh sách sản phẩm''
+  14 $\to$ \textbf{8}px. Khoảng 23 cũ đến từ \texttt{margin} 15 của \texttt{form} toàn cục, nên chỉ sửa trong
+  \texttt{.wujia-morder}.
+\end{itemize}
+\textbf{Số đo}: 28 route $\times$ 360/390/430 $\times$ có/không vùng an toàn 34: PageHeader 44 ở mọi kiểu, 0 tràn ngang,
+cuộn tới cuối vẫn thấy nút cuối (khe $\geq$13). PC không đổi (vân tay 76/81, 5 chỗ khác do bộ đếm lượt xem). 16 test tĩnh,
+mutation 11/11, suite 930/0/0. Bộ đo mới \texttt{scripts/qa/wj\_density.py} (Playwright, cờ \texttt{--safe-area},
+\texttt{--readonly}) về sau được dùng lại cho mọi lượt có đụng mobile.
+
+\section{G2 --- Dải cửa hàng mobile (141) và top bar PC (140)}
+
+\begin{itemize}[nosep]
+\item \textbf{141}: dải ``cửa hàng đang thao tác'' hiện trên mọi trang mobile, kể cả Home. Có chevron \emph{chỉ} khi user
+  có hơn một cửa hàng; user một cửa hàng thấy dải tĩnh. Bấm vào bất kỳ chỗ nào trên dải đều mở hộp chọn cửa hàng.
+\item \textbf{Nhãn vai trò một nguồn tiếng Việt}: Chủ tiệm / Quản lý / Nhân viên. \texttt{ROLE\_LABELS} dời về model
+  \texttt{wujia.franchise.member} (\texttt{\_portal\_role\_label()}) và dùng ở 5 chỗ: dải mobile, khối Cửa hàng PC,
+  menu tài khoản, chữ dưới avatar, hero Home mobile.
+\item \textbf{140}: icon giỏ/chuông trên top bar PC lệch tâm khoảng 9px từ cụm B (04/08). Nguyên nhân là
+  \texttt{.nav-link\{display:block\}} của \texttt{web.assets\_frontend} nạp sau. Nay icon nằm giữa vòng tròn 40, badge
+  không che icon với 0/4/12, chip vai trò nằm trong khối Cửa hàng.
+\end{itemize}
+\textbf{Số đo}: lệch tâm icon ($-$9.4, $-$9.5) $\to$ (0, 0); phần badge chồng lên icon 59.4 $\to$ 0 px². Mobile 27 route
+$\times$ 3 khổ $\times$ 2 user không tràn. 11 test, mutation 9/9, suite 941/0/0.
+
+\section{G3a/G3b --- Home PC theo mockup V4 (142)}
+
+Home PC cũ có hero và ``Thao tác nhanh''; mobile thì đã theo bố cục mới. 142 đưa PC về cùng nội dung với mobile theo
+mockup V4. Chia hai lượt, deploy gộp một lần để BA không thấy Home nửa cũ nửa mới.
+\begin{itemize}[nosep]
+\item \textbf{G3a --- khung}: hàng đầu chia 50/50 (card Cửa hàng hiện tại | card Khung giờ đặt hàng có thanh tiến độ),
+  4 KPI Đơn hàng · Thông báo · Đổi trả · Công nợ. Các KPI dùng cùng biến và link với mobile. Bỏ KPI ``Đơn chờ xử lý'' và
+  bảng ``Sản phẩm mua nhiều nhất'' theo danh sách BA. Ô Công nợ có số thật qua khe \texttt{home\_debt\_kpi} của
+  \texttt{portal\_debt}; nếu gỡ module thì ô hiện ``---''. Query \texttt{/portal} \textbf{$-$7} (46 $\to$ 39).
+\item \textbf{G3b --- 7 block record}: Đơn hàng · Đổi trả · Giao hàng · Thông báo · Kiến thức · Hỗ trợ · Thông tin cửa
+  hàng. Dòng chép từ block mobile (cùng biến, cùng tiền, cùng badge, cùng link). Lưới CSS \textbf{2 cột ở 992--1399, 3 cột
+  từ 1400}; ngưỡng đổi từ 1200 sau khi đo ra sidebar chiếm chỗ từ 1200. Màu loại thông báo gom về một
+  \texttt{noti\_badge\_map} cho cả hai kênh. Controller không sửa; query $\Delta$0 so với G3a.
+\end{itemize}
+\textbf{Số đo}: 7 khổ $\times$ 3 user, kể cả chuỗi dài VI/EN/ZH: 0 tràn, 0 chữ bị cắt, 0 badge đè; các card trong cùng hàng
+cao bằng nhau ($\Delta h$ 0). Mobile $\Delta$0. 34 test, mutation 7/7 + 7/7, suite 975/0/0. Nghiệm thu 12/12.
+
+\section{H150/151 --- Home giống Lịch sử}
+
+Cùng đơn S00075, BA thấy Home PC in \emph{15:57} còn Lịch sử in \emph{22:57} (150), và Home in ``Nháp'' còn Lịch sử in
+``Chờ xác nhận'' (151).
+\begin{itemize}[nosep]
+\item \textbf{150} đã hết từ G3b: block PC cũ in \texttt{date\_order} giờ UTC; G3b thay bằng \texttt{wj\_dt} (múi giờ người
+  dùng). Lượt này chỉ thêm test chặn hồi quy.
+\item \textbf{151}: Home có bảng nhãn riêng \texttt{MOBILE\_ORDER\_BADGES} (draft $\to$ ``Nháp''). Luật trạng thái đơn của Lịch
+  sử dời xuống \texttt{wujia\_portal\_base/controllers/utils.py} (\texttt{portal\_order\_status}, \texttt{portal\_order\_badge});
+  Home PC, Home mobile và Lịch sử cùng gọi. Đã xoá bảng nhãn riêng.
+\end{itemize}
+\textbf{Số đo}: 4 đơn trên UAT trùng chữ, màu và giờ ở Home PC, Home mobile và chi tiết Lịch sử. Query $\Delta$0.
+9 test, mutation 6/6.
+
+\section{Review cụm G trên UAT}
+
+Lượt review chỉ đọc sau H150/151, chạy lại toàn bộ bộ đo ở chế độ chặn ghi, \textbf{0 request bị chặn}. Version UAT
+khớp HEAD ở cả 6 module. 25 dòng AC: \textbf{20 đạt · 1 không đạt · 4 LIMIT}.
+\begin{itemize}[nosep]
+\item \textbf{Không đạt}: top bar PC vỡ ở \emph{đúng} 992px. Nút hamburger nhận \texttt{margin-right} 451.7px nên khối Cửa
+  hàng rớt xuống hàng dưới và bị header cắt. Từ 993 trở lên bình thường. Lỗi có từ trước G2.
+\item \textbf{LIMIT}: UAT không có user nhiều cửa hàng (141 đã đạt trên DB copy); nav \texttt{em.hcm} không có badge lúc đo;
+  bảng giá \texttt{Default} trên UAT là USD nên đơn portal in \texttt{\$}. Đây là cấu hình, không phải code.
+\end{itemize}
+
+\section{G4 --- Điều hướng \texttt{/} (146): tạm dừng}
+
+146 xin: vào \texttt{/} khi chưa đăng nhập thì sang \texttt{/portal/login}; user nội bộ sang \texttt{/web}; cửa hàng sang
+\texttt{/portal}. Đã soi xong và chủ dự án đã chốt cách làm. Override \texttt{Home.index} không có tác dụng, vì lá controller
+của \texttt{website} đứng trước trong MRO. Cách chốt là kế thừa \texttt{ir.http.\_pre\_dispatch} trong
+\texttt{wujia\_portal\_base}, không depend \texttt{website}. Trước khi viết dòng code nào thì BA xoá dòng 146 khỏi sheet.
+Cách làm giữ nguyên ở khối G4 của \texttt{next-session-clusters-G.md}, chờ BA mở lại.
+
+\section{G5 --- Đặt hàng: xác nhận trước khi gửi (148) và lọc gửi lại được (147)}
+
+\begin{itemize}[nosep]
+\item \textbf{148} (High): bấm ``Gửi đơn đặt hàng'' giờ mở hộp tóm tắt (số mặt hàng, tổng số lượng, tổng tiền, cửa hàng,
+  ghi chú) với hai nút Hủy | Xác nhận gửi đơn, trên cả PC và mobile; phím Esc tương đương Hủy. Bấm Hủy thì giỏ giữ nguyên,
+  không tạo gì. Chống tạo trùng mà không đổi schema: khoá nút + overlay, server giữ khoá \texttt{NOWAIT}. Nếu lần gửi thứ hai
+  gặp giỏ rỗng mà vừa có đơn draft/sent của đúng cửa hàng và user trong 2 phút thì chuyển sang màn kết quả của đơn đó.
+\item \textbf{147}: tái hiện trước rồi mới sửa. Gốc lỗi không nằm ở trang Đặt hàng. Khoá chống bấm đúp dùng chung
+  (CMP-BTN-001, E6a) chỉ nhả khi tải lại trang, nên mọi form lọc bằng AJAX chỉ gửi được một lần. Lỗi này dính
+  \textbf{11 màn danh sách}, BA chỉ thấy ở Đặt hàng. Sửa bằng sự kiện \texttt{wj:form:release} trong
+  \texttt{wj\_ajax\_list.js}.
+\item \textbf{Sửa kèm}: nút ``Gửi đơn đặt hàng'' trên mobile không gửi được từ E6a. Listener overlay tự kiểm lại cờ mà khoá
+  chung đã cắm trước nên tự chặn lần gửi đầu.
+\end{itemize}
+\textbf{Số đo}: 13 test, mutation 12/12, suite 1006 (chỉ còn error fixture \texttt{wujia\_sale} có sẵn), query $\Delta$0 trên
+27 route. UAT chỉ-đọc: hộp xác nhận 8/8 (chỉ mở hộp rồi Hủy, 0 request gửi đơn), lọc gửi lại 21/21. Nghiệm thu 148 6/6,
+147 4/4.
+
+\section{G6 --- Lịch sử: ``Ngày xác nhận'' chỉ khi đơn đã xác nhận (149)}
+
+Đơn S00075 đang ``Chờ xác nhận'' nhưng trang chi tiết vẫn in ``Ngày xác nhận 29/09 22:57''. Nguyên nhân: Odoo dùng
+\texttt{date\_order} làm giờ tạo báo giá và chỉ ghi đè lúc xác nhận. Sửa trong \texttt{\_history\_row\_vals} /
+\texttt{\_history\_detail\_vals} bằng một key mới \texttt{confirm\_date}, chỉ có giá trị khi \texttt{state == 'sale'}
+(Odoo 19 không có \texttt{done}). Bảng PC in ``---''; chi tiết ẩn hẳn dòng; nhãn ``Ngày tạo'' đổi thành
+``Ngày đặt hàng'' (vẫn là \texttt{create\_date}). Lọc theo ngày vốn đã dùng \texttt{create\_date} nên không đổi.
+\textbf{Số đo}: 7 test, mutation 7/7, 393/0/0, query $\Delta$0; UAT chỉ-đọc 12/12; nghiệm thu 5/5.
+
+\section{Gì đã làm (nghiệp vụ)}
+
+\begin{itemize}[nosep]
+\item \textbf{Mobile gọn hơn}: đầu trang, tiêu đề mục và thanh điều hướng dưới đều thấp hơn, nên màn hình có thêm chỗ
+  cho nội dung. Trang Đặt hàng bớt thưa ở phần đầu.
+\item \textbf{Luôn biết đang thao tác cửa hàng nào}: dải cửa hàng có ở mọi trang mobile; vai trò ghi tiếng Việt thống nhất
+  ở mọi chỗ.
+\item \textbf{Home PC mới}: cùng nội dung với mobile. Nhìn một lần thấy cửa hàng, khung giờ, 4 chỉ số và 7 khối việc
+  gần đây. Giờ và trạng thái đơn trên Home khớp hẳn với Lịch sử.
+\item \textbf{Đặt hàng an toàn hơn}: có bước xác nhận trước khi gửi, không tạo nhầm hay tạo trùng đơn. Tìm/lọc đổi
+  điều kiện bao nhiêu lần cũng được, trên cả 11 màn danh sách. Nút gửi đơn trên mobile hoạt động lại.
+\item \textbf{Lịch sử không còn mâu thuẫn}: đơn chưa xác nhận thì không có ``Ngày xác nhận''.
+\end{itemize}
+
+\section{Lý do / trade-off}
+
+\begin{itemize}[nosep]
+\item \textbf{Sửa ở token/component, không sửa từng trang} (G1, G2, 147): một chỗ sửa ăn cả portal. Đổi lại, lượt nào cũng
+  phải đo đủ 26--28 route $\times$ 3 khổ để chắc không trang nào vỡ; cái giá này đã có bộ đo dùng lại được.
+\item \textbf{148 không thêm field/bảng}: chống trùng bằng khoá nút + khoá \texttt{NOWAIT} + chuyển về đơn vừa tạo.
+  Không cần migration và không đụng quyền. Giới hạn: cửa sổ ``vừa tạo'' cố định 2 phút.
+\item \textbf{Key mới \texttt{confirm\_date} thay vì đổi nghĩa \texttt{date\_order}} (G6): caller khác (Home) vẫn dùng
+  key cũ không vỡ.
+\item \textbf{Deploy G3a + G3b một lần}: BA không bao giờ thấy Home PC nửa cũ nửa mới, đổi lại G3a nằm trên \texttt{main}
+  vài giờ mà chưa lên UAT.
+\item \textbf{Lưới CSS thay \texttt{col-*} Bootstrap} (G3b): BS4 của Vuexy và BS5 của Odoo xung đột thứ tự nạp; CSS grid
+  không phụ thuộc thứ tự.
+\end{itemize}
+
+\subsection*{Bài học}
+\begin{itemize}[nosep]
+\item \textbf{Runner deploy có thể bỏ lỡ một lượt push} (2 lần: G3a, G5). Luôn đọc version module trên UAT qua XML-RPC,
+  đừng tin ``đã push''.
+\item \textbf{Bridge sheet trả lỗi không phải JSON dù đã ghi}. Phải đọc lại CSV trước khi ghi lại; chạy lại
+  \texttt{qa\_sync --apply} sẽ ghi History sai. Kèm theo: \texttt{qa\_sync} đã sửa sang dò cột theo tên header, vì BA
+  chèn cột R và tool cũ ghi đè R bằng số cột cứng.
+\item \textbf{Lỗi chỉ ở một khổ đúng mốc} (992): quét $\pm$1px quanh mỗi breakpoint, rồi so computed style hai khổ để ra
+  ngay thuộc tính gây lỗi.
+\item \textbf{Mọi nhãn trạng thái đơn đi qua \texttt{portal\_order\_status}}. Bảng nhãn ``riêng cho mobile'' là nguồn lệch.
+\item \textbf{Khoá dùng chung phải có đường nhả} cho trang gửi bằng JS mà ở lại trang (\texttt{wj:form:release}). Đừng để
+  lớp sau kiểm lại cờ của lớp trước.
+\item \textbf{Issue có thể biến khỏi sheet} mà \texttt{issue\_queue --dev} vẫn báo 0. Đầu phiên phải so STT cuối sheet với
+  bảng cụm đang làm.
+\item \textbf{Đo ``gửi lại'' phải so URL}, không chỉ đếm request (route fragment \texttt{<path>/results}).
+\end{itemize}
+
+\subsection*{Nợ còn lại (chỉ ghi)}
+\begin{itemize}[nosep]
+\item Top bar PC vỡ ở đúng 992px (\texttt{wujia\_portal\_layout}, có từ trước G2); topbar 992--1199 chật, BA chưa tách issue.
+\item Bảng giá \texttt{Default} trên UAT là USD (công ty VND): chủ dự án đổi cấu hình.
+\item G4 (146) chờ BA xác nhận xoá hay chuyển chỗ.
+\item 2 error fixture ở \texttt{wujia\_sale} (\texttt{test\_06\_filters\_return\_right\_orders}, setUpClass
+  \texttt{TestWujiaSupplyDemandReport}).
+\item Cột R của 6 dòng cũ (126, 129, 131, 132, 136, 139) bị \texttt{qa\_sync} cũ ghi đè, cần lấy lại qua Version history.
+\item Nhãn vai trò chưa dịch EN/ZH; vùng an toàn chưa đo trên iPhone thật.
+\item Dọn server đo 8032/8033/8055 + DB \texttt{wujia\_g2s}, \texttt{wujia\_g3s}, \texttt{wujia\_g5s} + \texttt{git worktree prune}.
+\item Còn từ chapter 77: \texttt{auto\_install} theo ADR-027 · 7 câu hỏi BA ADR-027 · bàn giao anh Thái.
+\end{itemize}
+
+\textbf{Sau cụm G}: hàng đợi Dev trống (01/10). BA retest 140--145, 147--151. Phiên kế lấy issue mới khi BA mở,
+hoặc làm nợ top bar 992.

@@ -1951,3 +1951,22 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   BA retest 027/028/029 + 142 + 150/151.
 - Nợ: top bar PC vỡ ở 992; bảng giá UAT USD; G4 chờ BA; server 8055 + DB `wujia_g5s`, `wujia_g3s` + worktree
   `scratchpad/g5/base_wt` (`git worktree prune`) xoá được.
+
+## End-sprint 64 — chốt sổ cụm G · 01/10/2026 · Mac
+- Kết quả: ✅ chỉ docs, 0 dòng code. Chapter 78 `docs/chapters/78-sprint64-cluster-g-issue-list.tex` (Sprint 64: vì sao có
+  cụm G · bảng 8 lượt (issue/commit/version) · G1 · G2 · G3a/b · H150/151 · review UAT · G4 ⏸ · G5 · G6 · nghiệp vụ ·
+  trade-off · bài học · nợ) + `\include` vào `wujia-tea-doc.tex`; PDF build lại (lualatex, 0 lỗi, ch.78 = trang 319).
+- Đầu phiên: chủ dự án nói "làm tiếp G6" — G6 đã xong trọn từ 30/09 (deploy + đo 12/12 + Ready for Retest). Chủ dự án chọn
+  đóng sprint cụm G. `issue_queue --dev` = 0; STT cuối sheet 151, 146 vẫn mất; không có Retest Failed.
+- Đã làm: chapter 78 · compact summary (header, §4 dòng 64, §5 State) · bảng Tiến độ `next-session-clusters-G.md` dòng chốt sổ.
+  7 hash commit trong chapter kiểm bằng `git cat-file -e`.
+- Lệch plan / quyết định mới: không.
+- Bài học:
+  - `build-doc.sh` chạy `-halt-on-error`: lỗi LaTeX ⇒ **PDF cũ bị xoá** (không giữ bản trước). Ký hiệu toán ngoài preamble
+    (`\Diamond`) làm hỏng build — dùng chữ thường.
+  - Máy không có `pdftoppm`/PyMuPDF: soát trang PDF bằng `gs -sDEVICE=png16m -dFirstPage=… -dLastPage=…`.
+  - `git pull` qua SSH github cổng 22 có thể timeout ⇒ ghi HEAD lúc bắt đầu, kiểm lại trước khi push.
+- Nợ để lại: như §Nợ chapter 78 (top bar 992 · bảng giá UAT USD · G4 chờ BA · 2 error fixture `wujia_sale` · cột R 6 dòng ·
+  dọn server/DB đo · `auto_install` · 7 câu hỏi ADR-027).
+- Phiên kế: `issue_queue.py --dev` (BA retest 11 ID có thể trả Retest Failed); nếu trống ⇒ sửa top bar PC 992
+  (`wujia_portal_layout`, nhỏ).
