@@ -14,15 +14,17 @@
 							       domain="[('model_id', '=', model_id)]"
 							       options="{'no_create_edit': True, 'no_quick_create': True}"/>
 						</group>
-						<field name="field_value_line_ids">
-							<list>
-								<field name="field_label"/>
-								<field name="field_name"/>
-								<field name="field_value"/>
+						<field name="field_value_line_ids" class="o_wujia_fields_value_lines">
+							<list style="table-layout: fixed; width: 100%;">
+								<field name="sequence" string="#" style="width: 50px; text-align: center;"/>
+								<field name="field_label" style="width: 30%;"/>
+								<field name="field_name" style="width: 30%;"/>
+								<field name="field_value" style="width: 36%;"/>
 							</list>
 							<form>
 								<group>
 									<group>
+										<field name="sequence"/>
 										<field name="field_label"/>
 									</group>
 									<group>

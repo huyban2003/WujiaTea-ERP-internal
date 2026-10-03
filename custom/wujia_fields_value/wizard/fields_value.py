@@ -32,6 +32,7 @@ class WujiaFieldsValue(models.TransientModel):
 
                 field_ids = rec.field_ids if rec.field_ids else rec.model_id.field_id
                 lines = []
+                idx = 1
                 for field in field_ids:
                     if field.name == 'id':
                         continue
@@ -54,10 +55,12 @@ class WujiaFieldsValue(models.TransientModel):
                             val_str = ""
 
                     lines.append((0, 0, {
+                        'sequence': idx,
                         'field_name': field.name,
                         'field_label': field.field_description or field.name,
                         'field_value': val_str,
                     }))
+                    idx += 1
                 rec.field_value_line_ids = lines
             else:
                 rec.field_value_line_ids = False
@@ -66,6 +69,7 @@ class WujiaFieldsValueLine(models.TransientModel):
     _name = 'wujia.fields.value.line'
     _description = 'Wujia View Fields Value Line'
 
+    sequence = fields.Integer(string='#', default=10)
     field_name = fields.Char(string='Field Technical Name')
     field_label = fields.Char(string='Field Label')
     field_value = fields.Text(string='Value')

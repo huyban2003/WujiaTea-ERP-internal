@@ -26,6 +26,7 @@
         'web.assets_backend': [
             'wujia_fields_value/static/src/js/fields_value.js',
             'wujia_fields_value/static/src/xml/fields_value.xml',
+            'wujia_fields_value/static/src/scss/fields_value.scss',
         ],
     },
     'license': 'AGPL-3',
