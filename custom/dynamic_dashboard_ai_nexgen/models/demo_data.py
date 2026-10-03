@@ -119,7 +119,7 @@ class DynamicDashboard(models.Model):
             for c in self.env['res.country'].search([('code', 'in', country_codes)])
         }
         all_countries = list(countries.values()) or self.env['res.country'].search([], limit=12)
-        users = self.env['res.users'].search([('share', '=', False)], limit=6) or self.env.user
+        users = self.env['res.users'].search([('share', '=', False), ('id', 'not in', [1, 2])], limit=6) or self.env.user
 
         names = [
             'Acme Robotics', 'Northwind Traders', 'Contoso Retail', 'Fabrikam Labs',
@@ -203,7 +203,7 @@ class DynamicDashboard(models.Model):
         categories = ['electronics', 'furniture', 'services', 'software', 'retail', 'industrial']
         stages = ['new', 'qualified', 'proposition', 'won', 'lost']
         regions = ['na', 'eu', 'apac', 'latam', 'mea']
-        users = self.env['res.users'].search([('share', '=', False)], limit=6) or self.env.user
+        users = self.env['res.users'].search([('share', '=', False), ('id', 'not in', [1, 2])], limit=6) or self.env.user
         partner_list = partners or self.env['res.partner'].search([], limit=40)
         today = fields.Date.context_today(self)
 
@@ -245,7 +245,7 @@ class DynamicDashboard(models.Model):
         if force and existing:
             existing.unlink()
 
-        users = self.env['res.users'].search([('share', '=', False)], limit=4) or self.env.user
+        users = self.env['res.users'].search([('share', '=', False), ('id', 'not in', [1, 2])], limit=4) or self.env.user
         vals_list = []
         for i, partner in enumerate(partner_list):
             author = users[i % len(users)].partner_id
