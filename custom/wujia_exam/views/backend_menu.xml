@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_wujia_exam_root"
+              name="Training / Exams"
+              parent="wujia_franchise.menu_wujia_root"
+              sequence="40"
+              groups="group_exam_user"/>
+
+    <menuitem id="menu_wujia_exam_operation"
+              name="Operation"
+              parent="menu_wujia_exam_root"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_exam_session"
+              name="Exam session"
+              parent="menu_wujia_exam_operation"
+              action="action_wujia_exam_session"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_exam_registration"
+              name="Registration"
+              parent="menu_wujia_exam_operation"
+              action="action_wujia_exam_registration"
+              sequence="20"/>
+
+    <menuitem id="menu_wujia_exam_config"
+              name="Configuration"
+              parent="menu_wujia_exam_root"
+              sequence="90"
+              groups="group_exam_manager"/>
+
+    <menuitem id="menu_wujia_exam_course"
+              name="Exam course"
+              parent="menu_wujia_exam_config"
+              action="action_wujia_exam_course"
+              sequence="10"/>
+
+    <menuitem id="menu_wujia_exam_time_slot"
+              name="Time slot"
+              parent="menu_wujia_exam_config"
+              action="action_wujia_exam_time_slot"
+              sequence="20"/>
+
+</odoo>

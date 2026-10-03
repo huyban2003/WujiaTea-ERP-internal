@@ -7,9 +7,11 @@ from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_id
 from odoo.addons.wujia_portal_base.controllers.utils import (
+    DEFAULT_STATE_META,  # noqa: F401 — re-export cho script/test cũ đọc qua module này
+    DELIVERY_NEUTRAL_STATUSES, DELIVERY_OVERRIDE_META, SALE_STATE_META,
     build_pager, date_range_error, local_day_range_utc,
-    portal_line_price_vals, portal_money, portal_tax_mapper, portal_tz, to_local_dt,
-    status_badge_for,
+    portal_line_price_vals, portal_money, portal_order_state_meta, portal_order_status,
+    portal_tax_mapper, portal_tz, to_local_dt, status_badge_for,
 )
 
 
@@ -18,26 +20,10 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 PAGE_SIZE = 10
 PAGE_SIZE_OPTIONS = (10, 20, 50)
 
-# state → (label VN, status_type). status_type = key ngữ nghĩa, template map sang badge CSS
-# riêng (PC/mobile). 'cancel' KHÔNG có ở đây — đơn huỷ bị loại khỏi lịch sử (BA). State custom
-# thêm về sau rơi về DEFAULT_STATE_META (BA: nhãn an toàn "Đang xử lý").
-SALE_STATE_META = {
-    'draft': ('Chờ xác nhận', 'pending'),
-    'sent': ('Đã gửi', 'sent'),
-    'sale': ('Đã xác nhận', 'confirmed'),
-}
-DEFAULT_STATE_META = ('Đang xử lý', 'pending')
-
-# WJ-PH-003 — phương án (a) chủ dự án chốt 03/08: cửa hàng chỉ nhìn MỘT cột trạng thái.
-# sale.order.state của Odoo 19 chỉ có draft/sent/sale/cancel; "Đang giao"/"Hoàn tất" suy từ
-# batch_id.delivery_batch_status và ĐÈ trạng thái đơn khi đơn đã xác nhận.
-DELIVERY_OVERRIDE_META = {
-    'delivering': ('Đang giao', 'transit'),
-    'done': ('Hoàn tất', 'done'),
-}
-# Trạng thái chuyến KHÔNG đè nhãn đơn (chuyến huỷ/chưa đi không làm đơn đổi trạng thái).
-# False = batch cũ chưa có delivery_batch_status — vẫn phải nằm trong nhóm "Đã xác nhận".
-DELIVERY_NEUTRAL_STATUSES = ['draft', 'assigned', 'loading', 'cancelled', False]
+# Luật trạng thái SO (SALE_STATE_META, nhãn giao hàng đè…) nằm ở wujia_portal_base.utils —
+# nguồn DUY NHẤT dùng chung với Home (WJ-HOME-010). Tên cũ giữ làm alias cho portal_sale + test.
+_state_meta = portal_order_state_meta
+_order_status = portal_order_status
 
 # Nhãn VN của stock.picking.batch.delivery_batch_status. Pin cứng tại đây vì source
 # wujia_delivery đã chuyển sang tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
@@ -74,19 +60,6 @@ def _parse_page_size(value):
     return value if value in PAGE_SIZE_OPTIONS else PAGE_SIZE
 
 
-def _state_meta(state):
-    return SALE_STATE_META.get(state, DEFAULT_STATE_META)
-
-
-def _order_status(order):
-    """(label, status_type) hiển thị — trạng thái giao đè trạng thái đơn khi đơn đã xác nhận."""
-    if order.state == 'sale':
-        override = DELIVERY_OVERRIDE_META.get(order.batch_id.delivery_batch_status)
-        if override:
-            return override
-    return _state_meta(order.state)
-
-
 def _status_domain(key):
     """Domain của 1 nhãn trạng thái — khớp ĐÚNG cái _order_status hiển thị.
 
@@ -110,6 +83,15 @@ def _requester_display(order):
     return order.portal_requester_user_id.name or BACKEND_REQUESTER_LABEL
 
 
+def _confirm_date(order, tz):
+    """WJ-ORD-029: "Ngày xác nhận" chỉ có nghĩa khi đơn ĐÃ xác nhận.
+
+    Odoo đặt `date_order` = lúc tạo cho báo giá rồi ghi đè lúc `action_confirm`, nên với
+    draft/sent nó chỉ là giờ tạo đội lốt ngày xác nhận. Odoo 19 không còn state `done`;
+    "Đang giao"/"Hoàn tất" suy từ chuyến giao nhưng đơn vẫn ở `sale` ⇒ vẫn có ngày."""
+    return to_local_dt(order.date_order, tz) if order.state == 'sale' else None
+
+
 def _history_row_vals(order, line_count_map, batch_status_labels, tz):
     """Dataset lõi 1 dòng list — dùng chung PC + mobile."""
     label, status_type = _order_status(order)
@@ -120,6 +102,7 @@ def _history_row_vals(order, line_count_map, batch_status_labels, tz):
         # Odoo lưu naive UTC → đổi sang giờ user, template giữ nguyên .strftime (WJ-PH-002).
         'create_date': to_local_dt(order.create_date, tz),
         'date_order': to_local_dt(order.date_order, tz),
+        'confirm_date': _confirm_date(order, tz),
         'state_label': label,
         'status_type': status_type,
         # CMP-SB-001: variant lấy từ NHÃN qua map dùng chung — PC và mobile
@@ -173,6 +156,7 @@ def _history_detail_vals(order, batch_status_labels, tz):
         'name': order.name,
         'create_date': to_local_dt(order.create_date, tz),
         'date_order': to_local_dt(order.date_order, tz),
+        'confirm_date': _confirm_date(order, tz),
         'state_label': label,
         'status_type': status_type,
         # CMP-SB-001: variant lấy từ NHÃN qua map dùng chung — PC và mobile

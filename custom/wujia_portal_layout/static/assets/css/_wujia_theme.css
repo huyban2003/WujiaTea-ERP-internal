@@ -176,30 +176,7 @@ html body .h4, html body .h5, html body .h6,
     height: auto !important;
     overflow: visible !important;
 }
-/* Sprint 9.6 v4 (2026-05-25, match V14): V14 leaves Bootstrap `mb-5` (3rem) */
-/* (no .navbar-header.mb-5 override — Vuexy/Bootstrap default 3rem applies) */
-
-/* ---------- Sidebar spacer (Sprint 9.6 v5, 2026-05-25) ---------- */
-.main-menu .sidebar-header-spacer {
-    height: 32px;
-}
-
-/* UI-07 (Sprint 9.8, 2026-05-25): Enforce constant logo-area height so every */
-.main-menu .navbar-header {
-    height: var(--wujia-sidebar-logo-h) !important;  /* 200px */
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin-bottom: 0 !important;
-    overflow: hidden !important;
-}
-.main-menu .navbar-header img {
-    max-height: calc(var(--wujia-sidebar-logo-h) - 40px) !important;  /* 160px */
-    max-width: 200px !important;
-    width: auto !important;
-    height: auto !important;
-    object-fit: contain !important;
-}
+/* Brand + dáng mục sidebar: `_sidebar.css` (CMP-SN-001, E8b). */
 
 /* Subtle scrollbar to match the soft Wujia palette */
 .main-menu::-webkit-scrollbar { width: 6px; }
@@ -216,109 +193,6 @@ html body .h4, html body .h5, html body .h6,
     scrollbar-color: var(--wujia-border) transparent;
 }
 
-.main-menu .navigation > li > a {
-    display: flex;
-    align-items: center;
-    position: relative;  /* anchor for active accent bar (::before) */
-    min-height: var(--wujia-menu-item-height);
-    padding: 0 18px;
-    gap: 12px;
-    border-radius: 8px;
-    margin: 3px 12px;  /* UI-18: 6px gap between items (BA range 4–6px) */
-    font-size: var(--wujia-menu-text-size);
-    color: var(--wujia-text-secondary) !important;
-    transition: background-color .15s, color .15s;
-}
-.main-menu .navigation > li > a > i,
-.main-menu .navigation > li > a > .fa {
-    font-size: var(--wujia-menu-icon-size) !important;
-    width: var(--wujia-menu-icon-size);
-    text-align: center;
-    color: var(--wujia-text-secondary);
-}
-.main-menu .navigation > li > a:hover {
-    background-color: var(--wujia-muted-bg) !important;
-}
-/* Sprint PC-1: Active menu item per BA pc_source_ui_v1_4 sidebar —
-   soft bg + cyan text/icon + 4px rounded left accent bar (::before). */
-.main-menu.menu-light .navigation > li.active > a,
-.main-menu .navigation > li.active > a {
-    background-color: var(--wujia-primary-soft) !important;
-    color: var(--wujia-primary) !important;
-    font-weight: 700;
-}
-.main-menu .navigation > li.active > a::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 60%;
-    border-radius: 2px;
-    background-color: var(--wujia-primary);
-}
-.main-menu.menu-light .navigation > li.active > a > i,
-.main-menu .navigation > li.active > a > .fa,
-.main-menu.menu-light .navigation > li.active > a > .feather {
-    color: var(--wujia-primary) !important;
-}
-.main-menu.menu-light .navigation > li ul .active {
-    background-color: var(--wujia-primary-soft) !important;
-    color: var(--wujia-primary) !important;
-}
-
-/* ---------- UI-PC-BASE-010: grid sidebar theo WJ_PC_CoreShell_FINAL_v1 (cụm A, 03/08) ----------
-   Source (SVG): logo card rect 20,16,260×132 rx18 stroke #EEF2F5 · logo image 58,26,184×86 ·
-   "MENU CHÍNH" text x=28 y=188 · item rect 20,*,260×48.
-   Đặt SAU mọi rule sidebar ở trên (đồng cấp specificity → thứ tự source quyết định, L4) và
-   bọc trong @media ≥1200px để mobile/tablet bất biến. */
-@media (min-width: 1200px) {
-    .main-menu .navbar-header {
-        height: var(--wujia-sidebar-logo-h-pc) !important;   /* 132px */
-        margin: 16px 20px 0 !important;                   /* → x=20, y=16, w=260 */
-        /* Vuexy để padding lệch 22,96px trái / 14px phải → ảnh không căn giữa được.
-           Zero ngang rồi để justify-content:center lo; 9px trên + 1px border = ảnh y=26. */
-        padding: 9px 0 0 !important;
-        align-items: flex-start !important;
-        border: 1px solid var(--wujia-border-soft) !important;
-        border-radius: 18px !important;
-        box-sizing: border-box !important;
-    }
-    /* Bootstrap nav bên trong navbar-header có margin/padding riêng, đẩy ảnh lệch xuống. */
-    .main-menu .navbar-header .navbar-nav,
-    .main-menu .navbar-header .nav-item,
-    .main-menu .navbar-header .navbar-brand {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    .main-menu .navbar-header img {
-        width: 184px !important;
-        height: 86px !important;
-        max-width: 184px !important;
-        max-height: 86px !important;
-    }
-    /* Card kết thúc y=148; spacer + margin-top 28px của .wujia-nav-header → "MENU CHÍNH" y=188. */
-    .main-menu .sidebar-header-spacer {
-        height: var(--wujia-sidebar-header-gap);
-    }
-    .main-menu.menu-light .navigation > li.wujia-nav-header,
-    .main-menu .navigation > li.wujia-nav-header {
-        margin-left: 28px;                                /* source text x=28 (Vuexy để 2,2rem) */
-    }
-    /* Item rộng 260px trong lề x=20 (trước: 230 @ x=35 do components.css:411
-       `.main-menu.menu-light .navigation > li{padding:0 15px}` — 0,4,0, phải khớp specificity
-       rồi thắng bằng thứ tự source, L4). Lề phải 19px vì 1px cuối sidebar là divider
-       → vùng trắng chỉ 299px. */
-    .main-menu.menu-light .navigation > li,
-    .main-menu .navigation > li {
-        padding-left: 0;
-        padding-right: 0;
-    }
-    .main-menu .navigation > li > a {
-        margin: 3px 19px 3px 20px;
-    }
-}
 
 /* D4f: khối dáng `.card` đã gỡ — chủ sở hữu là .wj-surface-card. */
 

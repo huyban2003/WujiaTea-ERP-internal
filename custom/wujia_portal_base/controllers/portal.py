@@ -5,23 +5,18 @@ from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.wujia_portal_layout.controllers.utils import safe_local_path
 from odoo.addons.wujia_portal_base.controllers.utils import (
-    MOBILE_ORDER_BADGES,
-    MOBILE_RETURN_BADGES,
     PAGE_SIZE_OPTIONS,
     build_pager,
-    status_badge,
     fmt_local_dt,
     get_upcoming_batches,
     parse_page_size,
     portal_money,
+    portal_order_badge,
+    return_status_label,
 )
+from odoo.addons.wujia_portal_base.models.wujia_franchise_member import ROLE_LABELS
 
 
-ROLE_LABELS = {
-    'owner': 'Chủ tiệm',
-    'manager': 'Quản lý',
-    'staff': 'Nhân viên',
-}
 ROLE_RANK = {'staff': 1, 'manager': 2, 'owner': 3}
 
 # Nhãn VN của wujia.franchise.management.status. Pin cứng tại đây vì source đã chuyển
@@ -125,7 +120,7 @@ def _float_to_hhmm(value):
 class WujiaPortal(CustomerPortal):
 
     # ==================================================================
-    # /portal — Dashboard (4 stat card + 4 list block, BA spec)
+    # /portal — Dashboard (PC mockup V4 · mobile Figma Sprint 10)
     # ==================================================================
     @http.route(['/portal'], type='http', auth='user', website=False, sitemap=False)
     def portal_home(self, **kw):
@@ -133,7 +128,7 @@ class WujiaPortal(CustomerPortal):
         accessible_ids = request.env.user._get_accessible_franchise_ids()
         values = self._dashboard_values(franchise_ids)
 
-        # ---- Mobile home hero (Figma BA Sprint 10): cửa hàng + role + khung giờ ----
+        # ---- Cửa hàng + role + khung giờ: hero mobile (Figma Sprint 10) VÀ hàng đầu PC (V4, G3a) ----
         active_fid = get_active_franchise_id()
         Franchise = request.env['wujia.franchise.management'].sudo()
         active_franchise = Franchise.browse(active_fid).exists() if active_fid else Franchise.browse()
@@ -158,13 +153,13 @@ class WujiaPortal(CustomerPortal):
             get_upcoming_batches(franchise_ids_list, limit=HOME_PREVIEW_LIMIT)
             if franchise_ids_list else {'items': [], 'undelivered_count': 0}
         )
-        # Knowledge — base KHÔNG depend wujia_portal_knowledge → guard registry
+        # Knowledge — base KHÔNG depend wujia_knowledge → guard registry
         # (cùng pattern _safe_count/_safe_list; KHÔNG thêm depends, tránh coupling).
         Article = request.env.get('wujia.knowledge.article')
         articles = []
-        if Article is not None and 'is_published_portal' in Article._fields:
+        if Article is not None and hasattr(Article, '_portal_visible_domain'):
             articles = Article.sudo().search(
-                [('is_published_portal', '=', True)],
+                Article._portal_visible_domain(),
                 order='publish_date desc, id desc', limit=HOME_PREVIEW_LIMIT,
             )
 
@@ -172,9 +167,8 @@ class WujiaPortal(CustomerPortal):
             # Sprint 17 dashboard-merge keys (mobile home d-lg-none)
             'm_upcoming_batches': upcoming['items'],
             'm_undelivered_count': upcoming['undelivered_count'],
-            'm_order_badges': MOBILE_ORDER_BADGES,
-            'm_return_badges': MOBILE_RETURN_BADGES,
-            'wj_badge_default': status_badge('neutral'),
+            'wj_order_badge': portal_order_badge,
+            'wj_return_status': return_status_label,
             'articles': articles,
             'm_hotline': request.env.company.sudo().phone or '',
             'title': _('Trang chủ - Portal'),
@@ -188,7 +182,7 @@ class WujiaPortal(CustomerPortal):
                 .sudo().browse(list(accessible_ids)) if accessible_ids
                 else request.env['wujia.franchise.management'].browse(),
             'active_franchise_id': active_fid,
-            # mobile home (d-lg-none) — desktop không dùng các key này
+            # dùng chung hero mobile + hàng đầu PC (G3a) — một nguồn cho hai kênh
             'active_franchise': active_franchise,
             'active_role': active_role,
             'order_window': self._order_window_view(
@@ -219,8 +213,8 @@ class WujiaPortal(CustomerPortal):
           - state='closed' : ngoài giờ → đỏ "Đã đóng" + mở lại lúc from_hhmm.
         """
         Settings = request.env['res.config.settings'].sudo()
-        # ADR-027 R5: L3a KHÔNG depend `wujia_portal_order_window`. Module tắt ⇒ coi
-        # như không đặt khung giờ, đừng để Home 500 (FR-A3 bắt được khi cài base một mình).
+        # ADR-027: L3a cấm thêm depend `wujia_order_window`. Module tắt ⇒ coi
+        # như không đặt khung giờ, đừng để Home 500.
         if not (hasattr(Settings, '_is_within_order_window')
                 and hasattr(Settings, '_user_now_hours')):
             return {'state': 'always'}
@@ -255,7 +249,9 @@ class WujiaPortal(CustomerPortal):
         today = fields.Datetime.now()
         last_30d = today - timedelta(days=30)
 
-        # ---- 4 stat cards ----
+        # ---- 4 KPI (Đơn hàng · Thông báo · Đổi trả; Công nợ do wujia_portal_debt) ----
+        # G3a/142: bỏ "Đơn chờ xử lý" + bảng top sản phẩm (không có trong mockup V4)
+        # ⇒ Home bớt 1 count + 2 _read_group. Top SP vẫn ở trang Báo cáo.
         unread_count = self._safe_count(
             'wujia.notification', 'unread_count', franchise_ids
         )
@@ -264,15 +260,11 @@ class WujiaPortal(CustomerPortal):
             ('date_order', '>=', last_30d),
             ('state', '!=', 'cancel'),
         ]) if franchise_ids else 0
-        waiting_orders_count = SO.search_count([
-            ('franchise_id', 'in', franchise_ids),
-            ('state', 'in', ['draft', 'sent']),
-        ]) if franchise_ids else 0
         return_requests_count = self._safe_count(
             'wujia.return.request', 'open_count', franchise_ids
         )
 
-        # ---- 4 list blocks — mọi block cùng HOME_PREVIEW_LIMIT (WJ-HOME-006) ----
+        # ---- block list — mọi block cùng HOME_PREVIEW_LIMIT (WJ-HOME-006) ----
         latest_notifications = self._safe_list(
             'wujia.notification', franchise_ids, limit=HOME_PREVIEW_LIMIT,
         )
@@ -283,21 +275,14 @@ class WujiaPortal(CustomerPortal):
         latest_returns = self._safe_list(
             'wujia.return.request', franchise_ids, limit=HOME_PREVIEW_LIMIT,
         )
-        top_products, top_currency = self._top_products(franchise_ids, limit=5)
 
         return {
             'unread_count': unread_count,
             'recent_orders_count': recent_orders_count,
-            'waiting_orders_count': waiting_orders_count,
             'return_requests_count': return_requests_count,
             'latest_notifications': latest_notifications,
             'recent_orders': recent_orders,
             'latest_returns': latest_returns,
-            'top_products': top_products,
-            # Ký hiệu/số lẻ cho bảng top sản phẩm — theo currency của chính các đơn
-            # được gộp, không phải của công ty (cụm D).
-            'top_currency_symbol': top_currency.symbol or '',
-            'top_currency_decimals': top_currency.decimal_places or 0,
             'franchise_ids': franchise_ids,
             'wj_dt': fmt_local_dt,
         }
@@ -309,27 +294,13 @@ class WujiaPortal(CustomerPortal):
         if Model is None:
             return 0
         Model = Model.sudo()
-        if kind == 'unread_count':
-            user_id = request.env.user.id
-            published_total = Model.search_count([
-                ('is_published_portal', '=', True),
-                '|', ('franchise_ids', '=', False),
-                     ('franchise_ids', 'in', list(franchise_ids)),
-            ])
-            Read = request.env.get('wujia.notification.read')
-            if Read is None:
-                return published_total
-            read_count = Read.sudo().search_count([
-                ('user_id', '=', user_id),
-                ('notification_id.is_published_portal', '=', True),
-            ])
-            return max(0, published_total - read_count)
-        if kind == 'open_count':
-            # BA spec: state in ('submitted','processing','approved') — KHÔNG tính draft.
-            return Model.search_count([
-                ('franchise_id', 'in', list(franchise_ids)),
-                ('state', 'in', ['submitted', 'processing', 'approved']),
-            ])
+        if kind == 'unread_count' and hasattr(Model, '_portal_unread_count'):
+            # Cùng luật với badge chuông: còn hiệu lực, chưa đọc tại cửa hàng đang chọn.
+            return Model._portal_unread_count(
+                request.env.user, franchise_ids, get_active_franchise_id())
+        if kind == 'open_count' and hasattr(Model, '_portal_open_domain'):
+            # Cùng luật với /portal/return: BA không tính nháp.
+            return Model.search_count(Model._portal_open_domain(franchise_ids))
         return 0
 
     def _safe_list(self, model_name, franchise_ids, limit=5):
@@ -339,58 +310,15 @@ class WujiaPortal(CustomerPortal):
         if Model is None:
             return []
         Model = Model.sudo()
-        if model_name == 'wujia.notification':
-            return Model.search([
-                ('is_published_portal', '=', True),
-                '|', ('franchise_ids', '=', False),
-                     ('franchise_ids', 'in', list(franchise_ids)),
-            ], order='published_date desc', limit=limit)
-        if model_name == 'wujia.return.request':
-            # BA spec: loại phiếu đã huỷ / từ chối khỏi danh sách gần đây.
-            return Model.search([
-                ('franchise_id', 'in', list(franchise_ids)),
-                ('state', 'not in', ['rejected', 'cancelled']),
-            ], order='request_date desc', limit=limit)
+        if model_name == 'wujia.notification' and hasattr(Model, '_portal_effective_domain'):
+            # Cùng luật với popup chuông: không hiện bài hẹn giờ / hết hiệu lực.
+            return Model.search(Model._portal_effective_domain(franchise_ids),
+                                order='is_pinned desc, published_date desc', limit=limit)
+        if model_name == 'wujia.return.request' and hasattr(Model, '_portal_recent_domain'):
+            # BA: danh sách gần đây bỏ phiếu đã huỷ / từ chối.
+            return Model.search(Model._portal_recent_domain(franchise_ids),
+                                order='request_date desc', limit=limit)
         return []
-
-    def _top_products(self, franchise_ids, limit=5):
-        """Top product 90 ngày (BA spec). 1 _read_group, không loop search."""
-        if not franchise_ids:
-            return [], request.env.company.currency_id
-        last_90d = fields.Datetime.now() - timedelta(days=90)
-        SOL = request.env['sale.order.line'].sudo()
-        groups = SOL._read_group(
-            domain=[
-                ('order_id.franchise_id', 'in', list(franchise_ids)),
-                ('order_id.state', 'in', ['sale', 'done']),
-                ('order_id.date_order', '>=', last_90d),
-            ],
-            groupby=['product_id'],
-            aggregates=['product_uom_qty:sum', 'price_total:sum'],
-            limit=limit,
-            order='product_uom_qty:sum desc',
-        )
-        # `price_total:sum` cộng thẳng số của các đơn, KHÔNG quy đổi — nên ký hiệu
-        # phải là currency của chính các đơn đó. Cùng bộ lọc, group theo currency:
-        # đúng một currency → lấy currency ấy; trộn nhiều currency thì con số gộp
-        # vốn đã vô nghĩa, rơi về currency công ty. 1 query gộp, không loop.
-        currencies = request.env['sale.order'].sudo()._read_group(
-            domain=[
-                ('franchise_id', 'in', list(franchise_ids)),
-                ('state', 'in', ['sale', 'done']),
-                ('date_order', '>=', last_90d),
-            ],
-            groupby=['currency_id'],
-            aggregates=[],
-        )
-        currency = currencies[0][0] if len(currencies) == 1 else request.env.company.currency_id
-        rows = [{
-            'name': product.display_name,
-            'qty': qty or 0,
-            'uom': product.uom_id.name or '',
-            'total': total or 0,
-        } for product, qty, total in groups]
-        return rows, currency
 
     # ==================================================================
     # Active-franchise (store picker) — cookie-based, no DB hit
@@ -561,7 +489,7 @@ class WujiaPortal(CustomerPortal):
         # Hard gate per BA: portal_locked or status != 'active' → block
         if franchise.portal_locked or franchise.status != 'active':
             return request.render('wujia_portal_base.portal_franchise_information_locked', {
-                'title': _('Thông tin cửa hàng'),
+                'title': _('Hồ sơ cửa hàng'),
                 'franchise': franchise,
             })
         Member = request.env['wujia.franchise.member'].sudo()
@@ -574,7 +502,7 @@ class WujiaPortal(CustomerPortal):
         members = Member.search(mdomain, limit=pgn['page_size'],
                                 offset=pgn['offset'], order='role, id')
         return request.render('wujia_portal_base.portal_franchise_information', {
-            'title': _('Thông tin cửa hàng'),
+            'title': _('Hồ sơ cửa hàng'),
             'page_name': 'franchise_information',
             'franchise': franchise,
             'membership': membership_sudo,

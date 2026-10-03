@@ -138,12 +138,9 @@
     --wj-sb-feedback-fg:     #7C3AED;
 
     /* ---------- Layout dimensions ---------- */
-    --wujia-sidebar-width:  300px;
-    --wujia-sidebar-logo-h: 200px;   /* <1200px (sidebar off-canvas tablet) — giữ nguyên */
-    /* UI-PC-BASE-010: logo card PC theo WJ_PC_CoreShell_FINAL_v1 (rect 20,16,260×132).
-       Tách riêng khỏi --wujia-sidebar-logo-h để tablet 992–1199px bất biến. */
-    --wujia-sidebar-logo-h-pc:   132px;
-    --wujia-sidebar-header-gap:  12px;   /* 148 (đáy card) + 12 + 28 (margin li) = "MENU CHÍNH" y=188 */
+    /* CMP-SN-001 (E8b): sidebar PC 264, vùng brand 88, logo tối đa 160×64. */
+    --wujia-sidebar-width:  264px;
+    --wujia-sidebar-brand-h: 88px;
     --wujia-header-height:  72px;   /* Vuexy default floating-nav height */
     --wujia-header-padding: 22px;
     --wujia-card-radius:    16px;
@@ -177,7 +174,8 @@
     /* ---------- Sidebar items ---------- */
     --wujia-menu-item-height: 44px;
     --wujia-menu-icon-size:   20px;
-    --wujia-menu-text-size:   16px;
+    --wujia-menu-text-size:   15px;
+    --wujia-menu-text-lh:     22px;
 
     /* ---------- Buttons ---------- */
     --wujia-btn-height:           42px;
@@ -267,6 +265,12 @@
        PC cũng đọc token này — giữ đúng 16/8 cũ ở đây, mobile hạ xuống ở khối @media. */
     --wujia-m-sechead-mt:     16px;
     --wujia-m-sechead-mb:     8px;
+    /* UI-MOB-HEADER-DENSITY-001: cỡ title SectionHeader mobile 18/24 (từ 20/28) và pad dọc
+       PageHeader mobile 8 (từ 12). Người đọc chỉ là rule --m (d-lg-none) và --any bọc
+       @media mobile ⇒ khai ở :root không lọt sang PC. */
+    --wujia-m-sechead-fs:     18px;
+    --wujia-m-sechead-lh:     24px;
+    --wujia-m-pagehead-py:    8px;
     --wujia-page-title-gap:   14px;
     --wujia-kpi-content-gap:  22px;
 
@@ -349,13 +353,15 @@
     --wj-filter-btn-h-m:         38px;
     --wj-filter-btn-h-sm:        32px;
 
-    /* ---------- Mobile Shell FINAL (header 104 / strip 48 / footer 83) ---------- */
+    /* ---------- Mobile Shell FINAL (header 104 / strip 48 / footer 72 + safe area) ---------- */
     --wujia-mshell-primary:            #28A9DF;
     --wujia-mshell-bg:                 #F3F6F8;
     --wujia-mshell-surface:            #FFFFFF;
     --wujia-mshell-border:             #EEF2F5;
     --wujia-mshell-content-pad-x:      12px;   /* E5c LC-08: gutter danh sách 12 (BA Q2) */
-    --wujia-mshell-content-pad-bottom: 96px;
+    /* Chừa đáy nội dung = thanh dưới + 13 thở (tỉ lệ cũ 83 + 13 = 96), bám token nav
+       để đổi chiều cao nav không phải sửa số ở đây. */
+    --wujia-mshell-content-pad-bottom: calc(var(--wujia-mnav-height) + 13px);
     --wujia-mshell-content-gap:        14px;
 
     /* Header mobile */
@@ -371,10 +377,11 @@
     --wujia-mheader-action-gap:      16px;   /* UI-04: 16px gap between circles */
 
     /* Footer / bottom-nav: active = brand cyan, badge = red */
-    --wujia-mnav-height:             83px;
-    /* Chỗ nav THỰC chiếm: nav có padding-bottom max(6px, safe-area) nên máy có
-       home-indicator cao hơn 83. Mọi khối fixed phía trên nav phải bám biến này. */
-    --wujia-mnav-total:              calc(var(--wujia-mnav-height) + max(0px, env(safe-area-inset-bottom, 0px) - 6px));
+    /* UI-MOB-BOTTOMNAV-DENSITY-001: 72 (từ 83) là phần thanh KHÔNG tính safe area. */
+    --wujia-mnav-height:             72px;
+    /* Chỗ nav THỰC chiếm = 72 + safe area (nav cao đúng biến này). Mọi khối fixed phía
+       trên nav (sheet Thêm, thanh giỏ, CTA dính) phải bám biến này, không bám -height. */
+    --wujia-mnav-total:              calc(var(--wujia-mnav-height) + env(safe-area-inset-bottom, 0px));
     --wujia-mnav-active:             #28A9DF;
     --wujia-mnav-inactive:           #8A939E;
     --wujia-mnav-badge:              #EF4444;

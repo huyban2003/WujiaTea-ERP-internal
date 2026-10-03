@@ -52,13 +52,13 @@
     </record>
 
     <!-- Dual-Device View Mode on Action Window -->
-    <record id="wujia_portal_exam.action_wujia_exam_course" model="ir.actions.act_window">
+    <record id="wujia_exam.action_wujia_exam_course" model="ir.actions.act_window">
         <field name="view_mode">list,kanban,form</field>
         <field name="view_ids" eval="[
             (5, 0, 0),
-            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_portal_exam.view_wujia_exam_course_list'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_exam.view_wujia_exam_course_list'), 'sequence': 1}),
             (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_wujia_exam_course_kanban_mobile'), 'sequence': 2}),
-            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_portal_exam.view_wujia_exam_course_form'), 'sequence': 3})
+            (0, 0, {'view_mode': 'form', 'view_id': ref('wujia_exam.view_wujia_exam_course_form'), 'sequence': 3})
         ]"/>
     </record>
 

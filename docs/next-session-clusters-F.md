@@ -141,11 +141,20 @@ F6–F13 là backend/controller — không chặn component, nhưng chặn mobil
 | F5a | Menu về module sở hữu route + redirect legacy + vá điểm mù mốc đo | layout + 13 module | TB | ✅ 18/09 — `docs/f5a-acceptance-matrix.md` |
 | F5b | Dời test cross-module của layout về module sở hữu màn (đếm lại bằng máy: **236 test / 517 assert**, không phải 94/215) | layout + 15 module | TB | ✅ 18/09 — `docs/f5b-acceptance-matrix.md` · `docs/f5b-test-inventory.md` |
 | **FR-A3** | **Review cổng F (F0–F5b) → quyết mở lại Issue List** | 3 module (vá nhỏ) | — | ✅ 18/09 — **ĐẠT, MỞ LẠI ISSUE LIST** (E4b→E8) · `docs/f-review-A3.md` |
-| F6 | Sale: luật số lượng 1 nguồn, giỏ + submit về model | sale, wujia_sale | Cao | ☐ |
-| F7 | Pilot tách order_window | order_window, portal_sale | Cao | ☐ |
-| **FR-P** | **Review pilot trước khi nhân quy trình** | 0 | — | ☐ |
-| F8–F13 | Tách phân hệ + controller mỏng | theo phân hệ | Cao | ☐ |
-| **FR-A** | **Review toàn khối A + controller (F1, F6–F13)** | 0 hoặc vá nhỏ | — | ☐ |
+| F6 | Sale: luật số lượng 1 nguồn, giỏ + submit về model (+ nợ `portal_base` tự test) | sale, wujia_sale, base, layout (test) | Cao | ✅ 25/09 — `docs/f6-acceptance-matrix.md` |
+| F7 | Pilot tách order_window | order_window, portal_sale | Cao | ✅ 25/09 — `docs/f7-acceptance-matrix.md` · `6b2938d`, UAT 25/09, vỏ gỡ 26/09 |
+| **FR-P** | **Review pilot trước khi nhân quy trình** | 0 (vá nhỏ: core tools, test, snapshot) | — | ✅ 26/09 — **ĐẠT**, deploy UAT 26/09 · `docs/f-review-FR-P.md` · mobile Thái = bàn giao, không chặn F8 |
+| F8 | Tách một phần `info_request` → `wujia_info_request` + controller mỏng | info_request, portal_info_request (+ mobile Thái 5 dòng) | Cao | ✅ 26/09 — `docs/f8-acceptance-matrix.md` (9/9), 5 dòng mobile Thái sửa theo duyệt; `a5cb738`, UAT 26/09 |
+| F9 | Tách một phần `knowledge` → `wujia_knowledge` + controller mỏng; Home dùng chung luật hiển thị | knowledge, portal_knowledge, portal_base | Cao | ✅ 26/09 — `docs/f9-acceptance-matrix.md` (9/9); bẫy noupdate reset sequence đã chặn; `2ba8311`, **UAT 26/09** (số kế KNW- 28 giữ) |
+| F10 | Tách một phần `support` → `wujia_support` + controller mỏng (kèm trả lời ticket); bảng badge ticket rời `portal_base` | support, portal_support, portal_base | Cao | ✅ 26/09 — `docs/f10-acceptance-matrix.md` (9/9); snapshot 130 đổi chủ, lệch duy nhất `write_date` danh mục; `033794c`, UAT 26/09 |
+| F11 | Tách một phần `notification` → `wujia_notification` (giữ `_name`, 2 nhóm quyền) + controller mỏng (`_mark_read` một nguồn); Home KPI/list dùng luật chung | notification, portal_notification, portal_base | Cao | ✅ 26/09 — `docs/f11-acceptance-matrix.md` (9/9); snapshot 173 đổi chủ, lệch duy nhất 4 màu loại (noupdate, chủ dự án chốt theo code); `bfa2bae`, đã deploy UAT 26/09 |
+| F12 | Tách một phần `exam` → `wujia_exam` (giữ `_name`, 2 nhóm quyền, 3 sequence) + controller mỏng (`register_from_portal`, max/phiếu một nguồn cả constraint); mobile Thái đổi ref | exam, portal_exam, mobile_portal_exam | Cao | ✅ 26/09 — `docs/f12-acceptance-matrix.md` (9/9); snapshot 245 đổi chủ, HTML 234/234; `check_layers` 0; `2acbd9f`, đã deploy UAT (đo 26/09) |
+| F13 | Tách một phần `return` → `wujia_return` (giữ `_name`, kế thừa SO/picking/product, wizard bù, 2 nhóm quyền, 2 sequence) + controller mỏng (`create_from_portal` savepoint); **một bảng nhãn trạng thái** Home + portal | return, portal_return, portal_base | Cao | ✅ 26/09 — `docs/f13-acceptance-matrix.md` (9/9); snapshot 287 đổi chủ, HTML 298/306 (8 = nhãn Home mobile cố ý); `PENDING_SPLIT` rỗng; `a138d21`, đã deploy UAT (đo 26/09 đạt) |
+| **FR-A** | **Review toàn khối A + controller (F1, F6–F13)** | 0 hoặc vá nhỏ | — | ✅ 26/09 — **ĐẠT, KHỐI A KHÉP** · `docs/f-review-FR-A.md` · sửa nhỏ ★ 11 file + fix `UI-DATALIST-001` (chưa deploy) · phiên kế = Issue List cụm 140+141 hoặc 143+144+145 |
+
+
+**Chốt sổ 26/09 (END-SPRINT 63):** khối A ghi thành chapter 77 (`77-sprint63-cluster-f-block-a.tex`), ADR-027 đã chốt
+(chapter 74 §addendum). Cụm F xong toàn bộ; việc chính quay về Issue List.
 
 ---
 

@@ -1,83 +1,18 @@
-"""Test Knowledge portal — cụm C4 (WJ-KNW-001…004). Chạy: `--test-tags wujia_knowledge`.
+"""Test màn portal Knowledge — cụm C4 (WJ-KNW-001…004) + F9. Chạy: `--test-tags wujia_knowledge`.
 
-  1. `TestKnowledgeVisibility` — field text strip HTML + domain hiển thị (publish date
-     tương lai / hết hạn / draft / archived / inactive).
-  2. `TestKnowledgePortal` — controller: filter rác không lộ thông tin, thông báo khi bài
-     đã gỡ, search theo summary/content, giờ portal đúng Asia/Ho_Chi_Minh.
+Controller: filter rác không lộ thông tin, thông báo khi bài đã gỡ, search theo summary/content,
+giờ portal đúng Asia/Ho_Chi_Minh, tải đính kèm chỉ của bài, Home không hiện bài hẹn giờ.
+Luật nghiệp vụ (hiển thị, cron, attachment) test ở `wujia_knowledge`.
 """
 
 from datetime import datetime, timedelta
 
 from odoo import fields
 from odoo.tests import tagged
-from odoo.tests.common import HttpCase, TransactionCase
+from odoo.tests.common import HttpCase
 
+from odoo.addons.wujia_knowledge.tests.test_knowledge import KnowledgeCommon
 from odoo.addons.wujia_portal_base.controllers.utils import fmt_local_dt
-from odoo.addons.wujia_portal_knowledge.controllers.portal import _visible_domain
-
-
-class KnowledgeCommon:
-
-    @classmethod
-    def _setup_knowledge(cls):
-        cls.category = cls.env['wujia.knowledge.category'].create({
-            'name': 'C4 Category', 'sequence': 1})
-        cls.now = fields.Datetime.now()
-        cls.article = cls.env['wujia.knowledge.article'].create({
-            'name': 'Checklist mở cửa hàng buổi sáng',
-            'slug': 'c4-checklist-mo-cua-hang',
-            'category_id': cls.category.id,
-            'summary': 'Tóm tắt cho bài Checklist mở cửa hàng buổi sáng.',
-            # Keyword bị thẻ HTML cắt ngang → chỉ bản strip mới khớp.
-            'content': '<p>Nội dung <strong>chi tiết</strong> cho bài viết.</p>',
-            'state': 'published',
-            'publish_date': cls.now - timedelta(days=1),
-        })
-
-    @classmethod
-    def _article(cls, name, slug, **vals):
-        return cls.env['wujia.knowledge.article'].create(dict({
-            'name': name, 'slug': slug, 'category_id': cls.category.id,
-            'state': 'published', 'publish_date': cls.now - timedelta(days=1),
-        }, **vals))
-
-
-@tagged('post_install', '-at_install', 'wujia_knowledge')
-class TestKnowledgeVisibility(KnowledgeCommon, TransactionCase):
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls._setup_knowledge()
-
-    def test_content_text_strips_markup(self):
-        self.assertEqual(
-            self.article.wujia_content_text, 'Nội dung chi tiết cho bài viết.')
-
-    def test_content_text_follows_content(self):
-        self.article.content = '<div>Quy trình <em>đóng</em> ca tối</div>'
-        self.assertEqual(self.article.wujia_content_text, 'Quy trình đóng ca tối')
-
-    def test_visible_domain_excludes_hidden_articles(self):
-        hidden = {
-            'draft': self._article('Draft', 'c4-draft', state='draft'),
-            'archived': self._article('Archived', 'c4-arch', state='archived'),
-            'inactive': self._article('Inactive', 'c4-inactive', active=False),
-            'expired': self._article(
-                'Expired', 'c4-expired', expired_date=self.now - timedelta(hours=1)),
-            'future': self._article(
-                'Future', 'c4-future', publish_date=self.now + timedelta(days=3)),
-        }
-        visible = self.env['wujia.knowledge.article'].search(_visible_domain())
-        self.assertIn(self.article, visible)
-        for label, rec in hidden.items():
-            self.assertNotIn(rec, visible, 'Bài %s không được hiện trên portal' % label)
-
-    def test_fmt_local_dt_shifts_to_portal_tz(self):
-        """UTC 09:05 phải in ra 16:05 giờ Asia/Ho_Chi_Minh (WJ-KNW-002)."""
-        self.assertEqual(
-            fmt_local_dt(datetime(2026, 8, 12, 9, 5), '%d/%m/%Y %H:%M'),
-            '12/08/2026 16:05')
 
 
 @tagged('post_install', '-at_install', 'wujia_knowledge')
@@ -163,3 +98,48 @@ class TestKnowledgePortal(KnowledgeCommon, HttpCase):
         res = self._get('/portal/knowledge/%s' % self.article.slug)
         self.assertEqual(res.status_code, 200)
         self.assertIn('12/08/2026 16:05', res.text)
+
+    def test_fmt_local_dt_shifts_to_portal_tz(self):
+        """UTC 09:05 phải in ra 16:05 giờ Asia/Ho_Chi_Minh (WJ-KNW-002)."""
+        self.assertEqual(
+            fmt_local_dt(datetime(2026, 8, 12, 9, 5), '%d/%m/%Y %H:%M'),
+            '12/08/2026 16:05')
+
+    def test_attachment_download_only_serves_article_files(self):
+        own = self._attachment('f9-own.txt', res_model=self.article._name, res_id=self.article.id)
+        other = self._article('Bài khác', 'f9-bai-khac')
+        foreign = self._attachment('f9-foreign.txt', res_model=other._name, res_id=other.id)
+        res = self._get('/portal/knowledge/%s/attachment/%s' % (self.article.slug, own.id))
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.content, b'f9-own.txt')
+        res = self._get('/portal/knowledge/%s/attachment/%s' % (self.article.slug, foreign.id))
+        self.assertEqual(res.status_code, 403)
+
+
+@tagged('post_install', '-at_install', 'wujia_knowledge')
+class TestKnowledgeOnHome(KnowledgeCommon, HttpCase):
+    """Home (portal_base) dùng chung luật hiển thị: bài hẹn giờ chưa tới ngày không hiện (F9)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._setup_knowledge()
+        env = cls.env
+        franchise = env['wujia.franchise.management'].create({
+            'code': 'F9KN', 'name': 'F9 store', 'franchise_end_date': '2030-01-01',
+            'partner_id': env['res.partner'].create({'name': 'F9 partner'}).id})
+        user = env['res.users'].create({
+            'name': 'f9_home', 'login': 'f9_home', 'password': 'f9_home',
+            'group_ids': [(6, 0, [env.ref('base.group_portal').id])]})
+        env['wujia.franchise.member'].create({
+            'user_id': user.id, 'franchise_id': franchise.id, 'role': 'owner'})
+
+    def test_home_hides_scheduled_article(self):
+        now = fields.Datetime.now()
+        fresh = self._article('F9 Bài vừa đăng', 'f9-vua-dang', publish_date=now - timedelta(seconds=1))
+        scheduled = self._article('F9 Bài hẹn giờ', 'f9-hen-gio', publish_date=now + timedelta(days=5))
+        self.authenticate('f9_home', 'f9_home')
+        res = self.url_open('/portal', timeout=30)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(fresh.name, res.text)
+        self.assertNotIn(scheduled.name, res.text)

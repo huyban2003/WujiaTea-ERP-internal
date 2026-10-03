@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- F5a — mục sidebar của màn do CHÍNH module sở hữu route khai; khung
-         (wujia_portal_layout) chỉ giữ tiêu đề nhóm làm neo. Gỡ module này ⇒ mục biến mất. -->
+    <!-- CMP-SN-001 — mục sidebar PC do CHÍNH module sở hữu route khai; khung
+         (wujia_portal_layout) chỉ giữ 3 tiêu đề nhóm + neo `nav_end`. Gỡ module này ⇒ mục biến mất. -->
     <template id="layout_sidenav_support"
               inherit_id="wujia_portal_layout.layout_sidenav"
-              priority="60"
+              priority="64"
               name="Wujia Sidenav — Hỗ trợ">
-        <xpath expr="//li[@id='nav_header_utils']" position="before">
-            <li t-attf-class="nav-item #{_p.startswith('/portal/support') and 'active' or ''}" id="nav_item_support">
+        <xpath expr="//li[@id='nav_end']" position="before">
+            <t t-set="ni_active" t-value="_p.startswith('/portal/support')"/>
+            <li t-attf-class="nav-item #{ni_active and 'active' or ''}" id="nav_item_support">
                 <t t-call="wujia_portal_layout.wj_nav_item">
                     <t t-set="ni_href" t-value="'/portal/support'"/>
                     <t t-set="ni_icon" t-value="'feather icon-life-buoy'"/>

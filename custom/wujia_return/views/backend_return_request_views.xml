@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Return Request — form
+    ============================================================ -->
+    <record id="view_wujia_return_request_form" model="ir.ui.view">
+        <field name="name">wujia.return.request.form</field>
+        <field name="model">wujia.return.request</field>
+        <field name="arch" type="xml">
+            <form string="Compensation requests">
+                <header>
+                    <button name="action_start_review" type="object" string="Take in charge"
+                            invisible="state != 'submitted'"
+                            groups="wujia_return.group_return_manager"/>
+                    <button name="action_approve" type="object" string="Approve request"
+                            class="btn-success"
+                            invisible="state not in ('submitted', 'reviewing')"
+                            groups="wujia_return.group_return_manager"/>
+                    <button name="action_reject" type="object" string="Reject"
+                            class="btn-danger"
+                            invisible="state in ('done', 'cancelled', 'rejected')"
+                            confirm="Reject this request?"
+                            groups="wujia_return.group_return_manager"/>
+                    <button name="action_mark_done" type="object" string="Complete"
+                            invisible="state != 'approved' or resolution_type == 'compensation'"
+                            groups="wujia_return.group_return_manager"/>
+                    <button name="action_cancel" type="object" string="Cancel request"
+                            invisible="state in ('done', 'cancelled')"
+                            confirm="Cancel this request?"
+                            groups="wujia_return.group_return_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="submitted,reviewing,approved,processing,done"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Từ chối"
+                            invisible="state != 'rejected'" bg_color="text-bg-danger"/>
+                    <widget name="web_ribbon" title="Đã huỷ"
+                            invisible="state != 'cancelled'" bg_color="text-bg-secondary"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_compensation_sos" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="compensation_so_count == 0">
+                            <field name="compensation_so_count" widget="statinfo"
+                                   string="Compensation SO"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Request information">
+                            <field name="franchise_id" options="{'no_create': True}"/>
+                            <field name="requester_user_id" readonly="1"/>
+                            <field name="request_date" readonly="1"/>
+                            <field name="issue_type_id" options="{'no_create': True}"/>
+                        </group>
+                        <group string="Original order">
+                            <field name="sale_order_id" options="{'no_create': True}"/>
+                            <field name="sale_order_line_id" options="{'no_create': True}"/>
+                            <field name="product_id" readonly="1"/>
+                            <field name="batch_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Quantity &amp; lot">
+                            <label for="request_qty"/>
+                            <div class="o_row">
+                                <field name="request_qty"/>
+                                <field name="request_uom_id" options="{'no_create': True}"/>
+                            </div>
+                            <field name="opening_datetime"/>
+                            <field name="production_date"/>
+                        </group>
+                        <group string="Compensation state"
+                               invisible="resolution_type != 'compensation'">
+                            <field name="compensation_status"/>
+                            <field name="approved_qty"/>
+                            <field name="allocated_qty"/>
+                            <field name="compensated_qty"/>
+                            <field name="remaining_qty"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Supporting documents" name="evidence">
+                            <separator string="Photos"/>
+                            <field name="image_attachment_ids" widget="many2many_binary"
+                                   nolabel="1"/>
+                            <separator string="Video"/>
+                            <field name="video_attachment_ids" widget="many2many_binary"
+                                   nolabel="1"/>
+                        </page>
+                        <page string="Approve request" name="approval">
+                            <group>
+                                <group string="Approval outcome">
+                                    <field name="resolution_type"/>
+                                    <field name="approved_qty"/>
+                                    <field name="approved_uom_id" options="{'no_create': True}"/>
+                                    <field name="approved_by_id" readonly="1"/>
+                                    <field name="approved_date" readonly="1"/>
+                                    <field name="resolved_date" readonly="1"
+                                           invisible="not resolved_date"/>
+                                </group>
+                                <group string="Compensation settings (snapshot at approval)"
+                                       invisible="resolution_type != 'compensation'">
+                                    <field name="compensation_product_id"
+                                           options="{'no_create': True}"/>
+                                    <field name="compensation_delivery_uom_id"
+                                           options="{'no_create': True}"/>
+                                    <field name="compensation_unit_qty"/>
+                                    <field name="compensation_policy"/>
+                                </group>
+                            </group>
+                            <field name="approval_note" placeholder="Feedback on the approval outcome..."/>
+                            <separator string="Rejection reason"/>
+                            <field name="reject_reason" nolabel="1"
+                                   placeholder="Required when rejecting..."/>
+                        </page>
+                        <page string="Compensation allocation" name="allocations"
+                              invisible="resolution_type != 'compensation'">
+                            <field name="allocation_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="sale_order_id"/>
+                                    <field name="allocated_qty"/>
+                                    <field name="delivered_qty"/>
+                                    <field name="released_qty"/>
+                                    <field name="open_qty"/>
+                                    <field name="allocation_uom_id"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <separator string="Note from the store"/>
+                            <field name="note" nolabel="1" readonly="1"/>
+                            <separator string="Internal note"/>
+                            <field name="backend_note" nolabel="1"
+                                   placeholder="Internal processing note..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Return Request — list
+    ============================================================ -->
+    <record id="view_wujia_return_request_list" model="ir.ui.view">
+        <field name="name">wujia.return.request.list</field>
+        <field name="model">wujia.return.request</field>
+        <field name="arch" type="xml">
+            <list string="Compensation requests" sample="1"
+                  decoration-info="state == 'submitted'"
+                  decoration-warning="state in ('reviewing', 'processing')"
+                  decoration-success="state == 'done'"
+                  decoration-danger="state == 'rejected'"
+                  decoration-muted="state in ('draft', 'cancelled')">
+                <field name="name"/>
+                <field name="request_date"/>
+                <field name="franchise_id"/>
+                <field name="product_id"/>
+                <field name="request_qty" sum="Tổng SL"/>
+                <field name="request_uom_id"/>
+                <field name="issue_type_id"/>
+                <field name="resolution_type" optional="show"/>
+                <field name="compensation_status" optional="hide"/>
+                <field name="remaining_qty" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'submitted'"
+                       decoration-warning="state in ('reviewing', 'processing')"
+                       decoration-success="state in ('approved', 'done')"
+                       decoration-danger="state == 'rejected'"
+                       decoration-muted="state in ('draft', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Return Request — search
+    ============================================================ -->
+    <record id="view_wujia_return_request_search" model="ir.ui.view">
+        <field name="name">wujia.return.request.search</field>
+        <field name="model">wujia.return.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="sale_order_id"/>
+                <field name="product_id"/>
+                <field name="issue_type_id"/>
+                <separator/>
+                <filter string="Newly submitted" name="filter_submitted"
+                        domain="[('state', '=', 'submitted')]"/>
+                <filter string="In progress" name="filter_processing"
+                        domain="[('state', 'in', ('reviewing', 'processing'))]"/>
+                <filter string="Request approved" name="filter_approved"
+                        domain="[('state', '=', 'approved')]"/>
+                <filter string="Awaiting compensation" name="filter_waiting_compensation"
+                        domain="[('state', 'in', ('approved', 'processing')), ('resolution_type', '=', 'compensation'), ('unallocated_qty', '&gt;', 0)]"/>
+                <filter string="Rejected" name="filter_rejected"
+                        domain="[('state', '=', 'rejected')]"/>
+                <filter string="Processed" name="filter_done"
+                        domain="[('state', '=', 'done')]"/>
+                <group name="group_by">
+                    <filter string="Store" name="group_franchise"
+                            context="{'group_by': 'franchise_id'}"/>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Issue type" name="group_issue_type"
+                            context="{'group_by': 'issue_type_id'}"/>
+                    <filter string="Request date" name="group_date"
+                            context="{'group_by': 'request_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_return_request" model="ir.actions.act_window">
+        <field name="name">Compensation requests</field>
+        <field name="res_model">wujia.return.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_wujia_return_request_search"/>
+        <field name="context">{'search_default_filter_submitted': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No compensation request yet.</p>
+            <p>Requests show up here once stores submit them from the portal.</p>
+        </field>
+    </record>
+
+    <!-- Return Order — SO tạo từ bù hàng (is_return_order=True) -->
+    <!-- UAT-BH-003: list view mặc định của `sale` có sample="1" ⇒ khi chưa có SO bù,
+         web dựng bản ghi giả REF0001… cạnh empty state (web/model/sample_server.js).
+         View riêng, sample="0" ⇒ rỗng là rỗng. -->
+    <record id="view_wujia_return_order_list" model="ir.ui.view">
+        <field name="name">wujia.return.order.list</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <list string="Compensation orders" sample="0" create="false"
+                  decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="franchise_id"/>
+                <field name="partner_id"/>
+                <field name="date_order"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_wujia_return_order" model="ir.actions.act_window">
+        <field name="name">Compensation orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_return_order', '=', True)]</field>
+        <field name="context">{'search_default_filter_return_order': 1}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'sequence': 10, 'view_mode': 'list',
+                    'view_id': ref('view_wujia_return_order_list')}),
+            (0, 0, {'sequence': 20, 'view_mode': 'form'})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No compensation order yet.</p>
+            <p>The zero-value compensation SO appears once HQ runs "Process compensation".</p>
+        </field>
+    </record>
+
+</odoo>

@@ -1088,11 +1088,13 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     z-index: 1030;
     display: flex;
     align-items: center;
-    min-height: var(--wujia-mnav-height);   /* BA final 83px */
+    /* UI-MOB-BOTTOMNAV-DENSITY-001: cao đúng 72 + safe area (trước: min-height 83 + pad 6,
+       máy có safe area ra 91). Safe area chỉ là pad đáy, 5 mục căn giữa phần 72. */
+    height: var(--wujia-mnav-total);
     background: var(--wujia-mshell-surface);
     border-top: 1px solid var(--wujia-mshell-border);
     box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.05);
-    padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+    padding: 0 0 env(safe-area-inset-bottom, 0px);
 }
 .wujia-mhome-nav-item {
     position: relative;
@@ -1101,8 +1103,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 8px 0 4px;
+    /* Vùng chạm giữ 50 (BA); gọn là nhờ bỏ khoảng thừa quanh cụm icon + nhãn. */
+    min-height: 50px;
+    gap: 4px;
+    padding: 0;
     text-decoration: none;
     color: var(--wujia-mnav-inactive);
     /* Tab "Thêm" là <button> (WJ-PORTAL-UI-004) — reset để đồng dạng các <a>. */
@@ -1115,7 +1119,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     line-height: 1;
 }
 .wujia-mhome-nav-label {
-    font-size: 11px;
+    font-size: 12px;            /* UI-MOB-BOTTOMNAV-DENSITY-001: 11 → 12 */
     font-weight: 700;
     line-height: 1;
 }
@@ -1129,9 +1133,10 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 .wujia-mhome-nav-badge {
     position: absolute;
+    /* Neo góc trên-phải hộp icon 22 (icon bắt đầu ở y≈6 của mục 50): mép trái badge
+       cách tâm 8 ⇒ nằm ngoài nét chuông, 1–2 chữ số không đè icon. */
     top: 0;
-    left: 50%;
-    margin-left: 4px;
+    left: calc(50% + 8px);
     min-width: 16px;
     height: 16px;
     padding: 0 4px;
@@ -1311,7 +1316,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         top: 0;
         left: 0;
         right: 0;
-        bottom: var(--wujia-mnav-height);
+        bottom: var(--wujia-mnav-total);
         z-index: 1028;
         background: var(--wujia-msheet-backdrop);
         opacity: 0;
@@ -1326,9 +1331,9 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         position: fixed;
         left: 0;
         right: 0;
-        bottom: var(--wujia-mnav-height);
+        bottom: var(--wujia-mnav-total);
         z-index: 1029;
-        max-height: calc(100dvh - var(--wujia-mnav-height) - 88px);
+        max-height: calc(100dvh - var(--wujia-mnav-total) - 88px);
         overflow-y: auto;
         background: var(--wujia-mshell-surface);
         border-radius: var(--wujia-msheet-radius) var(--wujia-msheet-radius) 0 0;
@@ -1727,7 +1732,13 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
 
     /* ---------- Avatar dropdown menu (màn 04) — header d-lg-none ---------- */
-    .wujia-mheader-menu { min-width: 232px; padding: 0; border-radius: 14px; overflow: hidden; }
+    /* Menu có thêm nhóm Ngôn ngữ + cửa hàng (CMP-SN-001) ⇒ giới hạn chiều cao, cuộn trong menu.
+       Bám `.dropdown` để thắng `.dropdown .dropdown-menu {min-width: 8rem}` của Vuexy (0,2,0). */
+    .dropdown .wujia-mheader-menu {
+        --wj-am-pad-x: 16px;
+        min-width: 264px; padding: 0; border-radius: 14px;
+        max-height: calc(100vh - 112px); overflow-x: hidden; overflow-y: auto;
+    }
     .wujia-mheader-menu-head {
         display: flex;
         flex-direction: column;
@@ -1761,9 +1772,28 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         height: 17px;
         color: var(--wujia-morder-text);
     }
-    .wujia-mheader-menu-logout,
-    .wujia-mheader-menu-logout > i { color: var(--wujia-maccount-logout) !important; }
+    .wujia-mheader-menu .wj-acct-menu__logout,
+    .wujia-mheader-menu .wj-acct-menu__logout > i { color: var(--wujia-maccount-logout) !important; }
+    .wujia-mheader-menu .dropdown-item.is-active { background: var(--wujia-primary-soft); color: var(--wujia-primary-dark); }
 }
+
+/* CMP-SN-001 — thân menu avatar dùng chung PC + mobile (wj_acct_menu_items). Đệm ngang lấy từ
+   biến của từng khung menu (--wj-am-pad-x) để nhãn nhóm thẳng hàng với icon của mục. */
+/* Shell Vuexy cho <i> margin-right 7px còn <svg> thì không ⇒ chữ của mục icon font và mục icon
+   SVG lệch 7px. Khoảng cách icon→chữ đã do `gap` của từng khung menu lo. */
+.wj-pc-acct-menu .dropdown-item > i,
+.wujia-mheader-menu .dropdown-item > i { margin-right: 0; }
+.wj-acct-menu__group { padding-bottom: 4px; }
+.wj-acct-menu__label {
+    display: block;
+    padding: 10px var(--wj-am-pad-x, 16px) 4px;
+    font-size: 12px; line-height: 16px; font-weight: 600;
+    color: var(--wujia-text-subtitle);
+}
+.wj-acct-menu__lang .flag-icon { flex: 0 0 18px; width: 18px; line-height: 14px; }
+.wj-acct-menu__lang-name { flex: 1 1 auto; }
+.wj-acct-menu__lang.is-current { font-weight: 700; }
+.wj-acct-menu__check { margin-left: auto; font-size: 16px; color: var(--wujia-primary-dark); }
 
 /* ============================================================
    WJ_PageHeader — component chuẩn hoá header portal (BA CMP-PG-001)
@@ -1831,8 +1861,12 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wj-page-header__create > i { font-size: 20px; line-height: 1; }
 .wj-page-header__create:hover { background: var(--wj-primary-dark); color: #FFFFFF; }
 
-/* Mobile modifier (CMP-PG-001) — 1 hàng cao 52 = pad 12 + title 28 + pad 12; x do container. */
-.wj-page-header--m { padding: 12px 0; margin: 0 0 8px; min-height: 52px; }
+/* Mobile modifier (CMP-PG-001) — 1 hàng cao 44 = pad 8 + title 28 + pad 8; x do container.
+   UI-MOB-HEADER-DENSITY-001 hạ từ 52; ba biến thể (title/back/create) cùng cao 44. */
+.wj-page-header--m {
+    padding: var(--wujia-m-pagehead-py) 0; margin: 0 0 8px;
+    min-height: calc(28px + 2 * var(--wujia-m-pagehead-py));
+}
 /* Gap header → nội dung đầu = 8 (spec CMP-PG-001). Gap chung của trang mobile nay ĐÚNG
    bằng 8 ⇒ ba rule bù trừ cũ (mpage -6, công nợ -4, báo cáo -4) hết lý do tồn tại, đã gỡ;
    chỉ cần bỏ margin-bottom để gap là nguồn duy nhất. */
@@ -1850,8 +1884,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wj-page-header--m .wj-page-header__meta {
     font-size: 13px; line-height: 18px; margin-left: auto; text-align: right;
 }
-/* Back cao 42 > dòng title 28 → pad 5 để hàng vẫn đúng 52 (vùng chạm 44 nằm ngoài luồng) */
-.wj-page-header--m.wj-page-header--back { padding: 5px 0; }
+/* Back cao 42 > dòng title 28 → pad 1 để hàng vẫn đúng 44 (vùng chạm 44 nằm ngoài luồng) */
+.wj-page-header--m.wj-page-header--back { padding: 1px 0; }
 /* CMP-BPH-001: mobile là nút TRÒN 42×42 (base radius 12 dành cho PC) */
 .wj-page-header--m .wj-page-header__back {
     width: 42px; height: 42px; margin-right: 12px; position: relative;
@@ -1859,8 +1893,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 /* Mobile giữ nút icon-only: nhãn chữ chỉ dành cho PC (UI-PC-BASE-006) */
 .wj-page-header--m .wj-page-header__back-label { display: none; }
-/* Action mobile ≥44 (CMP-PG-001) → pad 4 để hàng vẫn đúng 52 */
-.wj-page-header--m.wj-page-header--create { padding: 4px 0; }
+/* Action mobile ≥44 (CMP-PG-001) → pad 0 để hàng vẫn đúng 44 */
+.wj-page-header--m.wj-page-header--create { padding: 0; }
 .wj-page-header--m .wj-page-header__create { width: 112px; height: 44px; }
 /* Tap target ≥44 dù visual back 40 (spec) */
 .wj-page-header--m .wj-page-header__back::after {
@@ -1925,18 +1959,29 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     color: var(--wujia-text-secondary);
 }
 
-/* Mobile (--m) + không khai nền tảng (--any): title 20/28/800, nhịp 16 trước / 8 sau. */
+/* Mobile (--m) + không khai nền tảng (--any): title 18/24 (mobile), nhịp theo token --wujia-m-sechead-mt/mb. */
 .wj-section-header--m,
 .wj-section-header--any {
     margin: var(--wujia-m-sechead-mt) 0 var(--wujia-m-sechead-mb);
     column-gap: 12px;
     row-gap: 4px;
 }
-/* !important để thắng global `h2 { font-size: … !important }` (_components.css:6) */
-.wj-section-header--m .wj-section-header__title,
+/* !important để thắng global `h2 { font-size: … !important }` (_components.css:6).
+   UI-MOB-HEADER-DENSITY-001: 18/24 (từ 20/28). --any hiện ở MỌI khổ nên chỉ nhận cỡ
+   mobile dưới 992; ≥992 giữ 20/28 như cũ (PC không đổi). */
+.wj-section-header--m .wj-section-header__title {
+    font-size: var(--wujia-m-sechead-fs) !important;
+    line-height: var(--wujia-m-sechead-lh);
+}
 .wj-section-header--any .wj-section-header__title {
     font-size: 20px !important;
     line-height: 28px;
+}
+@media (max-width: 991.98px) {
+    .wj-section-header--any .wj-section-header__title {
+        font-size: var(--wujia-m-sechead-fs) !important;
+        line-height: var(--wujia-m-sechead-lh);
+    }
 }
 /* Spec: container đã tự lo nhịp (padding hoặc flex gap) thì KHÔNG cộng margin của header —
    caller opt-in bằng --flush. KHÔNG dùng :first-child: mỗi header là con đầu của <section>

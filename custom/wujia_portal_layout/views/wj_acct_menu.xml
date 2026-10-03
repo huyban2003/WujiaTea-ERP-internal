@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- CMP-SN-001 — thân menu avatar, DÙNG CHUNG cho dropdown PC (layout_top_navbar) và
+             mobile (mobile_header) để thứ tự + tên gọi hai kênh không lệch nhau. Đầu menu
+             (tên + email) nằm ở từng kênh vì dáng khác nhau.
+
+             Thứ tự theo BA: Thông tin tài khoản · Đổi mật khẩu · Ngôn ngữ · [cửa hàng/vai trò
+             hiện tại · Đổi cửa hàng · Hồ sơ cửa hàng] · Đăng xuất. Khung chỉ giữ route của chính
+             nó; nhóm cửa hàng do module sở hữu route chèn TRƯỚC neo `acct_store_end` (neo là
+             data-attribute, không phải id, vì partial render hai lần trên cùng trang). -->
+        <template id="wj_acct_menu_items" name="Wujia — thân menu avatar (PC + mobile)">
+            <t t-set="_am_path" t-value="request.httprequest.path or ''"/>
+            <a t-attf-class="dropdown-item #{_am_path == '/portal/profile' and 'is-active' or ''}"
+               href="/portal/profile" t-att-aria-current="'page' if _am_path == '/portal/profile' else None">
+                <i class="feather icon-user" aria-hidden="true"/>
+                Thông tin tài khoản
+            </a>
+            <a t-attf-class="dropdown-item #{_am_path == '/portal/change-password' and 'is-active' or ''}"
+               href="/portal/change-password"
+               t-att-aria-current="'page' if _am_path == '/portal/change-password' else None">
+                <!-- feather subset thiếu glyph 'key' → inline SVG (path feather key). -->
+                <svg class="wujia-menu-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
+                Đổi mật khẩu
+            </a>
+            <div class="dropdown-divider"/>
+            <div class="wj-acct-menu__group" role="group" aria-label="Ngôn ngữ">
+                <span class="wj-acct-menu__label" aria-hidden="true">Ngôn ngữ</span>
+                <a t-foreach="request.env['ir.http']._wj_portal_langs()" t-as="l"
+                   t-attf-class="dropdown-item wj-acct-menu__lang #{l['current'] and 'is-current' or ''}"
+                   t-attf-href="/portal/set-lang/{{l['code']}}"
+                   t-att-aria-current="'true' if l['current'] else None">
+                    <i t-attf-class="flag-icon {{l['flag']}}" aria-hidden="true"/>
+                    <span class="wj-acct-menu__lang-name" t-out="l['label']"/>
+                    <i t-if="l['current']" class="feather icon-check wj-acct-menu__check" aria-hidden="true"/>
+                </a>
+            </div>
+            <div class="dropdown-divider" data-wj-anchor="acct_store_end"/>
+            <a class="dropdown-item wj-acct-menu__logout" href="/portal/logout">
+                <i class="feather icon-log-out" aria-hidden="true"/>
+                Đăng xuất
+            </a>
+        </template>
+    </data>
+</odoo>

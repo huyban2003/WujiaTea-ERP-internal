@@ -1,0 +1,303 @@
+\chapter{Sprint 61 --- Cụm E: chuẩn hoá component theo Issue List (2026-09-12 $\to$ 09-25)}
+
+\emph{Chapter này gộp toàn bộ cụm E: 10 issue \texttt{Ready for Dev} (STT 128--139) chia thành
+11 khối, chạy từ 12/09 tới 25/09. Cụm bị cắt đôi bởi cụm F chuẩn hoá kiến trúc (17--18/09,
+chapter kế tiếp): E1$\to$E4a chạy trước cổng F, E4b$\to$E8c chạy sau khi $\star$FR-A3 mở lại Issue List.
+Nhật ký từng phiên ở \texttt{docs/f-progress.md}; kế hoạch và prompt ở
+\texttt{docs/next-session-clusters-E.md}; số đo từng lượt ở
+\texttt{docs/e\{1..9\}*-acceptance-matrix.md}.}
+
+\section{Bối cảnh và cách chia cụm}
+
+Ngày 12/09, \texttt{issue\_queue.py --dev} ra 10 issue \texttt{Ready for Dev}, cả 10 đều Owner = Dev.
+Đối chiếu \texttt{git log --all -S} và \texttt{grep custom/} cho thấy 8 issue UI chưa có dòng code nào.
+Hai issue backend thì đã có code dở trên \texttt{main}, do nhánh \texttt{thai} để lại: \texttt{WJ-SALE-002}
+(\texttt{8280459}) và \texttt{WJ-FRANCHISE-004} (module \texttt{wujia\_franchise\_contract} chưa cài).
+Chủ dự án chốt: \emph{``mình sửa luôn cho đồng bộ, không có vụ sửa của người ta''}. Hai issue này
+thuộc portal Dev.
+
+Cụm được chia theo \textbf{gốc rễ chung} và \textbf{phạm vi ảnh hưởng tăng dần} (luật D4):
+issue nhỏ, cô lập làm trước; component đụng mọi màn làm sau. Năm điểm lúc đầu tưởng phải hỏi BA
+đều được chủ dự án cho Dev tự quyết:
+\begin{enumerate}[nosep]
+\item ô lọc mobile: hộp nhìn thấy 38, vùng chạm 44;
+\item gutter danh sách 12, theo luật ưu tiên LC-08 mà BA đã viết;
+\item nhãn menu ``Đổi trả / Bù hàng'': đo trước rồi đổi theo nhãn BA đã chốt;
+\item \texttt{fulfillment\_route\_id} chưa tồn tại thì báo blocker, không tự tạo;
+\item wizard onboarding tạo luôn hợp đồng đầu tiên, gửi BA một dòng FYI.
+\end{enumerate}
+
+\begin{center}
+\small
+\begin{tabular}{llllll}
+\toprule
+Khối & Issue (STT) & Ngày & Commit chính & Sheet & UAT \\
+\midrule
+E1  & \texttt{UI-MOB-HOME-004} (133)     & 12/09 & \texttt{9354618} & Retest & 16/09 \\
+E9a & \texttt{WJ-SALE-002} (138)         & 12/09 & \texttt{65c04c8} & Retest & 16/09 \\
+E9b & \texttt{WJ-FRANCHISE-004} (135)    & 13/09 & \texttt{c82d403} & Retest & 16/09 \\
+E2  & \texttt{UI-STATUSBADGE-001} (128)  & 13/09 & \texttt{fa2ed9c}, \texttt{76d24cd} & Retest & 16/09 \\
+E3  & \texttt{UI-PAGINATION-001} (130)   & 14--16/09 & \texttt{9e2ceda}$\to$\texttt{ad2ec8b} & Retest & 16/09 \\
+E4  & \texttt{UI-FILTER-001} (139)       & 17--19/09 & \texttt{12750a2}$\to$\texttt{faa76f5} & Retest & 19/09 \\
+E5  & \texttt{UI-LISTCARD-001} (136)     & 19/09 & \texttt{cf6d2b0}$\to$\texttt{4d0ef97} & Retest & 20/09 \\
+E6  & \texttt{UI-BUTTON-001} (132)       & 20--23/09 & \texttt{48a3265}$\to$\texttt{e621ae1} & Retest & 24/09 \\
+E7  & \texttt{UI-PAGECONTAINER-001} (129)& 24--25/09 & \texttt{8ef3081}, \texttt{419f9c9} & Retest & 25/09 \\
+E8  & \texttt{UI-SIDEBAR-001} (131)      & 25/09 & \texttt{d354e2a}, \texttt{078dfeb} & Retest & 25/09 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Kết quả: \textbf{10/10 issue ở \texttt{Ready for Retest} và đã lên UAT}. Dev không tự đặt
+\texttt{Done} (QA Operating Standard §6).
+
+\section{E1 --- KPI Công nợ Home mobile một dòng}
+
+Lỗi BA chụp: ô KPI Công nợ trên Home mobile bẻ đôi con số. Buổi phân cụm chỉ soi ra \emph{tầng CSS}
+(\texttt{overflow-wrap: anywhere} thêm ở C7). Đào tiếp mới thấy gốc nằm ở tầng Python:
+\texttt{\_short\_amount()} so bậc \emph{trực tiếp trên giá trị}, nên \textbf{mọi số âm} lọt qua cả hai bậc
+và in nguyên \texttt{-72449 \$}, trong khi \texttt{+72449} ra \texttt{72k}. Nếu chỉ vá CSS, chuỗi dài sẽ tràn
+ngang, còn tệ hơn bẻ dòng.
+
+Chủ dự án chốt: rút gọn theo \texttt{abs()} rồi gắn lại dấu, thêm bậc ``tỷ'', bậc rút gọn không
+kèm ký hiệu tiền. Cỡ chữ 22/20px giữ nguyên token chung cho cả 4 ô, vì chuỗi xấu nhất chỉ rộng
+48,56/63px. Kết quả: 7/7 tiêu chí; ô Công nợ còn 1 dòng với cả \texttt{-72449} lẫn \texttt{-999999999};
+hero cao đúng mốc ca thường (216px); 339/339 test.
+
+Cùng phiên, E1 trả nợ \textbf{4 test D3 đỏ}. Phỏng đoán ngày 11/09 là ``đỏ vì DB chưa cài khảo sát''.
+Phỏng đoán đó \textbf{sai}: thủ phạm là D4e2 (\texttt{3d83af2}), và chính LIMIT của commit đó ghi sai
+nguyên nhân. E1 cũng vá \texttt{qa\_sync.py} ghi lệch cột. BA đã chèn cột \texttt{Primary Feature ID},
+nên chỉ số cứng 17 làm \texttt{Odoo Fit} rơi sang ô bên cạnh. Nay script dò cột theo tên tiêu đề.
+
+\section{E9a --- Danh sách ``Đơn hàng Ngô Gia''}
+
+Code có sẵn kế thừa kiểu \emph{extension} vào \texttt{sale.sale\_order\_tree} và
+\texttt{sale.view\_sales\_order\_filter}. Vì vậy 6 field Wujia cùng 5 bộ lọc \textbf{lan sang mọi action
+Sales Order chuẩn}, đúng điều BA cấm. Cách vá là giữ \texttt{inherit\_id} (đúng chữ ``kế thừa'' của BA)
+và thêm \texttt{mode="primary"}: view primary không áp ngược lên view cha. Core Odoo cũng dùng cách
+này ở \texttt{sale\_order\_view\_search\_inherit\_quotation}.
+
+Thứ tự 13 cột ra đúng chỉ nhờ chèn field và đổi \texttt{optional}, không cần \texttt{position="move"}:
+cột \texttt{optional="hide"} không render nên không chiếm vị trí. Mỗi bộ lọc được đếm trên trang thật và
+khớp \texttt{search\_count} (8/8). Nghiệm thu đạt \textbf{9,5/10}. Cột thứ 14 \texttt{fulfillment\_route\_id}
+chưa có field nên được báo \emph{blocker} theo đúng chỉ thị của BA, không tự tạo.
+
+\section{E9b --- Hợp đồng nhượng quyền nhiều kỳ}
+
+Module \texttt{wujia\_franchise\_contract} (nhánh \texttt{thai}, merge 09/09) lệch BA 4 chỗ. Chỗ nặng nhất:
+\textbf{hợp đồng hết hạn thì khoá cổng cửa hàng}. Cron đặt \texttt{status='expired'}, còn portal chặn
+cứng mọi \texttt{status != 'active'}. BA ghi ngược lại: \emph{``không tự đổi Store status, không chặn đặt
+hàng''}. Ngoài ra còn một cron viết đủ nhưng \textbf{không có record \texttt{ir.cron}}, nên chưa từng chạy.
+
+Ba chốt của chủ dự án:
+\begin{itemize}[nosep]
+\item cron vẫn chạy nhưng \emph{chỉ cảnh báo} HQ qua \texttt{message\_post};
+\item \texttt{state} là stored computed theo \emph{ngày}, \texttt{is\_cancelled} là đòn bẩy thủ công duy nhất,
+  gỡ nút Confirm;
+\item bỏ khoá \texttt{write} trên hợp đồng đang hiệu lực (BA chỉ cấm xoá).
+\end{itemize}
+Nghiệm thu 17/17. Mutation 15/15, trong đó có 2 mũi lượt đầu còn sống và đều lộ lỗi thật trong test:
+\texttt{assertRaises} trần là assert rỗng, và thiếu hẳn test ``hợp đồng đã huỷ không được làm hợp đồng
+hiện hành''.
+
+Đo XML-RPC UAT lật lại kế hoạch: module \textbf{đã cài sẵn} nên deploy bằng \texttt{-u}, không phải
+\texttt{-i}. Nếu bản vá không lên, ngày 15/05/2028 sẽ có 3 cửa hàng bị khoá. Ba bẫy migration:
+\begin{itemize}[nosep]
+\item đổi field thường thành stored computed sẽ xoá dữ liệu cũ, nên phải đọc thẳng cột bằng SQL
+  \emph{trước mọi lệnh ORM};
+\item \texttt{pre-migrate} phải đắp \texttt{is\_cancelled} từ \texttt{state} cũ;
+\item \texttt{post-migrate} phải \texttt{add\_to\_compute} cho cả ba field.
+\end{itemize}
+
+\section{E2 --- StatusBadge \texttt{CMP-SB-001}}
+
+Gốc rễ lỗi ``Đã xác nhận màu xanh lá'' nằm ở \textbf{Python, không ở CSS}: map
+\texttt{'sale': ('}Đã xác nhận\texttt{', 'wujia-badge-success')} trong \texttt{wujia\_portal\_base/controllers/utils.py}.
+E2a dựng \texttt{.wj-status-badge} với 7 variant, dùng một class cho cả PC lẫn mobile, và gom mapping
+về một nguồn \texttt{status\_badge\_for()}. E2b làm nốt 37 call site. Kết quả kiểm kê bằng \texttt{lxml}:
+họ cũ giảm \textbf{114 $\to$ 38}. 38 chỗ còn lại gồm 9 ở Khảo sát (defer) và 29 thuộc các họ BA loại
+khỏi StatusBadge (Role, Count, FilterChip…).
+
+\textbf{Contrast, Dev tự quyết}: spec BA vừa đòi WCAG AA vừa đưa 7 cặp hex, nhưng 5 cặp đo ra dưới
+4,5. Cách xử: giữ nguyên 7 \emph{nền} của BA, chỉ làm đậm \emph{chữ} vừa đủ, cùng tông màu (lệch hue
+$\leq 12^\circ$). Test khoá cả hai chiều. Số đo cuối: 321 badge / 12 route × 6 khổ, 0 vi phạm, AA 321/321,
+457 test xanh, mutation 9/9. Bẫy: clone DB bằng \texttt{-T} không chép filestore, nên bundle JS trả 500
+và JS frontend chết im lặng trong khi \texttt{pageerror} vẫn báo 0.
+
+\section{E3 --- Pagination \texttt{CMP-PGNT-001}}
+
+Kiểm kê cho 21 khối pager trong 14 file, nhưng không khối nào dùng helper
+\texttt{paginate()} có sẵn. 7 controller chép tay cùng một phép toán, với 6 cách nối query string khác
+nhau. E3a dựng \texttt{build\_pager()} + \texttt{parse\_page\_size()} và component \texttt{wj\_pagination}
+(một markup, hai bố cục). E3b phủ 5 màn. E3c phủ nốt và xoá 10 họ CSS cũ.
+
+E3c vá thêm \textbf{3 lỗi nghiệp vụ thật} (chủ dự án chốt vá luôn):
+\begin{itemize}[nosep]
+\item \texttt{/portal/debt/payment-history} sang trang thì \emph{rơi mất} \texttt{date\_from}/\texttt{date\_to};
+\item màn Thi mobile không có nút sang trang dù server đã cắt trang;
+\item màn Đặt hàng mobile cũng vậy.
+\end{itemize}
+Ô ``10 / trang'' của Công nợ vốn là nhãn giả; nay là bậc thật 10/20/50.
+
+Ngày 16/09 chủ dự án báo ``đã pull nhưng chưa nâng cấp module''. Đo XML-RPC ra ngược lại:
+23/23 module đã khớp repo. \textbf{Một lần nâng cấp đã gánh cả E1, E2, E3, E9a và E9b}. Đo trên chính
+UAT: 60 ô, 0 vi phạm, 48/48 ô của các route chỉ có một trang đều ẩn pager đúng. UAT chỉ có 1 phiếu thi
+nên không có trang 2 để bấm. Vì vậy mẫu mỏng được gỡ bằng ba lớp bằng chứng: đọc \texttt{arch\_db}
+trên UAT, component là một markup hai bố cục, và cùng \texttt{build\_pager()} giữ đúng bộ lọc. Không dùng
+LIMIT trần.
+
+\section{E4 --- FilterBar \texttt{CMP-FB-001}}
+
+Chia 4 lượt: E4a nền + 2 route mẫu, E4b1 PC, E4b2 mobile, E4c hành vi lọc + đóng issue. E4a chạy
+\emph{trước} cổng F, ba lượt còn lại chạy sau.
+
+\textbf{E4a} kiểm kê bằng \texttt{lxml}: 24 form GET, trong đó 21 là thanh lọc thật, trên 12 màn.
+\texttt{grep 'row g-2'} ra 10 chỗ nhưng chỉ 4 là thanh lọc. Component dùng API lai (hybrid): tham số giữ
+mọi thứ BA chuẩn hoá, còn slot thô chỉ dành cho phần do AJAX render. Hai quyết định hình học:
+\begin{itemize}[nosep]
+\item vùng chạm 44 lấy từ wrapper \texttt{<label>}, hộp nhìn thấy vẫn 38;
+\item nhãn ``Từ''/``Đến'' nằm \emph{trong} ô, nên vẫn đọc được sau khi đã chọn ngày.
+\end{itemize}
+Nghiệm thu 26/26, mutation 21/21.
+
+\textbf{E4b1} đưa 9 call site PC vào component và thêm biến thể \texttt{--dense} cho thanh có 5--6 control.
+Không có biến thể này, Thông báo phình 88 $\to$ 142px, tức là chuẩn hoá làm xấu đi một màn đang đạt.
+Kết quả: control PC 26,7--28,1 $\to$ 42, mọi card 88. \textbf{E4b2} đưa 6 thanh mobile vào component và
+thêm biến thể BA \emph{04-DateRangeOnly}: màn chỉ có ô ngày thì nút tìm nằm cùng hàng. Hai màn Công nợ
+PC và mobile không đổi byte nào: đo ra đã đúng chuẩn, nên chỉ ghi vào matrix thay vì sửa cho có.
+
+\textbf{E4c} đo trước khi đọc mã và phát hiện bảng trong prompt \textbf{sai}: khi nhập ngày ngược,
+\textbf{5/6 màn im lặng}. Cách sửa: một nguồn duy nhất \texttt{date\_range\_error()}, một khuôn hiển thị
+\texttt{role="alert"}, và màn Thi mobile migrate cùng lúc với wire ngày. Bẫy lớn nhất: knob \texttt{clamp}
+sinh \texttt{min}/\texttt{max} làm trình duyệt \emph{từ chối submit im lặng} khi người dùng dời khoảng ngày
+về trước, và lỗi này có ở mọi màn đã lọc một lần. Đã gỡ \texttt{clamp} khỏi component và 6 call site.
+Kết quả: ngày ngược 6/6 màn báo lỗi, sang trang giữ bộ lọc 5/5, suite 648/0.
+
+\section{E5 --- ListCard \texttt{CMP-LC-001}}
+
+D5 đã chuẩn hoá \emph{dáng ngoài} của item (\texttt{.wj-data-item}). E5 làm phần chưa ai làm:
+\emph{anatomy bên trong}. Có 22 call site với 14 họ class item khác nhau. Chia 4 lượt:
+\begin{itemize}[nosep]
+\item \textbf{E5a}: component \texttt{wj\_list\_card} + 2 route mẫu. Thẻ item vẫn nằm ở call site vì QWeb
+  không đổi tên thẻ động được. Có thêm 2 công cụ: kiểm kê trường (tách nhãn khỏi giá trị) và guard anatomy.
+\item \textbf{E5b1}: 6 call site. Khung học thêm lưới 2 cột và \texttt{tabular-nums}, nhờ đó cột phải
+  lệch 5 bố cục $\to$ 1.
+\item \textbf{E5b2}: 5 call site cuối (Thi ×3, Công nợ ×2), gỡ 100 dòng CSS theo màn.
+\item \textbf{E5c}: nhịp \emph{thanh lọc $\to$ nội dung} 24 $\to$ 16 ở 8 route (khai bằng token, một chỗ),
+  đệm item 12, gutter trang 16 $\to$ 12 bằng token. Vá lệch 5px giữa hai họ màn. Vùng chạm nút ``Chọn''
+  37×21 $\to$ 45×45 mà card không cao thêm.
+\end{itemize}
+Số đo cuối: 12 route × 8 khổ = 96 ô, 0 vi phạm; suite 687, 0 đỏ. Lượt soi mã đối kháng (Codex) trên toàn
+cụm E5 ra 4 finding và \textbf{cả 4 đều thật}. Nổi bật nhất: chấm ``chưa đọc'' ở Thông báo là span inline
+nên \emph{đo ra 0px, chưa từng hiện} kể từ E5b1.
+
+Dải cao của variant lấy từ số đo thật, không lấy số đề xuất: \texttt{compact-row} 64--112,
+\texttt{detail-card} 96--156. Hai dải nay chồng nhau, nên variant được phân biệt bằng class, không bằng
+chiều cao (FYI cho BA).
+
+\section{E6 --- Button \texttt{CMP-BTN-001}}
+
+Có khoảng 150 action. Chia 4 lượt:
+\begin{itemize}[nosep]
+\item \textbf{E6a}: atom \texttt{wj-btn}/\texttt{wj-iconbtn} với 5 variant và 3 bậc size lấy nguyên văn
+  số BA (PC 32/40/46, mobile 36/44/48, bo 8/12), khai bằng token. \texttt{wujia\_button\_loading.js} khoá
+  form khi submit và giữ nguyên bề rộng nút. Thước đo \texttt{wj\_button.py} có tab-walk thật.
+  21 call site.
+\item \textbf{E6b1}: 32 call site, kèm \textbf{luật ranh giới thanh lọc}: cùng một class vừa là nút lọc
+  (giữ 42 theo FB-08) vừa là nút hành động (40). Luật được đồng bộ ở 4 tầng: token, CSS theo ngữ cảnh,
+  thước đo nhận theo tổ tiên DOM, test bắt chéo hai chiều. Vá 8 lỗi a11y. \textbf{IMPACT}: màu Primary
+  \texttt{\#28A9DF} $\to$ \texttt{\#0F7CA8} (màu của BA chỉ đạt 2,68, không qua AA).
+\item \textbf{E6b2}: 19 call site ở Đặt hàng/giỏ và toàn bộ màn đăng nhập. Xoá họ \texttt{wj-cta-btn}.
+  Nút submit màn auth PC 50 $\to$ 46.
+\item \textbf{E6c}: 30 call site màn Thi, trong đó 2 nút dựng bằng JS. Ô ngày, khung giờ và FAB là
+  boundary nhưng đọc token \texttt{--wj-btn-*}. Vá tràn ngang màn đăng nhập (464 $\to$ 390): gốc là tên
+  ngôn ngữ bị nhét vào pill 72px.
+\end{itemize}
+Số đo cuối: 32 route × 5 khổ, 358 ô atom, 0 vi phạm; zoom 200\% 0 vi phạm; suite 729. Retest trên UAT
+ngày 24/09 (chặn mọi POST ghi): 0 vi phạm nút. Bẫy môi trường: server chạy \texttt{--dev=xml} làm một
+lượt lọc AJAX mất 3,1 giây, nên thước đo báo sai. Đo giao diện luôn dùng server không bật \texttt{--dev=xml}.
+
+\section{E7 --- PageContainer \texttt{CMP-PC-001}}
+
+\textbf{E7a}: \texttt{app\_layout} có \emph{một} \texttt{<main class="wj-page-container">}, Global Shell nằm
+ngoài, 4 token gutter/đáy. \texttt{.content-wrapper} về 0 ở mọi khổ. Mốc cũ chỉ ép ở $\geq$1200, nên
+dải 992--1199 rơi về 30,8px của Vuexy. Biến thể \texttt{--list} (lề 12) cho 12 màn danh sách. Gốc của lỗi
+``tiêu đề lệch 16px'' mà BA nêu: một rule \emph{không phạm vi}
+\texttt{.wj-page-header \{padding:16px !important\}} trong CSS Khảo sát đè lên PageHeader của mọi màn.
+Chủ dự án duyệt sửa tối thiểu vỏ Khảo sát. Thước đo mới \texttt{wj\_pagecontainer.py}: 707 $\to$ 0 vi phạm.
+
+\textbf{E7b}: thêm hai công tắc \texttt{pc\_width} (\texttt{standard} 1440 / \texttt{narrow} 960) và
+\texttt{pc\_bottom='sticky'}, gắn cờ theo mapping BA ở 29 template. Gỡ phần đáy chồng lên nhau của Đặt
+hàng và giỏ. Đo UAT 25/09: 217 ô, 0 vi phạm, và lần này đo sống được cả màn Khảo sát chi tiết/khắc phục
+(đóng LIMIT của E7a).
+
+\section{E8 --- SidebarNavigation \texttt{CMP-SN-001}}
+
+\textbf{E8a} chỉ đo, 0 code. UAT khớp local tuyệt đối. Drawer 992--1199 bị kẹt mở vì
+\texttt{\_wujiaForceMenuExpanded()} ép \texttt{menu-open} từ $\geq$992, trong khi hamburger nằm dưới drawer
+nên không bấm được. Sidebar PC \emph{không có} mục Bù hàng; kế hoạch cũ ghi có là sai.
+
+\textbf{E8b}: khung còn 4 neo theo 3 nhóm BA. 10 module sở hữu route tự khai mục; quyền hiển thị mục
+dùng đúng điều kiện của controller. Mục ``Đổi trả / Bù hàng'' và ``Báo cáo'' là mục mới trên PC. Có
+\texttt{\_sidebar.css} riêng, \texttt{aria-current}, và \texttt{wujia\_sidebar.js} cho drawer (Escape,
+backdrop, focus vào/ra). Migration \texttt{pre-10} xoá view con của neo cũ.
+
+\textbf{E8c}: thân menu avatar \emph{dùng chung} PC + mobile (Thông tin tài khoản · Đổi mật khẩu · Ngôn ngữ ·
+nhóm cửa hàng · Đăng xuất). Sheet ``Thêm'' lọc theo quyền như sidebar. Chuông có \texttt{aria-expanded}.
+``Thông tin cửa hàng'' đổi thành ``Hồ sơ cửa hàng''. Chủ dự án huỷ chốt E8a: ngôn ngữ giữ trên header
+\emph{và} có trong avatar. Số đo cuối: 0 vi phạm × 4 vai trò, suite 801, mutation 13/13. Đo UAT
+\texttt{em.hcm}: 0 vi phạm, 0 POST bị chặn.
+
+\section{Phiên xen kẽ trong cụm}
+
+\begin{itemize}
+\item \textbf{Nhịp dọc mobile} (18/09, \texttt{d4e73c7}): gom nhịp dọc về một bộ token (gap 14 $\to$ 8,
+  mép trên 16 $\to$ 10, tiêu đề nhóm 6/4) và kéo 8 trang lạc chuẩn về một rule. Chỉ tiêu $-$30\% chiều cao
+  Home \textbf{không đạt} (ra $-$8\%), và thực nghiệm chứng minh không thể đạt bằng khoảng trắng: trang dài
+  vì 2--3 dòng \emph{chữ} trong mỗi dòng danh sách.
+\item \textbf{G2} (18/09, \texttt{7873175}, đã lên UAT): header mobile 104 $\to$ 72, mọi trang ngắn đi 32px.
+  Vùng chạm 3 nút header 38 $\to$ 44 bằng \texttt{::before}, vì \texttt{::after} đã bị dành để tắt caret Bootstrap.
+\item \textbf{DOC-CTRL} (19/09) và \textbf{DOC-CTRL-2} (20/09): hai tài liệu controller cho BA, không đụng code.
+  Bản kiểm kê 20 trang (103 route) và bản đặc tả 110 trang (104/104 đường dẫn, 67 phiếu màn, 157 điểm cần
+  BA chốt). Tab \texttt{3. Controller}: 56 ĐÃ CÓ · 6 MỘT PHẦN · 9 CHƯA CÓ; CT-061…067 (ca làm, chấm công,
+  nghỉ phép, chi phí) chưa có code.
+\end{itemize}
+
+\section{Tổng kết cụm}
+
+\begin{center}
+\small
+\begin{tabular}{lr}
+\toprule
+Chỉ số & Giá trị \\
+\midrule
+Issue về \texttt{Ready for Retest} + đã lên UAT & 10/10 \\
+Suite test portal (mốc đầu E1 $\to$ cuối E8c) & 339 $\to$ 801, 0 đỏ \\
+Component chung mới & StatusBadge · Pagination · FilterBar · ListCard · Button · PageContainer · Sidebar \\
+Thước đo mới trong \texttt{scripts/qa/} & \texttt{wj\_filterbar}, \texttt{wj\_listcard}, \texttt{wj\_button}, \texttt{wj\_pagecontainer}, \texttt{wj\_sidebar}, … \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Bài học lặp lại nhiều nhất}
+\begin{enumerate}
+\item \textbf{Pass rỗng}: thước đo xanh vì không có gì để đo (DB 0 phiếu thi, 0 chuyến giao, 51/51 phiếu
+  \texttt{resolution\_type} rỗng, route trong sổ không dựng nổi nút nào). Luật: phải gieo dữ liệu trước khi
+  kết luận, và thước đo phải tự báo ``MẪU RỖNG''.
+\item \textbf{Chính công cụ đo cũng phải soi}: \texttt{closest()} khớp cả chính phần tử, probe đọc nhầm
+  \texttt{::after}, regex nuốt rule con trong \texttt{@media}, cổng mặc định 8019 trỏ nhầm DB. Mỗi lần như vậy
+  đều suýt ``sửa'' đúng chỗ code đang đúng.
+\item \textbf{Mutation lộ guard giả}: \texttt{assertRaises} trần, sổ đếm ``có ít nhất một'', tên con BEM
+  khớp tiền tố. Luật: mỗi guard mới phải có một mũi phá đỏ đúng nó.
+\item \textbf{Gốc rễ thường không nằm ở tầng BA nhìn thấy}: E1 và E2 là Python chứ không phải CSS; E7 là
+  một rule không phạm vi trong module khác.
+\end{enumerate}
+
+\subsection*{Nợ mang sang}
+\begin{itemize}[nosep]
+\item Cụm \textbf{EmptyState}: 92 chỗ viết tay, 6 họ class, 3 cỡ tiêu đề. Có 3 câu hỏi cho BA đang chờ trả lời.
+\item Nút lùi wizard mobile chạm 28×30 (thuộc BackPageHeader); 3 template auth không controller nào render.
+\item \texttt{/portal/info-request} không có lối vào nào trong UI; cần issue riêng.
+\item FYI cho BA về các chỗ lệch Figma có chủ đích: header 72, nhịp dọc, dải cao variant, màu Primary.
+\item 7 issue mới STT 140--146 (topbar, store switcher, Home PC, mật độ header/bottom-nav mobile, routing
+  URL gốc) chưa phân cụm. Theo chốt E7a, 143/145 phải đo lại trên khung mới.
+\end{itemize}

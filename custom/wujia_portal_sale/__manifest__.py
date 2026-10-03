@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Sale (Catalog + Cart)',
-    'version': '19.0.4.23.0',
+    'version': '19.0.4.27.0',
     'category': 'Wujia',
     'summary': 'Trang đặt hàng portal — catalog + giỏ hàng chung theo cửa hàng (BA controller mapping)',
     'author': 'WujiaTea',
@@ -8,7 +8,7 @@
     # wujia_portal_purchase_history: dùng chung nhãn trạng thái SO (_state_meta)
     # cho màn kết quả gửi đơn + CTA "Xem chi tiết đơn hàng" trỏ sang trang đó.
     'depends': [
-        'wujia_sale', 'wujia_portal_base', 'wujia_portal_order_window',
+        'wujia_sale', 'wujia_portal_base', 'wujia_order_window',
         'wujia_portal_purchase_history',
     ],
     'data': [
@@ -17,6 +17,7 @@
         'views/mheader_inherit.xml',
         'views/bottomnav_inherit.xml',
         'views/header_cart_inherit.xml',
+        'views/order_confirm_modal.xml',
         'views/pc_cart_panel.xml',
         'views/portal_order_catalog.xml',
         'views/portal_order_product_detail.xml',

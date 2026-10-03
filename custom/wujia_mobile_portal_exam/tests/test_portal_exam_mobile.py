@@ -8,10 +8,10 @@ class TestPortalExamMobile(TransactionCase):
     def setUp(self):
         super().setUp()
         self.actions = [
-            self.env.ref('wujia_portal_exam.action_wujia_exam_session'),
-            self.env.ref('wujia_portal_exam.action_wujia_exam_registration'),
-            self.env.ref('wujia_portal_exam.action_wujia_exam_course'),
-            self.env.ref('wujia_portal_exam.action_wujia_exam_time_slot'),
+            self.env.ref('wujia_exam.action_wujia_exam_session'),
+            self.env.ref('wujia_exam.action_wujia_exam_registration'),
+            self.env.ref('wujia_exam.action_wujia_exam_course'),
+            self.env.ref('wujia_exam.action_wujia_exam_time_slot'),
         ]
         self.kanban_views = [
             self.env.ref('wujia_mobile_portal_exam.view_wujia_exam_session_kanban_mobile'),

@@ -29,13 +29,19 @@
                t-value="request.env['wujia.franchise.member'].sudo().find_active_membership(request.env.user.id, _wujia_active_fid) if _wujia_active_fid else False"/>
             <t t-set="_wujia_active_role"
                t-value="_wujia_active_membership.role if _wujia_active_membership else False"/>
+            <t t-set="_wujia_active_role_label"
+               t-value="_wujia_active_membership._portal_role_label() if _wujia_active_membership else ''"/>
+            <!-- Id các cửa hàng user là Owner/Manager — điều kiện quyền của mục Công nợ và Báo
+                 cáo ở sidebar lẫn sheet "Thêm" (cùng nguồn membership với controller). Đặt ở scope
+                 app_layout để mọi t-call phía sau đọc chung, 1 lần/trang. -->
+            <t t-set="_nav_mgr_fids"
+               t-value="[m.franchise_id.id for m in request.env.user._get_active_franchise_memberships() if m.role in ('owner', 'manager')]"/>
         </xpath>
         <!-- UI-04 mobile sub-strip — full-width below navbar in app-content area.
              Hidden ≥768px via @media in store_picker.css (not Bootstrap utility,
              để escape Vuexy floating-nav wrapper). Inject inside app_layout
              (not layout_top_navbar) để KHÔNG rơi vào navbar floating box.
-             Sprint 10: ẩn trên Home (/portal) vì hero mobile đã show cửa hàng +
-             role rồi → tránh trùng. Trang khác vẫn giữ strip làm chỉ báo store. -->
+             Hiện trên mọi trang mobile, kể cả Home (mockup Current Store Switcher). -->
         <xpath expr="//div[hasclass('header-navbar-shadow')]" position="after">
             <!-- Current Store Strip (BA WJ_Mobile_CurrentStoreStrip): 1 dòng
                  "[code] Tên cửa hàng ... Role", hiện trên MỌI trang mobile có active
@@ -50,16 +56,14 @@
                           t-out="_wujia_active_franchise.code"/>
                     <strong class="wujia-store-mobile-strip-name"
                             t-out="_wujia_active_franchise.name or _wujia_active_franchise.display_name"/>
-                    <span t-if="_wujia_active_role" class="wujia-store-strip-role">
-                        <t t-if="_wujia_active_role == 'manager'">Manager</t>
-                        <t t-elif="_wujia_active_role == 'owner'">Owner</t>
-                        <t t-elif="_wujia_active_role == 'staff'">Staff</t>
-                    </span>
+                    <span t-if="_wujia_active_role" class="wujia-store-strip-role"
+                          t-out="_wujia_active_role_label"/>
                 </t>
                 <a t-if="_wujia_strip_clickable" href="#" data-action="open-store-picker"
                    class="wujia-store-mobile-strip wujia-store-mobile-strip--clickable wj-state-surface"
                    aria-label="Đổi cửa hàng đang thao tác">
                     <t t-out="_wujia_strip_body"/>
+                    <i class="feather icon-chevron-down wujia-store-strip-chevron" aria-hidden="true"/>
                 </a>
                 <div t-else="" class="wujia-store-mobile-strip">
                     <t t-out="_wujia_strip_body"/>
@@ -97,11 +101,8 @@
                         </span>
                     </a>
                     <span t-if="_wujia_active_role"
-                          t-attf-class="wujia-store-role-badge wujia-store-role-badge-#{_wujia_active_role}">
-                        <t t-if="_wujia_active_role == 'manager'">Manager</t>
-                        <t t-elif="_wujia_active_role == 'owner'">Owner</t>
-                        <t t-elif="_wujia_active_role == 'staff'">Staff</t>
-                    </span>
+                          t-attf-class="wujia-store-role-badge wujia-store-role-badge-#{_wujia_active_role}"
+                          t-out="_wujia_active_role_label"/>
                 </div>
             </li>
         </xpath>

@@ -10,6 +10,8 @@ from lxml import html
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import need
+
 
 @tagged('post_install', '-at_install', 'wujia_card_header_d3')
 class TestCardHeaderCallSites(TransactionCase):
@@ -23,9 +25,10 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_delivery.portal_delivery_detail': 4,
         'wujia_portal_base.portal_franchise_information': 6,
         'wujia_portal_support.portal_support_form': 1,
-        'wujia_portal_support.portal_support_detail': 5,
+        'wujia_portal_support.portal_support_detail': 6,  # +1 thẻ "File đính kèm" mobile (26/09)
         # D3b — nhóm màn kế tiếp
-        'wujia_portal_base.portal_home_page': 5,
+        # G3b/142: Khung giờ (PC + mobile) + 7 block Home PC V4 (3 block list cũ đã bỏ)
+        'wujia_portal_base.portal_home_page': 9,
         'wujia_portal_base.portal_franchise_profile_full': 4,
         'wujia_portal_knowledge.portal_knowledge_list': 2,
         'wujia_portal_knowledge.portal_knowledge_detail': 3,
@@ -61,8 +64,8 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_base.portal_franchise_profile_full': 4,
         'wujia_portal_knowledge.portal_knowledge_list': 1,
         'wujia_portal_knowledge.portal_knowledge_detail': 1,
-        # D3c: 4 card Bootstrap + card "Lịch sử trao đổi" (card khai padding:0)
-        'wujia_portal_support.portal_support_detail': 5,
+        # D3c: 4 card Bootstrap + card "Lịch sử trao đổi" (card khai padding:0) + thẻ "File đính kèm" mobile
+        'wujia_portal_support.portal_support_detail': 6,
         # khối `wj-pc-acct-staff` — dòng `__line` dưới đã tự khai margin-top 8px
         'wujia_portal_base.portal_franchise_information': 1,
         # summary head chuyến giao — `.wj-pc-order-head` đã có padding riêng
@@ -107,6 +110,7 @@ class TestCardHeaderCallSites(TransactionCase):
     SHARED_MARKUP_VIEWS = ('wujia_portal_info_request.portal_info_request_list',)
 
     def _arch(self, xmlid):
+        need(self, xmlid)
         return self.env.ref(xmlid).arch_db
 
     def test_shared_markup_views_do_not_bake_platform(self):
@@ -197,6 +201,7 @@ class TestCardHeaderD3eLayout(TransactionCase):
     """D3e — hai bẫy đã trả giá khi migrate 2 file này, khoá lại bằng test."""
 
     def _arch(self, xmlid):
+        need(self, xmlid)
         return self.env.ref(xmlid).arch_db
 
     def test_order_head_meta_stays_card_content(self):
@@ -259,6 +264,7 @@ class TestCardHeaderD3Review(TransactionCase):
             return fh.read()
 
     def _arch(self, xmlid):
+        need(self, xmlid)
         return self.env.ref(xmlid).arch_db
 
     COMPONENTS = 'wujia_portal_layout/static/assets/css/_components.css'

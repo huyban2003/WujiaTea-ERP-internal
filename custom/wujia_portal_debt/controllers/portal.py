@@ -127,9 +127,9 @@ class WujiaPortalDebt(http.Controller):
     @http.route(['/portal/debt/payment-history'], type='http', auth='user', sitemap=False)
     def portal_debt_payment_history(self, month=None, date_from=None, date_to=None,
                                     q=None, page=None, page_size=None, **kw):
-        """Màn 06 — các khoản Ngô Gia đã xác nhận trong kỳ. PC (STT10): thêm ô tìm
-        kiếm (`q`) + bảng phân trang. `history['totals']` = tổng TOÀN kỳ đã lọc, tách
-        theo từng loại tiền (WJ-DEBT-004)."""
+        """Màn 06 — các khoản Ngô Gia đã xác nhận trong kỳ. Ô tìm kiếm (`q`) chỉ PC;
+        phân trang dùng chung PC + mobile. `history['totals']` = tổng TOÀN kỳ đã lọc,
+        tách theo từng loại tiền (WJ-DEBT-004)."""
         franchise_id = get_active_franchise_id()
         allowed, denied = _debt_access(franchise_id)
         if not allowed:
@@ -138,15 +138,14 @@ class WujiaPortalDebt(http.Controller):
             franchise_id, month=month,
             date_from=_parse_date(date_from), date_to=_parse_date(date_to),
             keyword=q)
-        pc_payments, pgn = _pc_paginate(history['payments'], page, page_size,
-                                        path='/portal/debt/payment-history',
-                                        item_label='giao dịch')
+        payments, pgn = _pc_paginate(history['payments'], page, page_size,
+                                     path='/portal/debt/payment-history',
+                                     item_label='giao dịch')
         return request.render('wujia_portal_debt.portal_debt_payment_history', {
             'history': history,
             'no_store': not franchise_id,
             'vnd': _money_fn(history['currency_symbol'], history['currency_decimals']),
-            # PC extras:
-            'pc_payments': pc_payments,
+            'payments': payments,
             'pgn': pgn,
             'q': q or '',
             'store_label': _store_label(franchise_id),

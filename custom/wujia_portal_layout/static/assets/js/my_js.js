@@ -279,10 +279,10 @@ $(window).on('load', function () {
 
 /* Sprint 4.2+: force body.menu-expanded on desktop so Vuexy's menu-modern
    CSS shows the sidebar even when app-menu.js init() bails out without
-   adding the class. Pair with CSS in style.css that forces .main-menu
-   visible at >= 992px regardless of body classes. */
+   adding the class. E8b: chỉ ≥1200 (sidebar cố định); 992–1199 là drawer
+   đóng mặc định do wujia_sidebar.js điều khiển. */
 function _wujiaForceMenuExpanded() {
-    if ($(window).width() >= 992) {
+    if (window.matchMedia('(min-width: 1200px)').matches) {
         $('body').removeClass('menu-hide menu-collapsed').addClass('menu-expanded menu-open');
     }
 }

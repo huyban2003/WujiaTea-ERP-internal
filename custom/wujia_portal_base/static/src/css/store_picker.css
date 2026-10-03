@@ -67,7 +67,6 @@
     line-height: 1;
     margin-right: 12px;
     color: #fff;
-    text-transform: capitalize;
     letter-spacing: 0.3px;
     min-height: 46px;
 }
@@ -85,6 +84,9 @@
     width: 430px;
     height: 48px;
     margin-right: 12px;
+    background-color: var(--wujia-navbar-pill-bg);
+    border-radius: var(--wujia-navbar-pill-radius);
+    transition: background-color 0.15s ease-in-out;
     /* UI-01 retest 22/07/2026: BA đo x=314, expected x=324 → shift phải 10px.
        Vuexy bookmark-wrapper offset không đổi được sạch (share với các nav-item khác),
        nên bù cục bộ bằng margin-left. Đo lại trên 1920×1080 sau deploy. */
@@ -94,6 +96,15 @@
    block x=324 w=430 → pill chiếm 318px rồi gap 8 (324+318+8=650), block chừa 22px cuối.
    `flex: 0 1` (không grow) giữ mốc đó; vẫn shrink được nên tên cửa hàng dài vẫn ellipsis. */
 .wujia-store-current-block .wujia-active-store-badge { flex: 0 1 318px; min-width: 0; margin-right: 0; overflow: hidden; }
+/* UI-PC-TOPBAR-REG-001: nền thuộc về cả khối (chip vai trò nằm trong một bề mặt), pill cửa
+   hàng trong suốt; vùng bấm vẫn chỉ là thẻ <a>. */
+.wujia-store-current-block:has(.wujia-active-store-badge:hover),
+.wujia-store-current-block:has(.wujia-active-store-badge:focus) {
+    background-color: var(--wujia-navbar-pill-bg-hover);
+}
+.wujia-store-current-block .wujia-active-store-badge,
+.wujia-store-current-block .wujia-active-store-badge:hover,
+.wujia-store-current-block .wujia-active-store-badge:focus { background-color: transparent; }
 /* min-width:0 trên cột text để ellipsis kích hoạt — flex item mặc định min-width:auto
    khiến tên dài không co lại, tràn đè role badge (bug tên cửa hàng dài). */
 .wujia-store-current-block .wujia-active-store-badge .wujia-store-badge-text { min-width: 0; overflow: hidden; }
@@ -193,7 +204,33 @@
     font-weight: 700;
     line-height: 1.2;
 }
+/* UI-MOB-STORE-SWITCHER-001: chevron chỉ có ở dải bấm được (>1 cửa hàng). */
+.wujia-store-strip-chevron {
+    flex: 0 0 auto;
+    margin-left: -2px;
+    color: var(--wujia-primary);
+    font-size: 20px;
+    line-height: 1;
+}
 
 @media (max-width: 575.98px) {
     .wujia-store-mobile-strip-name { font-size: 14px; }
+}
+
+/* CMP-SN-001 — khối "Cửa hàng hiện tại" trong menu avatar (PC + mobile, acct_menu_store).
+   Chỉ đọc: mã + tên + chip vai trò (màu chip dùng lại .wujia-store-role-badge-<role>). */
+.wj-acct-menu__store { padding-bottom: 8px; }
+.wj-acct-menu__store-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 var(--wj-am-pad-x, 16px);
+}
+.wj-acct-menu__store-name {
+    flex: 1 1 auto; min-width: 0;
+    font-size: 14px; line-height: 20px; font-weight: 700; color: var(--wujia-text-primary);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.wj-acct-menu__store-code { color: var(--wujia-text-subtitle); font-weight: 600; margin-right: 4px; }
+.wj-acct-menu__store .wj-acct-menu__role {
+    flex: 0 0 auto; min-height: 22px; margin-right: 0;
+    padding: 3px 8px; border-radius: 999px; font-size: 12px; line-height: 16px;
 }

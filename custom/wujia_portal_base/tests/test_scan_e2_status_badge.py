@@ -10,9 +10,8 @@ from lxml import html
 
 from odoo.addons.wujia_portal_base.controllers.utils import (
     MOBILE_BATCH_BADGES,
-    MOBILE_ORDER_BADGES,
-    MOBILE_RETURN_BADGES,
-    MOBILE_TICKET_BADGES,
+    SALE_STATE_META,
+    RETURN_STATUS_LABELS,
     STATUS_BADGE_VARIANTS,
     status_badge,
     status_badge_for,
@@ -66,13 +65,14 @@ class TestStatusBadgeMapsAndCallSites(TransactionCase):
 
     # --- 3. lỗi gốc BA nêu -------------------------------------------------
     def test_confirmed_label_is_info_not_success(self):
-        self.assertEqual(MOBILE_ORDER_BADGES['sale'],
-                         ('Đã xác nhận', 'wj-status-badge--info'))
+        # WJ-HOME-010: Home dùng chung SALE_STATE_META với Lịch sử, màu theo nhãn.
+        self.assertEqual(SALE_STATE_META['sale'][0], 'Đã xác nhận')
         self.assertEqual(status_badge_for('Đã xác nhận'), 'wj-status-badge--info')
 
     def test_every_shared_map_emits_a_component_class(self):
-        for name, mapping in (('order', MOBILE_ORDER_BADGES), ('batch', MOBILE_BATCH_BADGES),
-                              ('return', MOBILE_RETURN_BADGES), ('ticket', MOBILE_TICKET_BADGES)):
+        order = {k: (lbl, status_badge_for(lbl)) for k, (lbl, _t) in SALE_STATE_META.items()}
+        for name, mapping in (('order', order), ('batch', MOBILE_BATCH_BADGES),
+                              ('return', RETURN_STATUS_LABELS)):
             for state, (label, cls) in mapping.items():
                 self.assertTrue(label, '%s/%s thiếu nhãn' % (name, state))
                 self.assertRegex(cls, r'^wj-status-badge--(%s)$' % '|'.join(STATUS_BADGE_VARIANTS),

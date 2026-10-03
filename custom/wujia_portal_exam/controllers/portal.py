@@ -15,11 +15,9 @@ Routes:
 - GET  /portal/exam/registration/<int>       Action 2+9 — chi tiết + kết quả
 - GET  /portal/exam/line/<int>/photo         Action 10 — ảnh thí sinh (ACL)
 """
-import base64
-import binascii
 import calendar as _calendar
 import logging
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 import pytz
 from werkzeug.exceptions import Forbidden, NotFound
@@ -27,7 +25,6 @@ from werkzeug.exceptions import Forbidden, NotFound
 from odoo import _, fields, http
 from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
-from odoo.tools.image import image_process
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
@@ -39,17 +36,13 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     status_badge,
     status_badge_for,
 )
-from odoo.addons.wujia_portal_exam.models.wujia_exam_registration_line import (
-    PHONE_RE,
-)
+from odoo.addons.wujia_exam.models.wujia_exam_registration import ExamPortalError
 
 _logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 10  # spec: list mặc định 10/trang
 PAGE_SIZES = (10, 20, 50)  # whitelist ?limit — khớp <select> trong pager PC
 DEFAULT_TZ = 'Asia/Ho_Chi_Minh'
-MAX_PHOTO_BYTES = 5 * 1024 * 1024
-PHOTO_MIMES = ('image/jpeg', 'image/jpg', 'image/png')
 
 _WEEKDAYS_VN = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật']
 
@@ -128,8 +121,7 @@ def _result_summary(reg):
     """(label, kind) tổng hợp Đạt/Không đạt — chỉ khi đã công bố."""
     if not reg.session_id.results_published:
         return ('Chưa công bố', 'muted')
-    passed = sum(1 for l in reg.line_ids if l.result == 'passed')
-    failed = sum(1 for l in reg.line_ids if l.result == 'failed')
+    passed, failed = reg._portal_result_counts()
     parts = []
     if passed:
         parts.append('%d Đạt' % passed)
@@ -145,71 +137,26 @@ def _result_summary(reg):
     return (label, kind)
 
 
-def _selectable(session, now):
-    return (session.state == 'open'
-            and (not session.registration_deadline
-                 or now <= session.registration_deadline)
-            and session.available_participant_count > 0)
-
-
-def _max_per_reg(record):
-    """Giới hạn người / phiếu — NGUỒN DUY NHẤT cho hướng dẫn, quota, validate.
-
-    Ca thi cấu hình riêng được thì ưu tiên, để trống mới lấy của khóa (WJ-EXAM-007
-    sinh ra vì UI từng chép tay số 4 = default của field).
-    """
-    if record._name == 'wujia.exam.session':
-        return (record.max_participants_per_registration
-                or record.course_id.max_participants_per_registration)
-    return record.max_participants_per_registration
-
-
 def _max_hint(n):
     return (_("Mỗi phiếu được đăng ký tối đa %d người.", n) if n
             else _("Chọn khóa thi để xem giới hạn người mỗi phiếu."))
 
 
-def _day_state(day_sessions, d, today, horizon, now):
-    """Trạng thái 1 ngày trên lịch: available / full / none."""
-    if d < today or d > horizon:
-        return 'none'
-    if not day_sessions:
-        return 'none'
-    if any(_selectable(s, now) for s in day_sessions):
-        return 'available'
-    # Còn session open/chưa quá hạn nhưng hết chỗ → 'full'; else 'none'.
-    if any(s.state == 'open'
-           and (not s.registration_deadline or now <= s.registration_deadline)
-           for s in day_sessions):
-        return 'full'
-    return 'none'
+# Nhãn khung giờ theo wujia.exam.session._portal_slot_status().
+SLOT_STATUS_LABELS = {'closed': 'Đã đóng', 'expired': 'Hết hạn', 'full': 'Hết chỗ'}
 
 
 def _exam_calendar(course, year, month):
     """Ma trận tuần (T2→CN) trạng thái ngày cho 1 khóa thi (dữ liệu thật)."""
-    Session = request.env['wujia.exam.session'].sudo()
-    today = fields.Date.context_today(request.env.user)
-    horizon = today + timedelta(days=course.registration_horizon_days)
-    first = date(year, month, 1)
-    last = date(year, month, _calendar.monthrange(year, month)[1])
-    sessions = Session.search([
-        ('course_id', '=', course.id),
-        ('exam_date', '>=', first), ('exam_date', '<=', last),
-        ('state', '!=', 'cancelled'),
-    ])
-    by_day = {}
-    for s in sessions:
-        by_day.setdefault(s.exam_date, []).append(s)
-    now = fields.Datetime.now()
+    states = course._portal_day_states(year, month)
     weeks = []
     for week in _calendar.Calendar(firstweekday=0).monthdatescalendar(year, month):
         row = []
         for d in week:
             in_month = d.month == month
-            state = 'out' if not in_month else _day_state(
-                by_day.get(d, []), d, today, horizon, now)
             row.append({
-                'day': d.day, 'in_month': in_month, 'state': state,
+                'day': d.day, 'in_month': in_month,
+                'state': states[d] if in_month else 'out',
                 'date': d.isoformat(),
                 'date_label': '%s, %02d/%02d/%d' % (
                     _WEEKDAYS_VN[d.weekday()], d.day, month, year),
@@ -221,27 +168,17 @@ def _exam_calendar(course, year, month):
 
 def _exam_slots(course, d):
     """Danh sách session (khung giờ) của khóa vào 1 ngày — dữ liệu thật."""
-    Session = request.env['wujia.exam.session'].sudo()
     now = fields.Datetime.now()
-    sessions = Session.search([
-        ('course_id', '=', course.id), ('exam_date', '=', d),
-        ('state', '!=', 'cancelled'),
-    ], order='start_datetime, id')
     slots = []
-    for s in sessions:
-        ok = _selectable(s, now)
-        if s.state != 'open':
-            status = 'Đã đóng'
-        elif s.registration_deadline and now > s.registration_deadline:
-            status = 'Hết hạn'
-        elif s.available_participant_count <= 0:
-            status = 'Hết chỗ'
-        else:
-            status = 'Còn %d chỗ' % s.available_participant_count
+    for s in course._portal_sessions_on(d):
+        status = s._portal_slot_status(now)
         slots.append({
-            'session_id': s.id, 'time': _slot_time_label(s), 'status': status,
-            'available': ok, 'seats': s.available_participant_count,
-            'max_per_reg': _max_per_reg(s),
+            'session_id': s.id, 'time': _slot_time_label(s),
+            'status': SLOT_STATUS_LABELS.get(
+                status, 'Còn %d chỗ' % s.available_participant_count),
+            'available': s._portal_is_selectable(now),
+            'seats': s.available_participant_count,
+            'max_per_reg': s._effective_max_per_registration(),
             'location': s.location or '—',
             # Additive (Sprint 46) — nhãn hạn đăng ký cho tóm tắt PC. Mobile
             # renderSlots không đọc key này ⇒ 0 regression.
@@ -253,34 +190,18 @@ def _exam_slots(course, d):
 
 
 def _course_meta(course):
-    """Meta ngắn cho card khóa thi (mobile) + cờ 'closed'/'full'.
-
-    WJ-EXAM-002: 'full' = còn lịch mở, còn hạn, nhưng hết chỗ — khác hẳn 'closed'
-    (không còn kỳ thi nào mở/còn hạn). Cả hai đều không cho đăng ký.
-    """
-    Session = request.env['wujia.exam.session'].sudo()
-    today = fields.Date.context_today(request.env.user)
-    horizon = today + timedelta(days=course.registration_horizon_days)
-    now = fields.Datetime.now()
-    upcoming = Session.search([
-        ('course_id', '=', course.id),
-        ('exam_date', '>=', today), ('exam_date', '<=', horizon),
-        ('state', '=', 'open'),
-    ])
-    has_open = any(_selectable(s, now) for s in upcoming)
-    in_deadline = [s for s in upcoming
-                   if not s.registration_deadline or now <= s.registration_deadline]
+    """Meta ngắn cho card khóa thi (mobile) + cờ 'closed'/'full' (luật ở model)."""
+    meta = course._portal_booking_meta()
     return {
         'meta': '%d kỳ thi • Trong %d ngày tới' % (
-            len(upcoming), course.registration_horizon_days),
-        'closed': not has_open,
-        'full': not has_open and bool(in_deadline),
+            meta['upcoming_count'], course.registration_horizon_days),
+        'closed': meta['closed'],
+        'full': meta['full'],
     }
 
 
 def _published_courses():
-    return request.env['wujia.exam.course'].sudo().search(
-        [('state', '=', 'published'), ('active', '=', True)], order='name, id')
+    return request.env['wujia.exam.course'].sudo()._portal_published()
 
 
 class WujiaPortalExam(http.Controller):
@@ -298,7 +219,7 @@ class WujiaPortalExam(http.Controller):
         # thay vì để domain vô nghiệm rồi hiện "chưa có đăng ký thi".
         filter_error = date_range_error(date_from, date_to)
         if fid and not filter_error:
-            domain = [('franchise_id', '=', fid)]
+            domain = Reg._portal_scope_domain(fid)
             if state in M_REG_BADGE:
                 domain.append(('state', '=', state))
             q = (q or '').strip()
@@ -369,7 +290,7 @@ class WujiaPortalExam(http.Controller):
         sel_meta = _course_meta(selected) if selected else {'meta': ''}
         # PC "Đăng ký mới" — dữ liệu THẬT (Sprint 46, thay demo PC_*). Grid dùng
         # chung biến `calendar` real; khóa/khung giờ/người do JS nạp qua endpoint.
-        max_per_reg = _max_per_reg(selected) if selected else 0
+        max_per_reg = selected._effective_max_per_registration() if selected else 0
         store_name = request.env['wujia.franchise.management'].sudo().browse(
             fid).name or '—'
         pc_summary = {
@@ -393,7 +314,8 @@ class WujiaPortalExam(http.Controller):
             'slots': [],   # nạp qua AJAX khi chọn ngày
             # PC "Đăng ký mới" — context thật (grid = `calendar`, người tự nhập).
             'pc_courses': [{'course_id': c.id, 'title': c.name,
-                            'max_per_reg': _max_per_reg(c)} for c in courses],
+                            'max_per_reg': c._effective_max_per_registration()}
+                           for c in courses],
             'pc_lines': [], 'pc_summary': pc_summary,
         })
 
@@ -435,44 +357,11 @@ class WujiaPortalExam(http.Controller):
         if not fid:
             return {'error': 'no_store',
                     'message': 'Vui lòng chọn cửa hàng trước khi thao tác.'}
-        Session = request.env['wujia.exam.session'].sudo()
-        session = Session.browse(int(session_id or 0)).exists()
-        if not session or session.course_id.state != 'published':
-            return {'error': 'not_found',
-                    'message': 'Khung giờ đã thay đổi hoặc không còn. Vui lòng'
-                               ' chọn lại lịch thi.'}
-        parts = participants or []
-        max_p = _max_per_reg(session)
-        if not parts:
-            return {'error': 'validation',
-                    'message': 'Cần ít nhất 1 người dự thi.'}
-        if max_p and len(parts) > max_p:
-            return {'error': 'validation',
-                    'message': 'Tối đa %d người mỗi phiếu.' % max_p}
         try:
-            line_cmds = [(0, 0, _build_line_vals(p)) for p in parts]
-        except ValidationError as e:
-            return {'error': 'validation', 'message': _exc_msg(e)}
-        member = request.env['wujia.franchise.member'].sudo()
-        try:
-            member = member.find_active_membership(request.env.user.id, fid)
-        except Exception:  # pragma: no cover — helper vắng thì bỏ qua
-            member = member.browse()
-        # Savepoint + flush trong try: constraint sức chứa của session là
-        # @api.constrains → chỉ raise lúc flush; nếu để tới flush cuối request thì
-        # sẽ thành 500 và (nguy hiểm hơn) commit phiếu vượt chỗ. Ép flush ở đây
-        # để bắt lỗi thành message thân thiện, savepoint đảm bảo rollback sạch.
-        try:
-            with request.env.cr.savepoint():
-                reg = request.env['wujia.exam.registration'].sudo().create({
-                    'session_id': session.id,
-                    'franchise_id': fid,
-                    'requester_user_id': request.env.user.id,
-                    'member_id': member.id if member else False,
-                    'note': (note or '').strip() or False,
-                    'line_ids': line_cmds,
-                })
-                request.env.flush_all()
+            reg = request.env['wujia.exam.registration'].sudo().register_from_portal(
+                int(session_id or 0), fid, request.env.user, participants, note)
+        except ExamPortalError as e:
+            return {'error': e.kind, 'message': _exc_msg(e)}
         except (ValidationError, UserError) as e:
             return {'error': 'business', 'message': _exc_msg(e)}
         return {'success': True,
@@ -484,9 +373,8 @@ class WujiaPortalExam(http.Controller):
     def portal_exam_registration_detail(self, reg_id, **kw):
         fid = get_active_franchise_id()
         Reg = request.env['wujia.exam.registration'].sudo()
-        reg = Reg.search([('id', '=', reg_id),
-                          ('franchise_id', '=', fid)], limit=1) if fid \
-            else Reg.browse()
+        reg = Reg.search([('id', '=', reg_id)] + Reg._portal_scope_domain(fid),
+                         limit=1) if fid else Reg.browse()
         if not reg:
             return request.redirect('/portal/exam')
         return request.render(
@@ -505,9 +393,9 @@ class WujiaPortalExam(http.Controller):
         fid = get_active_franchise_id()
         if not fid:
             raise Forbidden()
-        line = request.env['wujia.exam.registration.line'].sudo().search([
-            ('id', '=', line_id), ('franchise_id', '=', fid),
-        ], limit=1)
+        Line = request.env['wujia.exam.registration.line'].sudo()
+        line = Line.search([('id', '=', line_id)] + Line._portal_scope_domain(fid),
+                           limit=1)
         if not line or not line.image_1920:
             raise NotFound()
         return request.env['ir.binary']._get_image_stream_from(
@@ -533,8 +421,7 @@ def _m_list_item(reg):
 
 
 def _m_result_meta(reg):
-    passed = sum(1 for l in reg.line_ids if l.result == 'passed')
-    failed = sum(1 for l in reg.line_ids if l.result == 'failed')
+    passed, failed = reg._portal_result_counts()
     parts = []
     if passed:
         parts.append('%d đạt' % passed)
@@ -647,66 +534,8 @@ def _pc_detail(reg):
 
 
 # --------------------------------------------------------------------------- #
-# Submit helpers
+# Helpers parse
 # --------------------------------------------------------------------------- #
-def _build_line_vals(p):
-    name = (p.get('employee_name') or '').strip()
-    phone = (p.get('phone') or '').strip()
-    if not name or not phone:
-        raise ValidationError(_(
-            "Mỗi người dự thi cần có họ tên và số điện thoại."))
-    # WJ-EXAM-001 — chặn ngay ở controller thay vì đợi constraint lúc flush.
-    if not PHONE_RE.match(phone):
-        raise ValidationError(_(
-            "Số điện thoại '%s' không hợp lệ (vd 0901234567).", phone))
-    vals = {
-        'employee_name': name, 'phone': phone,
-        'job_position': (p.get('job_position') or '').strip() or False,
-    }
-    by = (p.get('birth_year') or '').strip() if isinstance(
-        p.get('birth_year'), str) else p.get('birth_year')
-    if by:
-        try:
-            vals['birth_year'] = int(by)
-        except (TypeError, ValueError):
-            raise ValidationError(_("Năm sinh '%s' không hợp lệ.", by))
-    photo = p.get('photo')
-    if photo:
-        vals['image_1920'] = _clean_photo(photo)
-    return vals
-
-
-def _clean_photo(raw):
-    """data-URL/base64 ảnh → base64 str hợp lệ (guard MIME + dung lượng)."""
-    data = raw
-    if raw.startswith('data:'):
-        try:
-            head, data = raw.split(',', 1)
-        except ValueError:
-            raise ValidationError(_(
-                "Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép."))
-        mime = head[5:].split(';', 1)[0].lower()
-        if mime and mime not in PHOTO_MIMES:
-            raise ValidationError(_(
-                "Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép."))
-    try:
-        decoded = base64.b64decode(data, validate=True)
-    except (binascii.Error, ValueError):
-        raise ValidationError(_(
-            "Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép."))
-    if len(decoded) > MAX_PHOTO_BYTES:
-        raise ValidationError(_(
-            "Ảnh nhân viên vượt dung lượng cho phép (tối đa 5 MB)."))
-    # Chạy đúng pipeline mà fields.Image dùng lúc write (resize ≤1920). Ảnh
-    # hỏng/cắt cụt sẽ ném ở đây → trả message thân thiện thay vì 500 khi flush.
-    try:
-        image_process(decoded, size=(1920, 1920))
-    except Exception:
-        raise ValidationError(_(
-            "Ảnh nhân viên không hợp lệ hoặc bị hỏng. Vui lòng chọn ảnh khác."))
-    return data
-
-
 def _exc_msg(e):
     return (getattr(e, 'args', None) and e.args[0]) or str(e)
 

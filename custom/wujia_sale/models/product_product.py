@@ -38,6 +38,20 @@ class ProductProduct(models.Model):
         ondelete='set null',
     )
 
+    def _portal_qty_error(self, qty):
+        """Luật đặt hàng portal (bước = min_qty, max 0 = không giới hạn) → None hoặc (mã, ngưỡng)."""
+        self.ensure_one()
+        step = self.min_qty
+        if step <= 0:
+            return 'MIN_QTY_NOT_CONFIGURED', 0
+        if qty < step:
+            return 'QTY_BELOW_MIN', step
+        if qty % step:
+            return 'QTY_INVALID_STEP', step
+        if self.max_qty and qty > self.max_qty:
+            return 'QTY_ABOVE_MAX', self.max_qty
+        return None
+
     @api.constrains('is_public_portal', 'min_qty', 'max_qty')
     def _check_portal_qty_rules(self):
         for product in self:

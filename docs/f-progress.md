@@ -1174,3 +1174,780 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Báo Thái: Khảo sát chi tiết PC có **2 tiêu đề** (`wj_page_header` + `.wj-pc-page-header` tự dựng, từ `2828171`) — thuộc PageHeader.
 - Bài học: route `wujia_portal_inspection` trên UAT chuyển `/vi/…` ⇒ đo bằng `/vi/portal/inspection…`.
 - Phiên kế: **E8** SidebarNavigation (`UI-SIDEBAR-001`).
+
+## E8a — SidebarNavigation `CMP-SN-001`: đo hiện trạng, 0 code (25/09/2026 · Mac)
+- Kết quả: ✅ xong lượt đo. `UI-SIDEBAR-001` (STT 131) **giữ Ready for Dev** tới E8b. Kiểm kê: `docs/e8a-sidebar-inventory.md`.
+- Đã làm: đo local (`wujia_e4b1`, 8090) + UAT chỉ-đọc (`uat_guard`), `em.hcm`, 9 khổ, 32 route. **UAT khớp local tuyệt đối.**
+  - **Width 264 chỉ cần CSS**: đổi token ⇒ `.main-menu` 264, content +36px (1140→1176), JS Vuexy không ghi đè
+    (`$.app.menu.init/change` đã no-op ở `my_js.js`).
+  - **Drawer 992–1199 kẹt mở**: gốc là `_wujiaForceMenuExpanded()` (`my_js.js:284`) ép `menu-open` ở ≥992 mỗi lần
+    load/resize; hamburger nằm dưới drawer 260px nên không bấm được; toggle/Escape/bấm ngoài đều không đóng; 0 backdrop,
+    2 `.sidenav-overlay` trùng.
+  - **Q3**: sidebar PC **không có** mục Bù hàng (plan cũ ghi có `nav_item_return` là sai) ⇒ `/portal/return*`,
+    `/portal/reports/orders`, `/portal/info-request*` không sáng mục nào; 29/32 route còn lại sáng đúng mục cha.
+  - Item: cao 44 ✓, icon 20 ✓, focus ✓; lệch: đệm `10px 15px`, gap 26, bo 8/active 4, chữ 16/400, màu active `#28A9DF`,
+    không rail, 0 `aria-current`. Brand 132px, logo 184×86. Hamburger 0 accessible name.
+  - Chuông PC đạt (badge = unread thật, popup + "Xem tất cả", Escape); avatar dropdown 4/7 mục BA; tên gọi lệch PC↔mobile ở 3 route.
+- Commit: chưa commit (chỉ doc).
+- Deploy: không.
+- Số đo: `sidebar_probe` 9 khổ × 2 môi trường 0 lệch · 0 lỗi JS · UAT 1 POST chặn (`/notification/recent`, do cú bấm chuông của thước đo).
+- Lệch plan / quyết định mới: plan ghi 12 `sidenav_inherit`, thật **10** (F5a); Bù hàng/Báo cáo là **tạo mới** mục PC,
+  không phải đổi nhãn. Dời Khảo sát xuống cuối nhóm bằng `position="move"` (Odoo 19 hỗ trợ), không sửa file anh Thái.
+- Quyết định mới: chủ dự án chốt "chuẩn hoá bám BA hết" ⇒ 5 điểm tưởng là fork đều chốt theo câu BA (§4 kiểm kê):
+  avatar đủ 7 mục + gỡ dropdown ngôn ngữ riêng (khối cửa hàng giữ cho STT 140) · quyền = điều kiện controller · info-request
+  sáng "Hồ sơ cửa hàng" trong avatar · bỏ hover trượt · <992 `display:none`.
+- Nợ để lại: báo BA `/portal/info-request` không có lối vào nào trong UI (ngoài E8, cần issue riêng).
+- Phiên kế: **E8b** code theo §2–§3 kiểm kê. Test khoá sidebar phải sửa cùng lượt: `test_f5_nav_item.py` ×9,
+  `test_f5_menu_ownership.py`, `test_f5_frame_routes.py`; chụp lại mốc `nav_dump`.
+
+## E8b — SidebarNavigation `CMP-SN-001`: sidebar PC + drawer 992–1199 (25/09/2026 · Mac)
+- Kết quả: ✅ xong lượt code. `UI-SIDEBAR-001` (STT 131) **giữ Ready for Dev** tới E8c. Nghiệm thu: `docs/e8b-acceptance-matrix.md`.
+- Cụm E8 chia **3 phiên** (chủ dự án chốt 25/09): E8a đo · **E8b sidebar PC + drawer** · E8c avatar/mobile/UAT/ledger.
+- Đã làm:
+  - Khung `layout_sidenav` chỉ còn 4 neo (`nav_header_main` / `_finance` / `_ops` / `nav_end`) — 3 nhóm BA "Chức năng chính ·
+    Tài chính & xử lý · Hỗ trợ vận hành". Gỡ nhóm Tiện ích + Tài khoản (về avatar), spacer, `mb-5`, logo 200×100, overlay trùng.
+  - 10 module sở hữu route tự khai mục (`before` neo nhóm kế): Giao hàng lên trước Lịch sử · "Công nợ & thanh toán" ·
+    **mới** "Đổi trả / Bù hàng" (return) + "Báo cáo" (report) · Thông báo rời sidebar (chuông). Quyền = điều kiện controller:
+    Công nợ theo `_debt_access`, Báo cáo theo vai trò cao nhất owner/manager — `_nav_mgr_fids` tính 1 lần/trang ở `base`.
+  - **Sửa tối thiểu file anh Thái** (`wujia_portal_inspection/views/sidenav_inherit.xml`, chủ dự án duyệt, tiền lệ E7a): neo
+    `nav_end` + `wj_nav_item`; ghi bàn giao trong matrix.
+  - `wj_nav_item` có `aria-current`. `_sidebar.css` mới giữ mọi dáng sidebar (264, brand 88, mục 44/10/12/15-22-500, bo 10 mọi
+    state, active 700 `#EAF7FD`/`#168FC2` + rail 3, hover không trượt, nhóm rỗng tự ẩn, drawer, ẩn <992).
+  - Drawer 992–1199: `my_js.js` chỉ ép mở ≥1200; `wujia_sidebar.js` mới (hamburger `<button>` đủ aria, nút Đóng, Escape,
+    backdrop, focus vào/ra). Migration `pre-10` xoá view con của `layout_sidenav` (neo cũ mất ⇒ view cũ hỏng validate).
+- Commit: local `feat(E8b)`, chưa push. Deploy: **không**.
+- Số đo: `wj_sidebar` (mới, `scripts/qa/`) **0 vi phạm** × 4 vai trò, 9 khổ, 21/21 route sáng đúng + `aria-current`, 7 route
+  ngoài sidebar sáng 0 · suite **779, 0 đỏ** (E7b 756) · mutation **14/14** · DB trắng chỉ cài khung 0 failed / 1 error (nợ F6
+  có sẵn) · `wj_pagecontainer` 0 · `wj_button` 0 · `wj_listcard` 0 · `wj_filterbar` ĐẠT · `wj_nesting` 0 · `b4` 286/286 ·
+  `check_layers` không thêm · `test_ownership` cross 0 (asserts 425 → 491) · `nav_dump` 9 route đổi mục sáng, đều chủ đích;
+  mốc mới `docs/e8b-baseline/nav_em.json`.
+- Lệch thước đo (không phải hồi quy): `wj_measure --diff` 26 ô "mất record" ở 360/390 = đúng 14 `li` sidebar cũ bị đếm
+  khi còn nằm ngoài màn; `wj_button` thêm boundary `wj-menu-toggle`/`wj-sidebar` (hamburger nay là `<button>`).
+- Bài học: đột biến ở module X mà guard ở `portal_base` ⇒ `-u X,wujia_portal_base`, không thì **0 test chạy** (Pass rỗng) ·
+  test phải kèm `--db-filter='^wujia_e4b1$'` (config lọc `wujia_tea_19` ⇒ HttpCase rơi về trang login) · `style.css:96`
+  đặt `.main-menu` z-index 1040 !important — drawer phải 1041 mới trên backdrop · focus vào drawer phải đợi hết transition.
+- LIMIT: sheet "Thêm" mobile có Báo cáo không điều kiện vai trò (E8c) · ẩn nhóm rỗng cần Safari ≥ 15.4 (`:has`).
+- Phiên kế: **E8c** — avatar dropdown 7 mục + gỡ dropdown ngôn ngữ topbar + `aria-expanded` chuông + avatar/sheet mobile
+  + tên gọi PC↔mobile + deploy E8b+E8c + đo UAT chỉ-đọc (`wj_sidebar --base` UAT) + ledger/`qa_sync` ⇒ Ready for Retest.
+
+## E8c — `UI-SIDEBAR-001` avatar dropdown · sheet "Thêm" mobile · chuông (25/09/2026 · Mac)
+- Kết quả: ✅ **xong cụm E8**. Push `main` (`078dfeb`), chủ dự án deploy UAT (lượt 2 — lượt 1 `-u` khi máy chủ chưa có
+  mã, 13/13 module vẫn bản E7b), đo UAT chỉ-đọc `em.hcm` 0 vi phạm, ledger + `qa_sync` ⇒ **`UI-SIDEBAR-001` Ready for Retest**
+  (đã đọc lại CSV đúng dòng STT 131).
+  Nghiệm thu: `docs/e8c-acceptance-matrix.md` (12/12 ý "Kết quả mong muốn").
+- Chủ dự án chốt: ngôn ngữ **giữ trên header PC + mobile** (CMP-GH-001) **và** có nhóm trong avatar (huỷ chốt E8a gỡ
+  dropdown topbar) · "Thông tin cửa hàng" → **"Hồ sơ cửa hàng"** ở menu + tiêu đề trang.
+- Đã làm:
+  - `wj_acct_menu_items` (mới, khung): thân menu avatar **dùng chung PC + mobile** — Thông tin tài khoản · Đổi mật khẩu ·
+    Ngôn ngữ · neo `data-wj-anchor="acct_store_end"` · Đăng xuất. Nút avatar đủ aria.
+  - `base`: một inherit chèn nhóm cửa hàng (mã/tên/chip vai trò · Đổi cửa hàng khi >1 · Hồ sơ cửa hàng sáng cả ở
+    info-request); xoá `mheader_inherit.xml`. `_nav_mgr_fids` dời lên `app_layout` (1 lần/trang).
+  - Sheet "Thêm": bỏ Hồ sơ cửa hàng + Tài khoản/Cài đặt; neo mới `msheet_end`; Công nợ + Báo cáo theo quyền như sidebar.
+  - Chuông: `aria-controls`/`aria-expanded` + JS đồng bộ, Escape trả focus. Migration `19.0.58.0.0/pre-10`.
+- Commit: `078dfeb feat(E8c)` đã push cùng E8a/E8b. Deploy UAT 25/09 09:06 (13 module đúng bản, `?v=1323`).
+- Số đo: `wj_sidebar` +SN-10…14 **0 vi phạm × 4 vai trò** (avatar PC = mobile, sheet theo quyền, chuông, Đổi cửa hàng mở
+  modal, bàn phím) · suite **801, 0 đỏ** (E8b 779, +22) · mutation **13/13** · DB trắng chỉ khung 225 tests, 0 failed, 1 error
+  (nợ F6 có sẵn) · `wj_pagecontainer` 0 · `wj_button` 0 · `wj_listcard` 0 · `wj_filterbar` ĐẠT · `wj_nesting` 0 · `b4` 286/286 ·
+  `check_layers` không thêm · `test_ownership` cross 0 · `nav_dump`: sidebar + bottom-nav 0 lệch, chỉ avatar/sheet đổi (chủ
+  đích); mốc mới `docs/e8c-baseline/nav_em.json` · `wj_measure --diff` 0 mất record.
+- Bài học: mutation làm module SAU không nạp được thì module TRƯỚC đã commit arch đột biến vào DB ⇒ mutation kế hỏng dây
+  chuyền; `-u` lại bằng mã sạch. Harness nay `-u` mọi module trong `--test-tags`. · Menu mobile: `.dropdown .dropdown-menu`
+  Vuexy (0,2,0) đè `min-width` ⇒ selector `.dropdown .wujia-mheader-menu`. · `<i>` trong `dropdown-item` có margin-right 7px
+  Vuexy ⇒ chữ lệch với mục icon SVG.
+- LIMIT: ngôn ngữ ở 2 chỗ (cố ý) · breadcrumb `/portal/franchise/<id>/profile` + thẻ Home "Thông tin cửa hàng" giữ tên ·
+  báo BA: `/portal/info-request` không có lối vào UI.
+- Bàn giao anh Thái: neo sheet mới `msheet_end`; dòng Khảo sát (`position="inside"`) không cần sửa, vẫn cuối.
+- UAT: `wj_sidebar` SN-1…14 0 vi phạm · `wj_pagecontainer` 0 (Khảo sát đo qua `/vi/`) · `wj_button` 0 mới (6 dòng y hệt E6c) ·
+  0 POST bị chặn · 0 lỗi JS. Staff/nhiều cửa hàng không đo trên UAT (mật khẩu khác seed, không reset).
+- Phiên kế: theo `docs/next-session-clusters-F.md` (cụm E đã hết E4b→E8) — đề xuất cụm EmptyState hoặc F6 theo bảng §2.
+
+## END-SPRINT 61/62 — chốt sổ cụm E + cổng F (25/09/2026 · Mac)
+- Kết quả: ✅ xong. Phiên tài liệu, **0 file dưới `custom/`**, không deploy, không đụng sheet.
+- Đã làm: chapter `docs/chapters/75-sprint61-cluster-e-components.tex` (Sprint 61 — cụm E: E1 · E9a · E9b · E2 · E3 ·
+  E4 · E5 · E6 · E7 · E8 + phiên xen kẽ nhịp dọc / G2 / DOC-CTRL) và `76-sprint62-cluster-f-standardize.tex` (Sprint 62 —
+  cổng F0 → ★FR-A3); `\include` sau ADR-027; PDF master **301 → 312 trang**, 0 lỗi LaTeX (trong PDF đánh số 74/75).
+  Compact summary: dòng Cập nhật + §4 dòng 61/62 + §5 State mới, bỏ cảnh báo "§5 trễ". Skill `/wujia-start`: bỏ Step 2a
+  (Issue List đã mở lại từ FR-A3), cụm F ghi "cổng đã qua, nhánh sau cổng xen kẽ Issue List".
+- Commit: xem git log — `docs(multi): chapter cụm E + cụm F`
+- Deploy: không.
+- Số đo: `build-doc.sh` 312 trang · 0 `! ` trong log · 0 chữ Việt trong `\texttt` của 2 chapter mới (485 "Missing character"
+  trong log là của chapter cũ, mono DejaVu thiếu dấu tiếng Việt — có từ trước).
+- Còn treo: 7 issue mới STT 140–146 chưa phân cụm · EmptyState · nợ F6 (portal_base tự test + 1 error DB trắng).
+- Phiên kế: **F6** — controller Đặt hàng mỏng (prompt `docs/next-session-clusters-F.md` §3 "Prompt F6"). Việc cần biết
+  trước: gộp luôn nợ `portal_base` tự test một mình (nhãn `portal_suite` hoặc tự bỏ qua khi module chủ chưa cài).
+
+## F6 — Controller Đặt hàng mỏng + nợ `portal_base` tự test · 25/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f6-acceptance-matrix.md` (11/11 ý).
+- Issue List đầu phiên: 7 issue STT 140–146 `Ready for Dev`, chưa phân cụm, reconcile 0 code — chủ dự án chọn làm F6.
+- Chủ dự án chốt: một savepoint cho cả khối gửi đơn (vá đơn mồ côi) · đúng 3 phần của prompt, báo số thật ·
+  gộp nợ `portal_base`, làm sau phần sale.
+- Đã làm:
+  - Luật số lượng min/bước/max **một nguồn** `product._portal_qty_error` (`wujia_sale`) — thêm giỏ, sửa số lượng, dòng
+    giỏ và constraint dòng đơn portal cùng gọi; mã lỗi + câu chữ giữ nguyên.
+  - Giỏ về model `wujia.portal.cart(.line)`: thêm/tăng-giảm nguyên SQL cũ; **Gửi đơn** = `action_submit_order()` (khoá
+    NOWAIT, khung giờ, dòng lỗi, huỷ báo giá cũ bằng write, tạo đơn, xoá giỏ trong **một savepoint**) → controller chỉ map
+    mã lỗi sang redirect. Controller **1047 → 862 dòng (−185)**.
+  - **Vá lỗi ẩn đơn mồ côi**: HEAD để lại đơn nháp khi tạo đơn lỗi sau khi đã insert (chứng minh bằng test đỏ trên HEAD).
+  - Lưới test đặc tả 21 test (trước đó 0 test gọi cart/submit) + `scripts/qa/cart_race.py` đua 2 phiên thật.
+  - Nợ `portal_base`: `tests/common.py` (`need`/`need_suite`/`find_view`) — test quét nhiều module tự skip khi module chủ
+    chưa cài; `patch.object(…, create=True)` ở 2 file `test_fra3_layer_guard`.
+- Commit: `feat(F6)` — xem git log (đã push `main`).
+- Deploy: chưa. Lệnh khi được yêu cầu: `-u wujia_sale,wujia_portal_sale` (base/layout chỉ đổi test — không cần `-u`).
+- Số đo: suite portal 15 module **822, 0 đỏ** (E8c 801, +21) · run đối chứng: test mới trên code HEAD chỉ đỏ test đơn mồ côi
+  · `cart_race` HEAD = F6 (JSON y hệt, NOWAIT 5/5) · mutation **10/10** · HTML 4 route + fragment giống từng byte ·
+  DB chỉ `portal_base` **39 failed + 82 error → 0/0** (274) · DB chỉ khung **225, 0 failed, 0 error** · `check_layers` không
+  thêm · `test_ownership` cross 0.
+- Lệch plan / quyết định mới: không dời `_cart_state` (chốt 2) nên −185 chứ không phải ~−240 · submit chưa có giỏ dựng giỏ
+  ảo `new()` để giữ thứ tự `branch_locked` trước `CART_EMPTY` · constraint min = 0 vẫn chặn vượt max như HEAD.
+- Bài học: server cũ phiên E4b2 còn nghe `127.0.0.1:8092` ⇒ HttpCase gửi nhầm server, 12 test đỏ giả (public/login).
+  Kiểm port bằng `lsof` trước khi chạy; chưa tắt process đó (pid 23706, không phải của phiên này).
+- Nợ để lại: 1 error có sẵn `test_wujia_supply_demand_report` (anh Thái `c64de50`) · mã `ORDER_TIME_CLOSED` lúc tạo đơn vẫn
+  bắt theo chuỗi "khung giờ" (F7 thay) · bàn giao anh Thái 4 mục (xem matrix).
+- Phiên kế: **F7** — pilot tách `order_window` khỏi `portal_sale` (luôn nhớ: `action_submit_order` gọi
+  `_is_within_order_window(area_id=…)` và bắt ValidationError "khung giờ" — chỗ nối F7 phải thay) · hoặc phân cụm 7 issue
+  STT 140–146 nếu chủ dự án ưu tiên Issue List.
+
+## F7 — Pilot tách `order_window` → `wujia_order_window` · 25/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f7-acceptance-matrix.md` (10/10 ý + mutation 5/5).
+- Chủ dự án chốt: module cũ = **vỏ rỗng** (depend mỗi `wujia_order_window`) → deploy, đo 0 xmlid → Uninstall trên Apps →
+  FR-P xoá thư mục · **vá luôn nợ F6** (bắt lỗi khung giờ theo lớp).
+- Đã làm:
+  - Module nghiệp vụ mới `wujia_order_window` (L2, depend `wujia_sale`) nhận nguyên model khung giờ, cấu hình fallback,
+    chặn đơn portal ngoài giờ, view/menu/ACL, bản dịch. `pre_init_hook` đổi chủ **toàn bộ** bản ghi của module cũ,
+    cả `ir_model_constraint`/`ir_model_relation` (khuôn Khảo sát bỏ sót).
+  - Lớp lỗi `OrderWindowClosed`; giỏ hàng bắt theo lớp → một lỗi khác có chữ "khung giờ" không còn bị báo nhầm
+    "ngoài khung giờ".
+  - 10 test cho khung giờ (trước đó 0 test tạo khung giờ) + 1 test portal_sale.
+  - Công cụ `scripts/qa/split_snapshot.py` (chụp + diff có `--rename`) cho F8–F13.
+  - Chapter 74 §Quy trình tách viết lại theo thực tế.
+- Commit: `6b2938d` (đã push `main`).
+- Deploy: UAT 25/09 (`-i wujia_order_window -u wujia_portal_order_window,wujia_portal_sale`). Đo chỉ-đọc qua RPC:
+  3 version đúng · 36 xmlid + 6 ràng buộc thuộc module mới, vỏ 0 · 2 khung giờ, 3 tham số, 2 menu, 2 ACL, nhãn `vi_VN`
+  giống trước deploy · form Settings + list/form khung giờ mở được · không module nào depend vỏ. **Chờ chủ dự án
+  Uninstall vỏ trên Apps** rồi đo lần cuối.
+- Số đo: 42 dòng đổi chủ (36 xmlid + 6 ràng buộc), **1 lệch có giải trình** (view Settings đổi `name` app/block), gỡ vỏ
+  **0 lệch**, 0 ERROR · suite 15 module portal + `wujia_order_window` **833, 0 đỏ** (F6 822) · DB trắng chỉ module mới
+  **10/10** · HTML 5 route HEAD ↔ F7 **giống từng byte**, bundle CSS/JS cùng md5 · mutation **5/5** · `check_layers`
+  3 → 2 (R4 order_window hết; còn 2 R3 `wujia_mobile_portal_*` của anh Thái) · `test_ownership` cross 0.
+- Lệch plan / quyết định mới: plan dự đoán "không đổi chủ constraint thì gỡ vỏ DROP CHECK" — đo mutation: **không DROP**,
+  hậu quả thật là 2 dòng trùng + 6 dòng mồ côi. Hook chuyển TẤT CẢ thay vì danh sách tay (module cũ rút hết).
+  Hook Khảo sát không còn được nối ở manifest (`ec6d380`).
+- Nợ để lại: xoá thư mục vỏ ở FR-P (sau khi UAT gỡ) · bàn giao anh Thái 2 mục (hook Khảo sát không nối; 46 dòng
+  ràng buộc Khảo sát vẫn ghi `wujia_franchise`) · 1 error có sẵn `test_wujia_supply_demand_report` (không chạy trong suite portal).
+- Phiên kế: **★FR-P** — review pilot (prompt §3 "phiên review ★"): xác nhận vỏ đã Uninstall trên UAT (đo lại 36 xmlid +
+  6 ràng buộc module mới), rà diff, xoá thư mục vỏ. Hoặc phân cụm 7 issue STT 140–146 nếu chủ dự án ưu tiên Issue List.
+
+## ★FR-P — Review pilot F7 · 25–26/09/2026 · Mac
+- Kết quả: ✅ xong — **ĐẠT, nhân quy trình sang F8 được** (điều kiện: chốt nợ `ref()` xmlid mobile Thái trước F8/F12).
+  Review: `docs/f-review-FR-P.md`. Chủ dự án nhấn mạnh soi tuân thủ tầng nghiệp vụ–portal–mobile: **0 vi phạm** (bảng §3).
+- Đã làm:
+  - UAT: đo trước chỉ-đọc (vỏ 0 xmlid/0 cons/0 dependents) → chủ dự án duyệt → **gỡ vỏ qua RPC** `button_immediate_uninstall`
+    (lời gọi ghi duy nhất, 6.4 s) → đo sau: 0 lệch với mốc F7 ngoài `state` vỏ.
+  - Repo: xoá `custom/wujia_portal_order_window`; `check_layers` `DEPRECATED = set()` (34 module, 2 vi phạm R3 Thái);
+    **`deploy.yml` còn `-i/-u` vỏ (F7 bỏ sót) → đổi**; bảng "tên cũ còn đâu" trong review.
+  - **Dời `migrate_ownership` về L1** `wujia_core/tools/module_split.py` (chốt) + chặn module đích không tồn tại + helper
+    **`imd_names`** suy xmlid theo model (model/field/selection/inherit/constraint/access/rule/view/action/srv/cron/tpl/seq).
+  - Sửa test `test_split_ownership`: dòng module giả (DB trắng không có dòng vỏ → F7 chỉ Pass vì vỏ còn trên đĩa) + test
+    helper phủ 36/36 xmlid F7. Comment L2 nhắc controller → bỏ.
+  - `split_snapshot.py` +7 nhóm (inherit · sel · cron · tpl · srv · attach · rule theo module).
+  - Thử tách MỘT PHẦN `info_request` trên `wujia_frp_trial`: helper 72/75 (3 dư = QWeb portal phải ở lại), 80 dòng đổi chủ,
+    0 lệch thật, `number_next` giữ.
+  - Chapter 74 §Quy trình tách 4 chỗ + số đo FR-P; build PDF.
+- Commit: `9d2a606` — `review(FR-P): review pilot F7 đạt — gỡ vỏ order_window, hook đổi chủ về wujia_core` (đã push `main`; gồm cả mục F7 deploy sửa local từ phiên trước).
+- Deploy: **UAT 26/09** (chủ dự án). Đo chỉ-đọc: `wujia_core 19.0.1.0.1`, 36 xmlid + 6 ràng buộc, vỏ `uninstalled`, khung giờ/tham số/Settings nguyên.
+- Số đo: UAT 36 xmlid + 6 cons + 2 khung + 3 tham số + 2 menu + 2 ACL y hệt · `check_layers` 2 (Thái) · R6 0 · R7 2 (Thái) ·
+  `-u` DB copy 0 ERROR · suite **834, 0 đỏ** (F7 833 + 1) · snapshot vs `f7r2/u.json` 0 lệch · DB trắng **11/11** (trước sửa
+  1 error) · trial 80 đổi chủ / 0 lệch · mutation M3 trên helper đã dời **đỏ đúng**.
+- Lệch plan / quyết định mới: `-u wujia_core --test-enable` kéo nạp test `wujia_franchise` (import file đã xoá) → 2 lượt
+  chết 255; chỉ `-u wujia_order_window`. `ir_cron` Odoo 19 không có `name`/`model_id` (kế thừa `ir.actions.server`) — sửa cả
+  helper lẫn snapshot. Hai Bash song song dùng chung cwd → đường dẫn tuyệt đối.
+- Nợ để lại: (1) bàn giao Thái (chốt 26/09: phần mobile ngoài phạm vi, **không chặn F8**) — `wujia_mobile_portal_info_request`/
+  `_exam` `ref()` xmlid `wujia_portal_<x>.*`, sau F8/F12 Thái đổi tiền tố; Dev báo trước khi deploy; (2) dư âm tên portal trong L2 (ICP `wujia_portal.*`, field
+  `portal_order_time_*`, app/menu "Wujia Portal", xmlid view) — cần migration nếu đổi; (3) hook Khảo sát không nối + 46 cons
+  `wujia_franchise` (bàn giao Thái); (4) `test_wujia_supply_demand_report` error có sẵn.
+- Issue List (reconcile 7 issue STT 140–146): `grep custom/` + ledger = 0; `git log -S` chỉ bắt commit docs ⇒ **chưa có code**,
+  chưa phân cụm. Toàn UI: 140 badge topbar PC · 141 store switcher mobile · 142 Home PC redesign (lớn) · 143+144 mật độ
+  header/spacing `/portal/order` mobile · 145 bottom-nav 83px · 146 routing `/` → login (Suggestion).
+- Phiên kế: đề xuất **Issue List cụm nhỏ trước** (143 + 144 + 145 cùng một chủ đề "mật độ mobile", 1 phiên; 140 + 141 phiên
+  hai; 142 cần BA duyệt mockup; 146 hỏi BA) rồi **F8 `info_request`** — việc cần biết trước: dùng `imd_names` + liệt kê `extra` (menu), giữ 3 QWeb ở portal; báo Thái mục (1) trước deploy.
+
+## F8 — Tách `info_request` → `wujia_info_request` + controller mỏng · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f8-acceptance-matrix.md` (9/9).
+- Issue List đầu phiên: 7 issue STT 140–146 `Ready for Dev`, reconcile 0 code. Chủ dự án chọn F8.
+- Chủ dự án chốt: code F8, **chưa deploy** (chủ dự án tự deploy) · **sửa luôn 5 dòng tên trong `wujia_mobile_portal_info_request`**
+  (UAT đang cài module này; không sửa thì `-u` gãy). Lần đầu cổng quyền Claude Code chặn; chủ dự án bảo sửa lần nữa ⇒ đã sửa.
+- Đã làm:
+  - Module L2 mới `wujia_info_request` (git mv model, ACL, rule, sequence, backend; `.po` tách 137 mục thành 81 + 56).
+    Hook tách một phần: `imd_names(extra=[menu])` + `migrate_ownership`.
+  - Controller mỏng: `_portal_can_request` · `_portal_scope_domain` · `create_from_portal` (một savepoint, upload truyền callback) ·
+    `_franchise_value` (1 nguồn cho form + AJAX). 263 → 239 dòng, response giữ nguyên.
+  - Test: +10 (module mới, trước đó model 0 test) + 3 HttpCase portal (luồng gửi thật). `check_layers`, `deploy.yml`, reseed.
+  - Chapter 74: bước 5–6 Quy trình tách (tách một phần, chốt mobile, kết quả đo khi lỗi), số đo F8, bẫy `assertRaises`.
+- Commit: `a5cb738` — `feat(F8): tách info_request → module nghiệp vụ wujia_info_request + controller mỏng` (đã push `main`).
+- Deploy: **UAT 26/09** (chủ dự án). Đo chỉ-đọc + Playwright (không gửi/lưu): 3 version đúng (`19.0.1.0.0` · `19.0.2.0.0` · mobile `19.0.1.0.1`) · module mới 73 xmlid (72 + `field_…__rating_ids` có từ 17/05 vì UAT cài `rating`) · portal còn 3 QWeb · menu/action list-kanban-form/3 rule/2 ACL/seq INF- nguyên · nhãn vi_VN còn · portal PC + mobile list/form 200, ô giá trị hiện tại tự điền · backend PC list→kanban→form mới, mobile vào kanban · 0 bản ghi sinh ra. 404 `/app-assets/data/locales/en.json` có trên mọi trang portal (có từ trước, không thuộc F8). Chưa test được staff 403 trên UAT (không có mật khẩu staff; local đã phủ). Lệnh: `-i wujia_info_request -u wujia_portal_info_request,wujia_mobile_portal_info_request`.
+- Số đo: hook 72 imd + 7 cons + 1 rel · snapshot 80 đổi chủ **0 lệch thật** · HTML 5 route + JSON giống từng byte (cùng lần seed)
+  · 3 HttpCase mới trên code HEAD cũng xanh (đối chứng) · suite **847, 0 đỏ** (FR-P 834 + 13) · DB trắng 10/10 · mutation **3/3** · DB giống UAT (có mobile) deploy **exit 0**, test mobile 3/3, `check_layers` 2 → 1.
+- Lệch plan / quyết định mới: Đã nói với chủ dự án là "lỗi thì cả lượt deploy bị huỷ", nhưng **đo ra sai**. Odoo 19 commit sau từng
+  module ⇒ phần F8 vẫn vào DB, chỉ module mobile dừng, exit 255; khởi động thường vẫn chạy. Test rollback viết bằng `assertRaises`
+  không bắt được lỗi quên savepoint (Odoo tự bọc savepoint) ⇒ đổi sang `try/except`.
+- Bài học: log của `-u` nằm ở `logs/<năm>/<tháng>/<ngày>.log` của cây code đang chạy (worktree HEAD ghi vào scratchpad). Hai DB seed
+  cách nhau vài phút làm HTML lệch giờ tạo ⇒ so HTML phải dùng hai bản copy của cùng một lần seed.
+- Nợ để lại: (1) báo anh Thái đã sửa 5 dòng module mobile; (2) AJAX `values` với `other` đọc được field bất kỳ của
+  cửa hàng mình (hành vi có sẵn); (3) dọn DB đo `wujia_f8*` khi xong (worktree HEAD đã gỡ).
+- Phiên kế: commit F8 (khi được yêu cầu) → chủ dự án deploy → đo UAT chỉ-đọc. Sau đó **F9 `knowledge`** (có cron; grep mobile trước) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F9 — Tách `knowledge` → `wujia_knowledge` + controller mỏng · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f9-acceptance-matrix.md` (9/9).
+- Issue List đầu phiên: 7 issue STT 140–146 `Ready for Dev`, reconcile 0 code. Chủ dự án chọn F9.
+- Chủ dự án chốt: **Home dùng chung luật hiển thị, vá luôn** (Home không lọc ngày phát hành ⇒ bài hẹn giờ đã hiện, bấm vào
+  báo "đã gỡ") · **code + commit + push `main`**, deploy để chủ dự án. Mobile Thái: 0 tham chiếu knowledge.
+- Đã làm:
+  - Module L2 mới `wujia_knowledge` (git mv 3 model, ACL, sequence, cron, backend; `.po` 123 mục → 97 + 26 portal). Hook
+    `imd_names(extra=[4 menu])` + `migrate_ownership`.
+  - Controller mỏng: `_portal_visible_domain` · `_portal_search_domain` · `_portal_get_attachment` về model. 180 → 153 dòng.
+    Home (`portal_base`) gọi `_portal_visible_domain` qua `env.get` + `hasattr` (không thêm depend).
+  - Test: `wujia_knowledge` 10 (4 dời + slug/mã, publish, cron hết hạn, đính kèm, tìm kiếm, 2 đổi chủ); portal 13 (+ tải
+    đính kèm 200/403, Home không hiện bài hẹn giờ).
+  - `split_snapshot` đọc `last_value` sequence Postgres. `check_layers`, `deploy.yml`, reseed. Chapter 74 (bẫy noupdate, số đo F9, P4).
+- Commit: `2ba8311` — `feat(F9): tách knowledge → module nghiệp vụ wujia_knowledge + controller mỏng` (đã push `main`).
+- Deploy: **UAT 26/09** (chủ dự án). Lệnh: `-i wujia_knowledge -u wujia_portal_knowledge,wujia_portal_base`. Đo chỉ-đọc (RPC + HTTP
+  `anh.owner`): 3 version đúng (`19.0.1.0.0` · `19.0.4.0.0` · `portal_base 19.0.7.25.0`) · module mới 108 xmlid (107 +
+  `field_…article__rating_ids` vì UAT cài `rating`, như F8) · portal còn 5 view · 13 cons + 2 rel đổi chủ · **`KNW-` số kế 28**
+  (27 bài, mã cao nhất `KNW-000027`) ⇒ bẫy noupdate đã chặn thật · cron 25 active, nextcall giữ · menu 305–308 + action 480–482
+  tạo 16/05 (không bị tạo lại), action list/kanban/form · nhãn + menu vi_VN còn · portal: `/portal/knowledge` (+ `?keyword`, trang 2)
+  200, category/tag/slug sai → redirect `notice=*_gone` như cũ, chi tiết 200, attachment lạ 403, JSON search 2 bài · Home 200, 2 bài
+  mới nhất đúng dự kiến. UAT không có bài hẹn giờ tương lai hay đính kèm ⇒ hai nhánh đó chỉ có bằng chứng local. Mở trang chi tiết
+  làm `view_count` bài QA-RETEST +1 (không tạo bản ghi).
+  Browser (Playwright, chỉ xem): portal PC 1440 + mobile 390 — Home, danh sách (12/21, trang 1), lọc danh mục (2 bài), tìm
+  "Checklist" (2 bài), chi tiết; 0 tràn ngang, 0 lỗi JS mới (chỉ 404 `locales/en.json` có sẵn). Home PC không có khối bài viết
+  (thiết kế cũ, chỉ mobile có), Home mobile hiện đúng 2 bài. Backend admin: list bài 27 / danh mục 9 / thẻ 6, kanban, form
+  `KNW-000020` mở được, chatter giữ lịch sử từ 16/05, không lưu gì. Chi tiết mở thêm 2 lần ⇒ `view_count` QA-RETEST +2.
+- Số đo: hook 107 imd + 13 cons + 2 rel · snapshot 122 đổi chủ **0 lệch thật** · HTML 12/12 route + JSON 2/2 giống từng byte,
+  bundle cùng md5, Home lệch đúng bài hẹn giờ · suite **856, 0 đỏ** (F8 847 + 9) · test mới trên HEAD chỉ Home đỏ · DB trắng
+  10/10 · mutation M2 2 đỏ, M3 2 đỏ, M1 chỉ snapshot bắt (10 lệch) · `check_layers` 1 (exam, F12) · R7 2 (Thái).
+- Lệch plan / quyết định mới: **Bẫy data `noupdate`** — lượt deploy đầu reset sequence `KNW-` 438 → 1 mà snapshot cũ báo 0 lệch
+  (chỉ đọc cột `number_next`, luôn 1 với kiểu standard). `-i` chạy chế độ init ⇒ Odoo nạp lại bản ghi noupdate lên xmlid đã đổi
+  chủ. Sửa: bỏ `number_next` khỏi XML + snapshot đọc `last_value`. F8 dính cùng bẫy trên UAT, vô hại (0 yêu cầu, số kế 1).
+  Test đơn vị không bắt được hook quên menu (trạng thái cuối giống hệt) — việc của snapshot.
+- Bài học: `createdb -T` không chép filestore ⇒ server đo trả 500 cho đính kèm/bundle (nhầm là lỗi code nếu không đọc log);
+  log server nằm ở `<thư mục logfile>/<năm>/<tháng>/<ngày>.log` (wujia_core đổi chỗ).
+- Nợ để lại: (1) `_sql_constraints` hết hiệu lực trên Odoo 19 — unique slug/mã bài/mã danh mục/tên tag không có trong DB (nhiều
+  module cùng lỗi); (2) publish bài nháp đã có ngày hẹn thì `write` ghi đè ngày = now (hỏi BA); (3) F10–F13 có sequence thật ⇒ bỏ
+  `number_next` trước khi tách (ghi ở bảng §2 + chapter 74).
+- Phiên kế: **F10 `support`** (có sequence ticket,
+  depends `sale`/`stock_picking_batch`/`sales_team`; C1 đã vá) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F10 — Tách `support` → `wujia_support` + controller mỏng · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f10-acceptance-matrix.md` (9/9).
+- Issue List đầu phiên: 8 `Ready for Dev` (STT 126, 140–146), reconcile 0 code. Chủ dự án chọn F10.
+- Chủ dự án chốt: **code + commit + push `main`**, deploy để chủ dự án · **dời luôn trả lời ticket** về model.
+  Mobile Thái: 0 tham chiếu support. Không có nhóm quyền riêng.
+- UAT đo chỉ-đọc trước (RPC): 15 ticket, `WJ-TK` số kế 17, 7 danh mục khớp XML (vi_VN có đủ) ⇒ không dừng hỏi.
+- Đã làm:
+  - Module L2 mới `wujia_support` (git mv 2 model, ACL, 2 rule, sequence, 7 danh mục, backend; `.po` 204 mục → 129 + 75
+    portal). Hook `imd_names(extra=[4 menu, 7 danh mục])` + `migrate_ownership`.
+  - Controller mỏng: `_portal_scope_domain(user)` · `create_from_portal` (kiểm + tạo + đính kèm một savepoint, trả mã lỗi
+    form) · `_portal_reply` · `_portal_get_attachment`. 200 → 166 dòng (kể cả bảng badge dời vào).
+  - A2: `MOBILE_TICKET_BADGES` rời `portal_base/utils.py` về `portal_support`; test badge phần ticket dời sang `test_scan_e2b`
+    để `test_scan_e2` vẫn chạy khi `portal_base` cài một mình.
+  - Test: `wujia_support` 11 (model trước đó 0 test riêng) + 5 HttpCase portal. `check_layers`, `deploy.yml`, reseed.
+  - Chapter 74: bẫy noupdate với dữ liệu mẫu (bước 2), số `.po`, đoạn F10, dòng P5.
+- Commit: `033794c` — `feat(F10): tách support → module nghiệp vụ wujia_support + controller mỏng` (đã push `main`).
+- Deploy: **UAT 26/09** (chủ dự án). Lệnh: `-i wujia_support -u wujia_portal_support,wujia_portal_base`. Đo chỉ-đọc (RPC +
+  Playwright, không gửi/lưu): 3 version đúng (`wujia_support 19.0.1.0.0` · `portal_support 19.0.4.0.0` · `portal_base 19.0.7.26.0`) ·
+  module mới 114 xmlid (113 + `field_…__rating_ids`, như F8/F9) · portal còn đúng 5 view · 15 ticket, số kế `WJ-TK` **17 giữ** ·
+  7 danh mục + tên vi_VN nguyên · menu 309/310, action 484/485, rule 191/192 giữ id · portal admin PC + mobile 390: list 10,
+  lọc `in_progress` 2, tìm mã 1, form mới hiện danh mục, chi tiết 200, ticket lạ → về list, 0 tràn ngang · `anh.owner` list 0
+  (không tạo ticket nào), danh mục tiếng Việt, mở ticket người khác → về list · attachment lạ 403, ticket lạ 404 · backend kanban 4,
+  list 15, form mở, 0 lỗi JS. 404 `/app-assets/data/locales/en.json` có từ trước.
+  **Phát hiện có từ trước (không thuộc F10, HTML HEAD ‖ F10 giống từng byte):** trang chi tiết chỉ liệt kê `attachment_ids`
+  (m2m cũ), còn file cửa hàng tải lên qua `attach_files_to_record` gắn bằng `res_model/res_id` ⇒ ticket 16 có 1 ảnh mà portal
+  không hiện link tải. Chờ chủ dự án chốt sửa (phiên riêng hoặc gửi BA).
+- Số đo: hook 113 imd + 16 cons + 1 rel · snapshot 130 đổi chủ, **1 lệch có giải trình** (md5 bảng danh mục: chỉ
+  `write_date`) · HTML 18/18 GET giống từng byte + 9/9 POST cùng redirect + DB sau POST giống hệt, bundle cùng md5 ·
+  suite **872, 0 đỏ** (F9 856 + 16) · test portal mới trên HEAD 12/12 (hành vi không đổi) · DB trắng 11/11 · mutation
+  **4/4** (M2 lượt đầu chỉ test đơn vị bắt → thêm ca portal) · `check_layers` 1 (exam, F12) · R7 2 (Thái).
+- Lệch plan / quyết định mới: Bẫy noupdate với **dữ liệu mẫu**: `-i` đưa field ghi trong XML về giá trị XML (đo trên DB
+  giả lập: `sequence` 55 → 50) nhưng **giữ bản dịch vi_VN tuỳ biến**. UAT khớp XML nên an toàn. Test fixture bật vi_VN
+  (DB copy `wujia_f8final` để admin `vi_VN` mà lang chưa bật ⇒ `message_post` lỗi "Invalid language code").
+- Bài học: DB trắng phải cài trước rồi mới `-u --test-tags /<module>` — `--test-enable` lúc `-i` import cả tests
+  `wujia_franchise` (file đã xoá) ⇒ registry chết. Hash URL bundle theo mtime file (worktree ≠ cây chính) ⇒ so md5 nội dung.
+- Nợ để lại: (1) hỏi BA: portal support lọc theo **người tạo**, quản lý không thấy ticket nhân viên cùng cửa hàng;
+  (2) `_sql_constraints` danh mục chết trên Odoo 19 (nợ chung); (3) `test_scan_e2b` import thẳng từng `portal_*`
+  (không chạy khi `portal_base` một mình, có từ trước).
+- Phiên kế: **F11 `announcement`** (từ `portal_notification`, giữ `_name wujia.notification`, 2 nhóm quyền — phải sửa tham chiếu
+  `group_*`, sequence ANN, rule theo cửa hàng; bảng badge thông báo nếu có) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F10-fix — Portal hỗ trợ: file đính kèm + ghi chú nội bộ · 26/09/2026 · Mac
+
+- Nguồn: đo UAT sau deploy F10 (ticket 16 có 1 ảnh, portal không hiện link). Soi thêm ra lỗi thứ hai cùng chỗ.
+- Lỗi (có từ trước F10): (1) chi tiết ticket chỉ liệt kê `attachment_ids` m2m cũ, file cửa hàng tải lên gắn
+  `res_model/res_id` ⇒ không hiện; (2) template lọc `message_type == 'comment'` trên ticket `sudo` ⇒ **ghi chú nội bộ HQ
+  (Log note) hiện cho cửa hàng** (UAT: ticket 12 có 1 note).
+- Sửa: model `_portal_messages()` (bỏ note nội bộ) + `_portal_attachments()` (m2m + res_id + file tin công khai, trừ file
+  của note); `_portal_get_attachment` dùng chung tập đó ⇒ file của note tải về 403. Template PC dùng hai method, link đi
+  route đã chặn quyền thay `/web/content`; **mobile thêm thẻ "File đính kèm"** (chủ dự án chốt) theo DataList compact-row
+  `--inset` như Home. `wujia_support 19.0.1.0.1`, `wujia_portal_support 19.0.4.0.1`; bảng đếm CardHeader `portal_base` 5 → 6.
+- Số đo: `portal_base,portal_layout,wujia_support,portal_support` **524/0** · template cũ làm test mới đỏ (mutation) ·
+  Playwright local PC + mobile: note ẩn, trả lời HQ hiện, file hiện + tải 200, 0 tràn · `check_layers` 1 / R7 2 giữ.
+- Deploy: `-u wujia_support,wujia_portal_support` (chủ dự án).
+- Phiên kế: đo UAT (ticket 16 hiện file, ticket 12 hết note) → **F11 `announcement`** hoặc cụm Issue 143+144+145.
+
+## F11 — Tách `notification` → `wujia_notification` + controller mỏng · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f11-acceptance-matrix.md` (9/9).
+- Issue List: 8 `Ready for Dev` (STT 126, 140–146), reconcile 0 code. Chủ dự án chọn F11.
+- Chủ dự án chốt: tên module **`wujia_notification`**, **giữ `_name` cả 3 model** · **Home vá luôn, dùng luật chung** (KPI
+  "chưa đọc" = badge chuông, list Home bỏ bài hẹn giờ/hết hạn) · **code + commit + push `main`**, deploy để chủ dự án ·
+  4 màu nền loại thông báo trên UAT **để về theo code** (bẫy noupdate). Mobile Thái: 0 tham chiếu notification.
+- UAT đo chỉ-đọc trước (RPC): 19 thông báo, 20 dòng đã đọc, `ANN/` số kế 20, nhóm User 0 / Administrator 1, 147 xmlid.
+  5 loại: code/tên/icon khớp XML, **4/5 `bg_color` lệch** (bảng màu Sprint 4.3 còn trên UAT; XML đã đổi ở Sprint 19) ⇒ dừng hỏi.
+- Đã làm:
+  - Module L2 mới `wujia_notification` (git mv 3 model, 2 nhóm quyền + privilege, ACL, 2 rule, sequence `ANN/` bỏ
+    `number_next`, 5 loại, backend; ACL + menu đổi ref nhóm sang cục bộ; `.po` 214 mục → 159 + 55 portal). Hook
+    `imd_names(extra=[privilege, 2 nhóm, 4 menu, 5 loại])` + `migrate_ownership`.
+  - Controller mỏng: domain lịch sử/còn hiệu lực, đọc/đếm chưa đọc theo cửa hàng, đính kèm thuộc thông báo về model;
+    3 chỗ ghi "đã đọc" (chi tiết / mark-read / mark-all) → `wujia.notification.read._mark_read(opened, touch)`. 433 → 336 dòng.
+  - Home `portal_base`: KPI + list thông báo gọi luật model qua `hasattr` (không thêm depend). A2: không có bảng badge thông báo.
+  - Test: `wujia_notification` 37 (2 file test model dời + `test_portal_rules` 4 + `test_split_ownership` 2) + 5 HttpCase portal
+    (Home = badge, list Home, mở lại giữ `read_date`, mark-read chỉ id truy cập được, đính kèm 200/403/404). `check_layers`,
+    `deploy.yml`, reseed, `test_sprint32.py`.
+  - Chapter 74: đoạn F11, dòng P6, số `.po`.
+- Commit: `bfa2bae` — `feat(F11): tách notification → module nghiệp vụ wujia_notification + controller mỏng` (đã push `main`).
+- Deploy: **chờ chủ dự án**. Lệnh: `-i wujia_notification -u wujia_portal_notification,wujia_portal_base`. Sau deploy đo
+  chỉ-đọc: 3 version (`wujia_notification 19.0.1.0.0` · `portal_notification 19.0.3.0.0` · `portal_base 19.0.7.27.0`), module
+  mới 141 xmlid (140 + `rating_ids`), portal còn 6 view, `ANN/` số kế **20**, 4 ô màu loại đổi, KPI Home = badge chuông.
+- Số đo: hook 140 imd + 28 cons + 5 rel · snapshot 173 đổi chủ, **1 lệch có giải trình** (md5 bảng loại: `bg_color` về XML,
+  tên vi_VN tuỳ biến giữ) · HTML 3 phiên × 40 request **117/120 giống từng byte**, 3 lệch đều Home (đúng chỗ vá) · DB đã đọc
+  sau ghi giống hệt · bundle cùng md5 · suite **885, 0 đỏ** · test portal mới trên HEAD: đúng 2 đỏ (2 test Home) · DB trắng
+  37/37 · mutation **5/5** · Playwright PC 1440 + mobile 390: Home 47 = popup 47 = badge 47, 0 tràn · `check_layers` 1 (exam,
+  F12) · R7 2 (Thái).
+- Lệch plan / quyết định mới: không dời `test_notification_timezone` (dùng tiện ích `portal_base`). `migrations/` cũ của
+  portal để nguyên. Seed nháp không được có `published_date` (NOT NULL chỉ khi gửi — bỏ key).
+- Bài học: HTML trang đầy đủ có `registry_hash` đổi theo registry ⇒ phải chuẩn hoá khi so hai server. `-i` module tách
+  nạp lại data noupdate lên xmlid đổi chủ ⇒ **đo trước từng field XML trên UAT**, lệch thì hỏi (F11 là lần đầu lệch thật).
+- Nợ để lại: (1) phụ đề danh sách "còn hiệu lực" nhưng danh sách là lịch sử (có bài hết hạn, bài hết hạn chưa mở vẫn
+  "Chưa đọc") — có từ trước, hỏi BA nếu cần; (2) `is_read_by()` không còn nơi gọi — dọn ở ★FR-A; (3) `_sql_constraints`
+  chết trên Odoo 19 (nợ chung).
+- Phiên kế: **F12 `exam`** (mobile Thái `ref()` xmlid `wujia_portal_exam.*` — báo Thái trước deploy; hết vi phạm R3 cuối)
+  hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F12 — Tách `exam` → `wujia_exam` + controller mỏng (gộp F12a + F12b) · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f12-acceptance-matrix.md` (9/9).
+- Đầu phiên: F11 đã lên UAT (đo chỉ-đọc: `wujia_notification` installed, 141 xmlid). Issue List 8 `Ready for Dev` như F11,
+  reconcile 0 code. Chủ dự án chọn F12.
+- Chủ dự án chốt: tên **`wujia_exam`**, giữ `_name` cả 5 model · **sửa luôn `wujia_mobile_portal_exam` như F8** (báo Thái
+  trước deploy) · gộp a+b, commit + push `main`, deploy để chủ dự án · **"tối đa người/phiếu" một nguồn cả constraint**.
+- UAT đo chỉ-đọc trước (RPC): 3 ca giờ · 3 khoá · 4 kỳ thi · 12 phiếu · 12 thí sinh, 221 xmlid, nhóm Quản lý 1 / Người dùng 0;
+  3 sequence noupdate khớp XML (số kế WJ-CRS 5 · WJ-EXR 17 · WJ-EXS 6), không data noupdate nào khác ⇒ không câu hỏi.
+- Đã làm:
+  - Module L2 mới `wujia_exam` (git mv 5 model, 2 nhóm quyền + privilege, ACL, 2 rule, 3 sequence, 4 view + menu backend,
+    `test_c10_quota`; ACL + menu đổi ref nhóm sang cục bộ; `groups=` trong arch 3 form ghi đủ `wujia_exam.`; `.po` 393 →
+    216 + 177 portal). Hook `imd_names(extra=[privilege, 2 nhóm, 7 menu])` + `migrate_ownership`.
+  - Controller mỏng (729 → 558): trạng thái khung giờ, chọn được ca, lịch tháng, meta khoá, phạm vi cửa hàng, đếm kết quả,
+    **`register_from_portal`** (kiểm + dựng dòng + SĐT/năm sinh/ảnh + membership + savepoint) về model; lớp lỗi
+    `ExamPortalError(kind)` giữ nguyên mã `not_found`/`validation`/`business` và câu báo. `_effective_max_per_registration`
+    (ca, trống thì khoá) dùng cho hướng dẫn, chặn portal và `_check_participant_bounds`.
+  - Mobile Thái: depend + 18 dòng `wujia_portal_exam.` → `wujia_exam.` (4 view + test), `19.0.1.0.1`.
+  - Test: `wujia_exam` 13 (`test_c10_quota` + `test_portal_rules` 7 + `test_split_ownership`) + portal 5 HttpCase
+    (hướng dẫn tối đa, lịch/khung giờ, gửi phiếu → chi tiết + ảnh, 5 mã lỗi + rollback, cửa hàng khác 303/404).
+    `check_layers`, `deploy.yml`, reseed.
+  - Chapter 74: đoạn F12, dòng P7, số `.po`, bước "ref nhóm quyền đổi chủ" (bẫy groups trong arch).
+- Commit: `2acbd9f` — `feat(F12): tách exam → module nghiệp vụ wujia_exam + controller mỏng` (đã push `main`).
+- Đã dọn: 8 DB đo `wujia_f12*` + filestore, worktree `scratchpad/f12/head`.
+- Deploy: **chờ chủ dự án — báo anh Thái trước** (đã sửa `wujia_mobile_portal_exam`). Lệnh:
+  `-i wujia_exam -u wujia_portal_exam,wujia_mobile_portal_exam`. Sau deploy đo chỉ-đọc: 3 version (`wujia_exam 19.0.1.0.0` ·
+  `portal_exam 19.0.6.0.0` · `mobile_portal_exam 19.0.1.0.1`), module mới ~216 xmlid (214 + `rating_ids`), portal còn 5 view,
+  số kế WJ-EXR 17 · WJ-CRS 5 · WJ-EXS 6, nhóm Quản lý 1 người, 10 nút form backend hiện, `/portal/exam` 200.
+- Số đo: hook 214 imd + 30 cons + 1 rel · snapshot 245 đổi chủ, 3 lệch = arch 3 form (groups, cố ý) · HTML/JSON 3 phiên
+  **234/234 giống từng byte, 2 lần** (19 nhánh gửi phiếu) · DB sau ghi giống · focused 49/49 · suite **897/0/0** · test portal
+  mới trên HEAD xanh · DB trắng 13/13 · deploy DB giống UAT có mobile exit 0, mobile 3/3 · mutation **6/6** · Playwright PC
+  1440 + mobile 390, 12 màn, 0 tràn · `check_layers` **0 vi phạm tầng** (lần đầu) · R7 2 (Thái).
+- Lệch plan / quyết định mới: gộp calendar thành `_portal_day_states` (dict ngày → trạng thái; ma trận tuần ở controller);
+  `_max_hint` + nhãn khung giờ ở lại controller. `migrations/` cũ của portal để nguyên.
+- Bài học: **`groups=` trong arch view phải ghi đủ `module.xmlid`** — Odoo 19 `parse(raise_if_not_found=False)` bỏ qua im
+  lặng ⇒ nút ẩn cả với Administrator; snapshot bắt qua md5 arch (F8–F11 soát: chỉ có menuitem, sạch). Test phạm vi ảnh
+  phải cho dòng cửa hàng khác **có ảnh**, không thì 404 vì thiếu ảnh che mất lỗi phạm vi (mutation M5 bản đầu sống).
+- Nợ để lại: (1) tiêu đề PC "Khung giờ ngày —" không điền ngày sau khi chọn (có từ trước, HEAD cũng vậy); (2) 404
+  `/app-assets/data/locales/en.json` (có từ trước).
+- Phiên kế: đo UAT sau deploy F12 → **F13a `return`** (lớn nhất: 1108 dòng model, kế thừa SO/picking, hook picking, wizard
+  SO 0đ FIFO) hoặc cụm Issue List 143 + 144 + 145 "mật độ mobile".
+
+## F13 — Tách `return` → `wujia_return` + controller mỏng (gộp F13a + F13b) · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Nghiệm thu: `docs/f13-acceptance-matrix.md` (9/9). **Phân hệ cuối khối A — `PENDING_SPLIT` rỗng.**
+- Đầu phiên: F12 đã lên UAT (đo chỉ-đọc: `wujia_exam 19.0.1.0.0` · `mobile_portal_exam 19.0.1.0.1` installed). Chủ dự án chọn F13.
+- Chủ dự án chốt: tên **`wujia_return`**, giữ `_name` mọi model · gộp a+b, commit + push `main`, deploy để chủ dự án ·
+  A2 "chuẩn nhất": luật trạng thái về model + **một bảng nhãn** (Dev tự chốt chữ theo bảng PC, màu giữ, báo BA sau).
+- UAT đo chỉ-đọc trước (RPC): 14 phiếu, 5 loại lỗi, 0 allocation, 236 xmlid, nhóm Quản lý 1 / Người dùng 0; 2 sequence
+  noupdate khớp XML (số kế RTN 5 · CA 1), 5 loại lỗi noupdate khớp XML ⇒ không câu hỏi. Mobile Thái 0 ref ⇒ không sửa.
+- Đã làm:
+  - Module L2 mới `wujia_return` (depend `mail, wujia_sale, wujia_franchise`): git mv 6 model (gồm kế thừa SO/picking/
+    product), wizard bù 3 model, 2 nhóm + privilege, ACL, rule, 2 sequence, 5 loại lỗi, 4 view + menu backend,
+    `test_compensation_wizard_d1`; mọi ref nhóm đổi `wujia_return.` đủ tiền tố; `.po` 333 → 239 + 94 portal. Hook
+    `imd_names(extra=[privilege, 2 nhóm, 6 menu, 5 loại lỗi])` + `migrate_ownership`.
+  - Controller mỏng (588 → 357): đơn hợp lệ 10 ngày, phạm vi cửa hàng, cấu hình bù, minh chứng (controller chỉ sniff MIME
+    + đo dung lượng), parse payload, **`create_from_portal`** (savepoint thay `unlink` thủ công; đính kèm qua callback),
+    khoá trạng thái 8 bộ lọc (`_portal_status_key`/`_portal_status_domain`), tiến độ bù (`_portal_compensation_view`) về model.
+  - A2: `RETURN_STATUS_LABELS` + `return_status_label` ở `portal_base/controllers/utils.py`, thay `MOBILE_RETURN_BADGES`,
+    `STATE_LABELS` portal và dict inline trong `portal_home.xml`. Home gọi `_portal_open_domain`/`_portal_recent_domain`
+    qua `hasattr`. `portal_base 19.0.7.28.0`.
+  - Test: `wujia_return` (`test_compensation_rules`, `test_portal_rules` 7, `test_split_ownership` 3, fixture `common.py`)
+    + portal `test_return_controller` viết lại + `test_portal_return_f13` 5 HttpCase; 2 test quét badge base.
+    `check_layers` (`PENDING_SPLIT = set()`), `deploy.yml`, reseed.
+  - Chapter 74: đoạn F13, dòng P8, số `.po`.
+- Commit: `a138d21` — `feat(F13): tách return → module nghiệp vụ wujia_return + controller mỏng` (đã push `main`).
+- Đã dọn: 8 DB đo `wujia_f13*` + filestore, worktree `scratchpad/f13/head`.
+- UAT sau deploy (26/09, chỉ-đọc): 3 version đúng · 14 phiếu (5 duyệt/2 hoàn tất/3 nháp/2 từ chối/2 đã gửi) · 5 loại lỗi · số kế RTN 5 · CA 1 · `wujia_return` 231 xmlid (230 + 1 field, như F8–F12) · portal còn 5 view · nhóm Quản lý 1 người, module cũ 0 nhóm · form backend đủ 6 nút cho Quản lý (`groups=wujia_return.`) · browser PC 1440 + mobile 390, 20 màn (danh sách, 4 lọc, form, 2 chi tiết, mã không tồn tại → `notice=not_found`, Home) 200, 0 tràn, 0 lỗi JS/HTTP; Home mobile hiện nhãn bảng chung. **ĐẠT.**
+- Deploy: **đã deploy UAT 26/09** (không đụng module Thái). Lệnh: `-i wujia_return -u wujia_portal_return,wujia_portal_base`.
+  Sau deploy đo chỉ-đọc: `wujia_return 19.0.1.0.0` · `portal_return 19.0.4.0.0` · `portal_base 19.0.7.28.0`, portal còn
+  5 view, số kế RTN 5 · CA 1, nhóm Quản lý 1 người, 14 phiếu, `/portal/return` 200.
+- Số đo: module mới 230 xmlid + 54 cons + 3 rel · snapshot 287 đổi chủ, 3 lệch (arch 2 view `groups` cố ý + `write_date`
+  loại lỗi) · HTML 4 phiên **298/306 giống từng byte, 2 lần**, 8 khác = nhãn Home mobile cố ý (28 nhánh gửi phiếu × 2
+  user) · DB sau ghi giống · focused 355/0 · suite **912/0/0** · test portal mới trên HEAD 4/5 (đỏ đúng test nhãn Home) ·
+  DB trắng 0 đỏ · deploy DB giống UAT exit 0 · mutation **7/7** · Playwright 16 màn 0 tràn · `check_layers` 0 vi phạm.
+- Đổi hành vi có chủ đích: Home mobile "Chờ xử lý" → "Đã gửi", "Đang xét" → "Đang xử lý", "Hoàn thành" → "Hoàn tất", phiếu
+  bù một phần hiện "Đang bù một phần" (màu giữ). Lỗi bất ngờ ở bước đính kèm/gửi giờ rollback cả phiếu.
+- Báo BA: đổi chữ Home mobile ở trên + câu hỏi KPI "đổi trả đang mở" có tính `reviewing` không (giữ luật cũ: không).
+- Bài học: test Home phải cố định `request_date` từng cặp (Home chỉ lấy 2 phiếu mới nhất ⇒ thứ tự ngẫu nhiên nếu trùng
+  giờ). Test rollback dùng `try/except`, không `assertRaises` (tự bọc savepoint — bài học F8).
+- Phiên kế: đo UAT sau deploy F13 → **★FR-A** (review lại toàn khối A F7–F13, không làm tính năng).
+
+## ★FR-A — Review toàn khối A (F1, F6, F7–F13) · 26/09/2026 · Mac
+- Kết quả: ✅ **ĐẠT — khối A khép.** Doc: `docs/f-review-FR-A.md`. Không lệch tầng phía Dev; query/route giống hệt đối
+  chứng; sửa nhỏ theo luật ★ + fix retest-fail `UI-DATALIST-001` (chưa deploy).
+- Đầu phiên: F13 đã lên UAT (43 version khớp HEAD `164d8ec`, `wujia_support 19.0.1.0.1` = F10-fix đã lên). Chủ dự án chốt
+  3 việc: review clean/perf/cấu trúc · soi Issue List còn component nào · lệch plan chỉ ghi. Chốt thêm: sửa nhỏ <30 dòng
+  làm ngay; `UI-DATALIST-001` (History 26/09 BA retest fail) kiểm rồi sửa.
+- Đã làm:
+  - Mốc: worktree `9d2a606` (ref) ‖ HEAD; `wujia_fra` = `wujia_frp` + replay 6 đợt deploy (0 ERROR) ‖ `wujia_fra_ref`
+    cùng seed; DB trắng `-i` 7 L2 EXIT 0, test 123/0/0; snapshot 1031 đổi chủ, 12 lệch giải trình + 1 bẫy mới (`INF/`
+    `number_next`); HTML 63/68 giống từng byte (5 khác = nhãn Home F13 + fix debt); query 17 route × 4 user Δ0; nav 0;
+    wj_measure 0 mất record; Playwright 16 màn × 2 user 200/0 tràn; mutation M0–M7 (M7 `extra` hook chỉ `pre_init` ⇒ nợ);
+    `check_layers` 0 Dev (R7 Thái 2).
+  - Sửa nhỏ ★ (11 file, +16 −112): 4 hàm chết `utils.py`, `is_read_by`/`get_display_summary`, `ormcache` thừa, 3 import
+    thừa, `number_next` sequence INF, 14 comment mã phiên → 0 trong code khối A.
+  - `UI-DATALIST-001`: `/portal/debt/payment-history` mobile dùng chung lát phân trang + `wj_pagination`; card 2 dòng chỉ
+    bằng hàng chuẩn `wj_list_card_row` (CSS riêng màn bị test quét E5 chặn đúng luật — bỏ). 47 thẻ 124 → 10 thẻ 104 ở 390/360
+    (kể cả memo dài 23 ký tự như UAT); PC md5 giống ở 3 biến thể trang; +2 test; `wujia_portal_debt 19.0.4.15.0`; ledger lượt 2;
+    `qa_sync` dry-run 1 dòng — **chưa `--apply`** (chờ deploy).
+  - Issue List: 138 issue (123 Done · 8 RfD · 4 RfR · 3 NC). 17/23 component có issue; đề xuất mở mới chỉ EmptyState;
+    8 issue mở → 4 cụm 140+141 · 143+144+145 · 142 · 146. 7 issue mới 0 dòng code.
+- Commit: `review(FR-A)` (sửa nhỏ + doc + test quét) và `fix(debt): pager + card payment-history mobile (UI-DATALIST-001)`.
+- Đã dọn: 5 DB `wujia_fra*` + filestore, worktree `scratchpad/fra/head7`, 2 server 8097/8098.
+- Deploy: **đã deploy UAT 26/09** (chủ dự án, sau push `caffb33`). Đo chỉ-đọc RPC: `wujia_portal_debt 19.0.4.15.0` installed,
+  view `portal_debt_payment_history` write_date 13:31 có `t-foreach="payments"` ×2 + `dl_pager`/`wj_pagination`, 0 class cũ;
+  9 số kế sequence giữ nguyên (INF 1 · RTN 5 · CA 1 · ANN 20 · KNW 28 · WJ-TK 17 · WJ-CRS 5 · WJ-EXR 17 · WJ-EXS 6);
+  UAT có 12 giao dịch tháng 9 ở HCM-01 để BA retest. Ledger → ĐÃ DEPLOY, `qa_sync --apply` ghi 6 ô + 1 History
+  (UI-DATALIST-001 → Ready for Retest). Chưa đo browser trên UAT bằng tài khoản portal (không đăng nhập thử mật khẩu).
+- Số đo: suite **912 → 914/0/0** · DB trắng 123/0/0 · HTML 63/68 · query Δ0/17 route · mutation 7/8 (M7 giải trình) ·
+  comment mã phiên còn 49 `.py` / 349 mọi file (ngoài khối A) · `_sql_constraints` 16 file (8 Dev).
+- Bài học: test quét component là hàng rào thật (CSS 1 dòng cho màn bị chặn, sửa bằng bố cục hàng chuẩn); đo với dữ liệu
+  dài như UAT (mồi 1 bản ghi rồi xoá); DB copy không filestore phải xoá attachment `/web/assets/%` trước khi đo browser;
+  md5 khối PC lệch có thể do bản ghi mồi, không phải template.
+- Phiên kế: deploy fix debt (chủ dự án) → BA retest 126 → **Issue List cụm 140+141** (shell header/store) hoặc cụm
+  143+144+145 (mật độ mobile, đo trên khung E7 trước).
+
+## END-SPRINT 63 — chốt sổ khối A kiến trúc (F6 → ★FR-A) · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Phiên tài liệu, **0 file dưới `custom/`**, không deploy, không đụng sheet (ledger: `UI-DATALIST-001`
+  đã sync ở ★FR-A, không có issue mới).
+- Chủ dự án chốt: chapter mới 77 (Sprint 63) · ADR-027 **chốt** + ghi 3 ý đã bàn · smoke `-u` (không chạy lại suite).
+- Đã làm:
+  - Smoke: copy `wujia_frp` → `wujia_es63`, chạy đúng lệnh `deploy.yml` (`-u/-i` 24 module + `wujia_portal_debt`)
+    ⇒ **RC 0, 0 ERROR/Traceback**, 7 L2 installed, 0 module kẹt; 1 WARNING vô hại (`__pycache__` trong
+    `wujia_portal_return/migrations/`). DB đã drop. Suite dẫn số ★FR-A 914/0/0.
+  - Chapter `77-sprint63-cluster-f-block-a.tex`: vì sao có khối A · F6 · F7 + ★FR-P · bảng 6 module L2 (nhận gì, luật
+    nào về model) · 4 bẫy · ★FR-A · nghiệp vụ · trade-off · bài học · nợ. `\include` sau chapter 76.
+  - Chapter 74: trạng thái "đã chốt 26/09, đã áp khối A"; §addendum 3 ý (portal theo chức năng, mobile kế thừa view,
+    `auto_install` — ghi chưa áp); `wujia_announcement` → `wujia_notification` (text + hình ERD); depends 7 L2 theo
+    manifest thật; số đo F8–FR-A dời sang ch.77, giữ 2 bài học quy trình; câu BA #6 ghi "đã làm theo ADR ở F13".
+    `adr-027-module-layering.tex` đổi trang bìa (đã chốt).
+  - Compact summary: dòng Cập nhật · §3 ADR-027 đã chốt · §4 dòng 63 · §5 State END-SPRINT 63.
+    `next-session-clusters-F.md` §2: ghi chốt sổ. `~/.claude/commands/wujia-start.md`: ADR-027 đã chốt.
+- Commit: xem git log — `docs(multi): sprint 63 close-out`.
+- Deploy: không.
+- Số đo: `build-doc.sh` **312 → 321 trang**, 0 `! `; ADR PDF **12 → 15 trang**, 0 ref lỗi; 0 chữ Việt trong `\texttt` của
+  phần mới (2 chỗ `portal\_<chức năng>` đã sửa).
+- Bài học: local `wujia_tea_19` còn trước F7 ⇒ smoke khối A phải dựng từ `wujia_frp` + replay deploy; python Mac là env
+  `odoo19` (env `odoo` thiếu `rjsmin`, chết 255 trước khi nạp module).
+- Còn treo: `auto_install` áp đồng loạt 1 phiên · 7 câu hỏi BA ADR-027 · nợ ch.77 · BA retest 126.
+- Phiên kế: **Issue List cụm 140+141** (shell header PC + store switcher mobile, cùng `wujia_portal_layout`) hoặc
+  **143+144+145** (mật độ mobile, đo trên khung E7 trước).
+
+## Phân cụm G — Issue List STT 140–146 · 26/09/2026 · Mac
+- Kết quả: ✅ xong. Phiên phân cụm, **0 file dưới `custom/`**, không deploy, không ghi sheet.
+- Chủ dự án chốt: quay lại Issue List; **chuẩn hoá component làm trước**; tên lứa **cụm G** (không phải F — F
+  đã là cụm kiến trúc; G1/G2 ngày 18/09 là phiên lẻ khác); 144 làm cuối G1.
+- Đã làm:
+  - `issue_queue.py --dev`: 7 issue Ready for Dev (140–146), 0 Retest Failed. Reconcile `git log -S` + `grep`:
+    chỉ commit docs nhắc mã, 0 code, 0 ledger ⇒ cả 7 chưa fix.
+  - Đọc đủ cột `Đề xuất` + `Kết quả mong muốn` + `Ghi chú` (qua `sheet_io.read_values`), soi seam trong source.
+  - `docs/next-session-clusters-G.md`: bảng Tiến độ + luật chung + 4 khối prompt: **G1** 143+145→144 (mật độ mobile,
+    `wujia_portal_layout`+`_sale`) · **G2** 141+140 (Current Store mobile/PC + nút giỏ, `portal_base`+`portal_sale`) ·
+    **G3a/G3b** 142 Home PC V4 · **G4** 146 URL gốc `/`.
+  - Compact summary: dòng Cập nhật · §5 State · §13 "Bảng cụm G".
+- Commit: xem git log — `docs(G): phân cụm Issue List 140–146`.
+- Deploy: không.
+- Số đo: 7/7 ID có mặt đúng 1 cụm; call site PageHeader 77/14 module, SectionHeader 57/8 module (grep — G1 phải đếm lại
+  bằng cấu trúc).
+- Lệch plan / quyết định mới: không.
+- Nợ để lại: mockup V4 (142) + mockup 141 chỉ có trên Drive — cần file trước G2/G3a. BA retest 126 vẫn treo.
+- Phiên kế: **G1** — hỏi đầu phiên: không có (145 ngược "BA final 83px" chỉ ghi FYI). Việc cần biết trước: dựng DB từ
+  `wujia_frp` + replay `deploy.yml`; đo 360/390/430, PC Δ0.
+
+## G1 — Mật độ mobile: PageHeader · SectionHeader · BottomNav + nhịp Đặt hàng (143 · 145 · 144) · 26/09/2026 · Mac
+- Kết quả: ✅ code + đo xong, **đã deploy UAT + đo lại đạt**. 3 issue ghi ledger (`ĐÃ DEPLOY UAT`), chờ `qa_sync --apply`.
+- Chủ dự án chốt: PageHeader mobile **cả 3 kiểu (title/back/create) cùng cao 44** (pad 8/1/0).
+- Đã làm:
+  - `wujia_portal_layout` 19.0.59.0.0: token mobile `--wujia-m-pagehead-py 8`, `--wujia-m-sechead-fs/lh 18/24`;
+    PageHeader `--m` 52 → 44; SectionHeader `--m` 18/24, `--any` chỉ đổi trong `@media ≤991.98`; nav 83 → **72 + safe
+    area**, mục 50, nhãn 12, badge neo góc icon; sửa công thức `--wujia-mnav-total` (sai từ trước) ⇒ sheet "Thêm" +
+    backdrop bám `-total` (hết chồng nav 8px khi có safe area); pad cuối nội dung `72 + 13` thay số cứng 96.
+  - `wujia_portal_exam` 19.0.6.1.0: FAB bám `-total`.
+  - `wujia_portal_sale` 19.0.4.26.0 (144, làm cuối): chỉ ở wrapper `.wujia-morder` — search → chip 23 → **12**
+    (nguồn 23 = `form` margin 15 toàn cục), chip → "Danh sách sản phẩm" 14 → **8**.
+  - 16 test tĩnh mới (tag `wujia_mobile_density_g1`, `wujia_order_spacing_g1`) + `scripts/qa/wj_density.py` (Playwright:
+    PageHeader/SectionHeader/nav/badge/cuộn cuối/nhịp Đặt hàng + vân tay bố cục PC, cờ `--safe-area`).
+  - `docs/g1-acceptance-matrix.md`; ledger 3 entry.
+- Commit: xem git log — `feat(G1): mật độ mobile PageHeader/SectionHeader/BottomNav + nhịp Đặt hàng`.
+- Deploy: ✅ UAT 26/09 (`-u wujia_portal_layout,wujia_portal_exam,wujia_portal_sale`), chủ dự án làm tay. Đo chỉ-đọc
+  `wj_density.py --readonly` (`em.hcm`): mobile 26 route × 3 khổ × có/không safe area đạt (1 lần Giỏ hàng @360 title 2 dòng
+  thoáng qua, 9 lần đo lại đều 44), PC 20 route × 3 khổ không nav/không tràn; 0 request bị chặn. Ledger → `ĐÃ DEPLOY UAT`.
+- Số đo: 28 route × 360/390/430 × có/không safe area 34: PageHeader 44 mọi kiểu, SH 18/24, nav 72 (106), cuộn cuối ≥13,
+  0 tràn, badge không chạm icon; Đặt hàng 12/8 giữ sau lọc AJAX + tìm, smoke +/−/thêm giỏ 0 lỗi JS; PC vân tay
+  **76/81** giống (5 = bộ đếm lượt xem Kiến thức, nhiễu nền); suite 21 module **930/0/0**; mutation **11/11**;
+  `check_layers` 0 vi phạm Dev.
+- Lệch plan / quyết định mới: sửa kèm 2 lỗi có từ trước (công thức `mnav-total`; sheet/FAB bỏ quên safe area).
+- Bài học: xem "🔴 Bài học G1" trong `next-session-clusters-G.md` (form margin 15, CDP safe area, vân tay thay md5,
+  `--any` ngoài media, filestore ⇒ xoá `/web/assets`).
+- Nợ để lại: safe area chưa đo iPhone thật; nhánh Đặt hàng không có danh mục chưa đo trình duyệt; FYI BA 83 → 72.
+- Sheet (27/09): `qa_sync --apply` 3 ID → Ready for Retest, kiểm lại bằng `export?format=csv` khớp cột ID (dòng 136/137/138).
+  🔴 Phát hiện lỗi có từ trước của `qa_sync`: cột Odoo Fit ghi số cứng 17 = **R "Related Reference IDs"** (BA đã chèn cột,
+  Odoo Fit dời sang S) ⇒ mỗi lần sync đè R bằng "Custom". Đã trả R gốc cho 143/144/145 (lấy từ bản dump đầu phiên) và sửa
+  tool dò cột theo **tên header** (thiếu header thì dừng) + đường ledger qua symlink. **6 dòng cũ bị đè R, chưa khôi phục
+  được** (không còn bản gốc): STT 126 `UI-DATALIST-001`, 129 `UI-PAGECONTAINER-001`, 131 `UI-SIDEBAR-001`, 132
+  `UI-BUTTON-001`, 136 `UI-LISTCARD-001`, 139 `UI-FILTER-001` — cần lấy lại qua Version history của Google Sheet.
+- Phiên kế: `qa_sync --apply --only` 3 ID (nếu chưa chạy), rồi **G2** (141 + 140) — hỏi đầu phiên câu (a)–(e) trong
+  khối G2 (user 1 cửa hàng có chevron không, nhãn Manager ↔ "Quản lý", mockup 141, dải trên Home, 140 ↔ V4).
+
+## G2 — Dải cửa hàng mobile (141) + top bar PC giỏ/chuông/khối Cửa hàng (140) · 29/09/2026 · Mac
+- Kết quả: ✅ code + đo xong, **đã deploy UAT 30/09 + đo lại đạt**. 2 issue ghi ledger (`ĐÃ DEPLOY UAT`), chờ `qa_sync --apply`.
+- Chủ dự án chốt: (a) user 1 cửa hàng → **ẩn chevron**, dải tĩnh · (b) nhãn vai trò **tiếng Việt một nguồn**
+  (Chủ tiệm / Quản lý / Nhân viên) ở cả mobile lẫn PC · (d) **hiện dải trên Home** theo mockup · (e) chip vai trò trong
+  khối theo 140, FYI BA mockup V4 vẽ tách.
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.29.0: `ROLE_LABELS` dời vào `models/wujia_franchise_member.py` + `_portal_role_label()`
+    (controller import lại, không thêm depend); dải mobile thêm chevron **chỉ trong thẻ bấm** (>1 cửa hàng); nhãn VN ở
+    dải, khối PC, menu tài khoản, hero Home mobile; CSS: nền lên `.wujia-store-current-block` (hover tô cả khối, pill
+    trong suốt), bỏ `capitalize`, chevron màu chính `flex: 0 0 auto`.
+  - `wujia_portal_layout` 19.0.59.1.0: circle giỏ/chuông ≥1200 tự khai `inline-flex` căn giữa (gốc: `.nav-link{display:
+    block}` của `web.assets_frontend` nạp sau, hồi quy từ cụm B `157814a` 04/08); icon 19/20 với selector thắng Vuexy
+    `ficon` (0,4,3); badge `top:-8 right:-6`; chữ vai trò dưới avatar VN; `?v=1326`.
+  - 11 test mới (tag `wujia_store_switcher_g2`, `wujia_pc_topbar_g2`); `test_e8c_account_menu` đổi 'Owner' → 'Chủ tiệm'.
+  - `scripts/qa/wj_shell_g2.py` (Playwright, cờ `--readonly` cho UAT); `docs/g2-acceptance-matrix.md`; ledger 2 entry.
+- Commit: xem git log — `feat(G2): dải cửa hàng mobile có chevron + top bar PC giỏ/chuông/khối Cửa hàng`.
+- Deploy: ✅ UAT 30/09 (`-u wujia_portal_base,wujia_portal_layout`), chủ dự án làm tay. Đo chỉ-đọc `wj_shell_g2.py --readonly`
+  (`em.hcm`, 1 cửa hàng): mobile 26 route × 3 khổ có dải, không chevron, 0 tràn; PC 3 route × 3 khổ icon giữa, badge 0 chạm,
+  chip trong khối; nhãn VN 5 chỗ; 0 request bị chặn. Ledger → `ĐÃ DEPLOY UAT`. UAT chưa có user nhiều cửa hàng để thử bấm.
+- Số đo (DB `wujia_g2s` = copy `wujia_g1`): mobile 27 route × 360/390/430 × 2 user — `dung.multi` chevron mép W−16, 4/4 vị
+  trí bấm mở overlay, nhấn `rgb(224,247,255)`, focus viền 2px; `anh.owner` `<div>` không chevron; tên dài "…" giữ vai trò +
+  chevron; 0 tràn. PC 3 route × 1440/1280/1200: lệch tâm icon (−9.4,−9.5) → (0,0), badge "12" ∩ icon 59.4 → 0 px², số 0
+  ẩn, chip vai trò trong khối 430×48. Kênh bên kia: PC 78/81 lệch chỉ ở nền khối + chữ vai trò (3 = trang 403), mobile Δ0
+  ngoài dải. Suite 20 module **941/0/0**; mutation **9/9**; `check_layers` 0 vi phạm Dev.
+- Lệch plan / quyết định mới: plan định đưa chip vào trong `<a>` — làm bằng CSS (nền lên khối) thay vì đổi DOM, giữ
+  nguyên vùng bấm; nhãn VN lan thêm 2 chỗ (chữ dưới avatar PC, hero Home mobile) cho đồng nhất theo (b).
+- Bài học: xem "🔴 Bài học G2" trong `next-session-clusters-G.md` (thứ tự nạp `assets_frontend`, Vuexy `ficon`, transition
+  khi đo `:active`, log chuyển của `wujia_core`, `-u` cho test post_install, `display_name` stored, hai server chung source).
+- Nợ để lại: nhãn vai trò chưa dịch EN/ZH (một nguồn VN); nhấn/focus đo bằng ép pseudo-class, chưa bấm máy thật; cột R 6
+  dòng cũ (mục G1) vẫn chờ khôi phục qua Version history. Server 8032 + DB `wujia_g2s` còn để đo lại (xoá được sau deploy).
+- Phiên kế: deploy G2 → `wj_shell_g2.py --readonly` trên UAT → `qa_sync --apply --only` 2 ID; rồi **G3a** (142 Home PC V4 —
+  khung: hàng đầu 50/50, 4 KPI, bỏ hero + Thao tác nhanh).
+
+## G3a — Home PC khung mockup V4 (142) · 30/09/2026 · Mac
+- Kết quả: ✅ code + đo xong, commit. **Chưa deploy**: chủ dự án chốt deploy gộp với G3b (một lần `-u`) để BA không thấy
+  Home PC nửa mới nửa cũ. **Chưa ghi ledger 142**: issue chỉ đóng ở G3b.
+- Đầu phiên: `qa_sync --apply --only` 140/141 → Ready for Retest ("ĐÃ DEPLOY UAT 30/09/2026"). Cột R, S nguyên.
+- Chủ dự án chốt:
+  - chỉ làm G3a;
+  - bỏ KPI "Đơn chờ xử lý" + bảng "Sản phẩm mua nhiều nhất" theo đúng danh sách BA, "chỗ nào limit ráng xử". Vì vậy ô
+    Công nợ PC làm số thật luôn, không để inert.
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.30.0: khối desktop `wujia-home-pc` gồm hàng đầu 50/50 (card Cửa hàng hiện tại: tên,
+    vùng/địa chỉ, pill vai trò `ROLE_LABELS` | card Khung giờ: 3 trạng thái + thanh tiến độ, dùng chung
+    `_order_window_view`) và 4 KPI Đơn hàng · Thông báo · Đổi trả · Công nợ, cùng biến và link với mobile, bỏ mũi
+    tên/vạch ngăn.
+  - Controller xoá `waiting_orders_count` + method `_top_products` và các key top SP.
+  - CSS PC trong `@media ≥992` có tiền tố `.wujia-home-pc`; xoá class chết `.wujia-kpi-arrow` / `.wujia-kpi-separator`.
+  - 3 block list cũ tạm giữ tới G3b.
+  - `wujia_portal_debt` 19.0.4.16.0: đặt khe `home_debt_kpi` một lần trước khối PC; ô PC và ô mobile dùng chung, gỡ
+    module thì ô PC về "—".
+  - Test: 17 test mới (`wujia_home_pc_g3a` 15, `wujia_home_debt_g3a` 2). `test_scan_d5_data_list` bỏ Home. F11 regex đổi
+    theo nhãn "Thông báo".
+  - Công cụ đo: `scripts/qa/wj_home_g3.py`. Nghiệm thu: `docs/g3-acceptance-matrix.md`.
+- Commit: xem git log — `feat(G3a): Home PC khung V4 — hàng đầu cửa hàng|khung giờ + 4 KPI như mobile`.
+- Deploy: ☐ gộp G3b.
+- Số đo (DB `wujia_g3s`, server 8033):
+  - PC 1440/1280/1024/992: 2 card hàng đầu cao bằng nhau (lệch 0, kể cả chuỗi dài); 4 KPI một hàng, đúng thứ tự và
+    link; 0 tràn, 0 mũi tên; 991 ra mobile. Công nợ: `dung.multi` "17,8tr" → `/portal/debt`, `anh.owner` "—".
+  - Mobile 360/390/430 vân tay **Δ0**. 26 route PC khác Δ0 (chỉ lệch do dữ liệu).
+  - Query `/portal` **−7** (46→39, 43→36): 1 count + 2 `_read_group` + 4 đọc kèm.
+  - Mutation **7/7** đỏ.
+  - Suite 20 module 958 test: 1 error ở F11 (regex nhãn cũ). Đã sửa, chạy lại 3 module **384/0/0**.
+  - `check_layers` 0 vi phạm Dev.
+- Lệch plan / quyết định mới:
+  - Plan định cắt tên cửa hàng bằng ellipsis. Đổi sang **xuống dòng** vì BA cấm cắt chữ.
+  - Query −7 chứ không −3 như plan.
+  - Plan định chèn biến Công nợ ở đầu wrapper. Làm bằng `t-set` đặt trước khối PC.
+- Bài học: xem "🔴 Bài học G3a" trong `next-session-clusters-G.md`. Tóm tắt:
+  - owner DB `odoo19`;
+  - werkzeug INFO + log theo ngày UTC;
+  - `cr.sql_log_count` để tách Δ query;
+  - `t-set` dùng chung qua xpath;
+  - bỏ comment trước khi test arch;
+  - patch `request` bằng `new=`;
+  - đổi nhãn Home thì grep test module khác.
+- Nợ để lại:
+  - FYI BA: thanh tiến độ màu token mobile (V4 vẽ xanh); pill vai trò soft (V4 đặc); đơn chờ xử lý xem ở
+    `/portal/purchase-history`, top SP ở Báo cáo.
+  - Token `--wujia-kpi-separator-*` còn trong layout.
+  - 🔎 Topbar PC 992–1199 chật, logo bị khối Cửa hàng che. Có từ trước, không do G3a; báo BA thành issue riêng.
+  - Server 8033 + DB `wujia_g3s` để lại cho G3b.
+- Phiên kế: **G3b** (142): 7 block record thay 3 block list cũ, VNĐ, "Xem tất cả", icon theo loại, chuỗi VI/EN/ZH. Xong
+  thì `-u wujia_portal_base,wujia_portal_debt` một lần + deploy + ledger 142 + `qa_sync`. Seam ở khối "G3a đã xong" trong
+  `next-session-clusters-G.md`.
+
+## G3b — Home PC 7 block record theo mockup V4, đóng 142 · 30/09/2026 · Mac
+- Kết quả: ✅ code + đo xong, commit; ledger `UI-PC-HOME-REDESIGN-001` ghi ("CHƯA DEPLOY"). Nghiệm thu 12/12 = 100% "Kết
+  quả mong muốn" (`docs/g3-acceptance-matrix.md` §6). **Deploy G3a + G3b gộp một lần**: chờ cổng duyệt push `main`.
+- Chủ dự án chốt:
+  - Giao hàng: "N đơn chưa giao" là dòng phụ, góc phải "Xem tất cả" → `/portal/delivery`;
+  - lưới **2 cột 992–1399, 3 cột từ 1400** (đổi từ "3 cột từ 1200" sau khi đo ra sidebar chỉ hiện từ 1200, cột sẽ còn
+    ~280px);
+  - chuỗi VI/EN/ZH đo bằng dữ liệu dài; dòng Thông báo dùng ô icon chuông như mobile.
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.31.0: xoá 3 block list cũ, thay bằng `div.wujia-home-blocks` với 7 SurfaceCard + CardHeader
+    PC (icon theo loại, "Xem tất cả" 5 block, không mũi tên). Dòng chép từ block mobile: cùng biến, `portal_money`, badge,
+    link. Hỗ trợ nhanh 3 lối tắt; Thông tin cửa hàng rộng cả hàng, 3 ô có vạch ngăn.
+  - Map màu loại thông báo gom về **một** `noti_badge_map` (`t-set` trước khối PC) cho cả mobile và PC.
+  - CSS trong `@media ≥992` + `≥1400`, tiền tố `.wujia-home-pc`: CSS grid 2→3 cột, gỡ ellipsis tiêu đề/dòng phụ, CardHeader
+    `nowrap`, empty state không khung lồng.
+  - Controller **không sửa**.
+  - Test: `test_g3b_home_pc.py` 17 test (tag `wujia_home_pc_g3b`); sửa theo `test_scan_d3_card_header` (5 → 9),
+    `test_scan_d5_data_list` (preview 5 block, COMPACT_SITES bỏ Home, mobile loại `.wujia-home-pc`, mdash 10 → 13).
+  - `scripts/qa/wj_home_g3.py` thêm 1200/1199, probe 7 block (cột theo hàng, Δh, badge đè, chevron, block cũ).
+- Commit: xem git log — `feat(G3b): Home PC 7 block record theo V4 …`.
+- Deploy: ✅ push `d8f89bf` 16:01, UAT nhận 16:04 (G3a `160d13e` push 01:16 trước đó nhưng UAT chưa nhận; lượt này đưa cả
+  hai lên). Đo chỉ-đọc `em.hcm` 6 khổ PC: 7 block đúng thứ tự, 3 cột 365 ở 1440, 2 cột 992–1399, Δh 0, 0 tràn/chevron/badge
+  đè, Công nợ "4,2tr"; mobile chỉ lệch 1px ở chữ đếm lùi khung giờ. Ledger "ĐÃ DEPLOY UAT" → `qa_sync --apply --only`
+  142 → **Ready for Retest** (6 ô + 1 History). `issue_queue --dev` còn 0.
+- Số đo (DB `wujia_g3s`, server 8033):
+  - 7 khổ × 3 user: 0 tràn, 0 chữ bị cắt, 0 badge đè, 0 chevron, 0 block cũ; 3 cột 365px ở 1440, 2 cột 992–1399, Δh 0
+    trong hàng; 991 ra mobile.
+  - Chuỗi dài VI/EN/ZH (đơn, đổi trả, thông báo, bài viết, cửa hàng): 0 cắt, 0 tràn; trả dữ liệu từ bản lưu SQL.
+  - Mobile Δ0 (`dung.multi` md5 trùng; 2 user còn lại chỉ lệch chữ đếm lùi khung giờ).
+  - Query `/portal` 39/36/36 **Δ0** so với G3a.
+  - 13 selector G3b: 64 phần tử ở `/portal`, 0 ở 26 route khác.
+  - Mutation **7/7** đỏ. `wujia_portal_base` 315/0/0. Suite 20 module **975/0/0**. `check_layers` 0 vi phạm Dev.
+- Lệch plan / quyết định mới:
+  - Plan dùng `col-xl-4 col-lg-6`; đổi sang CSS grid vì BS4/BS5 xung đột thứ tự nạp.
+  - Ngưỡng 3 cột 1200 → 1400 (hỏi lại chủ dự án sau khi đo).
+  - Plan nói phải thêm dáng dòng PC; thực tế `.wujia-mdash-*` đã áp toàn cục, chỉ gỡ ellipsis.
+- Bài học: xem "🔴 Bài học G3b" trong `next-session-clusters-G.md`. Tóm tắt:
+  - bundle cũ khi chưa `-u`;
+  - mdash toàn cục;
+  - BS4/BS5 → CSS grid;
+  - sidebar từ 1200;
+  - CardHeader wrap trong card hẹp;
+  - `conda run` nuốt stdin;
+  - `-u` kéo theo debt;
+  - push = deploy.
+- Nợ để lại:
+  - FYI BA (matrix §10): Xem tất cả ở Giao hàng; lưới 2 cột 992–1399; tile chuông; tiêu đề dài 2 dòng; Tổng tiền đổi trả
+    "—"; hotline = `company.phone`; Chat UI-only; Người phụ trách chỉ tên.
+  - 🔎 Topbar PC 992–1199 (từ G3a) vẫn chờ BA tách issue.
+  - Server 8033 + DB `wujia_g3s` xoá được sau deploy.
+- Phiên kế: **G4** (146 `WJ-PORTAL-ROUTING-001`, điều hướng `/`). Xoá server 8033 + DB `wujia_g3s` khi tiện.
+
+## H150/151 — Home: giờ + trạng thái đơn gần đây giống Lịch sử (150 `WJ-HOME-009`, 151 `WJ-HOME-010`) · 30/09/2026 · Mac
+- Kết quả: ✅ code + đo + deploy UAT + đo UAT chỉ-đọc; 150 + 151 → Ready for Retest.
+- Đầu phiên:
+  - Định làm G4, nhưng **STT 146 không còn trên sheet** (145 → 147). Chủ dự án chuyển sang 150 + 151 (status `New`, cho
+    làm trước). G4 ⏸, cách làm đã chốt, ghi ở khối G4 `next-session-clusters-G.md`.
+  - BA mở 147–151 cùng lứa, đều từ đơn test S00075.
+- Đã làm:
+  - 150: chẩn đoán **đã hết từ G3b** — block PC cũ in `date_order` UTC, G3b thay bằng `wj_dt`. UAT chỉ-đọc `em.hcm`:
+    S00075 PC = mobile = chi tiết Lịch sử = 22:57 29/09. Chỉ thêm test chặn hồi quy.
+  - 151: Home có bảng nhãn riêng `MOBILE_ORDER_BADGES` (draft → "Nháp"). Dời luật trạng thái SO của Lịch sử xuống
+    `wujia_portal_base/controllers/utils.py` (`portal_order_status`, `portal_order_badge`). Home PC + mobile gọi
+    `wj_order_badge(o)`. Lịch sử import lại (alias `_state_meta` / `_order_status` cho `portal_sale` + test).
+  - Xoá `MOBILE_ORDER_BADGES` + `wj_badge_default`. `portal_base` 19.0.7.32.0 · `purchase_history` 19.0.3.20.0.
+- Commit: `0cd1f0a` — `fix(WJ-HOME-009/010): Home dùng chung luật trạng thái đơn với Lịch sử + test giờ PC`.
+- Deploy: ✅ UAT `wujia_portal_base` 19.0.7.32.0 · `purchase_history` 19.0.3.20.0 (30/09 16:45). Đo chỉ-đọc `em.hcm` +
+  `anh.owner`: 4 đơn trùng chữ/màu/giờ ở Home PC, Home mobile, chi tiết Lịch sử (S00075 22:57 · Chờ xác nhận); 6 khổ PC
+  0 tràn/cắt/đè. `qa_sync --apply` → 150 + 151 **Ready for Retest** (6 ô mỗi dòng + 1 History mỗi issue; bridge trả
+  non-JSON/404 nhưng đã ghi — đọc lại xác nhận). `dung.multi` không đăng nhập được UAT (mật khẩu khác local).
+- Số đo (DB `wujia_g3s`, server 8033):
+  - Nhãn Home trước/sau: "Nháp" neutral → "Chờ xác nhận" pending (3 user). Đơn 1799/12 khớp chữ + màu + giờ với chi
+    tiết Lịch sử.
+  - Query `/portal` 27/36/36 → 27/36/36 **Δ0**.
+  - `wj_home_g3.py` 6 khổ PC: 0 tràn, 0 cắt chữ, 0 badge đè, Δh 0. Mobile đổi vân tay đúng do chữ nhãn.
+  - Test mới 9 (tag `wujia_home_order_status`); mutation **6/6** đỏ. `-u` 2 module + test 3 module 393/0/0.
+  - Suite 20 module (`-u` cả 20, có `wujia_sale`): 939, 0 failed, **2 error ở `wujia_sale`** (fixture tạo quant cho
+    hàng consumable) — không liên quan, chưa sửa.
+  - `check_layers` 0 vi phạm tầng (R7 2 dòng ở `wujia_franchise` có sẵn).
+- Lệch plan / quyết định mới:
+  - Test mới đặt ở `wujia_portal_purchase_history/tests/`, không ở `portal_base`, vì phải so với `_history_row_vals`.
+  - Nghiệm thu ghi ở `docs/g3-acceptance-matrix.md` §12 (§11 đã có sẵn).
+- Bài học:
+  - 146 biến khỏi sheet mà `issue_queue --dev` không báo gì (chỉ ra 0). Đầu phiên nên liệt kê STT cuối sheet so với
+    bảng cụm đang làm.
+  - Bảng nhãn "mobile-riêng" trong `portal_base` là nguồn lệch. Mọi nhãn trạng thái SO phải đi qua `portal_order_status`.
+  - Suite có `wujia_sale` ra 2 error fixture — biết trước để khỏi tưởng hồi quy.
+- Nợ để lại:
+  - FYI: Home UAT in tiền `$` (dữ liệu/đơn vị tiền của đơn), ledger G3b ghi "UAT là VND nên in ₫" — cần soi lại.
+  - 2 error test `wujia_sale` (`test_06_filters_return_right_orders`, setUpClass `TestWujiaSupplyDemandReport`).
+  - Hỏi BA: 146 xoá hay chuyển chỗ.
+  - Server 8033 + DB `wujia_g3s` xoá được.
+- Phiên kế: **148 `WJ-ORD-028`** (High — hộp xác nhận trước khi gửi đơn, chống double-submit), rồi 147 (tìm kiếm giữ
+  query cũ) và 149 (ẩn "Ngày xác nhận" khi đơn còn nháp). Cả ba đang `New`, hỏi chủ dự án có làm trước không.
+
+## Review cụm G trên UAT (G1 · G2 · G3a/b · H150/151) · 30/09/2026 · Mac
+- Kết quả: ✅ review xong, chỉ đọc, 0 dòng code. Báo cáo `docs/g-review-uat.md`: 25 dòng AC → 20 ✅ · 1 ❌ · 4 LIMIT (95 % dòng
+  đo được).
+- Đầu phiên: chủ dự án tưởng G4 đã xong; git + UAT không có G4, session "Wujia issue G4" xác nhận chưa có dòng code (146 mất
+  khỏi sheet) ⇒ review bỏ G4.
+- Đã làm: version UAT = HEAD `ee22cb5` (6 module); `wj_density` mobile 26 route × 3 khổ × safe area 0/34; `wj_shell_g2`;
+  `wj_home_g3` (bản chép chặn ghi) 6 khổ PC + 3 mobile; đối chiếu S00075 Home ↔ Lịch sử; soát ảnh PC + mobile. 0 request bị chặn.
+- Phát hiện:
+  - ❌ Top bar PC vỡ ở **đúng 992**: hamburger `li.mobile-menu.mr-auto` nhận `margin-right` 451.7px ⇒ khối Cửa hàng rớt hàng,
+    bị header cắt. 993+ bình thường. Có từ trước G2 (G2 không đổi width/margin khối).
+  - LIMIT: bảng giá `Default` UAT là USD (công ty VND) ⇒ đơn portal in `$`; cần chủ dự án đổi cấu hình, không phải lỗi code.
+  - Nhỏ: pill ngôn ngữ 992–1199 chỉ có cờ · mã chuyến giao xuống dòng giữa chữ ở card hẹp · bảng Công nợ 992 cắt cột Thao tác.
+- Bài học:
+  - UAT chập chờn (`goto` quá 30 s) khi chạy 2 bộ đo song song ⇒ chạy tuần tự, đặt timeout 90 s cho script phụ.
+  - `wj_density` chỉ đo sheet "Thêm" khi có `--shots`; lượt safe area phải bật `--shots` mới có số sheet.
+  - Lỗi chỉ ở một khổ đúng mốc (992) ⇒ quét ±1px quanh mốc breakpoint, và so computed style 2 khổ để ra ngay thuộc tính gây lỗi.
+- Nợ để lại: lượt sửa top bar 992 (`wujia_portal_layout`); quyết tiền tệ bảng giá UAT; G4 chờ BA.
+- Phiên kế: sửa top bar 992 (nhỏ), rồi 148 `WJ-ORD-028` · 147 · 149 (đang `New`, hỏi chủ dự án).
+
+## G5 (147 + 148) + G6 (149) · 30/09/2026 · Mac
+- Kết quả: ✅ code + đo + push + **UAT nhận 19:46:49** (`portal_layout` 19.0.59.2.0 · `portal_base` 19.0.7.33.0 ·
+  `portal_sale` 19.0.4.27.0 · `purchase_history` 19.0.3.21.0). Commit `887da0a` (G5) · `9efa67f` (G6).
+  Nghiệm thu `docs/g5-acceptance-matrix.md` (148 6/6, 147 4/4) · `docs/g6-acceptance-matrix.md` (5/5).
+- G5: hộp xác nhận gửi đơn PC + mobile; gửi lặp khi giỏ rỗng ⇒ về đơn vừa tạo (không đổi schema). 147 gốc = khoá
+  CMP-BTN-001 (E6a) không nhả khi lọc AJAX ⇒ dính cả 11 màn danh sách; sửa bằng `wj:form:release`. Sửa kèm: nút gửi đơn
+  mobile không POST (từ E6a). Test 13, mutation 12/12, suite 1006 (1 FAIL móc E6 đã sửa, 1 error fixture `wujia_sale` có
+  sẵn), query Δ0 27 route, mobile Δ0.
+- G6: `confirm_date` chỉ khi `state == 'sale'`; cột PC "—", chi tiết ẩn dòng, nhãn "Ngày đặt hàng". Test 7, mutation 7/7,
+  393/0/0, query Δ0. **UAT đo chỉ-đọc `wj_history_g6.py` em.hcm S00075/S00043: 12/12 đạt.**
+- **Tiếp phiên (sau khi user dừng), đã xong:**
+  - UAT chỉ-đọc G5 (em.hcm): `wj_order_confirm_probe.py` **8/8** (chỉ mở hộp rồi Hủy, 0 request gửi đơn) ·
+    `wj_resubmit.py` **21/21**.
+  - Ledger 3 entry → "ĐÃ DEPLOY UAT 30/09/2026 — sẵn sàng retest"; `qa_sync --apply --only` từng ID. Verify CSV:
+    027/028/029 đều **Ready for Retest**, mỗi ID đúng 1 dòng `7. ISSUE HISTORY`.
+  - ⚠️ 029: bridge ghi xong 6 ô rồi trả **không phải JSON** ⇒ `qa_sync` văng trước bước History. Không chạy lại
+    `--apply` (sẽ ghi History "cũ = Ready for Retest"): tự `append_row` 1 dòng "Ready for Dev → Ready for Retest",
+    bridge lại trả non-JSON nhưng đọc CSV thấy đúng 1 dòng. **Luật: lỗi JSON từ bridge ⇒ đọc CSV trước, không ghi lại.**
+  - Compact summary header + §5 gộp G3→G6.
+- Còn lại: báo BA (147 dính cả 11 màn; nút gửi đơn mobile trước G5 không gửi được; S00074 là ví dụ rõ của 149) ·
+  BA retest 027/028/029 + 142 + 150/151.
+- Nợ: top bar PC vỡ ở 992; bảng giá UAT USD; G4 chờ BA; server 8055 + DB `wujia_g5s`, `wujia_g3s` + worktree
+  `scratchpad/g5/base_wt` (`git worktree prune`) xoá được.

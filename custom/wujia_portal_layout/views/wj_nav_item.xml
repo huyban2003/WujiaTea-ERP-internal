@@ -9,9 +9,10 @@
              xpath kế thừa làm việc trên ARCH, nên `id` của <li> phải có thật trong arch
              (wujia_portal_inspection.pc_sidenav_inspection xpath //li[@id='nav_item_exam']),
              không thể sinh ra lúc render bằng t-att-id. Lớp `active` cũng ở <li> — module
-             tự khai điều kiện theo route của mình, dùng biến `_p` layout đặt sẵn. -->
+             tự khai điều kiện theo route của mình, dùng biến `_p` layout đặt sẵn, và truyền
+             cùng điều kiện đó qua `ni_active` để mục đang mở có aria-current="page". -->
         <template id="wj_nav_item" name="Wujia — thân mục sidebar PC">
-            <a t-att-href="ni_href">
+            <a t-att-href="ni_href" t-att-aria-current="'page' if ni_active else None">
                 <i t-attf-class="#{ni_icon}" aria-hidden="true"/>
                 <span class="menu-title"><t t-out="ni_label"/></span>
             </a>

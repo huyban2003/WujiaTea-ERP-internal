@@ -98,7 +98,16 @@
         return swapped > 0;
     }
 
-    function load(url, push) {
+    /* Khoá chống bấm lặp CMP-BTN-001 (`wujia_button_loading.js`) cắm cờ lên form lúc submit và
+       chỉ tự gỡ khi trang tải lại — ở đây trang không tải lại nên phải báo xong, cả khi bị lượt
+       sau huỷ ngang. Thiếu bước này thì form lọc chỉ gửi được MỘT lần (WJ-ORD-027). */
+    function releaseForm(form) {
+        if (form) {
+            form.dispatchEvent(new CustomEvent("wj:form:release", { bubbles: true }));
+        }
+    }
+
+    function load(url, push, form) {
         if (pending) {
             pending.abort();
         }
@@ -130,6 +139,7 @@
                 }
                 pending = null;
                 setBusy(false);
+                releaseForm(form);
                 syncFilterControls(url.searchParams);
                 if (push) {
                     window.history.pushState({ wjList: true }, "", url.pathname + url.search);
@@ -144,6 +154,7 @@
             })
             .catch(function (err) {
                 if (err && err.name === "AbortError") {
+                    releaseForm(form);
                     return;
                 }
                 pending = null;
@@ -196,7 +207,7 @@
             }
         });
         ev.preventDefault();
-        load(url, true);
+        load(url, true, form);
     }
 
     function onPopState() {

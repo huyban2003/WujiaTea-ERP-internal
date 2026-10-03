@@ -1,0 +1,190 @@
+\chapter{Sprint 63 --- Cụm F khối A: tách 7 phân hệ khỏi portal + controller mỏng, F6 $\to$ $\star$FR-A (2026-09-25 $\to$ 09-26)}
+
+\emph{Chapter này ghi lại nhánh sau cổng của cụm F. Cổng F0 $\to$ $\star$FR-A3 (chapter trước) đã dọn CSS,
+menu và test của khung. Khối A làm nốt phần còn lại của ADR-027 (chapter 74): đưa nghiệp vụ ra khỏi
+7 module \texttt{wujia\_portal\_*} và làm mỏng controller. Khối gồm 11 phiên trong hai ngày; mỗi phiên tách
+xong đều lên UAT ngay trong ngày. Không có tính năng mới. Người dùng portal và backend không thấy khác gì,
+trừ vài chỗ sửa lỗi có từ trước (liệt kê ở cuối). Nhật ký ở \texttt{docs/f-progress.md}; nghiệm thu từng phiên ở
+\texttt{docs/f6-} \ldots\ \texttt{f13-acceptance-matrix.md}; hai phiên review ở \texttt{docs/f-review-FR-P.md} và
+\texttt{docs/f-review-FR-A.md}.}
+
+\section{Vì sao có khối A}
+
+Review 17/09 đo được: 7 module portal (\texttt{order\_window}, \texttt{info\_request}, \texttt{knowledge},
+\texttt{support}, \texttt{notification}, \texttt{exam}, \texttt{return}) chứa cả model, nhóm quyền, sequence,
+menu và backend HQ. Hệ quả có hai tầng:
+\begin{itemize}[nosep]
+\item \textbf{Mobile bị kéo lên portal.} Module mobile cho một phân hệ phải depend module portal chứa model đó.
+  Như vậy là phá luật ``hai kênh không depend chéo'' của ADR-027, và không tách repo được.
+\item \textbf{Luật nghiệp vụ nằm trong controller.} Cùng một luật (ai thấy bài nào, phiếu nào hợp lệ, tối đa bao
+  nhiêu người) được viết lại ở controller, ở Home và ở constraint, và các bản viết đã lệch nhau.
+\end{itemize}
+
+Cách làm đã chốt: tách \textbf{từng phân hệ một}, mỗi phiên một lần deploy, và giữ nguyên \texttt{\_name}
+(bảng DB không đổi, không migration dữ liệu). Pilot rẻ nhất đi trước (\texttt{order\_window}). Xong pilot có một
+phiên review ($\star$FR-P) để quyết có nhân quy trình ra 6 phân hệ còn lại hay không. Xong cả khối có
+$\star$FR-A.
+
+\begin{center}
+\small
+\begin{tabular}{llll}
+\toprule
+Phiên & Nội dung & Commit & Số đo chốt \\
+\midrule
+F6 & Controller Đặt hàng mỏng & \texttt{df385d1} & suite 822/0 · mutation 10/10 \\
+F7 & Pilot tách \texttt{order\_window} & \texttt{6b2938d} & 42 đổi chủ · HTML 5/5 byte \\
+$\star$FR-P & Review pilot, gỡ vỏ trên UAT & \texttt{9d2a606} & UAT 0 lệch · suite 834/0 \\
+F8 & \texttt{info\_request} & \texttt{a5cb738} & 80 đổi chủ · 0 lệch thật \\
+F9 & \texttt{knowledge} & \texttt{2ba8311} & 122 đổi chủ · số kế KNW- giữ \\
+F10 & \texttt{support} (+ fix đính kèm \texttt{daf19f1}) & \texttt{033794c} & 130 đổi chủ · suite 872/0 \\
+F11 & \texttt{notification} & \texttt{bfa2bae} & 173 đổi chủ · HTML 117/120 \\
+F12 & \texttt{exam} & \texttt{2acbd9f} & 245 đổi chủ · \texttt{check\_layers} 0 \\
+F13 & \texttt{return} & \texttt{a138d21} & 287 đổi chủ · suite 912/0 \\
+$\star$FR-A & Review toàn khối A & \texttt{2835f8e} & query $\Delta$0 · suite 914/0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{F6 --- Controller Đặt hàng mỏng}
+
+\begin{itemize}[nosep]
+\item \textbf{Luật số lượng một nguồn}: \texttt{product.\_portal\_qty\_error} (\texttt{wujia\_sale}) được dùng chung
+  cho thêm giỏ, sửa số lượng, dòng giỏ và constraint dòng đơn portal. Mã lỗi và câu chữ giữ nguyên.
+\item \textbf{Giỏ và gửi đơn về model} \texttt{wujia.portal.cart}. \texttt{action\_submit\_order()} làm trong
+  \textbf{một savepoint} các bước: khoá NOWAIT, kiểm khung giờ, kiểm dòng lỗi, huỷ báo giá cũ, tạo đơn, xoá giỏ.
+  Controller chỉ còn đổi mã lỗi ra redirect (1047 $\to$ 862 dòng).
+\item \textbf{Vá lỗi ẩn}: code cũ để lại đơn nháp mồ côi khi tạo đơn lỗi giữa chừng. Test đặc tả chứng minh lỗi
+  trên HEAD trước khi sửa.
+\item Nợ FR-A3 trả xong: \texttt{portal\_base} cài một mình giờ tự test được (39 failed + 82 error $\to$ 0/0), nhờ
+  \texttt{tests/common.py} cho test quét nhiều module tự bỏ qua khi module chủ chưa cài.
+\end{itemize}
+
+\section{F7 và $\star$FR-P --- pilot \texttt{order\_window}}
+
+F7 tạo \texttt{wujia\_order\_window} (L2, depend \texttt{wujia\_sale}). Module này nhận nguyên model khung giờ,
+cấu hình fallback và luật chặn đơn portal ngoài giờ, với lớp lỗi riêng \texttt{OrderWindowClosed}. Nhờ có lớp
+lỗi riêng, giỏ hàng không còn bắt lỗi bằng cách dò chữ ``khung giờ''. \texttt{pre\_init\_hook} đổi chủ cả
+\texttt{ir\_model\_constraint}/\texttt{relation}, chỗ mà khuôn tách Khảo sát trước đó bỏ sót. Công cụ
+\texttt{scripts/qa/split\_snapshot.py} (chụp trước/sau, diff có \texttt{--rename}) ra đời ở đây và dùng cho mọi phiên sau.
+
+$\star$FR-P kết luận \textbf{đạt, nhân được}. Vỏ \texttt{wujia\_portal\_order\_window} được gỡ trên UAT qua RPC (lời gọi
+ghi duy nhất, có duyệt), đo lại 0 lệch, rồi xoá khỏi repo. Hàm đổi chủ dời về L1
+\texttt{wujia\_core/tools/module\_split.py} (\texttt{imd\_names} suy xmlid theo model + \texttt{migrate\_ownership}).
+Phiên này cũng bắt được \texttt{deploy.yml} còn \texttt{-i/-u} vỏ. Phần mobile của anh Thái được chốt là mục bàn giao,
+không chặn F8.
+
+\section{F8--F13 --- sáu phân hệ theo cùng một khuôn}
+
+Mỗi phiên theo đúng quy trình ở chapter 74 (\S\ref{sec:adr27-xmlid}): đo UAT chỉ-đọc trước, \texttt{git mv} model +
+quyền + data sang \texttt{wujia\_<x>}, hook đổi chủ, controller mỏng, snapshot trước/sau trên DB copy, HTML so từng byte,
+mutation, rồi deploy một lệnh \texttt{-i wujia\_<x> -u wujia\_portal\_<x>,\ldots}. Module portal còn lại đúng phần kênh:
+controller, QWeb, mục điều hướng.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}X}
+\toprule
+Module L2 mới & Nhận về & Luật dời từ controller về model \\
+\midrule
+\texttt{wujia\_info\_request} (F8) & 1 model, rule, sequence \texttt{INF/}; 72 xmlid + 7 ràng buộc &
+  \texttt{\_portal\_can\_request}, \texttt{\_portal\_scope\_domain}, \texttt{create\_from\_portal} (savepoint) \\
+\texttt{wujia\_knowledge} (F9) & 3 model, cron, \texttt{KNW-}; 107 xmlid + 13 ràng buộc &
+  \texttt{\_portal\_visible\_domain} (Home dùng chung), \texttt{\_portal\_search\_domain} \\
+\texttt{wujia\_support} (F10) & 2 model, 7 danh mục, \texttt{WJ-TK/}; 113 xmlid + 16 ràng buộc &
+  \texttt{create\_from\_portal}, \texttt{\_portal\_reply}, \texttt{\_portal\_get\_attachment} \\
+\texttt{wujia\_notification} (F11) & 3 model, 2 nhóm quyền, \texttt{ANN/}; 140 xmlid + 28 ràng buộc &
+  \texttt{\_portal\_effective\_domain}, \texttt{\_portal\_unread\_count}, \texttt{\_mark\_read} \\
+\texttt{wujia\_exam} (F12) & 5 model, 2 nhóm, 3 sequence; 214 xmlid + 30 ràng buộc &
+  \texttt{register\_from\_portal}, \texttt{\_effective\_max\_per\_registration} \\
+\texttt{wujia\_return} (F13) & 6 model (kế thừa SO/picking/product), wizard bù, 2 nhóm, 2 sequence; 230 xmlid + 54 ràng buộc &
+  \texttt{create\_from\_portal}, \texttt{\_portal\_status\_key}, \texttt{\_portal\_compensation\_view} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Controller các màn giảm theo: yêu cầu thông tin 264 $\to$ 240 dòng · kiến thức 181 $\to$ 154 · hỗ trợ 201 $\to$ 166 ·
+thông báo 434 $\to$ 337 · thi 750 $\to$ 579 · đổi trả 609 $\to$ 378. Số route không đổi (103 route / 106 path).
+Mọi số kế sequence trên UAT được giữ (INF 1 · KNW 28 · WJ-TK 17 · ANN 20 · WJ-CRS 5 · WJ-EXR 17 · WJ-EXS 6 · RTN 5 · CA 1).
+
+Các bẫy lộ ra trong lúc làm, đều đã ghi vào quy trình ở chapter 74:
+\begin{description}[nosep]
+\item[Data \texttt{noupdate} (F9).] \texttt{-i} module mới nạp lại bản ghi noupdate lên xmlid vừa đổi chủ. Dòng
+  \texttt{number\_next} trong XML reset sequence KNW- từ 438 về 1 trên DB copy, trong khi snapshot cũ vẫn báo 0 lệch.
+  Cách sửa: bỏ \texttt{number\_next} khỏi XML, và snapshot đọc thêm \texttt{last\_value} của sequence Postgres.
+  F11 là lần đầu dữ liệu UAT lệch XML thật (4 màu loại thông báo); chủ dự án chốt để về theo code.
+\item[Mobile tham chiếu xmlid portal (F8, F12).] \texttt{-u} gãy ở module mobile. Theo chốt, đã sửa 5 và 18 dòng
+  \texttt{ref} trong module anh Thái. Đo thực tế: Odoo 19 commit sau từng module, nên khi lỗi thì chỉ module mobile dừng lại.
+\item[\texttt{groups=} trong arch view (F12).] Tên nhóm thiếu tiền tố module bị bỏ qua mà không báo lỗi, nên 10 nút
+  backend bị ẩn với cả Administrator. Snapshot bắt được qua md5 arch.
+\item[Test rollback (F8).] \texttt{assertRaises} tự bọc savepoint, nên test vẫn Pass khi code quên savepoint.
+  Phải viết bằng \texttt{try/except}.
+\end{description}
+
+\section{$\star$FR-A --- review toàn khối A: đạt, khối A khép}
+
+Đo HEAD \texttt{164d8ec} cạnh đối chứng \texttt{9d2a606} (trước F8), hai DB cùng một lần seed:
+\begin{itemize}[nosep]
+\item \textbf{Tầng}: \texttt{check\_layers} 0 vi phạm phía Dev (R7 còn 2 của anh Thái). 7 module L2 có 0 controller,
+  0 static, 0 \texttt{import http}. L3b chỉ giữ 2 ngoại lệ đã chốt: giỏ \texttt{wujia.portal.cart} và AbstractModel
+  \texttt{wujia.portal.debt}. \texttt{portal\_base} gọi L2 ở 7 chỗ, đều qua \texttt{hasattr}, không thêm depend.
+\item \textbf{Hiệu năng}: số query 17 route $\times$ 4 user giống hệt đối chứng ($\Delta$0). Index đủ trên 6 bảng chính.
+  Không có \texttt{search()} trong vòng lặp ở method \texttt{\_portal\_*} mới.
+\item \textbf{Hành vi}: HTML 63/68 giống từng byte; 5 chỗ khác đều có chủ đích (nhãn Home F13 + fix công nợ).
+  DB trắng chỉ cài 7 L2 chạy 123/0/0. Suite \textbf{914/0/0}. Mutation 7/8.
+\item \textbf{Sửa nhỏ theo luật $\star$} (11 file, +16 $-$112, không đổi hành vi): 4 hàm chết, \texttt{is\_read\_by},
+  \texttt{ormcache}/import thừa, bẫy \texttt{number\_next} còn sót ở \texttt{INF/}, 14 comment dẫn mã phiên.
+\item \textbf{Retest fail \texttt{UI-DATALIST-001}}: \texttt{/portal/debt/payment-history} mobile trước đây không có
+  pager và card cao 124px. Sửa: dùng chung lát phân trang với PC và bố cục hàng chuẩn ListCard, còn 10 thẻ cao 104px.
+  Đã deploy UAT; sheet chuyển Ready for Retest.
+\end{itemize}
+
+\textbf{Smoke chốt sổ (26/09):} lấy DB ở trạng thái FR-P, chạy một lượt đúng lệnh deploy UAT (\texttt{-i/-u} 24 module
++ \texttt{wujia\_portal\_debt}): RC 0, 0 ERROR; cả 7 module L2 cài xong, không module nào kẹt \texttt{to upgrade}.
+
+\section{Gì đã làm (nghiệp vụ)}
+
+Bảy phân hệ (khung giờ đặt hàng, yêu cầu cập nhật thông tin, kiến thức, hỗ trợ, thông báo, thi, đổi trả) giờ là module
+nghiệp vụ độc lập. Module nghiệp vụ không biết portal tồn tại, nên backend HQ và sau này app mobile dùng thẳng được mà
+không phải cài portal. Luật ``ai thấy gì, gửi được gì'' của từng phân hệ chỉ còn một chỗ, dùng chung cho màn portal,
+Home và backend. Vì vậy các lệch giữa Home và màn chi tiết đã được vá (bài hẹn giờ hiện sớm ở Home, số thông báo chưa
+đọc ở Home khác chuông). Dữ liệu thật trên UAT (phiếu, số chứng từ, người trong nhóm quyền, menu) không mất dòng nào.
+
+\section{Lý do / trade-off}
+
+\begin{itemize}[nosep]
+\item \textbf{Tách một phần, giữ \texttt{\_name}}: không đổi tên bảng nên không có migration dữ liệu. Đổi lại, trong L2 còn
+  dư âm tên portal (tham số \texttt{wujia\_portal.*}, field \texttt{portal\_order\_time\_*}, app ``Wujia Portal''). Đổi
+  những tên này cần migration riêng, nên để lại.
+\item \textbf{Hai model ở lại L3b}: giỏ hàng chỉ tồn tại vì kênh portal; \texttt{wujia.portal.debt} là seam đọc kế toán,
+  không có bảng. Cả hai được ghi là ngoại lệ trong ADR-027.
+\item \textbf{Home không tách}: \texttt{portal\_base} đọc luật của L2 qua \texttt{hasattr}. Nhờ vậy nó vẫn cài được khi
+  thiếu một phân hệ (có test giả lập module tắt), và luật cấm thêm depend vẫn giữ.
+\item \textbf{Mỗi phân hệ một lần deploy}: bảy lần đổi chủ xmlid trên dữ liệu thật mà gộp một lệnh thì hỏng sẽ không
+  bisect được. Tách lẻ từng phiên tốn thêm thời gian đo nhưng mỗi lần deploy đều 0 lệch.
+\end{itemize}
+
+\subsection*{Bài học}
+\begin{itemize}[nosep]
+\item Phép đo trước/sau (snapshot) bắt được thứ test đơn vị không bắt được: hook quên \texttt{extra} cho ra trạng thái
+  cuối giống hệt, chỉ khác id menu (FR-A mutation M7).
+\item Đo UAT chỉ-đọc \emph{trước} mỗi lần tách (giá trị noupdate, số kế sequence, người trong nhóm) rẻ hơn nhiều so với
+  sửa sau deploy.
+\item \texttt{createdb -T} không chép filestore; bundle \texttt{/web/assets} trả 500 và làm sai mọi số đo browser.
+\item Test quét component là hàng rào thật: CSS riêng một màn bị chặn, cách đúng là đổi bố cục bằng hàng chuẩn.
+\end{itemize}
+
+\subsection*{Nợ còn lại (chỉ ghi)}
+\begin{itemize}[nosep]
+\item \texttt{wujia\_portal\_sale} còn write ở route update/remove/note; \texttt{portal\_return} còn \texttt{write} gắn đính kèm.
+\item \texttt{\_sql\_constraints} (Odoo 19 bỏ) ở 16 file, 8 phía Dev: chuyển \texttt{models.Constraint} khi có phiên deprecations.
+\item Comment dẫn mã issue: 49 dòng \texttt{.py} / 349 dòng mọi file ngoài khối A, dọn dần khi chạm màn.
+\item \texttt{auto\_install} theo ADR-027 đã chốt (chapter 74) nhưng chưa áp code; áp đồng loạt một phiên.
+\item Bàn giao anh Thái: R7 $\times$2 \texttt{\_wj\_ensure\_contract} · 3 module mobile \texttt{auto\_install} · tests
+  \texttt{wujia\_franchise} import file đã xoá · 8 file \texttt{\_sql\_constraints}.
+\item Câu hỏi BA: 7 câu ADR-027 + câu tồn từ F9--F13 (phạm vi ticket theo người tạo, KPI đổi trả có tính ``đang xét'',
+  nhóm ``User'' của Thi/Đổi trả/Thông báo đang 0 người).
+\end{itemize}
+
+\textbf{Sau khối A}: Issue List lại là việc chính. 8 issue mở chia 4 cụm: 140+141 shell header/cửa hàng · 143+144+145
+mật độ mobile · 142 Home PC · 146 routing. Theo review FR-A, trong các component chưa có issue chỉ EmptyState đáng mở
+issue mới.

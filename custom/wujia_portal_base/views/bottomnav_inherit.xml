@@ -18,19 +18,4 @@
         </xpath>
     </template>
 
-    <!-- F5a — dòng sheet "Thêm" của màn này. -->
-    <template id="mobile_bottomnav_franchise_information"
-              inherit_id="wujia_portal_layout.mobile_bottomnav"
-              priority="45"
-              name="Wujia Mobile — sheet Thêm: Hồ sơ cửa hàng">
-        <xpath expr="//a[@href='/portal/profile']" position="before">
-            <t t-call="wujia_portal_layout.wj_msheet_item">
-                <t t-set="mi_href" t-value="'/portal/franchise-information'"/>
-                <t t-set="mi_icon" t-value="'feather icon-home'"/>
-                <t t-set="mi_title">Hồ sơ cửa hàng</t>
-                <t t-set="mi_sub">Thông tin nhượng quyền và cửa hàng</t>
-            </t>
-        </xpath>
-    </template>
-
 </odoo>

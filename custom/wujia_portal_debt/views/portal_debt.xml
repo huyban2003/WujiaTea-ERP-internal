@@ -554,7 +554,10 @@
                 <t t-else="">
                     <t t-call="wujia_portal_layout.wj_data_list">
                         <t t-set="dl_variant" t-value="'detail-card'"/>
-                        <t t-foreach="history['payments']" t-as="pay">
+                        <t t-set="dl_pager">
+                            <t t-call="wujia_portal_layout.wj_pagination"/>
+                        </t>
+                        <t t-foreach="payments" t-as="pay">
                             <div class="wj-debt-pay wj-data-item wj-lc">
                                 <t t-call="wujia_portal_layout.wj_list_card">
                                     <t t-set="lc_name" t-value="pay['ref']"/>
@@ -564,14 +567,15 @@
                                     <t t-set="lc_rows">
                                         <t t-call="wujia_portal_layout.wj_list_card_row">
                                             <t t-set="lcr_value">
-                                                <t t-out="pay['date'].strftime('%d/%m/%Y')"/>
-                                                <t t-out="pay['time']"/> • <t t-out="pay['method']"/>
+                                                <t t-out="pay['method']"/>
+                                                <t t-if="pay['trace'] and pay['trace'] != pay['ref']"> • <t t-out="pay['trace']"/></t>
                                             </t>
                                         </t>
                                         <t t-call="wujia_portal_layout.wj_list_card_row">
                                             <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
-                                            <t t-set="lcr_label">Tham chiếu</t>
-                                            <t t-set="lcr_value" t-value="pay['trace']"/>
+                                            <t t-set="lcr_value">
+                                                <t t-out="pay['date'].strftime('%d/%m/%Y')"/> <t t-out="pay['time']"/>
+                                            </t>
                                         </t>
                                         <t t-call="wujia_portal_layout.wj_list_card_row">
                                             <t t-set="lcr_class" t-value="'wj-lc__row--inline'"/>
@@ -653,7 +657,7 @@
                             </t>
                         </t>
 
-                        <t t-if="pc_payments">
+                        <t t-if="payments">
                             <t t-call="wujia_portal_layout.wj_data_list">
                                 <t t-set="dl_class" t-value="'wj-debt-pc-tablewrap'"/>
                                 <t t-set="dl_table_class" t-value="'wj-pc-table wj-debt-pc-table'"/>
@@ -678,7 +682,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr t-foreach="pc_payments" t-as="pay">
+                                        <tr t-foreach="payments" t-as="pay">
                                             <td class="wj-pc-td--code" t-out="pay['ref']"/>
                                             <td class="wj-pc-td--muted">
                                                 <t t-out="pay['date'].strftime('%d/%m/%Y')"/> <t t-out="pay['time']"/>
