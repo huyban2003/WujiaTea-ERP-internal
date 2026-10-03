@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dynamic_dashboard_ai_nexgen_connection_view_tree" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.connection.tree</field>
+        <field name="model">dynamic.dashboard.connection</field>
+        <field name="arch" type="xml">
+            <list string="Dashboard Connections" multi_edit="1" sample="1"
+                  decoration-success="last_test_ok"
+                  decoration-danger="not last_test_ok and last_test_date">
+                <field name="name"/>
+                <field name="connection_type"/>
+                <field name="host" optional="show"/>
+                <field name="port" optional="hide"/>
+                <field name="user" optional="show"/>
+                <field name="use_ssl" optional="hide"/>
+                <field name="last_test_ok" optional="show"/>
+                <field name="last_test_date" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_connection_view_form" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.connection.form</field>
+        <field name="model">dynamic.dashboard.connection</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard Connection">
+                <header>
+                    <button name="action_test_connection" type="object" string="Test Connection"
+                            class="btn-primary" icon="fa-plug"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="OK" bg_color="text-bg-success"
+                            invisible="not last_test_ok"/>
+                    <widget name="web_ribbon" title="Failed" bg_color="text-bg-danger"
+                            invisible="last_test_ok or not last_test_date"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Production Analytics DB" class="o_text_overflow"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Type">
+                            <field name="connection_type"/>
+                            <field name="use_ssl" invisible="connection_type in ('api', 'sheets')"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                      options="{'no_create': True}"/>
+                        </group>
+                        <group string="Database" invisible="connection_type in ('api', 'sheets')">
+                            <field name="host" required="connection_type not in ('api', 'sheets')"
+                                      placeholder="hostname or IP"/>
+                            <field name="port" required="connection_type not in ('api', 'sheets')"/>
+                            <field name="database" required="connection_type not in ('api', 'sheets')"/>
+                            <field name="user" required="connection_type not in ('api', 'sheets')"/>
+                            <field name="password" password="True"
+                                      required="connection_type not in ('api', 'sheets')"/>
+                        </group>
+                        <group string="Google Sheets" invisible="connection_type != 'sheets'">
+                            <field name="sheets_api_key" password="True"/>
+                            <field name="sheets_spreadsheet_id"/>
+                        </group>
+                        <group string="API" invisible="connection_type != 'api'">
+                            <field name="api_endpoint" required="connection_type == 'api'" widget="url"/>
+                            <field name="api_method" required="connection_type == 'api'"/>
+                            <field name="api_data_path"/>
+                            <field name="api_headers" placeholder='{"Authorization": "Bearer …"}'/>
+                            <field name="api_body" invisible="api_method == 'GET'"/>
+                        </group>
+                    </group>
+                    <group string="Last Test Result" invisible="not last_test_date">
+                        <group>
+                            <field name="last_test_ok"/>
+                            <field name="last_test_date"/>
+                        </group>
+                        <group>
+                            <field name="last_test_message"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_connection_view_search" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.connection.search</field>
+        <field name="model">dynamic.dashboard.connection</field>
+        <field name="arch" type="xml">
+            <search string="External Connections">
+                <field name="name"/>
+                <field name="connection_type"/>
+                <field name="host"/>
+                <field name="database"/>
+                <field name="user"/>
+                <field name="api_endpoint"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <separator/>
+                <filter name="filter_postgres" string="PostgreSQL" domain="[('connection_type', '=', 'postgres')]"/>
+                <filter name="filter_mysql" string="MySQL" domain="[('connection_type', '=', 'mysql')]"/>
+                <filter name="filter_mssql" string="SQL Server" domain="[('connection_type', '=', 'mssql')]"/>
+                <filter name="filter_api" string="API" domain="[('connection_type', '=', 'api')]"/>
+                <filter name="filter_sheets" string="Google Sheets" domain="[('connection_type', '=', 'sheets')]"/>
+                <separator/>
+                <filter name="filter_ssl" string="SSL Enabled" domain="[('use_ssl', '=', True)]"/>
+                <filter name="filter_test_ok" string="Last Test OK" domain="[('last_test_ok', '=', True)]"/>
+                <filter name="filter_test_fail" string="Last Test Failed" domain="[('last_test_ok', '=', False)]"/>
+                <group>
+                    <filter name="group_type" string="Connection Type" context="{'group_by': 'connection_type'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                    <filter name="group_test" string="Last Test OK" context="{'group_by': 'last_test_ok'}"/>
+                </group>
+                <searchpanel>
+                    <field name="connection_type" enable_counters="1"/>
+                    <field name="company_id" groups="base.group_multi_company" enable_counters="1"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dynamic_dashboard_ai_nexgen_connection" model="ir.actions.act_window">
+        <field name="name">External Connections</field>
+        <field name="res_model">dynamic.dashboard.connection</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="dynamic_dashboard_ai_nexgen_connection_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure an external database or API connection
+            </p>
+            <p>
+                Connect PostgreSQL, MySQL, SQL Server, REST APIs, or Google Sheets.
+            </p>
+        </field>
+    </record>
+</odoo>

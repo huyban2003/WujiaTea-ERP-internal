@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Technical / demo menus (developer mode only). Loaded only with demo data. -->
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_technical"
+              name="Technical"
+              parent="menu_dynamic_dashboard_ai_nexgen_config"
+              sequence="90"
+              groups="base.group_no_one"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_demo_metrics"
+              name="Demo Metric Records"
+              parent="menu_dynamic_dashboard_ai_nexgen_technical"
+              action="action_demo_metric_records"
+              sequence="1"
+              groups="base.group_no_one"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_seed_demo"
+              name="Generate Chart Demo Data"
+              parent="menu_dynamic_dashboard_ai_nexgen_technical"
+              action="action_seed_chart_demo_data"
+              sequence="2"
+              groups="base.group_no_one"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_seed_business"
+              name="Generate Sale/Purchase/Stock/Account Dashboards"
+              parent="menu_dynamic_dashboard_ai_nexgen_technical"
+              action="action_seed_business_app_dashboards"
+              sequence="3"
+              groups="base.group_no_one"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_diagnose_calc"
+              name="Test All Data Calculation Types"
+              parent="menu_dynamic_dashboard_ai_nexgen_technical"
+              action="action_diagnose_data_calculation_types"
+              sequence="4"
+              groups="base.group_no_one"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_seed_calc_demos"
+              name="Generate Data Calculation Type Demos"
+              parent="menu_dynamic_dashboard_ai_nexgen_technical"
+              action="action_seed_data_calculation_type_demos"
+              sequence="5"
+              groups="base.group_no_one"/>
+</odoo>

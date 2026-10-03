@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="analysis_partners_by_country" model="dynamic.dashboard.analysis">
+            <field name="name">Partners by Country</field>
+            <field name="visual_type">bar</field>
+            <field name="source_type">model</field>
+            <field name="model_id" search="[('model', '=', 'res.partner')]"/>
+        </record>
+        <record id="analysis_metric_partner_count" model="dynamic.dashboard.analysis.metric">
+            <field name="analysis_id" ref="analysis_partners_by_country"/>
+            <field name="name">Count</field>
+            <field name="aggregation">count</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="analysis_dim_partner_country" model="dynamic.dashboard.analysis.dimension">
+            <field name="analysis_id" ref="analysis_partners_by_country"/>
+            <field name="name">Country</field>
+            <field name="field_id" search="[('model', '=', 'res.partner'), ('name', '=', 'country_id')]"/>
+            <field name="sequence">10</field>
+        </record>
+    </data>
+</odoo>

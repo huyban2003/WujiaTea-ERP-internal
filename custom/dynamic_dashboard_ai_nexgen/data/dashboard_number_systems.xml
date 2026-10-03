@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Shared defaults (company_id empty = available to all companies) -->
+        <record id="number_system_english" model="dynamic.dashboard.number.system">
+            <field name="name">English (K / M / B)</field>
+        </record>
+        <record id="number_system_english_k" model="dynamic.dashboard.number.system.line">
+            <field name="system_id" ref="number_system_english"/>
+            <field name="threshold">1000</field>
+            <field name="divisor">1000</field>
+            <field name="suffix">K</field>
+        </record>
+        <record id="number_system_english_m" model="dynamic.dashboard.number.system.line">
+            <field name="system_id" ref="number_system_english"/>
+            <field name="threshold">1000000</field>
+            <field name="divisor">1000000</field>
+            <field name="suffix">M</field>
+        </record>
+        <record id="number_system_english_b" model="dynamic.dashboard.number.system.line">
+            <field name="system_id" ref="number_system_english"/>
+            <field name="threshold">1000000000</field>
+            <field name="divisor">1000000000</field>
+            <field name="suffix">B</field>
+        </record>
+
+        <record id="number_system_indian" model="dynamic.dashboard.number.system">
+            <field name="name">Indian (L / Cr)</field>
+        </record>
+        <record id="number_system_indian_l" model="dynamic.dashboard.number.system.line">
+            <field name="system_id" ref="number_system_indian"/>
+            <field name="threshold">100000</field>
+            <field name="divisor">100000</field>
+            <field name="suffix">L</field>
+        </record>
+        <record id="number_system_indian_cr" model="dynamic.dashboard.number.system.line">
+            <field name="system_id" ref="number_system_indian"/>
+            <field name="threshold">10000000</field>
+            <field name="divisor">10000000</field>
+            <field name="suffix">Cr</field>
+        </record>
+    </data>
+</odoo>

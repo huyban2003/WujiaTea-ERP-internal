@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.dynamic_dashboard_ai_nexgen</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Dynamic Dashboard" string="Dynamic Dashboard" name="dynamic_dashboard_ai_nexgen" groups="base.group_system">
+                    <block title="AI Dashboard Builder" name="ai_dashboard_builder">
+                        <setting string="AI Provider" help="Select which AI to use">
+                            <field name="dynamic_dashboard_ai_nexgen_ai_provider"/>
+                        </setting>
+                        <setting string="OpenAI API Key" help="Enter your OpenAI API key" invisible="dynamic_dashboard_ai_nexgen_ai_provider != 'openai'">
+                            <field name="dynamic_dashboard_ai_nexgen_openai_api_key" password="True"/>
+                        </setting>
+                        <setting string="Google Gemini API Key" help="Enter your Gemini API key" invisible="dynamic_dashboard_ai_nexgen_ai_provider != 'gemini'">
+                            <field name="dynamic_dashboard_ai_nexgen_gemini_api_key" password="True"/>
+                        </setting>
+                        <setting string="Anthropic Claude API Key" help="Enter your Claude API key" invisible="dynamic_dashboard_ai_nexgen_ai_provider != 'claude'">
+                            <field name="dynamic_dashboard_ai_nexgen_claude_api_key" password="True"/>
+                        </setting>
+                        <setting string="Cursor API Key"
+                                 help="Create a user API key in Cursor Dashboard → Integrations (cursor_… / crsr_…)."
+                                 invisible="dynamic_dashboard_ai_nexgen_ai_provider != 'cursor'">
+                            <field name="dynamic_dashboard_ai_nexgen_cursor_api_key" password="True"/>
+                        </setting>
+                        <setting string="AI Max Tokens">
+                            <field name="dynamic_dashboard_ai_nexgen_ai_max_tokens"/>
+                        </setting>
+                        <setting string="OpenAI Model" invisible="dynamic_dashboard_ai_nexgen_ai_provider != 'openai'">
+                            <field name="dynamic_dashboard_ai_nexgen_openai_model"/>
+                        </setting>
+                        <setting string="Gemini Model" invisible="dynamic_dashboard_ai_nexgen_ai_provider != 'gemini'"
+                                 help="Use a current model id such as gemini-3.5-flash. Older ids (gemini-1.5-flash, gemini-2.0-flash) are discontinued.">
+                            <field name="dynamic_dashboard_ai_nexgen_gemini_model"/>
+                        </setting>
+                        <setting string="Claude Model" invisible="dynamic_dashboard_ai_nexgen_ai_provider != 'claude'">
+                            <field name="dynamic_dashboard_ai_nexgen_claude_model"/>
+                        </setting>
+                        <setting string="Cursor Model"
+                                 help="Composer, Claude, GPT, Grok and more via your Cursor plan. Click Refresh to sync live models from Cursor."
+                                 invisible="dynamic_dashboard_ai_nexgen_ai_provider != 'cursor'">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="dynamic_dashboard_ai_nexgen_cursor_model" class="col-lg-3 o_light_label" string="Model"/>
+                                    <field name="dynamic_dashboard_ai_nexgen_cursor_model" class="col-lg-5"/>
+                                    <div class="col-lg-4">
+                                        <button name="action_refresh_cursor_models" type="object"
+                                                string="Refresh from Cursor"
+                                                class="btn-secondary"
+                                                icon="fa-refresh"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Google Sheets API Key" help="Used by Analyses / items with Google Sheets source">
+                            <field name="dynamic_dashboard_ai_nexgen_google_sheets_api_key" password="True"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_dynamic_dashboard_ai_nexgen_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_id" ref="res_config_settings_view_form"/>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module' : 'dynamic_dashboard_ai_nexgen'}</field>
+    </record>
+</odoo>

@@ -1,0 +1,911 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="dynamic_dashboard_ai_nexgen.SqlQueryBuilderWidget">
+        <div class="vqb">
+
+            <!-- ═══ Header + health ═══ -->
+            <div class="vqb-header">
+                <div class="vqb-header-icon">
+                    <i class="fa fa-cubes"></i>
+                </div>
+                <div class="vqb-header-text">
+                    <h5>Visual Query Builder</h5>
+                    <span>Design complex SQL visually — JOINs, windows, CTEs, functions, and live validation</span>
+                </div>
+                <div t-att-class="'vqb-health-pill vqb-health-pill--' + healthStatus.kind">
+                    <i t-att-class="'fa ' + (healthStatus.kind === 'ok' ? 'fa-check-circle' : healthStatus.kind === 'error' ? 'fa-exclamation-circle' : healthStatus.kind === 'warn' ? 'fa-exclamation-triangle' : 'fa-circle-o')"/>
+                    <span t-esc="healthStatus.label"/>
+                </div>
+            </div>
+
+            <!-- ═══ Validation panel ═══ -->
+            <div class="vqb-validation" t-if="validationIssues.length">
+                <div class="vqb-validation-title">
+                    <i class="fa fa-lightbulb-o"/>
+                    <span>How to fix</span>
+                    <span class="vqb-validation-meta"><t t-esc="validationIssues.length"/> tip<t t-if="validationIssues.length !== 1">s</t></span>
+                </div>
+                <t t-foreach="validationIssues" t-as="issue" t-key="issue_index">
+                    <div t-att-class="'vqb-issue vqb-issue--' + issue.level"
+                         t-on-click="() => this.onIssueClick(issue)"
+                         title="Click to open section">
+                        <div class="vqb-issue-head">
+                            <span class="vqb-issue-level" t-esc="issue.level"/>
+                            <strong t-esc="issue.title"/>
+                        </div>
+                        <p class="vqb-issue-msg" t-esc="issue.message"/>
+                        <p class="vqb-issue-fix"><span>Fix:</span> <t t-esc="issue.fix"/></p>
+                    </div>
+                </t>
+            </div>
+
+            <!-- ═══ Source table + suggested joins ═══ -->
+            <div class="vqb-base-table">
+                <div class="vqb-base-table-icon">
+                    <i class="fa fa-database"></i>
+                </div>
+                <div class="vqb-field-group" style="flex:1;">
+                    <label>Source Table</label>
+                    <input type="text" class="form-control" list="baseModelList"
+                           t-on-change="onModelChange"
+                           t-att-value="state.baseModel"
+                           placeholder="Search for a model (e.g. sale.order, res.partner) …"/>
+                    <datalist id="baseModelList">
+                        <t t-foreach="state.availableModels" t-as="model" t-key="model.model">
+                            <option t-att-value="model.model"><t t-esc="model.name"/> (<t t-esc="model.model"/>)</option>
+                        </t>
+                    </datalist>
+                </div>
+                <div class="vqb-field-group" style="flex:0 0 160px;" t-if="state.baseModel">
+                    <label>Quick template</label>
+                    <select class="form-select" t-on-change="(ev) => this.applyTemplate(ev)">
+                        <option value="">— apply —</option>
+                        <option value="count_by">Count by field</option>
+                        <option value="sum_by_month">Sum measure by date month</option>
+                        <option value="top_n">Top N</option>
+                        <option value="active">Active records</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="vqb-suggested" t-if="state.baseModel and suggestedJoins.length">
+                <span class="vqb-suggested-label"><i class="fa fa-magic"/> Suggested joins</span>
+                <div class="vqb-suggested-chips">
+                    <t t-foreach="suggestedJoins" t-as="sug" t-key="sug.field">
+                        <button type="button" class="vqb-chip"
+                                t-on-click="() => this.applySuggestedJoin(sug)"
+                                t-att-title="'LEFT JOIN ' + sug.relation + ' ON ' + state.baseModel + '.' + sug.field + ' = id'">
+                            Join <t t-esc="sug.relation"/> via <t t-esc="sug.field"/>
+                        </button>
+                    </t>
+                </div>
+            </div>
+
+            <!-- ═══ All Sections ═══ -->
+            <t t-if="state.baseModel">
+                <div class="vqb-sections-wrapper">
+
+                    <!-- Options bar -->
+                    <div class="vqb-options-bar">
+                        <label class="vqb-checkbox-label" title="Add DISTINCT to SELECT">
+                            <input type="checkbox" class="vqb-checkbox"
+                                   t-att-checked="state.distinct"
+                                   t-on-change="(ev) => { this.state.distinct = ev.target.checked; this.updateValue(); }"/>
+                            <span>DISTINCT</span>
+                        </label>
+                        <div class="vqb-inline-field">
+                            <label>LIMIT</label>
+                            <input type="number" class="form-control" t-model="state.limit"
+                                   t-on-change="updateValue" placeholder="—" min="0" style="width:90px;"/>
+                        </div>
+                        <div class="vqb-inline-field">
+                            <label>OFFSET</label>
+                            <input type="number" class="form-control" t-model="state.offset"
+                                   t-on-change="updateValue" placeholder="—" min="0" style="width:90px;"/>
+                        </div>
+                        <button type="button" class="vqb-btn-add-mini" style="align-self:center;"
+                                t-on-click="addDistinctOn" title="Add DISTINCT ON field">
+                            <i class="fa fa-plus"/> DISTINCT ON
+                        </button>
+                        <div class="vqb-inline-field" style="flex:1; min-width:140px;">
+                            <label>Field search</label>
+                            <input type="text" class="form-control" t-model="state.fieldSearch"
+                                   placeholder="Filter field lists…"/>
+                        </div>
+                        <div class="vqb-placeholder-chips" title="Dashboard placeholders">
+                            <span class="vqb-chip vqb-chip--muted">{start_date}</span>
+                            <span class="vqb-chip vqb-chip--muted">{end_date}</span>
+                            <span class="vqb-chip vqb-chip--muted">{uid}</span>
+                            <span class="vqb-chip vqb-chip--muted">{company_id}</span>
+                        </div>
+                    </div>
+
+                    <!-- DISTINCT ON -->
+                    <div class="vqb-distinct-on" t-if="state.distinct or state.distinctOn.length">
+                        <span class="vqb-distinct-on-label">DISTINCT ON</span>
+                        <t t-foreach="state.distinctOn" t-as="don" t-key="don._uid">
+                            <div class="vqb-distinct-on-row">
+                                <select class="form-select" t-att-value="don.model"
+                                        t-on-change="(ev) => this.onRowModelChange(don, ev)" style="width:140px;">
+                                    <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                        <option t-att-value="m" t-att-selected="don.model === m"><t t-esc="m"/></option>
+                                    </t>
+                                </select>
+                                <select class="form-select" t-model="don.field" t-on-change="updateValue"
+                                        t-att-class="{'is-invalid': this.isFieldMissing(don.model, don.field)}">
+                                    <option value="">— field —</option>
+                                    <t t-foreach="filteredFields(don.model)" t-as="mf" t-key="mf.name">
+                                        <option t-att-value="mf.name"><t t-esc="mf.field_description"/> (<t t-esc="mf.name"/>)</option>
+                                    </t>
+                                </select>
+                                <button class="vqb-btn-remove" t-on-click="() => this.removeDistinctOn(don)"><i class="fa fa-times"/></button>
+                            </div>
+                        </t>
+                        <button type="button" class="vqb-btn-add-mini" t-on-click="addDistinctOn">
+                            <i class="fa fa-plus"/> field
+                        </button>
+                    </div>
+
+                    <!-- SELECT -->
+                    <div t-att-class="'vqb-section vqb-section--select' + (state.collapsedSections.select ? ' collapsed' : '')">
+                        <div class="vqb-section-header">
+                            <div class="vqb-section-toggle" t-on-click="() => this.toggleSection('select')">
+                                <span class="vqb-section-badge"><i class="fa fa-columns"></i></span>
+                                <h6 class="vqb-section-title">
+                                    SELECT — Columns
+                                    <span class="vqb-section-count" t-if="state.fields.length + state.customExpressions.length">
+                                        <t t-esc="state.fields.length + state.customExpressions.length"/>
+                                    </span>
+                                </h6>
+                                <i class="fa fa-chevron-down vqb-chevron"></i>
+                            </div>
+                            <div class="vqb-btn-group">
+                                <button class="vqb-btn-add" t-on-click="insertCaseTemplate" title="Insert CASE expression"><i class="fa fa-code"></i> CASE</button>
+                                <button class="vqb-btn-add" t-on-click="addField" title="Add a field column"><i class="fa fa-plus"></i> Field</button>
+                                <button class="vqb-btn-add" t-on-click="addCustomExpression" title="Add a raw SQL expression"><i class="fa fa-plus"></i> Expression</button>
+                            </div>
+                        </div>
+                        <div class="vqb-section-body">
+                            <t t-foreach="state.fields" t-as="field" t-key="field._uid">
+                                <div t-att-class="'vqb-row' + (this.isFieldMissing(field.model, field.name) ? ' is-invalid' : '')">
+                                    <span class="vqb-row-number"><t t-esc="field_index + 1"/></span>
+
+                                    <div class="vqb-field-group">
+                                        <span class="vqb-field-label">Table</span>
+                                        <select class="form-select" t-att-value="field.model"
+                                                t-on-change="(ev) => this.onRowModelChange(field, ev)">
+                                            <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                                <option t-att-value="m" t-att-selected="field.model === m"><t t-esc="m"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+
+                                    <div class="vqb-field-group" style="flex:1.5;">
+                                        <span class="vqb-field-label">Field</span>
+                                        <select class="form-select" t-model="field.name" t-on-change="updateValue"
+                                                t-att-class="{'is-invalid': this.isFieldMissing(field.model, field.name)}">
+                                            <option value="">All (*)</option>
+                                            <t t-foreach="filteredFields(field.model)" t-as="mf" t-key="mf.name">
+                                                <option t-att-value="mf.name"><t t-esc="mf.field_description"/> (<t t-esc="mf.name"/>)</option>
+                                            </t>
+                                        </select>
+                                    </div>
+
+                                    <div class="vqb-field-group" style="flex:0.85;">
+                                        <span class="vqb-field-label">Function</span>
+                                        <select class="form-select" t-model="field.func" t-on-change="updateValue">
+                                            <option value="">—</option>
+                                            <option value="UPPER">UPPER</option>
+                                            <option value="LOWER">LOWER</option>
+                                            <option value="TRIM">TRIM</option>
+                                            <option value="INITCAP">INITCAP</option>
+                                            <option value="ABS">ABS</option>
+                                            <option value="ROUND">ROUND</option>
+                                            <option value="LENGTH">LENGTH</option>
+                                            <option value="COALESCE">COALESCE</option>
+                                            <option value="NULLIF">NULLIF</option>
+                                            <option value="GREATEST">GREATEST</option>
+                                            <option value="LEAST">LEAST</option>
+                                            <option value="SUBSTRING">SUBSTRING</option>
+                                            <option value="REPLACE">REPLACE</option>
+                                            <option value="LEFT">LEFT</option>
+                                            <option value="RIGHT">RIGHT</option>
+                                            <option value="SPLIT_PART">SPLIT_PART</option>
+                                            <option value="CAST">CAST</option>
+                                            <option value="TO_CHAR">TO_CHAR</option>
+                                            <option value="TO_NUMBER">TO_NUMBER</option>
+                                            <option value="DATE_TRUNC">DATE_TRUNC</option>
+                                            <option value="EXTRACT">EXTRACT</option>
+                                            <option value="DATE">:: DATE</option>
+                                            <option value="AGE">AGE</option>
+                                            <option value="NOW">NOW</option>
+                                            <option value="CURRENT_DATE">CURRENT_DATE</option>
+                                            <option value="CONCAT">CONCAT</option>
+                                            <option value="MD5">MD5</option>
+                                            <option value="STRING_AGG">STRING_AGG</option>
+                                            <option value="BOOL_OR">BOOL_OR</option>
+                                            <option value="BOOL_AND">BOOL_AND</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="vqb-field-group" style="flex:0.6;" t-if="needsFuncParam(field.func)">
+                                        <span class="vqb-field-label">Param</span>
+                                        <input type="text" class="form-control" t-model="field.funcParam"
+                                               t-on-change="updateValue"
+                                               t-att-placeholder="field.func === 'DATE_TRUNC' ? 'month' : field.func === 'EXTRACT' ? 'year' : field.func === 'CAST' ? 'TEXT' : field.func === 'TO_CHAR' ? 'YYYY-MM-DD' : field.func === 'COALESCE' ? '0' : ''"
+                                               />
+                                    </div>
+
+                                    <div class="vqb-field-group" style="flex:0.7;">
+                                        <span class="vqb-field-label">Aggregate</span>
+                                        <select class="form-select" t-model="field.agg" t-on-change="updateValue">
+                                            <option value="">—</option>
+                                            <option value="SUM">SUM</option>
+                                            <option value="AVG">AVG</option>
+                                            <option value="MIN">MIN</option>
+                                            <option value="MAX">MAX</option>
+                                            <option value="COUNT">COUNT</option>
+                                            <option value="COUNT_DISTINCT">COUNT DISTINCT</option>
+                                            <option value="STRING_AGG">STRING_AGG</option>
+                                            <option value="ARRAY_AGG">ARRAY_AGG</option>
+                                            <option value="BOOL_OR">BOOL_OR</option>
+                                            <option value="BOOL_AND">BOOL_AND</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="vqb-field-group" style="flex:0.7;">
+                                        <span class="vqb-field-label">Alias</span>
+                                        <input type="text" class="form-control" t-model="field.alias"
+                                               t-on-change="updateValue" placeholder="e.g. total"/>
+                                    </div>
+
+                                    <button class="vqb-btn-remove" t-on-click="() => this.removeField(field)" title="Remove column">
+                                        <i class="fa fa-trash-o"></i>
+                                    </button>
+                                </div>
+                            </t>
+
+                            <t t-foreach="state.customExpressions" t-as="ce" t-key="ce._uid">
+                                <div class="vqb-row vqb-row--expr">
+                                    <span class="vqb-row-number vqb-row-number--expr" title="Raw expression">
+                                        <i class="fa fa-code"></i>
+                                    </span>
+                                    <div class="vqb-field-group" style="flex:2;">
+                                        <span class="vqb-field-label">SQL Expression</span>
+                                        <input type="text" class="form-control vqb-mono-input" t-model="ce.expression"
+                                               t-on-change="updateValue"
+                                               placeholder="e.g. CASE WHEN state='done' THEN 1 ELSE 0 END"/>
+                                    </div>
+                                    <div class="vqb-field-group" style="flex:0.7;">
+                                        <span class="vqb-field-label">Alias</span>
+                                        <input type="text" class="form-control" t-model="ce.alias"
+                                               t-on-change="updateValue" placeholder="e.g. is_done"/>
+                                    </div>
+                                    <button class="vqb-btn-remove" t-on-click="() => this.removeCustomExpression(ce)" title="Remove expression">
+                                        <i class="fa fa-trash-o"></i>
+                                    </button>
+                                </div>
+                            </t>
+
+                            <div t-if="!state.fields.length and !state.customExpressions.length" class="vqb-empty">
+                                <div class="vqb-empty-icon"><i class="fa fa-columns"></i></div>
+                                <span class="vqb-empty-text">No columns selected</span>
+                                <span class="vqb-empty-hint">Defaults to SELECT * — use "+ Field", "+ Expression", or CASE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JOIN -->
+                    <div t-att-class="'vqb-section vqb-section--join' + (state.collapsedSections.join ? ' collapsed' : '')">
+                        <div class="vqb-section-header">
+                            <div class="vqb-section-toggle" t-on-click="() => this.toggleSection('join')">
+                                <span class="vqb-section-badge"><i class="fa fa-link"></i></span>
+                                <h6 class="vqb-section-title">
+                                    JOIN — Related Tables
+                                    <span class="vqb-section-count" t-if="state.joins.length"><t t-esc="state.joins.length"/></span>
+                                </h6>
+                                <i class="fa fa-chevron-down vqb-chevron"></i>
+                            </div>
+                            <button class="vqb-btn-add" t-on-click="addJoin" title="Add a table join"><i class="fa fa-plus"></i> Join</button>
+                        </div>
+                        <div class="vqb-section-body">
+                            <t t-foreach="state.joins" t-as="join" t-key="join._uid">
+                                <div class="vqb-row vqb-row--join-wrap">
+                                    <div class="vqb-join-top">
+                                        <span class="vqb-row-number"><t t-esc="join_index + 1"/></span>
+                                        <div class="vqb-field-group" style="flex: 0 0 auto; min-width: 100px;">
+                                            <span class="vqb-field-label">Type</span>
+                                            <select class="form-select" t-model="join.type" t-on-change="updateValue">
+                                                <option value="LEFT JOIN">LEFT JOIN</option>
+                                                <option value="INNER JOIN">INNER JOIN</option>
+                                                <option value="RIGHT JOIN">RIGHT JOIN</option>
+                                                <option value="FULL OUTER JOIN">FULL OUTER</option>
+                                                <option value="CROSS JOIN">CROSS JOIN</option>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group" style="flex:1.5;">
+                                            <span class="vqb-field-label">Target Table</span>
+                                            <input type="text" class="form-control"
+                                                   t-att-list="'joinModelList_' + join._uid"
+                                                   t-on-change="(ev) => this.onJoinModelChange(join, ev)"
+                                                   t-att-value="join.model"
+                                                   placeholder="Search target table …"/>
+                                            <datalist t-att-id="'joinModelList_' + join._uid">
+                                                <t t-foreach="state.availableModels" t-as="model" t-key="model.model">
+                                                    <option t-att-value="model.model"><t t-esc="model.name"/> (<t t-esc="model.model"/>)</option>
+                                                </t>
+                                            </datalist>
+                                        </div>
+                                        <div class="vqb-field-group" style="flex:0.6;">
+                                            <span class="vqb-field-label">Alias</span>
+                                            <input type="text" class="form-control" t-model="join.alias"
+                                                   t-on-change="updateValue" placeholder="optional"/>
+                                        </div>
+                                        <button class="vqb-btn-remove" t-on-click="() => this.removeJoin(join)" title="Remove join">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </div>
+
+                                    <t t-if="join.type !== 'CROSS JOIN'">
+                                        <t t-foreach="join.conditions || []" t-as="cond" t-key="cond._uid">
+                                            <div class="vqb-join-on">
+                                                <span class="vqb-connector" t-if="cond_index === 0">ON</span>
+                                                <t t-if="cond_index > 0">
+                                                    <select class="form-select vqb-connector-select" t-model="cond.connector" t-on-change="updateValue" style="width: 74px;">
+                                                        <option value="AND">AND</option>
+                                                        <option value="OR">OR</option>
+                                                    </select>
+                                                </t>
+                                                <div class="vqb-field-group">
+                                                    <span class="vqb-field-label" t-if="cond_index === 0">Left Table</span>
+                                                    <select class="form-select" t-att-value="cond.leftModel"
+                                                            t-on-change="(ev) => this.onCondLeftModelChange(cond, ev)">
+                                                        <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                                            <option t-att-value="m" t-att-selected="cond.leftModel === m"><t t-esc="m"/></option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                                <div class="vqb-field-group">
+                                                    <span class="vqb-field-label" t-if="cond_index === 0">Left Field</span>
+                                                    <select class="form-select" t-model="cond.leftField" t-on-change="updateValue"
+                                                            t-att-class="{'is-invalid': this.isFieldMissing(cond.leftModel, cond.leftField)}">
+                                                        <option value="">— select —</option>
+                                                        <t t-foreach="filteredFields(cond.leftModel)" t-as="mf" t-key="mf.name">
+                                                            <option t-att-value="mf.name"><t t-esc="mf.field_description"/> (<t t-esc="mf.name"/>)</option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                                <div style="flex: 0 0 auto;">
+                                                    <span class="vqb-field-label" t-if="cond_index === 0" style="visibility:hidden;">Op</span>
+                                                    <select class="form-select" t-model="cond.operator" t-on-change="updateValue" style="width: 64px; text-align: center;">
+                                                        <option value="=">=</option>
+                                                        <option value="!=">!=</option>
+                                                        <option value="&gt;">&gt;</option>
+                                                        <option value="&lt;">&lt;</option>
+                                                        <option value="&gt;=">≥</option>
+                                                        <option value="&lt;=">≤</option>
+                                                    </select>
+                                                </div>
+                                                <div class="vqb-field-group">
+                                                    <span class="vqb-field-label" t-if="cond_index === 0">Right Field</span>
+                                                    <select class="form-select" t-model="cond.rightField" t-on-change="updateValue"
+                                                            t-att-class="{'is-invalid': this.isFieldMissing(join.model, cond.rightField)}">
+                                                        <option value="">— select —</option>
+                                                        <t t-foreach="filteredFields(join.model)" t-as="mf" t-key="mf.name">
+                                                            <option t-att-value="mf.name"><t t-esc="mf.field_description"/> (<t t-esc="mf.name"/>)</option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                                <button class="vqb-btn-remove" t-if="cond_index > 0"
+                                                        t-on-click="() => this.removeJoinCondition(join, cond)" title="Remove condition">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </t>
+                                        <div class="vqb-join-add-cond">
+                                            <button class="vqb-btn-add-mini" t-on-click="() => this.addJoinCondition(join)" title="Add another ON condition">
+                                                <i class="fa fa-plus"></i> condition
+                                            </button>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                            <div t-if="!state.joins.length" class="vqb-empty">
+                                <div class="vqb-empty-icon"><i class="fa fa-link"></i></div>
+                                <span class="vqb-empty-text">No joins — querying a single table</span>
+                                <span class="vqb-empty-hint">Use Suggested joins above or click "+ Join"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WHERE + HAVING -->
+                    <div class="vqb-row-pair">
+                        <div t-att-class="'vqb-section vqb-section--where' + (state.collapsedSections.where ? ' collapsed' : '')">
+                            <div class="vqb-section-header">
+                                <div class="vqb-section-toggle" t-on-click="() => this.toggleSection('where')">
+                                    <span class="vqb-section-badge"><i class="fa fa-filter"></i></span>
+                                    <h6 class="vqb-section-title">
+                                        WHERE
+                                        <span class="vqb-section-count" t-if="state.wheres.length"><t t-esc="state.wheres.length"/></span>
+                                    </h6>
+                                    <i class="fa fa-chevron-down vqb-chevron"></i>
+                                </div>
+                                <button class="vqb-btn-add" t-on-click="addWhere"><i class="fa fa-plus"></i> Filter</button>
+                            </div>
+                            <div class="vqb-section-body">
+                                <t t-foreach="state.wheres" t-as="w" t-key="w._uid">
+                                    <div t-att-class="'vqb-row vqb-row--where-wrap' + (this.isFieldMissing(w.model, w.field) ? ' is-invalid' : '')">
+                                        <t t-if="w_index > 0">
+                                            <select class="form-select vqb-connector-select" t-model="w.connector" t-on-change="updateValue" style="width:68px;">
+                                                <option value="AND">AND</option>
+                                                <option value="OR">OR</option>
+                                            </select>
+                                        </t>
+                                        <span class="vqb-row-number" t-if="w_index === 0"><t t-esc="w_index + 1"/></span>
+
+                                        <div class="vqb-field-group">
+                                            <select class="form-select" t-att-value="w.model"
+                                                    t-on-change="(ev) => this.onRowModelChange(w, ev)">
+                                                <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                                    <option t-att-value="m" t-att-selected="w.model === m"><t t-esc="m"/></option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group">
+                                            <select class="form-select" t-model="w.field" t-on-change="updateValue"
+                                                    t-att-class="{'is-invalid': this.isFieldMissing(w.model, w.field)}">
+                                                <option value="">— field —</option>
+                                                <t t-foreach="filteredFields(w.model)" t-as="mf" t-key="mf.name">
+                                                    <option t-att-value="mf.name"><t t-esc="mf.field_description"/> (<t t-esc="mf.name"/>)</option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div style="flex: 0 0 auto;">
+                                            <select class="form-select" t-model="w.operator" t-on-change="updateValue" style="width: 110px;">
+                                                <option value="=">=</option>
+                                                <option value="!=">!=</option>
+                                                <option value="&gt;">&gt;</option>
+                                                <option value="&lt;">&lt;</option>
+                                                <option value="&gt;=">≥</option>
+                                                <option value="&lt;=">≤</option>
+                                                <option value="IN">IN</option>
+                                                <option value="NOT IN">NOT IN</option>
+                                                <option value="LIKE">LIKE</option>
+                                                <option value="ILIKE">ILIKE</option>
+                                                <option value="NOT LIKE">NOT LIKE</option>
+                                                <option value="SIMILAR TO">SIMILAR TO</option>
+                                                <option value="~">~</option>
+                                                <option value="~*">~*</option>
+                                                <option value="BETWEEN">BETWEEN</option>
+                                                <option value="NOT BETWEEN">NOT BETWEEN</option>
+                                                <option value="@@">@@</option>
+                                                <option value="IS NULL">IS NULL</option>
+                                                <option value="IS NOT NULL">NOT NULL</option>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group" style="flex: 0.55;"
+                                             t-if="w.operator !== 'IS NULL' and w.operator !== 'IS NOT NULL'">
+                                            <select class="form-select" t-model="w.valueType" t-on-change="updateValue" title="Value type">
+                                                <option value="literal">literal</option>
+                                                <option value="field">field</option>
+                                                <option value="placeholder">placeholder</option>
+                                                <option value="expression">expression</option>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group" style="flex: 0.9;"
+                                             t-if="w.operator !== 'IS NULL' and w.operator !== 'IS NOT NULL'">
+                                            <input type="text" class="form-control" t-model="w.value"
+                                                   t-on-change="updateValue"
+                                                   t-att-placeholder="w.operator === 'BETWEEN' or w.operator === 'NOT BETWEEN' ? 'val1 AND val2' : w.operator === 'IN' || w.operator === 'NOT IN' ? '(1,2,3)' : w.valueType === 'placeholder' ? '{start_date}' : 'value'"/>
+                                            <div class="vqb-where-placeholders" t-if="w.valueType === 'placeholder'">
+                                                <button type="button" class="vqb-chip vqb-chip--sm" t-on-click="() => this.insertPlaceholder(w, '{start_date}')">{start_date}</button>
+                                                <button type="button" class="vqb-chip vqb-chip--sm" t-on-click="() => this.insertPlaceholder(w, '{end_date}')">{end_date}</button>
+                                                <button type="button" class="vqb-chip vqb-chip--sm" t-on-click="() => this.insertPlaceholder(w, '{uid}')">{uid}</button>
+                                                <button type="button" class="vqb-chip vqb-chip--sm" t-on-click="() => this.insertPlaceholder(w, '{company_id}')">{company_id}</button>
+                                            </div>
+                                        </div>
+                                        <div style="flex: 0 0 auto;" t-if="w.operator !== 'IS NULL' and w.operator !== 'IS NOT NULL'">
+                                            <select class="form-select" t-model="w.cast" t-on-change="updateValue"
+                                                    style="width: 80px;" title="Cast field type">
+                                                <option value="">cast</option>
+                                                <option value="TEXT">TEXT</option>
+                                                <option value="INTEGER">INT</option>
+                                                <option value="NUMERIC">NUM</option>
+                                                <option value="DATE">DATE</option>
+                                                <option value="TIMESTAMP">TS</option>
+                                            </select>
+                                        </div>
+                                        <button class="vqb-btn-remove" t-on-click="() => this.removeWhere(w)">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </div>
+                                </t>
+                                <div t-if="!state.wheres.length" class="vqb-empty">
+                                    <div class="vqb-empty-icon"><i class="fa fa-filter"></i></div>
+                                    <span class="vqb-empty-text">No filters</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div t-att-class="'vqb-section vqb-section--having' + (state.collapsedSections.having ? ' collapsed' : '')">
+                            <div class="vqb-section-header">
+                                <div class="vqb-section-toggle" t-on-click="() => this.toggleSection('having')">
+                                    <span class="vqb-section-badge"><i class="fa fa-sliders"></i></span>
+                                    <h6 class="vqb-section-title">
+                                        HAVING
+                                        <span class="vqb-section-count" t-if="state.havings.length"><t t-esc="state.havings.length"/></span>
+                                    </h6>
+                                    <i class="fa fa-chevron-down vqb-chevron"></i>
+                                </div>
+                                <button class="vqb-btn-add" t-on-click="addHaving"><i class="fa fa-plus"></i> Condition</button>
+                            </div>
+                            <div class="vqb-section-body">
+                                <t t-foreach="state.havings" t-as="h" t-key="h._uid">
+                                    <div class="vqb-row">
+                                        <t t-if="h_index > 0">
+                                            <select class="form-select vqb-connector-select" t-model="h.connector" t-on-change="updateValue" style="width:68px;">
+                                                <option value="AND">AND</option>
+                                                <option value="OR">OR</option>
+                                            </select>
+                                        </t>
+                                        <span class="vqb-row-number" t-if="h_index === 0"><t t-esc="h_index + 1"/></span>
+                                        <div class="vqb-field-group" style="flex: 0.5;">
+                                            <select class="form-select" t-model="h.agg" t-on-change="updateValue">
+                                                <option value="SUM">SUM</option>
+                                                <option value="COUNT">COUNT</option>
+                                                <option value="COUNT_DISTINCT">COUNT DISTINCT</option>
+                                                <option value="AVG">AVG</option>
+                                                <option value="MAX">MAX</option>
+                                                <option value="MIN">MIN</option>
+                                                <option value="STRING_AGG">STRING_AGG</option>
+                                                <option value="BOOL_OR">BOOL_OR</option>
+                                                <option value="BOOL_AND">BOOL_AND</option>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group">
+                                            <select class="form-select" t-att-value="h.model"
+                                                    t-on-change="(ev) => this.onRowModelChange(h, ev)">
+                                                <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                                    <option t-att-value="m" t-att-selected="h.model === m"><t t-esc="m"/></option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group">
+                                            <select class="form-select" t-model="h.field" t-on-change="updateValue"
+                                                    t-att-class="{'is-invalid': this.isFieldMissing(h.model, h.field)}">
+                                                <option value="">— field —</option>
+                                                <t t-foreach="filteredFields(h.model)" t-as="mf" t-key="mf.name">
+                                                    <option t-att-value="mf.name"><t t-esc="mf.field_description"/> (<t t-esc="mf.name"/>)</option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div style="flex: 0 0 auto;">
+                                            <select class="form-select" t-model="h.operator" t-on-change="updateValue" style="width: 64px; text-align: center;">
+                                                <option value="=">=</option>
+                                                <option value="!=">!=</option>
+                                                <option value="&gt;">&gt;</option>
+                                                <option value="&lt;">&lt;</option>
+                                                <option value="&gt;=">≥</option>
+                                                <option value="&lt;=">≤</option>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group" style="flex: 0.5;">
+                                            <input type="text" class="form-control" t-model="h.value"
+                                                   t-on-change="updateValue" placeholder="value"/>
+                                        </div>
+                                        <button class="vqb-btn-remove" t-on-click="() => this.removeHaving(h)">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </div>
+                                </t>
+                                <div t-if="!state.havings.length" class="vqb-empty">
+                                    <div class="vqb-empty-icon"><i class="fa fa-sliders"></i></div>
+                                    <span class="vqb-empty-text">No post-group filters</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GROUP BY + ORDER BY -->
+                    <div class="vqb-row-pair">
+                        <div t-att-class="'vqb-section vqb-section--group' + (state.collapsedSections.group ? ' collapsed' : '')">
+                            <div class="vqb-section-header">
+                                <div class="vqb-section-toggle" t-on-click="() => this.toggleSection('group')">
+                                    <span class="vqb-section-badge"><i class="fa fa-object-group"></i></span>
+                                    <h6 class="vqb-section-title">
+                                        GROUP BY
+                                        <span class="vqb-section-count" t-if="state.groupBys.length"><t t-esc="state.groupBys.length"/></span>
+                                    </h6>
+                                    <i class="fa fa-chevron-down vqb-chevron"></i>
+                                </div>
+                                <button class="vqb-btn-add" t-on-click="addGroupBy"><i class="fa fa-plus"></i> Group</button>
+                            </div>
+                            <div class="vqb-section-body">
+                                <t t-foreach="state.groupBys" t-as="gb" t-key="gb._uid">
+                                    <div t-att-class="'vqb-row' + (this.isFieldMissing(gb.model, gb.field) ? ' is-invalid' : '')">
+                                        <span class="vqb-row-number"><t t-esc="gb_index + 1"/></span>
+                                        <div class="vqb-field-group">
+                                            <select class="form-select" t-att-value="gb.model"
+                                                    t-on-change="(ev) => this.onRowModelChange(gb, ev)">
+                                                <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                                    <option t-att-value="m" t-att-selected="gb.model === m"><t t-esc="m"/></option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group">
+                                            <select class="form-select" t-model="gb.field" t-on-change="updateValue"
+                                                    t-att-class="{'is-invalid': this.isFieldMissing(gb.model, gb.field)}">
+                                                <option value="">— field —</option>
+                                                <t t-foreach="filteredFields(gb.model)" t-as="mf" t-key="mf.name">
+                                                    <option t-att-value="mf.name"><t t-esc="mf.field_description"/> (<t t-esc="mf.name"/>)</option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group" style="flex:0.6;">
+                                            <select class="form-select" t-model="gb.func" t-on-change="updateValue" title="Optional function wrapping">
+                                                <option value="">—</option>
+                                                <option value="DATE_TRUNC">DATE_TRUNC</option>
+                                                <option value="EXTRACT">EXTRACT</option>
+                                                <option value="DATE">:: DATE</option>
+                                                <option value="UPPER">UPPER</option>
+                                                <option value="LOWER">LOWER</option>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group" style="flex:0.5;"
+                                             t-if="gb.func === 'DATE_TRUNC' || gb.func === 'EXTRACT'">
+                                            <input type="text" class="form-control" t-model="gb.funcParam"
+                                                   t-on-change="updateValue"
+                                                   t-att-placeholder="gb.func === 'DATE_TRUNC' ? 'month' : 'year'"/>
+                                        </div>
+                                        <button class="vqb-btn-remove" t-on-click="() => this.removeGroupBy(gb)">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </div>
+                                </t>
+                                <div t-if="!state.groupBys.length" class="vqb-empty">
+                                    <div class="vqb-empty-icon"><i class="fa fa-object-group"></i></div>
+                                    <span class="vqb-empty-text">No grouping</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div t-att-class="'vqb-section vqb-section--order' + (state.collapsedSections.order ? ' collapsed' : '')">
+                            <div class="vqb-section-header">
+                                <div class="vqb-section-toggle" t-on-click="() => this.toggleSection('order')">
+                                    <span class="vqb-section-badge"><i class="fa fa-sort-amount-asc"></i></span>
+                                    <h6 class="vqb-section-title">
+                                        ORDER BY
+                                        <span class="vqb-section-count" t-if="state.orderBys.length"><t t-esc="state.orderBys.length"/></span>
+                                    </h6>
+                                    <i class="fa fa-chevron-down vqb-chevron"></i>
+                                </div>
+                                <button class="vqb-btn-add" t-on-click="addOrderBy"><i class="fa fa-plus"></i> Sort</button>
+                            </div>
+                            <div class="vqb-section-body">
+                                <t t-foreach="state.orderBys" t-as="ob" t-key="ob._uid">
+                                    <div class="vqb-row">
+                                        <span class="vqb-row-number"><t t-esc="ob_index + 1"/></span>
+                                        <div class="vqb-field-group">
+                                            <select class="form-select" t-att-value="ob.model"
+                                                    t-on-change="(ev) => this.onRowModelChange(ob, ev)">
+                                                <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                                    <option t-att-value="m" t-att-selected="ob.model === m"><t t-esc="m"/></option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div class="vqb-field-group">
+                                            <select class="form-select" t-model="ob.field" t-on-change="updateValue"
+                                                    t-att-class="{'is-invalid': this.isFieldMissing(ob.model, ob.field)}">
+                                                <option value="">— field —</option>
+                                                <t t-foreach="filteredFields(ob.model)" t-as="mf" t-key="mf.name">
+                                                    <option t-att-value="mf.name"><t t-esc="mf.field_description"/> (<t t-esc="mf.name"/>)</option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div style="flex: 0 0 auto;">
+                                            <select class="form-select" t-model="ob.direction" t-on-change="updateValue" style="width: 80px;">
+                                                <option value="ASC">↑ ASC</option>
+                                                <option value="DESC">↓ DESC</option>
+                                            </select>
+                                        </div>
+                                        <div style="flex: 0 0 auto;">
+                                            <select class="form-select" t-model="ob.nulls" t-on-change="updateValue" style="width: 100px;" title="Null ordering">
+                                                <option value="">NULLS —</option>
+                                                <option value="FIRST">NULLS FIRST</option>
+                                                <option value="LAST">NULLS LAST</option>
+                                            </select>
+                                        </div>
+                                        <button class="vqb-btn-remove" t-on-click="() => this.removeOrderBy(ob)">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </div>
+                                </t>
+                                <div t-if="!state.orderBys.length" class="vqb-empty">
+                                    <div class="vqb-empty-icon"><i class="fa fa-sort-amount-asc"></i></div>
+                                    <span class="vqb-empty-text">No sorting</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WINDOW -->
+                    <div t-att-class="'vqb-section vqb-section--window' + (state.collapsedSections.window ? ' collapsed' : '')">
+                        <div class="vqb-section-header">
+                            <div class="vqb-section-toggle" t-on-click="() => this.toggleSection('window')">
+                                <span class="vqb-section-badge"><i class="fa fa-window-maximize"></i></span>
+                                <h6 class="vqb-section-title">
+                                    WINDOW
+                                    <span class="vqb-section-count" t-if="state.windowFuncs.length"><t t-esc="state.windowFuncs.length"/></span>
+                                </h6>
+                                <i class="fa fa-chevron-down vqb-chevron"></i>
+                            </div>
+                            <button class="vqb-btn-add" t-on-click="addWindowFunc"><i class="fa fa-plus"></i> Window</button>
+                        </div>
+                        <div class="vqb-section-body">
+                            <t t-foreach="state.windowFuncs" t-as="wf" t-key="wf._uid">
+                                <div class="vqb-row vqb-row--wrap">
+                                    <span class="vqb-row-number"><t t-esc="wf_index + 1"/></span>
+                                    <div class="vqb-field-group" style="flex:0.7;">
+                                        <span class="vqb-field-label">Func</span>
+                                        <select class="form-select" t-model="wf.func" t-on-change="updateValue">
+                                            <option value="ROW_NUMBER">ROW_NUMBER</option>
+                                            <option value="RANK">RANK</option>
+                                            <option value="DENSE_RANK">DENSE_RANK</option>
+                                            <option value="SUM">SUM</option>
+                                            <option value="AVG">AVG</option>
+                                            <option value="COUNT">COUNT</option>
+                                            <option value="LAG">LAG</option>
+                                            <option value="LEAD">LEAD</option>
+                                            <option value="FIRST_VALUE">FIRST_VALUE</option>
+                                            <option value="LAST_VALUE">LAST_VALUE</option>
+                                        </select>
+                                    </div>
+                                    <div class="vqb-field-group">
+                                        <span class="vqb-field-label">Field</span>
+                                        <select class="form-select" t-att-value="wf.model"
+                                                t-on-change="(ev) => this.onRowModelChange(wf, ev)">
+                                            <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                                <option t-att-value="m" t-att-selected="wf.model === m"><t t-esc="m"/></option>
+                                            </t>
+                                        </select>
+                                        <select class="form-select" t-model="wf.field" t-on-change="updateValue">
+                                            <option value="">—</option>
+                                            <t t-foreach="filteredFields(wf.model)" t-as="mf" t-key="mf.name">
+                                                <option t-att-value="mf.name"><t t-esc="mf.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    <div class="vqb-field-group">
+                                        <span class="vqb-field-label">PARTITION BY</span>
+                                        <select class="form-select" t-att-value="wf.partitionModel"
+                                                t-on-change="(ev) => { wf.partitionModel = ev.target.value; this.loadFields(ev.target.value); this.updateValue(); }">
+                                            <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                                <option t-att-value="m" t-att-selected="wf.partitionModel === m"><t t-esc="m"/></option>
+                                            </t>
+                                        </select>
+                                        <select class="form-select" t-model="wf.partitionField" t-on-change="updateValue">
+                                            <option value="">—</option>
+                                            <t t-foreach="filteredFields(wf.partitionModel)" t-as="mf" t-key="mf.name">
+                                                <option t-att-value="mf.name"><t t-esc="mf.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    <div class="vqb-field-group">
+                                        <span class="vqb-field-label">ORDER BY</span>
+                                        <select class="form-select" t-att-value="wf.orderModel"
+                                                t-on-change="(ev) => { wf.orderModel = ev.target.value; this.loadFields(ev.target.value); this.updateValue(); }">
+                                            <t t-foreach="availableTableModels" t-as="m" t-key="m">
+                                                <option t-att-value="m" t-att-selected="wf.orderModel === m"><t t-esc="m"/></option>
+                                            </t>
+                                        </select>
+                                        <select class="form-select" t-model="wf.orderField" t-on-change="updateValue">
+                                            <option value="">—</option>
+                                            <t t-foreach="filteredFields(wf.orderModel)" t-as="mf" t-key="mf.name">
+                                                <option t-att-value="mf.name"><t t-esc="mf.name"/></option>
+                                            </t>
+                                        </select>
+                                        <select class="form-select" t-model="wf.orderDir" t-on-change="updateValue" style="width:80px;">
+                                            <option value="ASC">ASC</option>
+                                            <option value="DESC">DESC</option>
+                                        </select>
+                                    </div>
+                                    <div class="vqb-field-group" style="flex:0.5;">
+                                        <span class="vqb-field-label">Alias</span>
+                                        <input type="text" class="form-control" t-model="wf.alias" t-on-change="updateValue" placeholder="rn"/>
+                                    </div>
+                                    <button class="vqb-btn-remove" t-on-click="() => this.removeWindowFunc(wf)">
+                                        <i class="fa fa-trash-o"></i>
+                                    </button>
+                                </div>
+                            </t>
+                            <div t-if="!state.windowFuncs.length" class="vqb-empty">
+                                <div class="vqb-empty-icon"><i class="fa fa-window-maximize"></i></div>
+                                <span class="vqb-empty-text">No window functions</span>
+                                <span class="vqb-empty-hint">Add ROW_NUMBER / RANK / LAG … OVER (PARTITION BY …)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTE -->
+                    <div t-att-class="'vqb-section vqb-section--cte' + (state.collapsedSections.cte ? ' collapsed' : '')">
+                        <div class="vqb-section-header">
+                            <div class="vqb-section-toggle" t-on-click="() => this.toggleSection('cte')">
+                                <span class="vqb-section-badge"><i class="fa fa-sitemap"></i></span>
+                                <h6 class="vqb-section-title">
+                                    CTE / WITH
+                                    <span class="vqb-section-count" t-if="state.ctes.length"><t t-esc="state.ctes.length"/></span>
+                                </h6>
+                                <i class="fa fa-chevron-down vqb-chevron"></i>
+                            </div>
+                            <button class="vqb-btn-add" t-on-click="addCte"><i class="fa fa-plus"></i> CTE</button>
+                        </div>
+                        <div class="vqb-section-body">
+                            <t t-foreach="state.ctes" t-as="cte" t-key="cte._uid">
+                                <div class="vqb-row vqb-row--cte">
+                                    <span class="vqb-row-number"><t t-esc="cte_index + 1"/></span>
+                                    <div class="vqb-field-group" style="flex:0.4;">
+                                        <span class="vqb-field-label">Name</span>
+                                        <input type="text" class="form-control vqb-mono-input" t-model="cte.name"
+                                               t-on-change="updateValue" placeholder="cte_name"/>
+                                    </div>
+                                    <div class="vqb-field-group" style="flex:2;">
+                                        <span class="vqb-field-label">SQL body</span>
+                                        <textarea class="form-control vqb-mono-input vqb-cte-body" t-model="cte.body"
+                                                  t-on-change="updateValue" rows="2"
+                                                  placeholder="SELECT … FROM …"/>
+                                    </div>
+                                    <button class="vqb-btn-remove" t-on-click="() => this.removeCte(cte)">
+                                        <i class="fa fa-trash-o"></i>
+                                    </button>
+                                </div>
+                            </t>
+                            <div t-if="!state.ctes.length" class="vqb-empty">
+                                <div class="vqb-empty-icon"><i class="fa fa-sitemap"></i></div>
+                                <span class="vqb-empty-text">No CTEs</span>
+                                <span class="vqb-empty-hint">Optional WITH name AS (SELECT …) prepended to the query</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="vqb-section vqb-section--preview">
+                        <div class="vqb-sql-toolbar">
+                            <div class="vqb-section-toggle" t-on-click="toggleSqlPreview">
+                                <span class="vqb-section-badge vqb-section-badge--preview"><i class="fa fa-code"></i></span>
+                                <h6 class="vqb-section-title">Generated SQL Preview</h6>
+                                <i t-att-class="'fa vqb-chevron ' + (state.sqlPreviewVisible ? 'fa-chevron-down' : 'fa-chevron-right')"></i>
+                            </div>
+                            <div class="vqb-sql-actions">
+                                <button type="button" class="vqb-btn-tool" t-on-click="copySql" title="Copy SQL">
+                                    <i class="fa fa-clipboard"/> Copy
+                                </button>
+                                <button type="button" class="vqb-btn-tool vqb-btn-tool--primary"
+                                        t-on-click="testQuery" t-att-disabled="state.testBusy">
+                                    <i t-att-class="'fa ' + (state.testBusy ? 'fa-spinner fa-spin' : 'fa-play')"/>
+                                    Test Query
+                                </button>
+                            </div>
+                        </div>
+                        <div t-if="state.testResult" t-att-class="'vqb-test-banner vqb-test-banner--' + (state.testResult.ok ? 'ok' : 'err')">
+                            <strong t-esc="state.testResult.ok ? 'Success' : 'Failed'"/>
+                            <span t-esc="state.testResult.message || state.testResult.error"/>
+                            <p class="vqb-test-tip" t-if="state.testResult.tip">
+                                <i class="fa fa-lightbulb-o"/> <t t-esc="state.testResult.tip"/>
+                            </p>
+                        </div>
+                        <div class="vqb-section-body" t-if="state.sqlPreviewVisible">
+                            <pre class="vqb-sql-preview"><t t-esc="generateSql() or 'SELECT * FROM ...'"/></pre>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+
+            <!-- Footer -->
+            <div class="vqb-footer">
+                <i class="fa fa-magic"></i>
+                <span>SQL updates as you edit. Placeholders: <code>{start_date}</code>, <code>{end_date}</code>, <code>{uid}</code>, <code>{company_id}</code>. Use Test Query to validate against the database.</span>
+            </div>
+        </div>
+    </t>
+</templates>

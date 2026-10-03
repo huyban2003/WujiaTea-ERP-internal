@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Odoo Dynamic Dashboard with AI | Dashboard Builder for Odoo 19</title>
+  <meta name="description" content="Odoo Dynamic Dashboard with AI — build Sales, CRM, Inventory and KPI dashboards in Odoo 19. Drag-and-drop Dashboard Builder, 50+ charts, SQL, TV Mode, and AI generation."/>
+  <meta name="keywords" content="Odoo Dynamic Dashboard, Odoo Dashboard, Dynamic Dashboard, AI Dashboard, Odoo Dashboard Builder, Odoo 19 Dashboard, KPI Dashboard"/>
+  <link rel="canonical" href="https://YOUR-DOMAIN.com/odoo-dynamic-dashboard"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Odoo Dynamic Dashboard with AI | Dashboard Builder"/>
+  <meta property="og:description" content="Create interactive Dynamic Dashboards inside Odoo 19 with AI, 50+ charts, KPIs, SQL, and TV Mode."/>
+  <meta property="og:image" content="https://apps.odoocdn.com/apps/assets/19.0/dynamic_dashboard_ai_nexgen/main_screenshot.png"/>
+  <meta property="og:url" content="https://YOUR-DOMAIN.com/odoo-dynamic-dashboard"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Odoo Dynamic Dashboard with AI",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Odoo 19",
+    "offers": {
+      "@type": "Offer",
+      "price": "125.00",
+      "priceCurrency": "USD",
+      "url": "https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen"
+    },
+    "description": "Dynamic Dashboard and AI Dashboard Builder for Odoo 19 with 50+ charts, KPIs, SQL, TV Mode, and multi-source analytics.",
+    "author": {
+      "@type": "Organization",
+      "name": "NexGen Solutions",
+      "email": "nexgensolutionsodoo@gmail.com"
+    },
+    "url": "https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen"
+  }
+  </script>
+  <style>
+    :root {
+      --ink: #0b1220;
+      --muted: #5b6578;
+      --paper: #f3f6fb;
+      --line: #d7e0ef;
+      --accent: #1d4ed8;
+      --accent-2: #0ea5a4;
+      --glow: rgba(29, 78, 216, 0.28);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Figtree", sans-serif;
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(14, 165, 164, 0.16), transparent 60%),
+        radial-gradient(900px 500px at -10% 10%, rgba(29, 78, 216, 0.18), transparent 55%),
+        linear-gradient(180deg, #eef3fb 0%, #f7f9fc 40%, #ffffff 100%);
+    }
+    a { color: inherit; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .brand {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    /* NAV */
+    .nav {
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(12px);
+      background: rgba(243, 246, 251, 0.82);
+      border-bottom: 1px solid rgba(215, 224, 239, 0.7);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-brand img { width: 34px; height: 34px; border-radius: 8px; }
+    .nav-brand span { font-size: 15px; }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--ink); color: #fff; text-decoration: none;
+      border-radius: 999px; padding: 10px 16px; font-weight: 700; font-size: 14px;
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(11, 18, 32, 0.18); }
+
+    /* HERO — one composition, brand first, full-bleed visual */
+    .hero {
+      position: relative;
+      min-height: min(92vh, 820px);
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .hero-media {
+      position: absolute; inset: 0; z-index: -2;
+      background:
+        linear-gradient(180deg, rgba(11,18,32,0.18) 0%, rgba(11,18,32,0.72) 62%, rgba(11,18,32,0.92) 100%),
+        url("https://apps.odoocdn.com/apps/assets/19.0/dynamic_dashboard_ai_nexgen/main_screenshot.png") center/cover no-repeat;
+      transform: scale(1.04);
+      animation: heroDrift 18s ease-in-out infinite alternate;
+    }
+    .hero-grain {
+      position: absolute; inset: 0; z-index: -1; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.08) 0.6px, transparent 0.6px);
+      background-size: 3px 3px; opacity: 0.35;
+    }
+    .hero-copy {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 0 0 64px;
+      color: #fff;
+      animation: riseIn .9s ease both;
+    }
+    .hero-kicker {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #9fdad8; margin: 0 0 14px;
+    }
+    .hero h1 {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-size: clamp(40px, 7vw, 72px);
+      line-height: 0.98; letter-spacing: -0.045em; margin: 0 0 16px; max-width: 15ch;
+    }
+    .hero p {
+      margin: 0 0 28px; max-width: 42ch; font-size: clamp(16px, 2.2vw, 19px);
+      line-height: 1.55; color: rgba(255,255,255,0.86);
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      text-decoration: none; border-radius: 999px; padding: 14px 22px;
+      font-weight: 700; font-size: 15px; transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+    }
+    .btn-primary {
+      background: #fff; color: var(--ink);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(0,0,0,0.3); }
+    .btn-ghost {
+      background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.35);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+
+    /* SECTIONS */
+    section { padding: 88px 0; }
+    .section-title {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: -0.04em; line-height: 1.1; margin: 0 0 12px;
+    }
+    .section-lead {
+      margin: 0 0 36px; max-width: 62ch; color: var(--muted); font-size: 17px; line-height: 1.65;
+    }
+    .split {
+      display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center;
+    }
+    .shot {
+      width: 100%; border-radius: 20px; border: 1px solid var(--line);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+      animation: floatY 7s ease-in-out infinite;
+    }
+    .feature-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+    .feature-list li {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start;
+      font-size: 15px; line-height: 1.5; color: #243044;
+    }
+    .feature-list li::before {
+      content: ""; width: 28px; height: 28px; border-radius: 50%;
+      background:
+        linear-gradient(135deg, var(--accent), var(--accent-2)) center/12px 12px no-repeat,
+        #e8eefc;
+      box-shadow: inset 0 0 0 1px #c9d7f5;
+    }
+
+    .band {
+      background:
+        linear-gradient(135deg, #0b1220 0%, #12203a 55%, #0f3b3a 100%);
+      color: #fff;
+    }
+    .band .section-lead { color: rgba(255,255,255,0.72); }
+    .pill-grid {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;
+    }
+    .pill {
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px; padding: 10px 14px; font-size: 13px; font-weight: 600;
+    }
+
+    .steps {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+    }
+    .step {
+      padding: 8px 0 0;
+      border-top: 2px solid var(--ink);
+      animation: riseIn .8s ease both;
+    }
+    .step:nth-child(2) { animation-delay: .1s; }
+    .step:nth-child(3) { animation-delay: .2s; }
+    .step strong {
+      display: block; font-family: "Bricolage Grotesque", sans-serif;
+      font-size: 22px; letter-spacing: -0.03em; margin: 14px 0 8px;
+    }
+    .step p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 15px; }
+
+    .faq details {
+      border-bottom: 1px solid var(--line); padding: 16px 0;
+    }
+    .faq summary {
+      cursor: pointer; font-weight: 700; font-size: 16px; list-style: none;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq p { color: var(--muted); line-height: 1.6; margin: 10px 0 0; }
+
+    .cta-final {
+      text-align: center;
+      background:
+        radial-gradient(600px 220px at 50% 0%, var(--glow), transparent 70%),
+        var(--paper);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .cta-final h2 { margin-bottom: 10px; }
+    .cta-final p { margin: 0 auto 24px; }
+
+    footer {
+      padding: 28px 0 40px; color: var(--muted); font-size: 13px;
+    }
+    footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    footer a { color: var(--accent); font-weight: 600; text-decoration: none; }
+
+    @keyframes heroDrift {
+      from { transform: scale(1.04) translate3d(0,0,0); }
+      to { transform: scale(1.1) translate3d(-1.5%, -1%, 0); }
+    }
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @media (max-width: 900px) {
+      .split, .steps { grid-template-columns: 1fr; }
+      .hero { min-height: 78vh; }
+      .hero-copy { padding-bottom: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-brand" href="#top">
+        <img src="https://apps.odoocdn.com/apps/assets/19.0/dynamic_dashboard_ai_nexgen/icon.png" alt="Odoo Dynamic Dashboard icon"/>
+        <span class="brand">NexGen Solutions</span>
+      </a>
+      <a class="nav-cta" href="https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen" rel="noopener">View on Odoo Apps</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-label="Odoo Dynamic Dashboard hero">
+      <div class="hero-media" role="img" aria-label="Odoo Dynamic Dashboard main screen"></div>
+      <div class="hero-grain"></div>
+      <div class="hero-copy">
+        <p class="hero-kicker">NexGen Solutions</p>
+        <h1>Odoo Dynamic Dashboard with AI</h1>
+        <p>Build interactive Dynamic Dashboards inside Odoo 19 — AI generation, 50+ charts, KPIs, SQL, and TV Mode in one Dashboard Builder.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen" rel="noopener">Get the Dashboard App</a>
+          <a class="btn btn-ghost" href="mailto:nexgensolutionsodoo@gmail.com?subject=Odoo%20Dynamic%20Dashboard%20Demo">Request a walkthrough</a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap split">
+        <div>
+          <h2 class="section-title">The Odoo Dashboard teams actually use</h2>
+          <p class="section-lead">
+            Searching for an <strong>Odoo Dynamic Dashboard</strong> or <strong>AI Dashboard</strong> for Odoo 19?
+            Create Sales, CRM, Inventory, Accounting, HR, and Project boards without leaving your ERP.
+          </p>
+          <ul class="feature-list">
+            <li>Drag-and-drop Dashboard Builder with themes and auto-arrange</li>
+            <li>AI Dashboard generator using your own OpenAI, Gemini, Claude, or Cursor key</li>
+            <li>50+ visuals: KPIs, charts, maps, funnels, lists, scorecards, and more</li>
+            <li>Odoo models, Custom SQL, Visual Query Builder, Excel/CSV, Google Sheets, APIs, databases</li>
+            <li>TV Mode, Present Mode, share links, and scheduled email reports</li>
+          </ul>
+        </div>
+        <div>
+          <img class="shot" src="https://apps.odoocdn.com/apps/assets/19.0/dynamic_dashboard_ai_nexgen/feature_overview.png" alt="Odoo Dynamic Dashboard builder overview with AI and TV Mode"/>
+        </div>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="wrap">
+        <h2 class="section-title">Built for every Odoo Dashboard use case</h2>
+        <p class="section-lead">One module covers Dynamic Dashboard, KPI Dashboard, Analytic Dashboard, and department boards.</p>
+        <div class="pill-grid">
+          <span class="pill">Sales Dashboard</span>
+          <span class="pill">CRM Dashboard</span>
+          <span class="pill">Inventory Dashboard</span>
+          <span class="pill">Accounting Dashboard</span>
+          <span class="pill">Purchase Dashboard</span>
+          <span class="pill">HR Dashboard</span>
+          <span class="pill">Project Dashboard</span>
+          <span class="pill">KPI Dashboard</span>
+          <span class="pill">BI Dashboard</span>
+          <span class="pill">TV Wallboard</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">Create a Dynamic Dashboard in Odoo in 3 steps</h2>
+        <p class="section-lead">From install to a live board — without a BI project.</p>
+        <div class="steps">
+          <article class="step">
+            <strong>1. Install</strong>
+            <p>Add Odoo Dynamic Dashboard with AI from the Odoo Apps Store to Community, Enterprise, or Odoo.sh.</p>
+          </article>
+          <article class="step">
+            <strong>2. Generate or design</strong>
+            <p>Ask AI for a keyword like “Sales”, use ready templates, or drag widgets and connect your data.</p>
+          </article>
+          <article class="step">
+            <strong>3. Share &amp; display</strong>
+            <p>Filter, drill down, export, share securely, or rotate boards in TV Mode on office screens.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap split">
+        <div>
+          <img class="shot" src="https://apps.odoocdn.com/apps/assets/19.0/dynamic_dashboard_ai_nexgen/feature_ai.png" alt="AI Dashboard generation for Odoo Dynamic Dashboard" style="animation-delay:1s"/>
+        </div>
+        <div>
+          <h2 class="section-title">AI Dashboard generation, under your control</h2>
+          <p class="section-lead">
+            Describe what you need — “Overdue invoices by salesperson” — and preview widgets before saving.
+            You bring your own AI provider API key, so billing and privacy stay with you. Core dashboards work fully without AI.
+          </p>
+          <a class="btn btn-primary" href="https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen" rel="noopener" style="background:var(--ink);color:#fff">See it on Odoo Apps</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq">
+      <div class="wrap" style="max-width:820px">
+        <h2 class="section-title">Frequently asked questions</h2>
+        <p class="section-lead">Quick answers for people searching Odoo Dynamic Dashboard and Odoo Dashboard Builder.</p>
+        <details open>
+          <summary>What is Odoo Dynamic Dashboard with AI?</summary>
+          <p>It is a Dashboard Builder for Odoo 19 that creates interactive Dynamic Dashboards with AI assistance, 50+ chart types, KPIs, SQL, multi-source data, filters, sharing, and TV Mode.</p>
+        </details>
+        <details>
+          <summary>Does it work on Odoo Community and Enterprise?</summary>
+          <p>Yes — Community, Enterprise (on-premise), and Odoo.sh. Odoo Online (SaaS) does not allow third-party apps.</p>
+        </details>
+        <details>
+          <summary>Can I build a Sales or CRM Dashboard?</summary>
+          <p>Yes. Ready-made and custom boards cover Sales, CRM, Inventory, Accounting, Purchase, HR, Project, and more.</p>
+        </details>
+        <details>
+          <summary>Is AI required?</summary>
+          <p>No. Charts, SQL, Visual Query Builder, KPIs, filters, TV Mode, and sharing work without AI. AI is optional when you add your own provider key.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="cta-final">
+      <div class="wrap">
+        <h2 class="section-title">Ready for a better Odoo Dashboard?</h2>
+        <p class="section-lead">Install Odoo Dynamic Dashboard with AI and turn Odoo data into live decisions.</p>
+        <div class="cta-row" style="justify-content:center">
+          <a class="btn btn-primary" href="https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen" rel="noopener" style="background:var(--ink);color:#fff">Buy on Odoo Apps Store</a>
+          <a class="btn btn-ghost" href="mailto:nexgensolutionsodoo@gmail.com?subject=Odoo%20Dynamic%20Dashboard%20Support" style="border-color:rgba(11,18,32,0.2);color:var(--ink)">Email NexGen Solutions</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div>&copy; NexGen Solutions · Odoo Dynamic Dashboard with AI</div>
+      <div>
+        <a href="https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen">Apps Store</a>
+        ·
+        <a href="mailto:nexgensolutionsodoo@gmail.com">nexgensolutionsodoo@gmail.com</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

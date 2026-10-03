@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Demo data for Data Calculation Types (custom / sql / api / excel / csv / scrape / sheets).
+
+        Creates one dashboard per calculation type with filled dashboard fields, global filters,
+        and rich items (including Visual Query Builder SQL for every item_type).
+
+        Layout: items are skyline-packed by item_type size (tile/kpi 3×2, charts 4–6×4, etc.)
+        so My Dashboard has no large blank gaps. After seeding, action_repack_layout
+        re-applies auto sizes and tight packing.
+
+        Implementation: models/demo_data_sources.py → seed_data_calculation_type_demos()
+        Uses only depends: base, bus, mail, web (+ this module's models).
+    -->
+    <data noupdate="0">
+        <function model="dynamic.dashboard" name="seed_data_calculation_type_demos"/>
+        <!-- Ensure every demo dashboard is tightly packed with type-based sizes -->
+        <function model="dynamic.dashboard" name="action_repack_all_demo_layouts"/>
+    </data>
+</odoo>

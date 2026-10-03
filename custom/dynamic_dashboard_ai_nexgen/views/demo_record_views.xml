@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_demo_record_list" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.demo.record.list</field>
+        <field name="model">dynamic.dashboard.demo.record</field>
+        <field name="arch" type="xml">
+            <list string="Demo Metrics" multi_edit="1" sample="1">
+                <field name="name"/>
+                <field name="metric_date"/>
+                <field name="category" optional="show"/>
+                <field name="stage" optional="show"/>
+                <field name="region" optional="show"/>
+                <field name="amount"/>
+                <field name="quantity" optional="show"/>
+                <field name="country_id" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+                <field name="partner_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_demo_record_form" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.demo.record.form</field>
+        <field name="model">dynamic.dashboard.demo.record</field>
+        <field name="arch" type="xml">
+            <form string="Demo Metric">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Metric name" class="o_text_overflow"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Classification">
+                            <field name="metric_date"/>
+                            <field name="category"/>
+                            <field name="stage"/>
+                            <field name="region"/>
+                            <field name="company_type"/>
+                        </group>
+                        <group string="Values &amp; Links">
+                            <field name="amount"/>
+                            <field name="quantity"/>
+                            <field name="country_id" options="{'no_create': True}"/>
+                            <field name="user_id" widget="many2one_avatar"/>
+                            <field name="partner_id" options="{'no_create': True}"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                      options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_demo_record_search" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.demo.record.search</field>
+        <field name="model">dynamic.dashboard.demo.record</field>
+        <field name="arch" type="xml">
+            <search string="Demo Metrics">
+                <field name="name"/>
+                <field name="metric_date"/>
+                <field name="category"/>
+                <field name="stage"/>
+                <field name="region"/>
+                <field name="country_id"/>
+                <field name="user_id"/>
+                <field name="partner_id"/>
+                <field name="company_type"/>
+                <field name="amount"/>
+                <field name="quantity"/>
+                <separator/>
+                <filter name="filter_metric_date" string="Metric Date" date="metric_date"/>
+                <separator/>
+                <filter name="filter_won" string="Won" domain="[('stage', '=', 'won')]"/>
+                <filter name="filter_lost" string="Lost" domain="[('stage', '=', 'lost')]"/>
+                <filter name="filter_company" string="Company" domain="[('company_type', '=', 'company')]"/>
+                <filter name="filter_person" string="Individual" domain="[('company_type', '=', 'person')]"/>
+                <group>
+                    <filter name="group_category" string="Category" context="{'group_by': 'category'}"/>
+                    <filter name="group_stage" string="Stage" context="{'group_by': 'stage'}"/>
+                    <filter name="group_region" string="Region" context="{'group_by': 'region'}"/>
+                    <filter name="group_country" string="Country" context="{'group_by': 'country_id'}"/>
+                    <filter name="group_user" string="Responsible" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_date" string="Metric Date" context="{'group_by': 'metric_date:month'}"/>
+                    <filter name="group_company_type" string="Company Type" context="{'group_by': 'company_type'}"/>
+                </group>
+                <searchpanel>
+                    <field name="category" enable_counters="1" select="multi"/>
+                    <field name="stage" enable_counters="1" select="multi"/>
+                    <field name="region" enable_counters="1" select="multi"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+</odoo>

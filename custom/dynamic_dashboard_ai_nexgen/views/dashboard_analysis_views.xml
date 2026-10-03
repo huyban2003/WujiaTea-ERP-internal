@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dynamic_dashboard_ai_nexgen_analysis_list" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.analysis.list</field>
+        <field name="model">dynamic.dashboard.analysis</field>
+        <field name="arch" type="xml">
+            <list string="Analyses" multi_edit="1" sample="1"
+                  decoration-muted="not active">
+                <field name="name"/>
+                <field name="visual_type"/>
+                <field name="source_type"/>
+                <field name="model_id" optional="show"/>
+                <field name="mart_id" optional="hide"/>
+                <field name="external_connection_id" optional="hide"/>
+                <field name="active" optional="hide" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dynamic_dashboard_ai_nexgen_analysis_form" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.analysis.form</field>
+        <field name="model">dynamic.dashboard.analysis</field>
+        <field name="arch" type="xml">
+            <form string="Analysis">
+                <header>
+                    <button name="action_open_editor" type="object" string="Open Editor"
+                            class="btn-primary" icon="fa-pencil-square-o"/>
+                    <button name="explain_with_ai" type="object" string="Explain with AI"
+                            class="btn-secondary" icon="fa-magic"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Revenue by Month" class="o_text_overflow"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Source">
+                            <field name="active" invisible="1"/>
+                            <field name="source_type"/>
+                            <field name="model_id" invisible="source_type != 'model'"
+                                      required="source_type == 'model'" options="{'no_create': True}"/>
+                            <field name="model_name" invisible="1"/>
+                            <field name="domain" widget="domain" options="{'model': 'model_name'}"
+                                      invisible="source_type != 'model'"/>
+                            <field name="date_filter_field_id" invisible="source_type != 'model'"/>
+                            <field name="mart_id" invisible="source_type != 'mart'"
+                                      options="{'no_create': True}"/>
+                            <field name="external_connection_id" invisible="source_type not in ('sql',)"
+                                      options="{'no_create': True}"/>
+                            <field name="query" invisible="source_type != 'sql'" widget="ace"
+                                      options="{'mode': 'python'}"/>
+                            <field name="scrape_url" invisible="source_type != 'scrape'" widget="url"/>
+                            <field name="scrape_json_path" invisible="source_type != 'scrape'"/>
+                            <field name="sheets_id" invisible="source_type != 'sheets'"/>
+                            <field name="sheets_range" invisible="source_type != 'sheets'"/>
+                        </group>
+                        <group string="Display">
+                            <field name="visual_type"/>
+                            <field name="visual_config"/>
+                            <field name="iframe_url" invisible="visual_type != 'iframe'" widget="url"/>
+                            <field name="odoo_action_id" invisible="visual_type != 'odoo_view'"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                      options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Metrics" name="metrics">
+                            <field name="metric_ids">
+                                <list editable="bottom" string="Metrics">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="field_id"/>
+                                    <field name="aggregation"/>
+                                    <field name="sort_order" optional="show"/>
+                                    <field name="format_type" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Dimensions" name="dimensions">
+                            <field name="dimension_ids">
+                                <list editable="bottom" string="Dimensions">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="field_id"/>
+                                    <field name="date_grain" optional="show"/>
+                                    <field name="sort_order" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Filters" name="filters">
+                            <field name="filter_ids">
+                                <list editable="bottom" string="Filters">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="field_id"/>
+                                    <field name="operator"/>
+                                    <field name="value"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dynamic_dashboard_ai_nexgen_analysis_search" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.analysis.search</field>
+        <field name="model">dynamic.dashboard.analysis</field>
+        <field name="arch" type="xml">
+            <search string="Analyses">
+                <field name="name"/>
+                <field name="visual_type"/>
+                <field name="source_type"/>
+                <field name="model_id"/>
+                <field name="mart_id"/>
+                <field name="external_connection_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <separator/>
+                <filter name="filter_active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="filter_src_model" string="Source: Model" domain="[('source_type', '=', 'model')]"/>
+                <filter name="filter_src_sql" string="Source: SQL" domain="[('source_type', '=', 'sql')]"/>
+                <filter name="filter_src_mart" string="Source: Mart" domain="[('source_type', '=', 'mart')]"/>
+                <filter name="filter_src_api" string="Source: API" domain="[('source_type', '=', 'api')]"/>
+                <separator/>
+                <filter name="filter_vis_tile" string="Visual: Tile/KPI"
+                        domain="[('visual_type', 'in', ['tile', 'kpi', 'scorecard'])]"/>
+                <filter name="filter_vis_chart" string="Visual: Charts"
+                        domain="[('visual_type', 'in', ['bar', 'barLine', 'horizontalBar', 'line', 'area', 'pie', 'doughnut', 'polarArea', 'radar', 'flower', 'scatter', 'radialBar', 'funnel', 'bullet', 'heatmap'])]"/>
+                <filter name="filter_vis_list" string="Visual: List" domain="[('visual_type', '=', 'list')]"/>
+                <filter name="filter_vis_map" string="Visual: Map" domain="[('visual_type', '=', 'map')]"/>
+                <group>
+                    <filter name="group_visual" string="Visual Type" context="{'group_by': 'visual_type'}"/>
+                    <filter name="group_source" string="Source Type" context="{'group_by': 'source_type'}"/>
+                    <filter name="group_model" string="Model" context="{'group_by': 'model_id'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+                <searchpanel>
+                    <field name="source_type" enable_counters="1"/>
+                    <field name="visual_type" enable_counters="1" select="multi"/>
+                    <field name="company_id" groups="base.group_multi_company" enable_counters="1"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dynamic_dashboard_ai_nexgen_analysis" model="ir.actions.act_window">
+        <field name="name">Analyses</field>
+        <field name="res_model">dynamic.dashboard.analysis</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_dynamic_dashboard_ai_nexgen_analysis_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a reusable analysis
+            </p>
+            <p>
+                Define metrics and dimensions once, then reuse them across dashboard items.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_dynamic_dashboard_ai_nexgen_analysis_editor" model="ir.actions.client">
+        <field name="name">Analysis Editor</field>
+        <field name="tag">dynamic_dashboard_ai_nexgen.analysis_editor</field>
+    </record>
+</odoo>

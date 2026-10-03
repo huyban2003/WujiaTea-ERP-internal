@@ -1,46 +1,48 @@
-odoo.define('fields_value.form_controller', function (require) {
-    "use strict";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+import { Component } from "@odoo/owl";
 
-    var FormController = require('web.FormController');
-    var Sidebar = require('web.Sidebar');
-    var core = require('web.core');
-    var _t = core._t;
-    var config = require("web.config");
+const cogMenuRegistry = registry.category("cogMenu");
 
-    Sidebar.include({
-        _addToolbarActions: function (toolbarActions) {
-            if ('other' in toolbarActions && 'field_values_action' in toolbarActions) {
-                toolbarActions.other.unshift(toolbarActions.field_values_action);
-                toolbarActions.field_values_action = null;
-            }
-            this._super(toolbarActions);
+export class ViewFieldsValueCogMenu extends Component {
+    static template = "fields_value.ViewFieldsValueCogMenu";
+    static components = { DropdownItem };
+
+    setup() {
+        this.actionService = useService("action");
+    }
+
+    async onSelected() {
+        const root = this.env?.model?.root;
+        const resId = root?.resId;
+        const resModel = root?.resModel || this.env?.config?.resModel;
+
+        if (!resId || !resModel) {
+            return;
         }
-    });
 
-    FormController.include({
-        renderSidebar: function ($node) {
-            if (this.hasSidebar && config.isDebug()) {
-                this.toolbarActions['field_values_action'] = {
-                    label: _t('View fields value'),
-                    callback: this._onOpenFieldsValue.bind(this)
-                };
-            }
-            this._super($node);
-        },
-        _onOpenFieldsValue: function () {
-            var state = this.initialState;
-            this.do_action({
-                type: 'ir.actions.act_window',
-                view_mode: 'form',
-                res_model: 'fields.value',
-                views: [[false, 'form']],
-                context: {
-                    default_res_id: state.res_id,
-                    default_model: state.model,
-                    from_fields_value: true
-                },
-                target: 'new'
-            });
-        }
-    })
-});
+        await this.actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "View Fields Value",
+            res_model: "fields.value",
+            views: [[false, "form"]],
+            target: "new",
+            context: {
+                default_res_id: resId,
+                default_model: resModel,
+                from_fields_value: true,
+            },
+        });
+    }
+}
+
+export const viewFieldsValueItem = {
+    Component: ViewFieldsValueCogMenu,
+    groupNumber: 20,
+    isDisplayed: (env) => {
+        return env?.config?.viewType === "form" && Boolean(env?.model?.root?.resId);
+    },
+};
+
+cogMenuRegistry.add("fields-value-menu", viewFieldsValueItem, { sequence: 50 });

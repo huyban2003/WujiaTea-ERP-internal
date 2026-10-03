@@ -11,22 +11,21 @@
     """,
 
     'author': "Apanda",
+    'category': 'Technical',
+    'version': '19.0.1.0.0',
 
-    # Categories can be used to filter modules in modules listing
-    # Check https://github.com/odoo/odoo/blob/11.0/odoo/addons/base/module/module_data.xml
-    # for the full list
-    'category': 'Uncategorized',
-    'version': '0.1',
+    'depends': ['base', 'web'],
 
-    # any module necessary for this one to work correctly
-    'depends': ['base'],
-
-    # always loaded
     'data': [
-        'views/assets_backend.xml',
+        'security/ir.model.access.csv',
         'views/views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'fields_value/static/src/js/fields_value.js',
+            'fields_value/static/src/xml/fields_value.xml',
+        ],
+    },
     'license': 'AGPL-3',
-
     'images': ['static/description/cover.gif'],
 }

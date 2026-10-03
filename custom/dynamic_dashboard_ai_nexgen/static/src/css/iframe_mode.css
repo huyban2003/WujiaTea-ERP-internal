@@ -1,0 +1,58 @@
+/* Copyright (C) NexGen Solutions */
+/* Hide Odoo Top Navbar */
+body.dd_iframe_mode header, 
+body.dd_iframe_mode .o_main_navbar, 
+body.dd_iframe_mode .o_navbar { 
+    display: none !important; 
+}
+
+/* Completely Hide the Control Panel (Save, Discard, New, Breadcrumbs, Search) */
+body.dd_iframe_mode .o_control_panel { 
+    display: none !important; 
+}
+
+/* Hide Form Header / Statusbar (Action buttons like Move, Open Analysis) */
+body.dd_iframe_mode .o_form_statusbar { 
+    display: none !important; 
+}
+
+/* Remove grey backgrounds from the form sheet */
+body.dd_iframe_mode { 
+    background-color: #ffffff !important; 
+    overflow-y: auto !important; 
+}
+body.dd_iframe_mode .o_content { 
+    background-color: #ffffff !important; 
+}
+body.dd_iframe_mode .o_form_sheet_bg { 
+    background-color: #ffffff !important; 
+    padding-top: 20px !important; 
+}
+body.dd_iframe_mode .o_form_sheet { 
+    border: none !important; 
+    box-shadow: none !important; 
+    padding: 0 20px 20px 20px !important; 
+    max-width: 100% !important; 
+    margin: 0 !important; 
+}
+
+/* Hide Chatter */
+body.dd_iframe_mode .o_FormRenderer_chatterContainer { 
+    display: none !important; 
+}
+
+/* Adjust notebook tabs to look modern */
+body.dd_iframe_mode .o_notebook .nav-tabs { 
+    border-bottom: 2px solid #e9ecef !important; 
+}
+body.dd_iframe_mode .o_notebook .nav-link { 
+    border: none !important; 
+    color: #6c757d !important; 
+    font-weight: bold !important; 
+    padding: 12px 20px !important; 
+}
+body.dd_iframe_mode .o_notebook .nav-link.active { 
+    color: #0d6efd !important; 
+    border-bottom: 2px solid #0d6efd !important; 
+    background: transparent !important; 
+}
