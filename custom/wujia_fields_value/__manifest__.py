@@ -15,6 +15,7 @@
     'author': "Apanda, WujiaTea Team",
     'category': 'Technical',
     'version': '19.0.1.0.0',
+    'icon': '/wujia_fields_value/static/description/icon.png',
 
     'depends': ['base', 'web'],
 

@@ -35,7 +35,12 @@ msgstr "Xem giá trị các trường"
 #. module: wujia_fields_value
 #: model:ir.model.fields,field_description:wujia_fields_value.field_wujia_fields_value__field_ids
 msgid "Filter Fields"
-msgstr "Lọc theo trường"
+msgstr "Trường"
+
+#. module: wujia_fields_value
+#: model:ir.model.fields,field_description:wujia_fields_value.field_wujia_fields_value__res_display_name
+msgid "Record"
+msgstr "Mã"
 
 #. module: wujia_fields_value
 #: model:ir.model.fields,field_description:wujia_fields_value.field_wujia_fields_value__field_value_line_ids
@@ -63,6 +68,77 @@ msgid "Sequence"
 msgstr "STT"
 
 #. module: wujia_fields_value
-#: js: static/src/xml/fields_value.xml
+#: model:ir.model.fields,field_description:wujia_fields_value.field_wujia_fields_value_line__field_type
+msgid "Field Type"
+msgstr "Field Type"
+
+#. module: wujia_fields_value
+#: model:ir.model.fields,field_description:wujia_fields_value.field_wujia_fields_value_line__relation_model
+msgid "Relation Model"
+msgstr "Model liên quan"
+
+#. module: wujia_fields_value
+#: model:ir.model.fields,field_description:wujia_fields_value.field_wujia_fields_value_line__has_relation
+msgid "Has Relation"
+msgstr "Có bản ghi liên quan"
+
+#. module: wujia_fields_value
+#: model_terms:ir.ui.view,arch_db:wujia_fields_value.view_wujia_fields_value_form
+msgid "View"
+msgstr "View"
+
+#. module: wujia_fields_value
+#: model_terms:ir.ui.view,arch_db:wujia_fields_value.view_wujia_fields_value_form
+msgid "Open"
+msgstr "Open"
+
+#. module: wujia_fields_value
+#: code:custom/wujia_fields_value/wizard/fields_value.py:0
+msgid "Field Value Detail"
+msgstr "Chi tiết giá trị trường"
+
+#. module: wujia_fields_value
+#: code:custom/wujia_fields_value/wizard/fields_value.py:0
+msgid "No target relation model defined for this field."
+msgstr "Chưa xác định model liên quan cho trường này."
+
+#. module: wujia_fields_value
+#: code:custom/wujia_fields_value/wizard/fields_value.py:0
+msgid "No target record available to open."
+msgstr "Không có bản ghi liên quan để mở."
+
+#. module: wujia_fields_value
+#: code:custom/wujia_fields_value/static/src/xml/fields_value.xml:0
 msgid "View fields value"
 msgstr "Xem giá trị tất cả các trường"
+
+#. module: wujia_fields_value
+#: model_terms:ir.ui.view,arch_db:wujia_fields_value.view_wujia_fields_value_form
+msgid "Model:"
+msgstr "Đối tượng:"
+
+#. module: wujia_fields_value
+#: model_terms:ir.ui.view,arch_db:wujia_fields_value.view_wujia_fields_value_form
+msgid "Record ID:"
+msgstr "Mã (ID):"
+
+#. module: wujia_fields_value
+#: model_terms:ir.ui.view,arch_db:wujia_fields_value.view_wujia_fields_value_form
+msgid "Reload"
+msgstr "Tải lại"
+
+#. module: wujia_fields_value
+#: model_terms:ir.ui.view,arch_db:wujia_fields_value.view_wujia_fields_value_form
+msgid "Fields:"
+msgstr "Trường:"
+
+#. module: wujia_fields_value
+#: model_terms:ir.ui.view,arch_db:wujia_fields_value.view_wujia_fields_value_form
+msgid "Enter ID..."
+msgstr "Nhập ID..."
+
+#. module: wujia_fields_value
+#: model_terms:ir.ui.view,arch_db:wujia_fields_value.view_wujia_fields_value_form
+msgid "Select fields to filter..."
+msgstr "Chọn các trường cần lọc..."
+

@@ -1,5 +1,6 @@
 .o_wujia_fields_value_lines {
-    width: 100%;
+    width: 100% !important;
+    margin-top: 0.5rem;
 
     table.o_list_table {
         table-layout: fixed !important;
@@ -11,35 +12,43 @@
             word-break: break-word;
             white-space: normal !important;
             vertical-align: middle;
+            padding: 6px 8px !important;
         }
 
-        /* STT Column (# / sequence) */
         th:first-child,
         td:first-child,
         th.o_list_number_th,
-        td.o_list_number,
-        th[data-name="sequence"],
-        td[data-name="sequence"] {
-            width: 50px !important;
-            max-width: 60px !important;
-            min-width: 45px !important;
+        td.o_list_number {
+            width: 45px !important;
+            max-width: 50px !important;
             text-align: center !important;
         }
 
-        /* 3 Main Columns: Nhãn trường, Tên kỹ thuật, Giá trị */
         th[data-name="field_label"],
         td[data-name="field_label"] {
-            width: 30% !important;
+            width: 22% !important;
         }
 
         th[data-name="field_name"],
         td[data-name="field_name"] {
-            width: 30% !important;
+            width: 22% !important;
+        }
+
+        th[data-name="field_type"],
+        td[data-name="field_type"] {
+            width: 18% !important;
         }
 
         th[data-name="field_value"],
         td[data-name="field_value"] {
-            width: 36% !important;
+            width: 32% !important;
+        }
+
+        th:last-child,
+        td:last-child {
+            width: 75px !important;
+            text-align: center !important;
+            white-space: nowrap !important;
         }
     }
 }

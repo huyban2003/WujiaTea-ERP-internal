@@ -5,4 +5,15 @@
             <i class="fa fa-list me-2"/>View fields value
         </DropdownItem>
     </t>
+
+    <t t-name="wujia_fields_value.ActionsWidget">
+        <div t-if="hasRelation" class="d-flex align-items-center gap-1">
+            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" title="View Detail" t-on-click="onViewDetail">
+                <i class="fa fa-eye"/>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" title="Open Target Record" t-on-click="onOpenTarget">
+                <i class="fa fa-external-link"/>
+            </button>
+        </div>
+    </t>
 </templates>
