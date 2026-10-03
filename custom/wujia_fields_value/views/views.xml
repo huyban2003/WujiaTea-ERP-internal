@@ -1,10 +1,10 @@
 <odoo>
 	<data>
-		<record id="fields_value_form" model="ir.ui.view">
-			<field name="name">fields.value.form</field>
-			<field name="model">fields.value</field>
+		<record id="view_wujia_fields_value_form" model="ir.ui.view">
+			<field name="name">wujia.fields.value.form</field>
+			<field name="model">wujia.fields.value</field>
 			<field name="arch" type="xml">
-				<form string="Fields value">
+				<form string="View Fields Value">
 					<sheet>
 						<group>
 							<field name="res_id" invisible="1"/>
@@ -40,9 +40,9 @@
 			</field>
 		</record>
 		
-		<record id="fields_value_action" model="ir.actions.act_window">
-			<field name="name">fields.value.action</field>
-			<field name="res_model">fields.value</field>
+		<record id="action_wujia_fields_value" model="ir.actions.act_window">
+			<field name="name">wujia.fields.value.action</field>
+			<field name="res_model">wujia.fields.value</field>
 			<field name="view_mode">form</field>
 		</record>
 	

@@ -2,15 +2,15 @@
 
 from odoo import models, fields, api
 
-class FieldsValue(models.TransientModel):
-    _name = 'fields.value'
-    _description = 'View Fields Value Wizard'
+class WujiaFieldsValue(models.TransientModel):
+    _name = 'wujia.fields.value'
+    _description = 'Wujia View Fields Value Wizard'
 
     res_id = fields.Integer(string='Resource ID')
     model = fields.Char(string='Model Name')
     model_id = fields.Many2one('ir.model', string='Model', compute='_compute_model_id')
     field_ids = fields.Many2many('ir.model.fields', string='Filter Fields')
-    field_value_line_ids = fields.Many2many('fields.value.line', compute='_compute_field_value_line_ids', string='Field Values')
+    field_value_line_ids = fields.Many2many('wujia.fields.value.line', compute='_compute_field_value_line_ids', string='Field Values')
 
     @api.depends('model')
     def _compute_model_id(self):
@@ -62,9 +62,9 @@ class FieldsValue(models.TransientModel):
             else:
                 rec.field_value_line_ids = False
 
-class FieldsValueLine(models.TransientModel):
-    _name = 'fields.value.line'
-    _description = 'View Fields Value Line'
+class WujiaFieldsValueLine(models.TransientModel):
+    _name = 'wujia.fields.value.line'
+    _description = 'Wujia View Fields Value Line'
 
     field_name = fields.Char(string='Field Technical Name')
     field_label = fields.Char(string='Field Label')

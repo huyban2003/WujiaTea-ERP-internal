@@ -6,7 +6,7 @@ import { Component } from "@odoo/owl";
 const cogMenuRegistry = registry.category("cogMenu");
 
 export class ViewFieldsValueCogMenu extends Component {
-    static template = "fields_value.ViewFieldsValueCogMenu";
+    static template = "wujia_fields_value.ViewFieldsValueCogMenu";
     static components = { DropdownItem };
 
     setup() {
@@ -25,7 +25,7 @@ export class ViewFieldsValueCogMenu extends Component {
         await this.actionService.doAction({
             type: "ir.actions.act_window",
             name: "View Fields Value",
-            res_model: "fields.value",
+            res_model: "wujia.fields.value",
             views: [[false, "form"]],
             target: "new",
             context: {
@@ -45,4 +45,4 @@ export const viewFieldsValueItem = {
     },
 };
 
-cogMenuRegistry.add("fields-value-menu", viewFieldsValueItem, { sequence: 50 });
+cogMenuRegistry.add("wujia-fields-value-menu", viewFieldsValueItem, { sequence: 50 });
