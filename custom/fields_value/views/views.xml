@@ -1,0 +1,50 @@
+<odoo>
+	<data>
+		<record id="fields_value_form" model="ir.ui.view">
+			<field name="name">fields.value.form</field>
+			<field name="model">fields.value</field>
+			<field name="arch" type="xml">
+				<form string="Fields value">
+					<sheet>
+						<group>
+							<field name="res_id" invisible="1"/>
+							<field name="model" invisible="1"/>
+							<field name="model_id" invisible="1"/>
+							<field name="field_ids" context="{'from_fields_value': True}" widget="many2many_tags"
+							       domain="[('model_id', '=', model_id)]"
+							       options="{'no_create_edit': True, 'no_quick_create': True}"/>
+						</group>
+						<field name="field_value_line_ids">
+							<tree>
+								<field name="field_label"/>
+								<field name="field_name"/>
+								<field name="field_value"/>
+							</tree>
+							<form>
+								<group>
+									<group>
+										<field name="field_label"/>
+									</group>
+									<group>
+										<field name="field_name"/>
+									</group>
+								</group>
+								<group>
+									<field name="field_value"/>
+								</group>
+							</form>
+						</field>
+					</sheet>
+					<footer/>
+				</form>
+			</field>
+		</record>
+		
+		<record id="fields_value_action" model="ir.actions.act_window">
+			<field name="name">fields.value.action</field>
+			<field name="res_model">fields.value</field>
+			<field name="view_mode">form</field>
+		</record>
+	
+	</data>
+</odoo>
