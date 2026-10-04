@@ -1,0 +1,599 @@
+% Chuẩn component Portal — bản độc lập. Build: lualatex portal-component-standard.tex (2 lần)
+\documentclass[11pt,a4paper]{report}
+
+\usepackage{fontspec}
+\setmainfont{Lato}
+\setsansfont{Lato}
+\setmonofont{Noto Sans Mono}[Scale=0.82]
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\setlist{itemsep=2pt,topsep=4pt}
+
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{codebg}{RGB}{245,245,250}
+\definecolor{codekw}{RGB}{0,0,180}
+\definecolor{codestr}{RGB}{120,80,30}
+\definecolor{codecmt}{RGB}{120,120,120}
+\definecolor{okgreen}{RGB}{17,129,59}
+\definecolor{badred}{RGB}{213,34,34}
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    breaklines=true,
+    breakatwhitespace=true,
+    keywordstyle=\color{codekw}\bfseries,
+    stringstyle=\color{codestr},
+    commentstyle=\color{codecmt}\itshape,
+    showstringspaces=false,
+    columns=fullflexible,
+    frame=single,
+    framesep=4pt,
+    rulecolor=\color{black!15},
+    xleftmargin=8pt,
+    xrightmargin=4pt,
+    aboveskip=8pt,
+    belowskip=8pt,
+}
+\lstdefinestyle{xml}{language=XML}
+\lstdefinestyle{python}{language=Python}
+
+\renewcommand{\chaptername}{Chương}
+\renewcommand{\contentsname}{Mục lục}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    urlcolor=blue!60!black,
+    pdftitle={WujiaTea Portal — Chuẩn component dùng chung},
+    pdfauthor={WujiaTea Dev Team},
+}
+
+% Định danh dài (wujia_portal_layout.wj_page_header…) phải ngắt được ở mọi ký tự.
+\PassOptionsToPackage{obeyspaces,spaces}{url}
+\usepackage{xurl}
+\DeclareUrlCommand\code{\urlstyle{tt}}
+% Có dấu cách thì url nuốt mất — dùng bản giữ nguyên chữ.
+\newcommand{\codesp}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\ok}{\textcolor{okgreen}{\textbf{Nên}}}
+\newcommand{\no}{\textcolor{badred}{\textbf{Không}}}
+
+\renewcommand{\arraystretch}{1.25}
+
+\title{\vspace{1cm}\textbf{WujiaTea Odoo 19 --- Portal cửa hàng}\\[0.3cm]\Large Chuẩn component dùng chung\\[0.2cm]\large Hướng dẫn dùng nguồn chung khi dựng / chỉnh một màn portal}
+\author{Dev Team}
+\date{Phiên bản 1.0 · 02/10/2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+% ======================================================================
+\chapter{Mục đích và phạm vi}
+
+Portal cửa hàng (Vuexy, khoảng 1500 người dùng) đã chuẩn hoá phần lớn giao diện về một
+bộ component dùng chung. Tài liệu này mô tả \textbf{những gì đã có trong nguồn chung},
+để một màn portal bất kỳ --- màn mới hoặc màn đang tự dựng giao diện --- chuyển về dùng
+đúng component thay vì tự viết HTML/CSS riêng.
+
+\section{Phạm vi}
+\begin{itemize}
+  \item Giao diện portal phía cửa hàng, hai kênh: \textbf{PC} (bề rộng $\geq$ 992px) và \textbf{mobile} (< 992px).
+  \item Nguồn chung nằm ở hai module:
+    \begin{itemize}
+      \item \code{wujia_portal_layout} --- khung kênh: token, khung trang, component giao diện (template \code{wj_*}).
+      \item \code{wujia_portal_base} --- nền ghép portal: helper controller dùng chung, lọc/phân trang không tải lại trang, cửa hàng đang chọn.
+    \end{itemize}
+  \item Không thuộc phạm vi: backend Odoo (giao diện quản trị), app mobile backend.
+\end{itemize}
+
+\section{Cách đọc}
+Mỗi component có: \emph{vai trò} · \emph{template / class} · \emph{tham số} · \emph{ví dụ} ·
+\emph{điều cấm}. Mã component (\code{CMP-...}) khớp tab \textbf{UI Component} trong bảng
+spec BA --- muốn biết con số px/màu gốc thì tra ở đó; tài liệu này chỉ nói \emph{dùng thế nào}.
+
+Ví dụ trong tài liệu lấy từ các màn đã chuẩn: \textbf{Hỗ trợ} (\code{wujia_portal_support}),
+\textbf{Lịch sử đặt hàng}, \textbf{Giao hàng}. Khi phân vân, mở các file đó ra làm mẫu.
+
+\section{Bảng tra nhanh}
+
+\begin{longtable}{@{}p{3.0cm}p{2.5cm}p{5.2cm}p{4.5cm}@{}}
+\toprule
+\textbf{Component} & \textbf{Mã BA} & \textbf{Gọi bằng} & \textbf{Dùng khi} \\
+\midrule
+\endhead
+PageContainer & CMP-PC-001 & tự có trong \code{app_layout} (công tắc \code{pc_*}) & mọi màn \\
+PageHeader & CMP-PG-001 & \code{wujia_portal_layout.wj_page_header} & tiêu đề đầu trang \\
+BackPageHeader & CMP-BPH-001 & \code{wj_page_header} với \code{ph_variant='back'} & màn chi tiết / tạo mới \\
+SectionHeader & CMP-SH-001 & \code{wujia_portal_layout.wj_section_header} & tiêu đề nhóm nội dung \textbf{ngoài} card \\
+SurfaceCard & CMP-SC-001 & \code{wujia_portal_layout.wj_surface_card} & mọi khung nền trắng bo góc \\
+CardHeader & CMP-CH-001 & \code{wujia_portal_layout.wj_card_header} & tiêu đề \textbf{trong} card \\
+FilterBar & CMP-FB-001 & \code{wujia_portal_layout.wj_filter_bar} & tìm kiếm / lọc trước danh sách \\
+DataList & CMP-DL-001 & \code{wujia_portal_layout.wj_data_list} & bảng PC, danh sách thẻ mobile \\
+ListCard & CMP-LC-001 & \code{wj_list_card} + \code{wj_list_card_row} & ruột một record trên mobile \\
+Pagination & CMP-PGNT-001 & \code{wujia_portal_layout.wj_pagination} + \code{build_pager()} & cuối mọi danh sách có phân trang \\
+StatusBadge & CMP-SB-001 & class \code{wj-status-badge} + \code{status_badge()} & nhãn trạng thái nghiệp vụ \\
+Button / IconButton & CMP-BTN-001 & class \code{wj-btn} / \code{wj-iconbtn} & mọi nút hành động \\
+Mục menu & CMP-SN/BN-001 & \code{wj_nav_item}, \code{wj_bnav_item}, \code{wj_msheet_item} & thêm màn vào sidebar / bottom nav \\
+\bottomrule
+\end{longtable}
+
+% ======================================================================
+\chapter{Nguyên tắc chung}
+
+\section{Dáng thuộc về component, trang chỉ lo bố cục}
+\begin{itemize}
+  \item \ok{} gọi component bằng \code{t-call}, truyền tham số bằng \code{t-set}.
+  \item \ok{} CSS riêng của màn chỉ lo \emph{bố cục} (lưới, cột, khoảng cách giữa các khối nghiệp vụ).
+  \item \no{} viết lại dáng của component trong CSS màn (padding card, cỡ chữ tiêu đề, màu badge, chiều cao nút\ldots).
+        Cần dáng khác thì đó là một \emph{biến thể} --- báo để thêm vào component, không vá tại chỗ.
+  \item \no{} dùng thẳng class Bootstrap/Vuexy cho thứ đã có component:
+        \code{card}, \codesp{btn btn-primary}, \code{badge}, \code{pagination}, \code{alert}, \code{table} trần.
+\end{itemize}
+
+\section{CSS}
+\begin{itemize}
+  \item \no{} \code{style="..."} inline, \no{} \code{t-attf-style} trừ khi giá trị là \emph{dữ liệu} (ví dụ bề rộng thanh tiến độ).
+  \item \no{} \code{!important}. Bị đè thì tìm đúng rule đè, không tăng hoả lực.
+  \item \no{} mã màu hex và cỡ px cứng cho màu, bo góc, khoảng cách --- dùng token \code{var(--wujia-*)} / \code{var(--wj-*)} (chương~\ref{ch:token}).
+  \item CSS của màn nằm trong module sở hữu màn, khai ở \code{web.assets_frontend} trong \code{__manifest__.py}:
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+'assets': {
+    'web.assets_frontend': [
+        'wujia_portal_support/static/src/css/portal_support.css',
+    ],
+},
+\end{Verbatim}
+  \item Sửa CSS/QWeb thì \textbf{tăng \code{version}} trong manifest; file nạp bằng thẻ \codesp{<link ...?v=N>}
+        (ở \code{wujia_portal_layout/views/assets.xml}) thì tăng cả số \code{?v=} --- không tăng thì trình duyệt dùng bản cũ.
+\end{itemize}
+
+\section{Heading thật, compact-first, hai kênh}
+\begin{itemize}
+  \item Tiêu đề là thẻ heading thật (\code{h1}--\code{h4}) --- các component header đã lo việc này; \no{} dùng \code{span}/\code{p} giả heading.
+  \item Mật độ \textbf{compact-first}: các component mặc định ở dạng gọn; chỉ chọn \code{regular} khi spec yêu cầu.
+  \item Một màn có thể có \textbf{hai khối}: khối PC bọc \codesp{d-none d-lg-block}, khối mobile bọc \code{d-lg-none}.
+        Các component header có tham số \codesp{*_platform = 'pc' | 'm'} để tự ẩn/hiện đúng kênh.
+  \item Breakpoint duy nhất: \textbf{992px} (PC $\geq$ 992, mobile < 992). Mốc phụ 1200px chỉ dùng trong khung.
+\end{itemize}
+
+\section{Tầng module}
+\begin{itemize}
+  \item Module màn portal (\codesp{wujia_portal_<chức năng>}) \textbf{depend \code{wujia_portal_base}} và module nghiệp vụ nó cần.
+  \item Luật nghiệp vụ (domain, quyền, tạo bản ghi từ portal) nằm ở \textbf{model} của module nghiệp vụ; controller portal chỉ mỏng: đọc tham số \(\to\) gọi model \(\to\) render.
+  \item Module màn portal không chứa model nghiệp vụ; module màn portal không depend chéo module màn portal khác.
+  \item Kiểm bằng \codesp{python3 scripts/qa/check_layers.py}.
+\end{itemize}
+
+% ======================================================================
+\chapter{Token}\label{ch:token}
+
+Nguồn duy nhất: \code{wujia_portal_layout/static/assets/css/_variables.css}. Bảng dưới là
+token hay dùng; khi cần giá trị khác, tìm trong file trước khi đặt số mới.
+
+\begin{longtable}{@{}p{5.6cm}p{2.6cm}p{7.2cm}@{}}
+\toprule
+\textbf{Token} & \textbf{Giá trị} & \textbf{Dùng cho} \\
+\midrule
+\endhead
+\multicolumn{3}{@{}l}{\textit{Màu}} \\
+\code{--wujia-primary} & \#28A9DF & màu thương hiệu, link, nút chính \\
+\code{--wujia-primary-dark} & \#168FC2 & hover / chữ trên nền nhạt \\
+\code{--wujia-primary-soft} & \#EAF7FD & nền nhạt thương hiệu \\
+\code{--wujia-bg-page} & \#F3F6F8 & nền trang \\
+\code{--wujia-bg-card} & \#FFFFFF & nền card \\
+\code{--wujia-border} / \code{--wujia-border-soft} & \#E5E7EB / \#EEF2F5 & viền \\
+\code{--wujia-text-primary} & \#111827 & chữ chính \\
+\code{--wujia-text-secondary} & \#374151 & chữ phụ \\
+\code{--wujia-text-muted} & \#8A939E & chữ mờ, nhãn \\
+\code{--wujia-success} / \code{-success-bg} & \#16A34A / \#EAF8EF & thành công \\
+\code{--wujia-warning} / \code{-warning-bg} & \#F29A1F / \#FFF3E0 & cảnh báo \\
+\code{--wujia-danger} / \code{-danger-bg} & \#EF4444 / \#FEECEC & lỗi, huỷ \\
+\code{--wj-sb-*} & 7 cặp nền/chữ & \textbf{chỉ} cho StatusBadge \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Hình khối}} \\
+\code{--wujia-surface-radius} & 16px & bo góc card \\
+\code{--wujia-surface-tonal-radius} & 12px & vùng phụ lồng trong card \\
+\code{--wujia-surface-gap} & 12px & khoảng cách giữa các card \\
+\code{--wj-pc-component-radius} & 12px & control, khối nhỏ trong card PC \\
+\code{--wj-pc-input-radius} & 10px & ô nhập PC \\
+\code{--wj-btn-radius} / \code{-radius-sm} & 12px / 8px & nút \\
+\code{--wj-btn-h-sm/md/lg} & 32/40/46 (PC) · 36/44/48 (mobile) & chiều cao nút \\
+\code{--wj-sb-h} & 28px & chiều cao StatusBadge \\
+\code{--wj-page-gutter} / \code{-gutter-m} & 24px / 16px & lề trang (PageContainer lo) \\
+\bottomrule
+\end{longtable}
+
+Font: \textbf{Inter} (khung đã nạp, không tự khai \code{font-family}).
+
+% ======================================================================
+\chapter{Khung trang}
+
+\section{Bọc màn trong \texttt{app\_layout}}
+Mọi màn portal bắt đầu bằng \code{t-call="wujia_portal_layout.app_layout"}. Khung lo: top bar,
+sidebar PC, header + bottom nav mobile, dải cửa hàng đang chọn, và \textbf{PageContainer}.
+
+\section{PageContainer (CMP-PC-001)}
+\code{app_layout} tự bọc nội dung trong \texttt{<main class="wj-page-container">} --- đây là
+\textbf{nơi duy nhất} giữ lề ngang, lề trên/dưới và khoảng tránh top bar / bottom nav. Màn chỉ
+bật công tắc bằng \code{t-set} trong thân \code{t-call}:
+
+\begin{tabularx}{\textwidth}{@{}p{4.2cm}X@{}}
+\toprule
+\codesp{pc_gutter = 'list'} & lề mobile 12px cho màn danh sách thẻ \\
+\codesp{pc_width = 'standard'} & bề rộng trong tối đa 1440px (list/detail phổ thông) \\
+\codesp{pc_width = 'narrow'} & tối đa 960px (form, giỏ, chi tiết cần tập trung) --- \textbf{không} dùng cho danh sách/bảng \\
+\codesp{pc_bottom = 'sticky'} & chừa đáy cho thanh hành động cố định (mobile) \\
+\bottomrule
+\end{tabularx}
+
+\no{} đặt padding/margin ngang cấp trang ở wrapper riêng của màn; \no{} lồng thêm container tự chế.
+
+\section{Thêm màn vào menu}
+Khung chỉ giữ \emph{mẫu} mục menu; route, nhãn, icon do module sở hữu màn truyền vào bằng view kế thừa:
+
+\begin{tabularx}{\textwidth}{@{}p{4.3cm}p{4.6cm}X@{}}
+\toprule
+\textbf{Template} & \textbf{Tham số} & \textbf{Ghi chú} \\
+\midrule
+\code{wj_nav_item} (sidebar PC) & \code{ni_href}, \code{ni_icon}, \code{ni_label}, \code{ni_active} & \code{<li>} và class \code{active} nằm ở module của màn; \code{ni_active} dùng cùng điều kiện để có \code{aria-current} \\
+\code{wj_bnav_item} (tab mobile) & \code{bn_href}, \code{bn_icon}, \code{bn_label}, \code{bn_active} & thân \code{t-call} = badge (nếu có) \\
+\code{wj_msheet_item} (sheet ``Thêm'') & \code{mi_href}, \code{mi_icon}, \code{mi_title}, \code{mi_sub}, \code{mi_class} & thân \code{t-call} = badge trong tiêu đề \\
+\bottomrule
+\end{tabularx}
+
+Mẫu: \code{wujia_portal_support/views/sidenav_inherit.xml}, \code{bottomnav_inherit.xml}.
+
+% ======================================================================
+\chapter{Component}
+
+\section{PageHeader + BackPageHeader (CMP-PG-001, CMP-BPH-001)}
+Tiêu đề đầu trang. Ba biến thể: \code{title}, \code{back} (màn chi tiết/tạo mới), \code{create} (có nút Tạo mới).
+
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}X@{}}
+\toprule
+\code{ph_platform} & \code{'pc'} | \code{'m'} --- bắt buộc, component tự ẩn ở kênh kia \\
+\code{ph_variant} & \code{'title'} (mặc định) | \code{'back'} | \code{'create'} \\
+\code{ph_title} & chữ tiêu đề (render \code{h1}; dài thì xuống dòng, không cắt) \\
+\code{ph_back_url} & với \code{back}: trang cha. Đường quay lại thật tính qua \code{_wj_back_url}: ưu tiên \code{?return_url=} hợp lệ \(\to\) trang trước (giữ bộ lọc) \(\to\) \code{ph_back_url} \\
+\code{ph_create_url}, \code{ph_can_create}, \code{ph_create_label} & với \code{create}: link, cờ quyền (False thì ẩn nút), nhãn (mặc định ``Tạo mới'') \\
+\code{ph_meta} & markup thô cạnh tiêu đề (ví dụ số lượng); tự gắn class \code{wj-page-header__meta} \\
+\code{ph_crumb} & chỉ PC: breadcrumb ``Cha / Con'' phía trên tiêu đề \\
+\bottomrule
+\end{tabularx}
+
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+<t t-call="wujia_portal_layout.wj_page_header">
+    <t t-set="ph_platform" t-value="'pc'"/>
+    <t t-set="ph_variant" t-value="'back'"/>
+    <t t-set="ph_crumb">Hỗ trợ / Tạo yêu cầu</t>
+    <t t-set="ph_title">Tạo yêu cầu hỗ trợ</t>
+    <t t-set="ph_back_url" t-value="'/portal/support'"/>
+</t>
+\end{Verbatim}
+
+\no{} đưa mã chứng từ lên PageHeader (mã thuộc khối thông tin chính của record); \no{} tự dựng nút quay lại.
+
+\section{SectionHeader (CMP-SH-001)}
+Tiêu đề một nhóm nội dung \textbf{nằm ngoài card}. Heading trong card là CardHeader.
+
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}X@{}}
+\toprule
+\code{sh_title} & chữ tiêu đề \\
+\code{sh_level} & 2 | 3 (mặc định) | 4 --- cấp heading theo cấu trúc màn \\
+\code{sh_platform} & \code{'pc'} | \code{'m'} | bỏ trống = mọi kênh \\
+\code{sh_action_url}, \code{sh_action_label}, \code{sh_action_icon} & slot phải kiểu link (mặc định ``Xem tất cả'') \\
+\code{sh_meta} & slot phải kiểu đếm (markup thô) \\
+\code{sh_control} & slot phải kiểu control (markup thô) \\
+\code{sh_id}, \code{sh_class} & id/class bổ sung \\
+\bottomrule
+\end{tabularx}
+Luật: \textbf{tối đa một} slot phải (ưu tiên action > control > meta). Số lượng hiện cả khi bằng 0, viết từ đầy đủ (``5 sản phẩm'').
+
+\section{SurfaceCard (CMP-SC-001)}
+Khung nền trắng bo góc --- \textbf{chủ duy nhất} của dáng khung card (viền, bo, đệm, bóng).
+
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}X@{}}
+\toprule
+\code{sc_variant} & \code{section} (mặc định) | \code{record} | \code{summary} | \code{transactional} \\
+\code{sc_density} & \code{compact} (mặc định) | \code{regular} \\
+\code{sc_body} & \code{padded} (mặc định) | \code{flush} (bảng/danh sách tràn mép) \\
+\code{sc_tone} & \code{'tonal'} = vùng phụ lồng trong card (nền nhạt, không viền) \\
+\code{sc_href} & có \(\Rightarrow\) cả card bấm được (bọc \code{<a>}) \\
+\code{sc_id}, \code{sc_class}, \code{sc_link_class} & id/class bổ sung (chỉ để bám bố cục, không đổi dáng) \\
+\bottomrule
+\end{tabularx}
+Nội dung card là thân \code{t-call}. \no{} khai chiều cao cố định; card cùng hàng cao bằng nhau bằng bố cục lưới. \no{} card trong card --- vùng phụ dùng \code{sc_tone='tonal'}.
+
+\section{CardHeader (CMP-CH-001)}
+Tiêu đề \textbf{bên trong} card. Không khai padding (việc của SurfaceCard).
+
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}X@{}}
+\toprule
+\code{ch_title}, \code{ch_subtitle} & tiêu đề và dòng phụ \\
+\code{ch_level} & 2 | 3 (mặc định) | 4 \\
+\code{ch_icon}, \code{ch_icon_label} & icon Feather (tên không có tiền tố, vd \code{'life-buoy'}); chỉ truyền \code{ch_icon_label} khi icon tự mang nghĩa \\
+\code{ch_variant} & \code{compact} (mặc định) | \code{regular} \\
+\code{ch_platform} & \code{'pc'} | \code{'m'} | bỏ trống \\
+\code{ch_action_url/_label/_icon}, \code{ch_meta}, \code{ch_control} & slot phải --- tối đa một, như SectionHeader \\
+\code{ch_divider} & True \(\Rightarrow\) có vạch ngăn dưới header \\
+\code{ch_id}, \code{ch_class} & id/class bổ sung \\
+\bottomrule
+\end{tabularx}
+
+\section{FilterBar + SearchField + FilterChip (CMP-FB-001)}
+Một template, hai bố cục theo \code{fb_platform}. Thứ tự cố định: tìm kiếm \(\to\) ngày \(\to\) select \(\to\) hành động.
+
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}X@{}}
+\toprule
+\code{fb_platform} & \code{'pc'} (một hàng) | \code{'m'} (card gọn) \\
+\code{fb_action}, \code{fb_id}, \code{fb_class} & action của form GET, id, class \\
+\code{fb_search} & dict \code{name}, \code{value}, \code{placeholder}, \code{label} \\
+\code{fb_dates} & dict \code{from}, \code{to} (+ \code{from_name}, \code{to_name}; mặc định \code{date_from}/\code{date_to}) \\
+\code{fb_selects} & list dict \code{name}, \code{value}, \code{label}, \code{all_label}, \code{options} = [(giá trị, nhãn)], \code{auto} (tự submit khi đổi) \\
+\code{fb_extra} & markup thô chèn sau các select \\
+\code{fb_reset_url}, \code{fb_reset_label} & nút ``Xóa lọc'' (chỉ PC) \\
+\code{fb_submit_label} & nhãn nút tìm (mặc định ``Tìm kiếm'') \\
+\code{fb_hidden}, \code{fb_chips}, \code{fb_error} & markup thô: input ẩn, hàng chip lọc nhanh, thông điệp lỗi \\
+\bottomrule
+\end{tabularx}
+
+Chip lọc nhanh: class \code{wj-filter-chips} (hàng) + \code{wj-filter-chip} (+ \code{is-active}). Lỗi khoảng ngày ngược: dùng \code{date_range_error()} (chương~\ref{ch:helper}) để câu chữ thống nhất.
+
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+<t t-call="wujia_portal_layout.wj_filter_bar">
+    <t t-set="fb_platform" t-value="'pc'"/>
+    <t t-set="fb_action" t-value="'/portal/support'"/>
+    <t t-set="fb_selects"
+       t-value="[{'name': 'state', 'value': state, 'label': 'Trạng thái',
+                  'all_label': 'Tất cả trạng thái',
+                  'options': [(k, v[0]) for k, v in state_labels.items()]}]"/>
+</t>
+\end{Verbatim}
+
+\section{DataList (CMP-DL-001)}
+Vùng hiển thị tập record: bảng ở PC, danh sách thẻ ở mobile. Chỉ là tầng render --- không tự lọc/phân trang.
+
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}X@{}}
+\toprule
+\code{dl_variant} & \code{table} (mặc định, PC) | \code{compact-row} | \code{detail-card} (mobile) \\
+\code{dl_empty} & True \(\Rightarrow\) hiện \code{dl_state} thay cho danh sách \\
+\code{dl_state} & markup thô của trạng thái rỗng / không khớp lọc / lỗi \\
+\code{dl_pager} & markup thô pagination (nằm ngoài vùng cuộn) \\
+\code{dl_bleed} & bảng tràn mép card (dùng với \code{sc_body='flush'}) \\
+\code{dl_id}, \code{dl_class}, \code{dl_table_class}, \code{dl_table_id} & id/class bổ sung \\
+\bottomrule
+\end{tabularx}
+
+Với \code{table}: thân \code{t-call} là \code{<thead>} + \code{<tbody>}; mọi \code{<th>} có \code{scope="col"}.
+Với biến thể mobile: mỗi record là \codesp{<a class="wj-data-item wj-lc">} (hoặc \code{div} nếu không bấm được) chứa ListCard.
+\no{} hiện bảng chỉ có hàng tiêu đề khi rỗng; \no{} tự viết \codesp{<table class="table">}.
+
+\section{ListCard (CMP-LC-001)}
+Ruột một record trên mobile: tên trái + trạng thái phải, rồi 2--3 hàng phụ. Thẻ ngoài do màn giữ (xem DataList).
+
+\begin{tabularx}{\textwidth}{@{}p{3.6cm}X@{}}
+\toprule
+\code{lc_name} & tên / mã record \\
+\code{lc_prefix} & markup đứng trước tên \\
+\code{lc_state} & markup StatusBadge (thiếu thì bỏ hẳn) \\
+\code{lc_rows} & các hàng phụ, dựng bằng \code{wj_list_card_row} \\
+\code{lc_actions} & control riêng --- không lồng phần tử bấm được trong thẻ đã là link \\
+\midrule
+\code{lcr_label}, \code{lcr_value} & nhãn (tuỳ chọn) và giá trị của hàng phụ \\
+\code{lcr_full} & trường dài chiếm cả hàng \\
+\code{lcr_strong} & giá trị in đậm \\
+\code{lcr_class} & class bổ sung \\
+\bottomrule
+\end{tabularx}
+
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+<t t-call="wujia_portal_layout.wj_data_list">
+    <t t-set="dl_variant" t-value="'detail-card'"/>
+    <a t-foreach="tickets" t-as="tk" t-attf-href="/portal/support/#{tk.id}"
+       class="wj-data-item wj-lc">
+        <t t-call="wujia_portal_layout.wj_list_card">
+            <t t-set="lc_name" t-value="tk.name"/>
+            <t t-set="lc_state">
+                <span t-attf-class="wj-status-badge wj-status-badge--compact #{badge}"
+                      t-out="label"/>
+            </t>
+            <t t-set="lc_rows">
+                <t t-call="wujia_portal_layout.wj_list_card_row">
+                    <t t-set="lcr_full" t-value="True"/>
+                    <t t-set="lcr_value" t-value="tk.title"/>
+                </t>
+            </t>
+        </t>
+    </a>
+</t>
+\end{Verbatim}
+
+\section{Pagination (CMP-PGNT-001)}
+Một markup, hai bố cục: PC đủ (đếm + cỡ trang + số trang), mobile gọn (Trước · ``Trang x / y'' · Sau).
+Template đọc biến \code{pgn} do controller dựng bằng \code{build_pager()}:
+
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+from odoo.addons.wujia_portal_base.controllers.utils import build_pager, parse_page_size
+
+page_size = parse_page_size(kw.get('page_size'), default=10)
+total = Model.search_count(domain)
+pgn = build_pager(total, kw.get('page', 1), page_size,
+                  item_label='yêu cầu', page_size_options=(10, 20, 50))
+records = Model.search(domain, offset=pgn['offset'], limit=page_size)
+\end{Verbatim}
+
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+<t t-call="wujia_portal_layout.wj_pagination"/>
+\end{Verbatim}
+
+\code{build_pager} giữ nguyên mọi tham số lọc trên URL khi đổi trang. Một trang thì tự ẩn. \no{} tự nối URL trang.
+
+\section{StatusBadge (CMP-SB-001)}
+Nhãn trạng thái nghiệp vụ. Không có template --- hợp đồng nằm ở class:
+
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+<span t-attf-class="wj-status-badge #{badge_cls}" t-out="label"/>
+\end{Verbatim}
+
+Bảy biến thể: \code{neutral} · \code{info} · \code{pending} · \code{processing} · \code{success} · \code{danger} · \code{feedback}
+(thêm \code{wj-status-badge--compact} cho chữ 12 trong ListCard). Lấy class ở controller, \textbf{không} tự chọn màu:
+\begin{itemize}
+  \item \code{status_badge('success')} \(\to\) \code{'wj-status-badge--success'} (biến thể lạ rơi về \code{neutral}).
+  \item \codesp{status_badge_for('Đã hủy')} \(\to\) tra theo \emph{nhãn hiển thị} trong bảng \code{STATUS_VARIANT_BY_LABEL}.
+        Trạng thái mới chưa có trong bảng thì bổ sung vào bảng đó, không xử lý riêng ở màn.
+\end{itemize}
+Chỉ dùng cho trạng thái. Vai trò, danh mục, độ ưu tiên, số đếm \textbf{không} dùng StatusBadge (xem chương~\ref{ch:chuachuan}).
+Không truyền trạng thái chỉ bằng màu --- luôn có chữ.
+
+\section{Button / IconButton (CMP-BTN-001)}
+Hợp đồng ở class; template \code{wj_button}/\code{wj_icon_button} là lối tắt tuỳ chọn.
+
+\begin{tabularx}{\textwidth}{@{}p{4.4cm}X@{}}
+\toprule
+\code{wj-btn} + \code{wj-btn--<variant>} & \code{primary} · \code{secondary} · \code{outline} · \code{danger} · \code{ghost} \\
+\code{wj-btn--sm} / \code{--lg} / \code{--block} & cỡ nhỏ / lớn / chiếm trọn bề ngang (mobile) \\
+\code{wj-iconbtn} + \code{wj-iconbtn--<variant>} & nút chỉ có icon; \textbf{bắt buộc} \code{aria-label} (+ \code{title}) \\
+\bottomrule
+\end{tabularx}
+
+Hành động tại chỗ dùng \code{<button>}, điều hướng dùng \codesp{<a href>}.
+
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+<a href="/portal/support/new" class="wj-btn wj-btn--primary">
+    <i class="feather icon-plus"/> Tạo ticket
+</a>
+<a t-attf-href="/portal/support/#{t.id}"
+   class="wj-iconbtn wj-iconbtn--sm wj-iconbtn--secondary"
+   aria-label="Xem ticket" title="Xem ticket"><i class="fa fa-eye"/></a>
+\end{Verbatim}
+\no{} \codesp{btn btn-primary} của Bootstrap; \no{} tự đặt chiều cao/padding/bo góc cho nút.
+
+% ======================================================================
+\chapter{Lọc và phân trang không tải lại trang}
+
+Cơ chế chung ở \code{wujia_portal_base} (\code{wj_ajax_list.js}). Màn khai \textbf{một lần}, ngoài mọi vùng được thay:
+
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+<t t-call="wujia_portal_base.wj_ajax_list_config">
+    <t t-set="wjl_path" t-value="'/portal/support'"/>
+    <t t-set="wjl_slots" t-value="'wj-sup-pc,wj-sup-mchips,wj-sup-mbody'"/>
+</t>
+\end{Verbatim}
+
+\begin{tabularx}{\textwidth}{@{}p{3.2cm}X@{}}
+\toprule
+\code{wjl_path} & bắt buộc --- đường dẫn trang danh sách \\
+\code{wjl_slots} & bắt buộc --- id các khối được thay, ngăn bởi dấu phẩy \\
+\code{wjl_fragment} & tuỳ chọn --- route chỉ trả các khối kết quả (nhanh nhất) \\
+\code{wjl_scroll} & \code{'false'} để không cuộn lên đầu sau khi thay \\
+\bottomrule
+\end{tabularx}
+
+Luật: id slot phải \textbf{giống nhau} giữa trang đầy đủ và fragment; các slot thô
+(\code{ph_meta}, \code{ch_meta}, \code{sh_meta}, \code{fb_chips}) \textbf{không bọc thêm phần tử} vì JS thay theo id.
+Nút bị khoá trong lúc tải được nhả qua sự kiện \code{wj:form:release} --- không tự viết cơ chế khoá nút riêng.
+
+% ======================================================================
+\chapter{Helper controller dùng chung}\label{ch:helper}
+
+Import từ \code{odoo.addons.wujia_portal_base.controllers.utils} (trừ mục cuối).
+
+\begin{longtable}{@{}p{4.6cm}p{10.8cm}@{}}
+\toprule
+\textbf{Helper} & \textbf{Dùng cho} \\
+\midrule
+\endhead
+\code{build_pager}, \code{parse_page_size}, \code{page_numbers} & phân trang (CMP-PGNT-001) \\
+\codesp{group_counts(model, domain, field, groups)} & đếm cho chip lọc bằng \textbf{một} \code{_read_group} --- không gọi N lần \code{search_count} \\
+\code{status_badge}, \code{status_badge_for} & class StatusBadge \\
+\codesp{fmt_local_dt(dt, fmt)} & giờ UTC \(\to\) giờ địa phương; trong QWeb dùng biến \code{wj_dt} (đã có sẵn trong context render). \no{} in thẳng \code{create_date.strftime(...)} cho trường có giờ \\
+\code{local_day_range_utc}, \code{parse_portal_date} & đổi ngày lọc sang khoảng UTC cho domain \\
+\code{date_range_error} & thông điệp chuẩn ``Từ ngày không được lớn hơn Đến ngày'' \\
+\code{attach_files_to_record} & nhận tệp tải lên: kiểm số lượng, dung lượng, MIME, làm sạch tên tệp \\
+\code{check_attachment_access}\codesp{(att_id, allowed_models)} & tải tệp đính kèm: kiểm bản ghi gốc thuộc cửa hàng người dùng được phép \\
+\codesp{rate_limit(max_calls, window_sec)} & decorator chặn gọi dồn (form gửi, tìm kiếm) \\
+\codesp{portal_money(amount, symbol, decimals)} & định dạng tiền một chỗ (``48.000 đ'') \\
+\midrule
+\code{get_active_franchise_id()} (\code{wujia_portal_base/controllers/portal.py}) & cửa hàng \textbf{đang chọn} (đã kiểm hợp lệ, cache trong request) \\
+\bottomrule
+\end{longtable}
+
+\section{Cửa hàng đang chọn và quyền}
+Luật BA chốt ngày 01/10/2026:
+\begin{itemize}
+  \item Dữ liệu nghiệp vụ chỉ theo \textbf{một cửa hàng đang chọn}. Chưa chọn thì yêu cầu chọn, không gộp dữ liệu nhiều cửa hàng.
+  \item Quyền xét theo \textbf{vai trò của tài khoản tại cửa hàng đang chọn} (\code{wujia.franchise.member}), không lấy vai trò cao nhất ở cửa hàng khác.
+  \item Mọi \code{id} bản ghi / tệp nhận từ URL hoặc form phải kiểm lại thuộc cửa hàng đang chọn trước khi đọc/ghi.
+\end{itemize}
+Phần chuẩn hoá helper theo luật này đang được làm ở nguồn chung; màn mới nên đọc cửa hàng bằng
+\code{get_active_franchise_id()} và tự chặn khi kết quả là \code{False}.
+
+% ======================================================================
+\chapter{Form trên mobile}
+
+Chuẩn đã áp cho form portal mobile:
+\begin{itemize}
+  \item Ô nhập, select, textarea: chiều cao vùng chạm \textbf{$\geq$ 48px}, bo góc \textbf{12px}.
+  \item Mỗi control có \code{id} và một \codesp{<label for="...">} trỏ đúng.
+  \item Màn hẹp 360px: trường chật xuống một cột.
+  \item Nút gửi dùng \codesp{wj-btn wj-btn--primary} (mobile có thể thêm \code{wj-btn--block}).
+\end{itemize}
+Kiểm bằng \code{scripts/qa/wj_formcontrol.py}.
+
+% ======================================================================
+\chapter{Chưa có chuẩn --- tạm dùng gì}\label{ch:chuachuan}
+
+Các nhóm dưới đây \textbf{chưa có spec chuẩn} (đang soạn đề xuất cho BA). Trong lúc chờ:
+\textbf{dùng lại class phổ biến nhất đang có, không tự dựng họ class mới}. Khi chuẩn ra đời, các
+call site dùng class phổ biến sẽ được chuyển hàng loạt; họ class tự dựng thì phải sửa tay từng chỗ.
+
+\begin{longtable}{@{}p{3.6cm}p{5.6cm}p{6.2cm}@{}}
+\toprule
+\textbf{Nhóm} & \textbf{Tạm dùng} & \textbf{Ghi chú} \\
+\midrule
+\endhead
+EmptyState & \code{wj-empty-state} (+ \code{--rich} có icon/CTA, \code{--row} khối nhỏ); con: \code{wj-empty-state-icon}, \code{-title}, \code{-sub} & phân biệt ``chưa có dữ liệu'' với ``không khớp bộ lọc'' (kèm nút Xóa lọc); đưa vào \code{dl_state} của DataList \\
+Khối nhãn--giá trị (chi tiết) & PC: \code{wj-pc-kv} (\code{__label}, \code{__value}) trong \code{wj-pc-kv-grid} & giá trị trống hiện ``—'' \\
+InfoBanner & chưa có class chung --- dùng SurfaceCard \code{sc_tone='tonal'} + chữ thường & \no{} \code{alert} Bootstrap \\
+StatCard / KPI & PC: \code{wj-pc-metric-card} & phân biệt ``—'' (chưa có dữ liệu) với ``0'' \\
+Modal / Dialog & PC: \code{wj-pc-modal} (\code{__backdrop}, \code{__panel}, \code{__title}, \code{__body}, \code{__actions}) & Esc và bấm nền để đóng; nút bằng \code{wj-btn} \\
+FormField & PC: \code{wj-pc-field} (\code{__label}) + \code{wj-pc-control} & mobile theo chương Form \\
+Nhãn vai trò / danh mục / ưu tiên & giữ nhãn hiện có, \textbf{không} dùng \code{wj-status-badge} & BA tách riêng khỏi StatusBadge \\
+\bottomrule
+\end{longtable}
+
+% ======================================================================
+\chapter{Checklist trước khi bàn giao một màn}
+
+\begin{enumerate}
+  \item Màn bọc trong \code{app_layout}; không wrapper tự đặt lề ngang.
+  \item Đầu trang là \code{wj_page_header} đúng kênh (\code{ph_platform}); màn chi tiết/tạo mới dùng biến thể \code{back}.
+  \item Mọi khung trắng là \code{wj_surface_card}; tiêu đề trong card là \code{wj_card_header}, ngoài card là \code{wj_section_header}.
+  \item Bộ lọc là \code{wj_filter_bar}; danh sách là \code{wj_data_list} (+ \code{wj_list_card} ở mobile); phân trang là \code{wj_pagination} + \code{build_pager}.
+  \item Trạng thái dùng \code{wj-status-badge} với class lấy từ \code{status_badge()}/\code{status_badge_for()}.
+  \item Mọi nút là \code{wj-btn}/\code{wj-iconbtn}; nút chỉ icon có \code{aria-label}.
+  \item Grep màn của mình ra 0: \code{style="}, \code{!important}, \code{class="card}, \codesp{btn btn-}, \code{class="badge}, \code{class="alert}, \code{class="pagination}.
+  \item Giờ hiển thị qua \code{wj_dt}; tiền qua \code{portal_money}; tệp qua \code{attach_files_to_record} / \code{check_attachment_access}.
+  \item Dữ liệu theo cửa hàng đang chọn; \code{id} từ request được kiểm lại.
+  \item Tăng \code{version} manifest (+ \code{?v=} nếu có).
+  \item Kiểm tầng: \codesp{python3 scripts/qa/check_layers.py}.
+  \item Đo trên trình duyệt 5 khổ (1440 · 1024 · 992 · 390 · 360) --- không tràn ngang, không lỗi JS:
+\begin{Verbatim}[frame=single,framesep=4pt,rulecolor=\color{black!20},fontsize=\small,xleftmargin=6pt]
+python3 scripts/qa/wj_measure.py --portal-login <user portal> --out before.json
+# ... sửa, upgrade module ...
+python3 scripts/qa/wj_measure.py --portal-login <user portal> --out after.json
+python3 scripts/qa/wj_measure.py --diff before.json after.json
+\end{Verbatim}
+\end{enumerate}
+
+\end{document}
