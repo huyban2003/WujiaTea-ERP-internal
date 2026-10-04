@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sample Partners Dashboard (base only — no sale/crm)
+             Grid sizes follow auto-layout conventions:
+             tile/kpi = 3×2, pie/doughnut = 4×4 (may stretch to fill ≤3 leftover cols). -->
+        <record id="sample_sales_dashboard" model="dynamic.dashboard">
+            <field name="name">Sample Partners Dashboard</field>
+            <field name="category_id" ref="category_demo"/>
+            <field name="gridstack_config">[]</field>
+        </record>
+
+        <record id="sample_sales_tile_1" model="dynamic.dashboard.item">
+            <field name="name">Total Partners</field>
+            <field name="dashboard_id" ref="sample_sales_dashboard"/>
+            <field name="item_type">tile</field>
+            <field name="model_id" search="[('model', '=', 'res.partner')]"/>
+            <field name="data_calculation_type">custom</field>
+            <field name="data_type">count</field>
+            <field name="tile_icon">fa-users</field>
+            <field name="tile_theme">ocean</field>
+            <field name="tile_layout">layout1</field>
+            <field name="sequence">10</field>
+            <field name="grid_x">0</field>
+            <field name="grid_y">0</field>
+            <field name="grid_w">3</field>
+            <field name="grid_h">4</field>
+        </record>
+
+        <!-- Packed beside the tile (3×4 after vertical grow); width 9 fills the remaining row -->
+        <record id="sample_sales_chart_1" model="dynamic.dashboard.item">
+            <field name="name">Partners by Country</field>
+            <field name="dashboard_id" ref="sample_sales_dashboard"/>
+            <field name="item_type">pie</field>
+            <field name="model_id" search="[('model', '=', 'res.partner')]"/>
+            <field name="data_calculation_type">custom</field>
+            <field name="data_type">count</field>
+            <field name="group_by_field_id" search="[('model', '=', 'res.partner'), ('name', '=', 'country_id')]"/>
+            <field name="sequence">20</field>
+            <field name="chart_theme">warm</field>
+            <field name="grid_x">3</field>
+            <field name="grid_y">0</field>
+            <field name="grid_w">9</field>
+            <field name="grid_h">4</field>
+        </record>
+    </data>
+</odoo>

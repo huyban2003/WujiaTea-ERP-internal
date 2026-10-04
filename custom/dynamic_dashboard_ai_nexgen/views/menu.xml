@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Menu structure follows Odoo 19 app conventions (CRM / Email Marketing / Spreadsheet):
+        Root app → operational menus (seq 1–50) → Configuration (seq 100).
+        Settings is always the first Configuration child (sequence 0).
+        Technical / demo entries (developer mode) load from demo/demo_menus.xml
+        when demonstration data is enabled.
+    -->
+
+    <!-- Bookmarked dashboards action (used by menu below) -->
+    <record id="action_dynamic_dashboard_ai_nexgen_bookmarked" model="ir.actions.act_window">
+        <field name="name">Bookmarked Dashboards</field>
+        <field name="res_model">dynamic.dashboard</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('bookmarked_user_ids', 'in', [uid])]</field>
+        <field name="search_view_id" ref="dynamic_dashboard_ai_nexgen_view_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No bookmarked dashboards yet
+            </p>
+            <p>
+                Open a dashboard and bookmark it to find it here quickly.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========== Root application ========== -->
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_root"
+              name="Dynamic Dashboard"
+              action="dynamic_dashboard_ai_nexgen_client_action"
+              web_icon="dynamic_dashboard_ai_nexgen,static/description/icon.png"
+              sequence="45"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_user"/>
+
+    <!-- ========== Dashboards (user) ========== -->
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_view"
+              name="My Dashboard"
+              parent="menu_dynamic_dashboard_ai_nexgen_root"
+              action="dynamic_dashboard_ai_nexgen_client_action"
+              sequence="1"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_user"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_bookmarked"
+              name="Bookmarked"
+              parent="menu_dynamic_dashboard_ai_nexgen_root"
+              action="action_dynamic_dashboard_ai_nexgen_bookmarked"
+              sequence="2"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_user"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_dashboard"
+              name="Dashboards"
+              parent="menu_dynamic_dashboard_ai_nexgen_root"
+              action="action_dynamic_dashboard_ai_nexgen"
+              sequence="5"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <!-- ========== Design / data layer (manager) ========== -->
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_design"
+              name="Design"
+              parent="menu_dynamic_dashboard_ai_nexgen_root"
+              sequence="10"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_item"
+              name="Dashboard Items"
+              parent="menu_dynamic_dashboard_ai_nexgen_design"
+              action="action_dynamic_dashboard_ai_nexgen_item"
+              sequence="1"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_analysis"
+              name="Analyses"
+              parent="menu_dynamic_dashboard_ai_nexgen_design"
+              action="action_dynamic_dashboard_ai_nexgen_analysis"
+              sequence="2"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_kpi"
+              name="KPIs"
+              parent="menu_dynamic_dashboard_ai_nexgen_design"
+              action="action_dynamic_dashboard_ai_nexgen_kpi"
+              sequence="3"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_mart"
+              name="Data Marts"
+              parent="menu_dynamic_dashboard_ai_nexgen_design"
+              action="action_dynamic_dashboard_ai_nexgen_mart"
+              sequence="4"
+              groups="dynamic_dashboard_ai_nexgen.group_analysis_manager"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_ai"
+              name="AI Generator"
+              parent="menu_dynamic_dashboard_ai_nexgen_design"
+              action="action_dynamic_dashboard_ai_nexgen_ai_wizard"
+              sequence="10"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <!-- ========== Configuration ========== -->
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_config"
+              name="Configuration"
+              parent="menu_dynamic_dashboard_ai_nexgen_root"
+              sequence="100"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_settings"
+              name="Settings"
+              parent="menu_dynamic_dashboard_ai_nexgen_config"
+              action="action_dynamic_dashboard_ai_nexgen_config_settings"
+              sequence="0"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_category"
+              name="Categories"
+              parent="menu_dynamic_dashboard_ai_nexgen_config"
+              action="action_dynamic_dashboard_ai_nexgen_category"
+              sequence="5"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_number_system"
+              name="Number Systems"
+              parent="menu_dynamic_dashboard_ai_nexgen_config"
+              action="action_dynamic_dashboard_ai_nexgen_number_system"
+              sequence="10"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_date_filter"
+              name="Custom Date Filters"
+              parent="menu_dynamic_dashboard_ai_nexgen_config"
+              action="action_dynamic_dashboard_ai_nexgen_date_filter"
+              sequence="20"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_connection"
+              name="External Connections"
+              parent="menu_dynamic_dashboard_ai_nexgen_config"
+              action="action_dynamic_dashboard_ai_nexgen_connection"
+              sequence="30"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_admin"/>
+
+    <menuitem id="menu_dynamic_dashboard_ai_nexgen_import"
+              name="Import Dashboard"
+              parent="menu_dynamic_dashboard_ai_nexgen_config"
+              action="action_dynamic_dashboard_ai_nexgen_import"
+              sequence="40"
+              groups="dynamic_dashboard_ai_nexgen.group_dashboard_manager"/>
+</odoo>

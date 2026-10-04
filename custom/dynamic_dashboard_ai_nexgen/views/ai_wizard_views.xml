@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dynamic_dashboard_ai_nexgen_ai_wizard" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.ai.wizard.form</field>
+        <field name="model">dynamic.dashboard.ai.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate with AI">
+                <!-- CONFIGURE -->
+                <div invisible="state != 'configure'">
+                    <div class="alert alert-info" role="alert">
+                        <strong>Generate Complete Dashboard with AI</strong> or
+                        <strong>Generate Items with AI</strong> — select a model or keyword,
+                        preview suggestions, then save the items you want.
+                    </div>
+                    <group>
+                        <group string="AI Feature" invisible="context.get('is_website_dashboard')">
+                            <field name="generation_mode" widget="radio"/>
+                            <field name="name"
+                                     invisible="generation_mode != 'create_dashboard'"
+                                     placeholder="e.g. Sales Overview"/>
+                            <field name="dashboard_id"
+                                     invisible="generation_mode != 'add_items'"
+                                     required="generation_mode == 'add_items'"
+                                     options="{'no_create': True}"/>
+                        </group>
+                        <group string="Generate Using">
+                            <field name="input_mode" widget="radio"/>
+                            <field name="model_id"
+                                     options="{'no_create': True}"
+                                     required="input_mode == 'model'"/>
+                            <field name="keyword" invisible="input_mode != 'keyword'"/>
+                            <field name="custom_keyword"
+                                     invisible="input_mode != 'keyword' or keyword != 'custom'"
+                                     required="input_mode == 'keyword' and keyword == 'custom'"
+                                     placeholder="e.g. overdue invoices"/>
+                            <field name="item_count"/>
+                        </group>
+                    </group>
+                    <group string="Optional">
+                        <field name="prompt" nolabel="1" colspan="2"
+                                 placeholder="Optional extra instructions for AI…"/>
+                    </group>
+                </div>
+
+                <!-- PREVIEW -->
+                <div invisible="state != 'preview'">
+                    <div class="alert alert-success" role="alert">
+                        Review AI suggestions below. Uncheck items you don’t want, then
+                        <strong>Save Selected</strong>.
+                        <span invisible="not suggested_name"> Suggested name: <strong><field name="suggested_name" readonly="1" class="d-inline"/></strong></span>
+                    </div>
+                    <div class="mb-2">
+                        <button name="action_select_all" type="object" string="Select All" class="btn-link"/>
+                        <button name="action_select_none" type="object" string="Select None" class="btn-link"/>
+                        <span class="text-muted ms-2"><field name="selected_count" readonly="1"/> selected</span>
+                    </div>
+                    <field name="line_ids" nolabel="1">
+                        <list editable="bottom" create="0" delete="0">
+                            <field name="selected" widget="boolean_toggle"/>
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="item_type"/>
+                            <field name="model_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="data_type" optional="show"/>
+                            <field name="measure_field_id"
+                                     options="{'no_create': True, 'no_open': True}"
+                                     optional="show"
+                                     context="{'default_model_id': model_id}"/>
+                            <field name="group_by_field_id"
+                                     options="{'no_create': True, 'no_open': True}"
+                                     optional="show"/>
+                            <field name="date_filter_field_id"
+                                     options="{'no_create': True, 'no_open': True}"
+                                     optional="hide"/>
+                            <field name="date_filter_selection" optional="hide"/>
+                            <field name="group_by_date_type"
+                                     optional="hide"
+                                     invisible="not group_by_field_id"/>
+                            <field name="summary" optional="hide"/>
+                            <field name="model_name" column_invisible="1"/>
+                        </list>
+                    </field>
+                </div>
+
+                <field name="state" invisible="1"/>
+
+                <footer>
+                    <button name="action_generate_suggestions" type="object"
+                            string="Generate with AI" class="btn-primary" icon="fa-magic"
+                            invisible="state != 'configure'" data-hotkey="q"/>
+                    <button name="action_save_selected" type="object"
+                            string="Save Selected" class="btn-primary" icon="fa-check"
+                            invisible="state != 'preview'" data-hotkey="q"/>
+                    <button name="action_back_configure" type="object"
+                            string="Back" class="btn-secondary"
+                            invisible="state != 'preview'"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_dynamic_dashboard_ai_nexgen_ai_wizard" model="ir.actions.act_window">
+        <field name="name">Generate with AI</field>
+        <field name="res_model">dynamic.dashboard.ai.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_generation_mode': 'create_dashboard'}</field>
+    </record>
+
+    <record id="action_dynamic_dashboard_ai_nexgen_ai_wizard_items" model="ir.actions.act_window">
+        <field name="name">Generate Items with AI</field>
+        <field name="res_model">dynamic.dashboard.ai.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_generation_mode': 'add_items'}</field>
+    </record>
+</odoo>

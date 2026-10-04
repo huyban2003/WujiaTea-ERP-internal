@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Past ranges (including today). Built-ins already cover 7 / 30 / 90 days. -->
+        <record id="date_filter_last_14_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 14 Days</field>
+            <field name="offset_start">-13</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="date_filter_last_45_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 45 Days</field>
+            <field name="offset_start">-44</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="date_filter_last_60_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 60 Days</field>
+            <field name="offset_start">-59</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="date_filter_last_120_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 120 Days</field>
+            <field name="offset_start">-119</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="date_filter_last_180_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 180 Days</field>
+            <field name="offset_start">-179</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="date_filter_last_365_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 365 Days</field>
+            <field name="offset_start">-364</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="date_filter_last_730_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 2 Years</field>
+            <field name="offset_start">-729</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <!-- Completed periods (exclude today) -->
+        <record id="date_filter_previous_7_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Previous 7 Days (excl. today)</field>
+            <field name="offset_start">-7</field>
+            <field name="offset_end">-1</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="date_filter_previous_30_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Previous 30 Days (excl. today)</field>
+            <field name="offset_start">-30</field>
+            <field name="offset_end">-1</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="date_filter_previous_90_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Previous 90 Days (excl. today)</field>
+            <field name="offset_start">-90</field>
+            <field name="offset_end">-1</field>
+            <field name="sequence">100</field>
+        </record>
+
+        <!-- Short / rolling windows -->
+        <record id="date_filter_last_2_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 2 Days</field>
+            <field name="offset_start">-1</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">110</field>
+        </record>
+        <record id="date_filter_last_3_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 3 Days</field>
+            <field name="offset_start">-2</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">120</field>
+        </record>
+        <record id="date_filter_last_5_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Last 5 Days</field>
+            <field name="offset_start">-4</field>
+            <field name="offset_end">0</field>
+            <field name="sequence">130</field>
+        </record>
+
+        <!-- Future ranges (including today) -->
+        <record id="date_filter_next_7_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Next 7 Days</field>
+            <field name="offset_start">0</field>
+            <field name="offset_end">6</field>
+            <field name="sequence">140</field>
+        </record>
+        <record id="date_filter_next_14_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Next 14 Days</field>
+            <field name="offset_start">0</field>
+            <field name="offset_end">13</field>
+            <field name="sequence">150</field>
+        </record>
+        <record id="date_filter_next_30_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Next 30 Days</field>
+            <field name="offset_start">0</field>
+            <field name="offset_end">29</field>
+            <field name="sequence">160</field>
+        </record>
+        <record id="date_filter_next_60_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Next 60 Days</field>
+            <field name="offset_start">0</field>
+            <field name="offset_end">59</field>
+            <field name="sequence">170</field>
+        </record>
+        <record id="date_filter_next_90_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Next 90 Days</field>
+            <field name="offset_start">0</field>
+            <field name="offset_end">89</field>
+            <field name="sequence">180</field>
+        </record>
+        <record id="date_filter_next_180_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Next 180 Days</field>
+            <field name="offset_start">0</field>
+            <field name="offset_end">179</field>
+            <field name="sequence">190</field>
+        </record>
+
+        <!-- Upcoming only (exclude today) -->
+        <record id="date_filter_upcoming_7_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Upcoming 7 Days (excl. today)</field>
+            <field name="offset_start">1</field>
+            <field name="offset_end">7</field>
+            <field name="sequence">200</field>
+        </record>
+        <record id="date_filter_upcoming_30_days" model="dynamic.dashboard.date.filter">
+            <field name="name">Upcoming 30 Days (excl. today)</field>
+            <field name="offset_start">1</field>
+            <field name="offset_end">30</field>
+            <field name="sequence">210</field>
+        </record>
+    </data>
+</odoo>

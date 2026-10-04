@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dynamic_dashboard_ai_nexgen_item_view_form" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.item.form</field>
+        <field name="model">dynamic.dashboard.item</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard Item" class="o_dd_item_form">
+                <header>
+                    <button name="%(action_dynamic_dashboard_ai_nexgen_item_move)d" type="action"
+                            string="Move / Duplicate" class="btn-secondary" icon="fa-exchange"
+                            context="{'default_item_id': id, 'active_id': id, 'active_model': 'dynamic.dashboard.item'}"/>
+                    <button name="%(action_dynamic_dashboard_ai_nexgen_analysis_editor)d" type="action"
+                            string="Open Analysis Editor" class="btn-secondary" icon="fa-pencil-square-o"
+                            invisible="not analysis_id"
+                            context="{'default_analysis_id': analysis_id}"/>
+                </header>
+                <sheet>
+                    <!-- Hidden UX helpers -->
+                    <field name="is_card_item" invisible="1"/>
+                    <field name="is_chart_item" invisible="1"/>
+                    <field name="is_xy_chart" invisible="1"/>
+                    <field name="is_pie_like" invisible="1"/>
+                    <field name="show_model_data" invisible="1"/>
+                    <field name="show_sql_data" invisible="1"/>
+                    <field name="show_api_data" invisible="1"/>
+                    <field name="show_file_data" invisible="1"/>
+                    <field name="show_scrape_data" invisible="1"/>
+                    <field name="show_sheets_data" invisible="1"/>
+                    <field name="model_name" invisible="1"/>
+                    <field name="kpi_model_name" invisible="1"/>
+                    <field name="upload_filename" invisible="1"/>
+
+                    <div class="oe_title mb-2">
+                        <label for="name" string="Item Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Total Revenue this month" class="o_text_overflow"/>
+                        </h1>
+                    </div>
+
+                    <!-- Quick setup -->
+                    <group class="o_dd_form_quick">
+                        <group string="Placement">
+                            <field name="dashboard_id" options="{'no_create': True}"
+                                      placeholder="Select dashboard…"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            <field name="allowed_group_ids" widget="many2many_tags"
+                                      placeholder="All users (optional restrict)"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group string="Data &amp; Refresh">
+                            <field name="data_calculation_type"/>
+                            <field name="auto_update_type"/>
+                            <field name="analysis_id" options="{'no_create_edit': True}"
+                                      placeholder="Optional reusable analysis"/>
+                            <field name="kpi_id"
+                                      invisible="item_type not in ('kpi', 'tile', 'scorecard')"
+                                      options="{'no_create_edit': True}"
+                                      placeholder="Optional KPI definition"/>
+                        </group>
+                    </group>
+
+                    <div class="o_dd_form_hint alert alert-info mb-3" role="status"
+                         invisible="analysis_id or kpi_id or item_type in ('todo', 'iframe', 'odoo_view')">
+                        Choose a <strong>visual type</strong> on the left, configure data in the tabs,
+                        and preview updates live.
+                    </div>
+                    <div class="o_dd_form_hint alert alert-success mb-3" role="status"
+                         invisible="not analysis_id and not kpi_id">
+                        This item is linked to an Analysis / KPI definition — measures and domains
+                        can come from that source.
+                    </div>
+
+                    <div class="row g-3 o_dd_item_preview_row align-items-start">
+                        <!-- Left: type + live preview -->
+                        <div class="col-12 col-xl-5">
+                            <div class="o_dd_side_panel">
+                                <div class="o_dd_side_panel_title">Visual Type</div>
+                                <div class="o_dd_item_type_picker mb-3">
+                                    <field name="item_type" widget="dynamic_dashboard_ai_nexgen_item_type" nolabel="1"/>
+                                </div>
+                                <div class="o_dd_side_panel_title">Live Preview</div>
+                                <div class="o_dd_item_preview_box border rounded bg-view">
+                                    <field name="item_preview" widget="dynamic_dashboard_ai_nexgen_item_preview" nolabel="1" readonly="1"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: configuration notebook -->
+                        <div class="col-12 col-xl-7">
+                        <notebook>
+                            <!-- ===== DATA ===== -->
+                            <page string="Data" name="data">
+                                <!-- Model -->
+                                <group string="Odoo Model" invisible="not show_model_data">
+                                    <field name="model_id" options="{'no_create': True}"
+                                              required="show_model_data"
+                                              placeholder="Select model…"/>
+                                    <field name="data_type"
+                                              invisible="item_type == 'list' and list_view_type != 'grouped'"/>
+                                    <field name="measure_field_ids" widget="many2many_tags"
+                                              options="{'no_create': True}"
+                                              invisible="item_type == 'list' and list_view_type != 'grouped'"/>
+                                    <field name="measure_field_2_ids" widget="many2many_tags"
+                                              options="{'no_create': True}"
+                                              invisible="item_type in ('list', 'todo', 'iframe', 'odoo_view')"
+                                              string="Secondary Measure(s)"/>
+                                    <field name="date_filter_field_id" options="{'no_create': True, 'no_open': True}"/>
+                                </group>
+
+                                <group string="Grouping &amp; Filters" invisible="not show_model_data">
+                                    <field name="group_by_field_id" options="{'no_create': True, 'no_open': True}"
+                                              invisible="item_type in ('tile', 'kpi') or (item_type == 'list' and list_view_type != 'grouped')"
+                                              required="is_chart_item and show_model_data and item_type not in ('wordCloud', 'sankey', 'chord', 'chordDirected', 'chordNonRibbon', 'arcDiagram')"/>
+                                    <field name="group_by_date_type" invisible="not group_by_field_id"/>
+                                    <field name="sub_group_by_field_id" options="{'no_create': True, 'no_open': True}"
+                                              invisible="item_type in ('tile', 'kpi', 'scorecard', 'list')"/>
+                                    <field name="sub_group_by_date_type" invisible="not sub_group_by_field_id"/>
+                                    <field name="sort_by_field_id" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="sort_order" invisible="not sort_by_field_id"/>
+                                    <field name="record_limit"/>
+                                    <field name="date_filter_selection" invisible="not date_filter_field_id"/>
+                                    <field name="custom_date_filter_id"
+                                              invisible="date_filter_selection != 'user_defined'"
+                                              required="date_filter_selection == 'user_defined'"/>
+                                    <field name="item_start_date" invisible="date_filter_selection != 'custom'"/>
+                                    <field name="item_end_date" invisible="date_filter_selection != 'custom'"/>
+                                    <field name="compare_previous_period"
+                                              invisible="not date_filter_field_id or date_filter_selection == 'none'"/>
+                                    <field name="fill_temporal"
+                                              invisible="not group_by_field_id or group_by_field_id.ttype not in ('date', 'datetime')"/>
+                                    <field name="domain" widget="domain" options="{'model': 'model_name'}"/>
+                                    <field name="domain_extension" widget="domain" options="{'model': 'model_name'}"/>
+                                </group>
+
+                                <!-- SQL -->
+                                <group string="SQL Query" invisible="not show_sql_data">
+                                    <field name="external_connection_id"/>
+                                    <field name="use_query_builder"/>
+                                    <field name="query_builder_data" widget="sql_query_builder" nolabel="1" colspan="2"
+                                              invisible="not use_query_builder"/>
+                                    <field name="query" force_save="1" widget="ace" options="{'mode': 'python'}"
+                                              invisible="use_query_builder"/>
+                                    <field name="sql_label_column"/>
+                                    <field name="sql_row_limit"/>
+                                    <field name="date_filter_selection"/>
+                                    <field name="use_materialized_view"/>
+                                    <label for="mview_status" string="Materialized View" invisible="not use_materialized_view"/>
+                                    <div invisible="not use_materialized_view">
+                                        <field name="mview_status" class="oe_inline"/>
+                                        <button name="action_create_mview" type="object" string="Create View"
+                                                class="btn-sm btn-primary ms-2"
+                                                invisible="mview_status == 'active'"/>
+                                        <button name="action_drop_mview" type="object" string="Drop View"
+                                                class="btn-sm btn-danger ms-2"
+                                                invisible="mview_status in ('missing', 'stale')"/>
+                                    </div>
+                                    <button name="action_validate_sql" type="object" string="Validate SQL"
+                                            class="btn-secondary" icon="fa-check" colspan="2"/>
+                                </group>
+
+                                <!-- API -->
+                                <group string="External API" invisible="not show_api_data">
+                                    <field name="external_connection_id"/>
+                                    <field name="api_label_key" required="show_api_data" string="Label Key"/>
+                                    <field name="api_value_key" required="show_api_data" string="Value Key"/>
+                                </group>
+
+                                <!-- File -->
+                                <group string="Excel / CSV File" invisible="not show_file_data">
+                                    <field name="upload_file" filename="upload_filename"/>
+                                    <field name="file_columns_preview" readonly="1" invisible="not upload_file"/>
+                                    <field name="file_label_column"/>
+                                    <field name="file_value_column"/>
+                                    <field name="record_limit"/>
+                                </group>
+
+                                <!-- Scrape -->
+                                <group string="Web Scrape" invisible="not show_scrape_data">
+                                    <field name="scrape_url" widget="url"/>
+                                    <field name="scrape_json_path"/>
+                                    <field name="api_label_key" string="Label Key"/>
+                                    <field name="api_value_key" string="Value Key"/>
+                                </group>
+
+                                <!-- Sheets -->
+                                <group string="Google Sheets" invisible="not show_sheets_data">
+                                    <field name="sheets_id"/>
+                                    <field name="sheets_range"/>
+                                </group>
+
+                                <!-- Embeds -->
+                                <group string="Iframe" invisible="item_type != 'iframe'">
+                                    <field name="iframe_url" widget="url" required="item_type == 'iframe'"/>
+                                </group>
+                                <group string="Odoo View" invisible="item_type != 'odoo_view'">
+                                    <field name="odoo_action_id" required="item_type == 'odoo_view'"/>
+                                </group>
+
+                                <group string="To-Do Tasks" invisible="item_type != 'todo'">
+                                    <field name="todo_ids" nolabel="1" colspan="2">
+                                        <list editable="bottom">
+                                            <field name="is_done" widget="boolean_toggle"/>
+                                            <field name="name"/>
+                                        </list>
+                                    </field>
+                                </group>
+
+                                <!-- List -->
+                                <group string="List Configuration" invisible="item_type != 'list'">
+                                    <field name="list_view_type" invisible="data_calculation_type in ('excel', 'csv')"/>
+                                    <field name="list_view_layout"/>
+                                    <field name="list_view_field_ids" widget="many2many_tags"
+                                              options="{'no_create': True}"
+                                              invisible="list_view_type == 'grouped' or data_calculation_type != 'custom'"/>
+                                    <field name="list_show_grand_total"/>
+                                    <field name="list_column_min_width"/>
+                                    <field name="pagination_limit"/>
+                                    <field name="export_all_records"/>
+                                </group>
+
+                                <!-- Transforms -->
+                                <group string="Value Transforms"
+                                       invisible="item_type in ('todo', 'iframe', 'odoo_view') or show_sql_data">
+                                    <field name="multiplier_active"/>
+                                    <field name="multiplier_value" invisible="not multiplier_active"/>
+                                    <field name="formula_active"
+                                              invisible="item_type in ('list', 'map', 'mapPoints', 'todo', 'iframe', 'odoo_view') or show_api_data"/>
+                                    <field name="formula" invisible="not formula_active"
+                                              placeholder="{m1}/{m2}*100"/>
+                                    <field name="is_cumulative"
+                                              invisible="is_card_item or item_type == 'list'"/>
+                                    <field name="data_format" invisible="item_type == 'list'"/>
+                                </group>
+
+                                <!-- Scatter -->
+                                <group string="Scatter Axes"
+                                       invisible="item_type != 'scatter' or not show_model_data">
+                                    <field name="is_scatter_group"/>
+                                    <field name="scatter_measure_x_id"/>
+                                    <field name="scatter_measure_y_id"/>
+                                </group>
+
+                                <!-- Extra series -->
+                                <group string="Additional Series"
+                                       invisible="not show_model_data or is_card_item or item_type in ('list', 'map', 'mapPoints', 'scatter', 'todo', 'wordCloud', 'venn', 'gauge', 'sankey', 'chord', 'chordDirected', 'chordNonRibbon', 'arcDiagram', 'treemap', 'sunburst', 'forceDirected', 'pack', 'tree', 'partition', 'voronoiTreemap', 'candlestick', 'ohlc')">
+                                    <field name="source_ids" nolabel="1" colspan="2">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="name"/>
+                                            <field name="model_id"/>
+                                            <field name="model_name" column_invisible="1"/>
+                                            <field name="data_type"/>
+                                            <field name="measure_field_id" options="{'no_create': True, 'no_open': True}"/>
+                                            <field name="group_by_field_id" options="{'no_create': True, 'no_open': True}"/>
+                                            <field name="group_by_date_type" optional="hide"/>
+                                            <field name="date_filter_field_id" options="{'no_create': True, 'no_open': True}" optional="hide"/>
+                                            <field name="series_chart_type"/>
+                                            <field name="domain" widget="domain" options="{'model': 'model_name'}" optional="show"/>
+                                        </list>
+                                    </field>
+                                </group>
+
+                                <!-- Chart-type data helpers -->
+                                <group string="Flow Links (Sankey / Chord / Arc)"
+                                       invisible="item_type not in ('sankey', 'chord', 'chordDirected', 'chordNonRibbon', 'arcDiagram') or not show_model_data">
+                                    <field name="flow_source_field_id"/>
+                                    <field name="flow_target_field_id"/>
+                                </group>
+                                <group string="Word Cloud Field"
+                                       invisible="item_type != 'wordCloud' or not show_model_data">
+                                    <field name="word_cloud_field_id"/>
+                                </group>
+                                <group string="Candlestick / OHLC Measures"
+                                       invisible="item_type not in ('candlestick', 'ohlc') or not show_model_data">
+                                    <div colspan="2" class="text-muted small mb-2">
+                                        Optional. If empty, OHLC values are synthesized from the main measure.
+                                    </div>
+                                    <field name="measure_open_field_id"/>
+                                    <field name="measure_high_field_id"/>
+                                    <field name="measure_low_field_id"/>
+                                    <field name="measure_close_field_id"/>
+                                </group>
+                            </page>
+
+                            <!-- ===== APPEARANCE ===== -->
+                            <page string="Appearance" name="appearance">
+                                <group string="Number Formatting"
+                                       invisible="item_type in ('todo', 'iframe', 'odoo_view')">
+                                    <field name="currency_id" options="{'no_create': True}"/>
+                                    <field name="number_system_id"/>
+                                    <field name="data_format" invisible="number_system_id or item_type == 'list'"/>
+                                    <field name="precision_digits"/>
+                                    <field name="unit" invisible="item_type == 'list'"/>
+                                    <field name="unit_position" invisible="not unit or item_type == 'list'"/>
+                                </group>
+
+                                <group string="Card Colors"
+                                       invisible="is_card_item or is_chart_item or item_type in ('todo', 'iframe', 'odoo_view')">
+                                    <field name="background_color" widget="color"/>
+                                    <field name="font_color" widget="color"/>
+                                </group>
+
+                                <group string="Tile / KPI / Scorecard Style" invisible="not is_card_item">
+                                    <field name="tile_layout" widget="dynamic_dashboard_ai_nexgen_tile_layout" nolabel="1" colspan="2"/>
+                                    <field name="tile_theme"/>
+                                    <field name="tile_color" widget="color" invisible="tile_theme != 'custom'"/>
+                                    <field name="tile_icon" invisible="item_type == 'scorecard'"/>
+                                    <field name="scorecard_columns" invisible="item_type != 'scorecard'"/>
+                                </group>
+
+                                <group string="Chart Theme" invisible="not is_chart_item">
+                                    <field name="chart_theme"/>
+                                    <field name="amcharts_ui_theme"/>
+                                    <field name="background_color" widget="color"/>
+                                    <field name="font_color" widget="color"/>
+                                </group>
+
+                                <group string="Segment Colors"
+                                       invisible="not is_chart_item or item_type in ('map', 'mapPoints', 'wordCloud', 'venn', 'gauge')">
+                                    <field name="segment_color_ids" nolabel="1" colspan="2">
+                                        <list editable="bottom">
+                                            <field name="segment_name" placeholder="Exact label name"/>
+                                            <field name="color" widget="color"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+
+                            <!-- ===== CHART OPTIONS ===== -->
+                            <page string="Chart Options" name="chart_options"
+                                  invisible="not is_chart_item">
+                                <group string="Basics">
+                                    <group>
+                                        <field name="legend_position"/>
+                                        <field name="hide_legend"/>
+                                        <field name="show_data_value"/>
+                                        <field name="show_tooltip"/>
+                                        <field name="enable_animation"/>
+                                        <field name="chart_animation_duration" invisible="not enable_animation"/>
+                                        <field name="show_records"/>
+                                        <field name="show_export_menu"/>
+                                        <field name="enable_drill_down"
+                                                  invisible="item_type in ('map', 'mapPoints', 'wordCloud', 'venn', 'gauge')"/>
+                                    </group>
+                                    <group>
+                                        <field name="is_stacked" invisible="item_type not in ('bar', 'barLine', 'horizontalBar')"/>
+                                        <field name="is_stacked_100"
+                                                  invisible="item_type not in ('bar', 'barLine', 'horizontalBar') or not is_stacked"/>
+                                        <field name="is_semi_circle" invisible="item_type not in ('pie', 'doughnut')"/>
+                                        <field name="enable_slice_grouper" invisible="item_type not in ('pie', 'doughnut')"/>
+                                        <field name="slice_group_threshold"
+                                                  invisible="item_type not in ('pie', 'doughnut') or not enable_slice_grouper"/>
+                                        <field name="enable_heat_rules"
+                                                  invisible="item_type not in ('bar', 'barLine', 'horizontalBar', 'map', 'mapPoints', 'heatmap', 'matrixHeatmap')"/>
+                                        <field name="show_heat_legend"
+                                                  invisible="item_type not in ('map', 'mapPoints', 'heatmap', 'matrixHeatmap') or not enable_heat_rules"/>
+                                        <field name="label_position" invisible="not is_pie_like"/>
+                                    </group>
+                                </group>
+
+                                <group string="Interaction &amp; Axes" invisible="not is_xy_chart and item_type not in ('map', 'mapPoints')">
+                                    <group>
+                                        <field name="enable_zoom"/>
+                                        <field name="enable_pan"/>
+                                        <field name="show_cursor" invisible="item_type in ('map', 'mapPoints')"/>
+                                        <field name="cursor_snap" invisible="not show_cursor or item_type in ('map', 'mapPoints')"/>
+                                        <field name="show_cursor_line_x" invisible="not show_cursor or item_type in ('map', 'mapPoints')"/>
+                                        <field name="show_cursor_line_y" invisible="not show_cursor or item_type in ('map', 'mapPoints')"/>
+                                        <field name="show_grid" invisible="item_type in ('map', 'mapPoints')"/>
+                                        <field name="show_scrollbar_x" invisible="item_type in ('map', 'mapPoints')"/>
+                                        <field name="show_scrollbar_y" invisible="item_type in ('map', 'mapPoints')"/>
+                                    </group>
+                                    <group invisible="not is_xy_chart">
+                                        <field name="show_category_axis"/>
+                                        <field name="show_value_axis"/>
+                                        <field name="show_axis_labels"/>
+                                        <field name="rotate_category_labels"/>
+                                        <field name="category_label_max_width" invisible="not show_axis_labels"/>
+                                        <field name="axis_min"/>
+                                        <field name="axis_max"/>
+                                        <field name="logarithmic_scale"/>
+                                        <field name="min_grid_distance"/>
+                                        <field name="chart_number_format"/>
+                                    </group>
+                                </group>
+
+                                <group string="Series Style"
+                                       invisible="item_type in ('map', 'mapPoints', 'wordCloud', 'venn', 'treemap', 'sunburst', 'forceDirected', 'pack', 'tree', 'partition', 'voronoiTreemap', 'sankey', 'chord', 'chordDirected', 'chordNonRibbon', 'arcDiagram')">
+                                    <group>
+                                        <field name="line_stroke_width"
+                                                  invisible="item_type not in ('line', 'area', 'stepLine', 'smoothedLine', 'barLine', 'radar', 'timeline', 'serpentine', 'spiral')"/>
+                                        <field name="show_line_bullets"
+                                                  invisible="item_type not in ('line', 'area', 'stepLine', 'smoothedLine', 'barLine', 'radar')"/>
+                                        <field name="bullet_radius"
+                                                  invisible="not show_line_bullets and item_type != 'scatter'"/>
+                                        <field name="area_fill_opacity"
+                                                  invisible="item_type not in ('area', 'smoothedLine', 'radar')"/>
+                                        <field name="series_fill_opacity"
+                                                  invisible="item_type in ('line', 'stepLine')"/>
+                                        <field name="connect_nulls"
+                                                  invisible="item_type not in ('line', 'area', 'stepLine', 'smoothedLine', 'barLine')"/>
+                                        <field name="line_tension" invisible="item_type != 'smoothedLine'"/>
+                                        <field name="step_to" invisible="item_type != 'stepLine'"/>
+                                        <field name="mask_bullets"
+                                                  invisible="item_type not in ('line', 'area', 'stepLine', 'smoothedLine', 'barLine', 'scatter', 'radar')"/>
+                                        <field name="scatter_fill_opacity" invisible="item_type != 'scatter'"/>
+                                    </group>
+                                    <group>
+                                        <field name="column_corner_radius"
+                                                  invisible="item_type not in ('bar', 'barLine', 'horizontalBar', 'waterfall', 'bullet', 'flower', 'radialBar', 'pie', 'doughnut')"/>
+                                        <field name="column_width_percent"
+                                                  invisible="item_type not in ('bar', 'barLine', 'horizontalBar', 'bullet')"/>
+                                        <field name="column_stroke_width"
+                                                  invisible="item_type not in ('bar', 'barLine', 'horizontalBar', 'waterfall', 'bullet', 'flower', 'polarArea', 'radialBar')"/>
+                                        <field name="column_stroke_opacity"
+                                                  invisible="item_type not in ('bar', 'barLine', 'horizontalBar', 'waterfall', 'bullet', 'flower', 'polarArea', 'radialBar')"/>
+                                        <field name="pie_radius"
+                                                  invisible="item_type not in ('pie', 'doughnut', 'polarArea', 'radar', 'flower', 'radialBar', 'gauge')"/>
+                                        <field name="pie_inner_radius"
+                                                  invisible="item_type not in ('doughnut', 'flower', 'radialBar', 'gauge')"/>
+                                        <field name="funnel_orientation" invisible="item_type not in ('funnel', 'pyramid', 'pictorial')"/>
+                                        <field name="funnel_bottom_ratio" invisible="item_type != 'funnel'"/>
+                                        <field name="heat_min_color" widget="color"
+                                                  invisible="not enable_heat_rules"/>
+                                        <field name="heat_max_color" widget="color"
+                                                  invisible="not enable_heat_rules"/>
+                                    </group>
+                                </group>
+
+                                <group string="Legend" invisible="hide_legend or legend_position == 'none'">
+                                    <field name="legend_clickable"/>
+                                    <field name="legend_scrollable"/>
+                                    <field name="legend_marker_size"/>
+                                </group>
+
+                                <group string="Padding">
+                                    <field name="chart_padding_top"/>
+                                    <field name="chart_padding_right"/>
+                                    <field name="chart_padding_bottom"/>
+                                    <field name="chart_padding_left"/>
+                                </group>
+
+                                <!-- Type-specific option groups -->
+                                <group string="Pie / Slice" invisible="item_type not in ('pie', 'doughnut', 'pictorial')">
+                                    <field name="pie_start_angle" invisible="is_semi_circle"/>
+                                    <field name="pie_end_angle" invisible="is_semi_circle"/>
+                                    <field name="slice_stroke_width"/>
+                                    <field name="show_slice_ticks"/>
+                                    <field name="slice_hover_scale"/>
+                                    <field name="tooltip_pointer_orientation"/>
+                                </group>
+                                <group string="Gauge" invisible="item_type != 'gauge'">
+                                    <field name="gauge_min"/>
+                                    <field name="gauge_max"/>
+                                    <field name="gauge_start_angle"/>
+                                    <field name="gauge_end_angle"/>
+                                </group>
+                                <group string="Map" invisible="item_type not in ('map', 'mapPoints')">
+                                    <field name="map_projection"/>
+                                    <field name="show_map_labels"/>
+                                    <field name="show_map_zoom_control"/>
+                                    <field name="map_exclude_antarctica"/>
+                                    <field name="map_home_zoom_level"/>
+                                    <field name="map_pan_x_mode"/>
+                                    <field name="map_fill_opacity"/>
+                                </group>
+                                <group string="Hierarchy / Force"
+                                       invisible="item_type not in ('treemap', 'sunburst', 'forceDirected', 'pack', 'tree', 'partition', 'voronoiTreemap')">
+                                    <field name="hierarchy_initial_depth"/>
+                                    <field name="hierarchy_top_depth"/>
+                                    <field name="show_node_labels"/>
+                                    <field name="node_padding"/>
+                                    <field name="force_many_body_strength" invisible="item_type != 'forceDirected'"/>
+                                    <field name="force_center_strength" invisible="item_type != 'forceDirected'"/>
+                                    <field name="force_link_strength" invisible="item_type != 'forceDirected'"/>
+                                </group>
+                                <group string="Timeline"
+                                       invisible="item_type not in ('timeline', 'serpentine', 'spiral')">
+                                    <field name="timeline_orientation"/>
+                                    <field name="serpentine_level_count"
+                                              invisible="item_type not in ('serpentine', 'spiral')"/>
+                                    <field name="curve_distance"/>
+                                </group>
+                                <group string="Flow Diagram"
+                                       invisible="item_type not in ('sankey', 'chord', 'chordDirected', 'chordNonRibbon', 'arcDiagram')">
+                                    <field name="show_flow_labels"/>
+                                    <field name="sankey_node_align" invisible="item_type != 'sankey'"/>
+                                    <field name="sankey_node_width" invisible="item_type != 'sankey'"/>
+                                    <field name="sankey_node_padding" invisible="item_type != 'sankey'"/>
+                                    <field name="chord_pad_angle"
+                                              invisible="item_type not in ('chord', 'chordDirected', 'chordNonRibbon')"/>
+                                </group>
+                                <group string="Word Cloud" invisible="item_type != 'wordCloud'">
+                                    <field name="word_cloud_randomness"/>
+                                    <field name="word_min_font_size"/>
+                                    <field name="word_max_font_size"/>
+                                    <field name="word_min_length"/>
+                                    <field name="word_angles_mode"/>
+                                </group>
+                            </page>
+
+                            <!-- ===== KPI COMPARE ===== -->
+                            <page string="KPI Compare" name="kpi_compare"
+                                  invisible="item_type != 'kpi'">
+                                <div class="o_dd_form_hint text-muted mb-3">
+                                    Compare this KPI against a secondary model (ratio, difference, etc.).
+                                </div>
+                                <group string="Secondary Model">
+                                    <field name="kpi_model_id"/>
+                                    <field name="kpi_data_type" invisible="not kpi_model_id"/>
+                                    <field name="kpi_measure_field_id"
+                                              invisible="not kpi_model_id or kpi_data_type == 'count'"/>
+                                    <field name="kpi_comparison" invisible="not kpi_model_id"/>
+                                    <field name="kpi_date_filter_field_id" invisible="not kpi_model_id"/>
+                                    <field name="kpi_date_filter_selection" invisible="not kpi_date_filter_field_id"/>
+                                    <field name="kpi_item_start_date" invisible="kpi_date_filter_selection != 'custom'"/>
+                                    <field name="kpi_item_end_date" invisible="kpi_date_filter_selection != 'custom'"/>
+                                    <field name="kpi_domain" widget="domain" options="{'model': 'kpi_model_name'}"
+                                              invisible="not kpi_model_id"/>
+                                </group>
+                            </page>
+
+                            <!-- ===== TARGET ===== -->
+                            <page string="Target" name="target"
+                                  invisible="item_type in ('list', 'pie', 'doughnut', 'todo', 'iframe', 'odoo_view', 'funnel', 'pyramid', 'pictorial')">
+                                <group>
+                                    <field name="enable_target"/>
+                                    <field name="standard_target_value" invisible="not enable_target"/>
+                                    <field name="target_view"
+                                              invisible="not enable_target or item_type not in ('tile', 'kpi')"/>
+                                </group>
+                                <group string="Date-based Targets" invisible="not enable_target">
+                                    <field name="target_line_ids" nolabel="1" colspan="2">
+                                        <list editable="bottom">
+                                            <field name="date_start"/>
+                                            <field name="date_end"/>
+                                            <field name="target_value"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+
+                            <!-- ===== ACTIONS ===== -->
+                            <page string="Click Action" name="actions">
+                                <div class="o_dd_form_hint text-muted mb-3">
+                                    What happens when a user clicks this item (or a chart segment).
+                                </div>
+                                <group>
+                                    <field name="action_type"/>
+                                    <field name="action_id"
+                                              invisible="action_type != 'window'"
+                                              required="action_type == 'window'"/>
+                                    <field name="client_action_id"
+                                              invisible="action_type != 'client'"
+                                              required="action_type == 'client'"/>
+                                    <field name="action_url" widget="url"
+                                              invisible="action_type != 'url'"
+                                              required="action_type == 'url'"/>
+                                </group>
+                            </page>
+
+                            <!-- ===== ADVANCED ===== -->
+                            <page string="Advanced" name="advanced"
+                                  invisible="item_type in ('todo', 'iframe', 'odoo_view')">
+                                <group string="Visual Config (JSON)">
+                                    <field name="visual_config" nolabel="1" colspan="2"
+                                              placeholder="{ }"/>
+                                </group>
+                            </page>
+                        </notebook>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_item_view_tree" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.item.tree</field>
+        <field name="model">dynamic.dashboard.item</field>
+        <field name="arch" type="xml">
+            <list string="Dashboard Items" multi_edit="1" sample="1"
+                  decoration-info="item_type in ('tile', 'kpi', 'scorecard')"
+                  decoration-muted="item_type in ('iframe', 'odoo_view', 'todo')">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="dashboard_id"/>
+                <field name="item_type"/>
+                <field name="data_calculation_type" optional="show"/>
+                <field name="model_id" optional="show"/>
+                <field name="analysis_id" optional="hide"/>
+                <field name="kpi_id" optional="hide"/>
+                <field name="auto_update_type" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_item_view_search" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.item.search</field>
+        <field name="model">dynamic.dashboard.item</field>
+        <field name="arch" type="xml">
+            <search string="Dashboard Items">
+                <field name="name"/>
+                <field name="dashboard_id"/>
+                <field name="item_type"/>
+                <field name="model_id"/>
+                <field name="analysis_id"/>
+                <field name="kpi_id"/>
+                <field name="data_calculation_type"/>
+                <field name="external_connection_id"/>
+                <field name="currency_id"/>
+                <field name="number_system_id"/>
+                <field name="date_filter_selection"/>
+                <field name="auto_update_type"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <separator/>
+                <filter name="filter_tile" string="Tiles" domain="[('item_type', '=', 'tile')]"/>
+                <filter name="filter_kpi" string="KPIs" domain="[('item_type', '=', 'kpi')]"/>
+                <filter name="filter_scorecard" string="Scorecards" domain="[('item_type', '=', 'scorecard')]"/>
+                <filter name="filter_charts" string="Charts"
+                        domain="[('item_type', 'in', ['bar', 'barLine', 'horizontalBar', 'line', 'area', 'pie', 'doughnut', 'polarArea', 'radar', 'flower', 'scatter', 'radialBar', 'funnel', 'bullet', 'heatmap'])]"/>
+                <filter name="filter_list" string="Lists" domain="[('item_type', '=', 'list')]"/>
+                <filter name="filter_map" string="Maps" domain="[('item_type', '=', 'map')]"/>
+                <filter name="filter_todo" string="To-Do" domain="[('item_type', '=', 'todo')]"/>
+                <filter name="filter_embed" string="Iframe / Odoo View" domain="[('item_type', 'in', ['iframe', 'odoo_view'])]"/>
+                <separator/>
+                <filter name="filter_custom" string="Custom Model" domain="[('data_calculation_type', '=', 'custom')]"/>
+                <filter name="filter_sql" string="SQL" domain="[('data_calculation_type', '=', 'sql')]"/>
+                <filter name="filter_api" string="API" domain="[('data_calculation_type', '=', 'api')]"/>
+                <filter name="filter_analysis" string="Uses Analysis" domain="[('analysis_id', '!=', False)]"/>
+                <filter name="filter_kpi_def" string="Uses KPI Definition" domain="[('kpi_id', '!=', False)]"/>
+                <filter name="filter_compare" string="Compare Previous Period" domain="[('compare_previous_period', '=', True)]"/>
+                <filter name="filter_target" string="Target Enabled" domain="[('enable_target', '=', True)]"/>
+                <filter name="filter_auto_update" string="Auto Update" domain="[('auto_update_type', '!=', 'none')]"/>
+                <group>
+                    <filter name="group_dashboard" string="Dashboard" context="{'group_by': 'dashboard_id'}"/>
+                    <filter name="group_item_type" string="Item Type" context="{'group_by': 'item_type'}"/>
+                    <filter name="group_calc" string="Data Calculation" context="{'group_by': 'data_calculation_type'}"/>
+                    <filter name="group_model" string="Model" context="{'group_by': 'model_id'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                    <filter name="group_auto_update" string="Auto Update" context="{'group_by': 'auto_update_type'}"/>
+                </group>
+                <searchpanel>
+                    <field name="dashboard_id" enable_counters="1"/>
+                    <field name="item_type" enable_counters="1" select="multi"/>
+                    <field name="data_calculation_type" enable_counters="1"/>
+                    <field name="company_id" groups="base.group_multi_company" enable_counters="1"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dynamic_dashboard_ai_nexgen_item" model="ir.actions.act_window">
+        <field name="name">Dashboard Items</field>
+        <field name="res_model">dynamic.dashboard.item</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="dynamic_dashboard_ai_nexgen_item_view_search"/>
+        <field name="context">{'search_default_group_dashboard': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first dashboard item
+            </p>
+        </field>
+    </record>
+</odoo>

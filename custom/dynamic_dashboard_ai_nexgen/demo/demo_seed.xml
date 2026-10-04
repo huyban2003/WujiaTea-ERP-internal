@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Runs on install; idempotent seeder also available via server action -->
+    <data noupdate="1">
+        <function model="dynamic.dashboard" name="seed_chart_demo_data"/>
+    </data>
+
+    <data>
+        <record id="action_seed_chart_demo_data" model="ir.actions.server">
+            <field name="name">Generate Chart Demo Data</field>
+            <field name="model_id" search="[('model', '=', 'dynamic.dashboard')]"/>
+            <field name="binding_model_id" search="[('model', '=', 'dynamic.dashboard')]"/>
+            <field name="state">code</field>
+            <field name="code">
+apps_msg_extra = ''
+env['dynamic.dashboard'].seed_chart_demo_data(force=False)
+apps = env['dynamic.dashboard'].search([
+    ('name', 'in', [
+        'Demo - Sales (All Data Sources)',
+        'Demo - Purchase (All Data Sources)',
+        'Demo - Inventory (All Data Sources)',
+        'Demo - Accounting (All Data Sources)',
+    ]),
+])
+if apps:
+    apps_msg_extra = ' Business dashboards: ' + ', '.join(apps.mapped('name'))
+else:
+    apps_msg_extra = ' Install Sale/Purchase/Stock/Accounting then re-run to add business dashboards.'
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Demo data ready',
+        'message': 'Created depends-only demos (partners/metrics/charts).' + apps_msg_extra,
+        'type': 'success',
+        'sticky': False,
+    },
+}
+            </field>
+        </record>
+
+        <record id="action_seed_chart_demo_data_force" model="ir.actions.server">
+            <field name="name">Regenerate Chart Demo Data (Force)</field>
+            <field name="model_id" search="[('model', '=', 'dynamic.dashboard')]"/>
+            <field name="state">code</field>
+            <field name="code">
+env['dynamic.dashboard'].seed_chart_demo_data(force=True)
+apps = env['dynamic.dashboard'].search([
+    ('name', 'in', [
+        'Demo - Sales (All Data Sources)',
+        'Demo - Purchase (All Data Sources)',
+        'Demo - Inventory (All Data Sources)',
+        'Demo - Accounting (All Data Sources)',
+    ]),
+])
+msg = 'Rebuilt depends-only demos.'
+if apps:
+    msg += ' Business dashboards: ' + ', '.join(apps.mapped('name'))
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Demo data regenerated',
+        'message': msg,
+        'type': 'success',
+        'sticky': False,
+    },
+}
+            </field>
+        </record>
+
+        <record id="action_seed_business_app_dashboards" model="ir.actions.server">
+            <field name="name">Generate Sale/Purchase/Stock/Account Dashboards</field>
+            <field name="model_id" search="[('model', '=', 'dynamic.dashboard')]"/>
+            <field name="state">code</field>
+            <field name="code">
+apps = env['dynamic.dashboard'].seed_business_app_dashboards(force=True)
+if apps:
+    message = 'Created/updated: ' + ', '.join(apps)
+    ntype = 'success'
+else:
+    message = 'No Sale / Purchase / Stock / Accounting modules are installed in this database.'
+    ntype = 'warning'
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Business app dashboards',
+        'message': message,
+        'type': ntype,
+        'sticky': False,
+    },
+}
+            </field>
+        </record>
+
+        <record id="action_seed_data_calculation_type_demos" model="ir.actions.server">
+            <field name="name">Generate Data Calculation Type Demos</field>
+            <field name="model_id" search="[('model', '=', 'dynamic.dashboard')]"/>
+            <field name="state">code</field>
+            <field name="code">
+dashes = env['dynamic.dashboard'].seed_data_calculation_type_demos(force=True)
+names = ', '.join(dashes.mapped('name')) if dashes else 'none'
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Data Calculation Type demos ready',
+        'message': 'Dashboards: ' + names,
+        'type': 'success',
+        'sticky': False,
+    },
+}
+            </field>
+        </record>
+
+        <record id="action_diagnose_data_calculation_types" model="ir.actions.server">
+            <field name="name">Test All Data Calculation Types</field>
+            <field name="model_id" search="[('model', '=', 'dynamic.dashboard')]"/>
+            <field name="state">code</field>
+            <field name="code">
+action = env['dynamic.dashboard'].action_diagnose_data_calculation_types()
+            </field>
+        </record>
+
+        <record id="action_demo_metric_records" model="ir.actions.act_window">
+            <field name="name">Demo Metric Records</field>
+            <field name="res_model">dynamic.dashboard.demo.record</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_demo_record_search"/>
+            <field name="context">{'search_default_group_category': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No demo metric records yet
+                </p>
+                <p>
+                    Run Generate Chart Demo Data to seed sample metrics.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

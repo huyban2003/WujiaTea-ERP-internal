@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>How to Create a Dynamic Dashboard in Odoo 19 (Step by Step)</title>
+  <meta name="description" content="Step-by-step guide to create a Dynamic Dashboard in Odoo 19 with AI, templates, drag-and-drop widgets, SQL, KPIs, filters, and TV Mode."/>
+  <meta name="keywords" content="create Dynamic Dashboard in Odoo, Odoo 19 Dashboard, Odoo Dashboard Builder, AI Dashboard Odoo, how to make Odoo Dashboard"/>
+  <link rel="canonical" href="https://YOUR-DOMAIN.com/blog/create-dynamic-dashboard-odoo-19"/>
+  <meta property="og:title" content="How to Create a Dynamic Dashboard in Odoo 19 (Step by Step)"/>
+  <meta property="og:description" content="Install, generate with AI or templates, connect data, add filters, and share your Odoo Dynamic Dashboard."/>
+  <meta property="og:type" content="article"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Create a Dynamic Dashboard in Odoo 19",
+    "description": "Step-by-step instructions to build an Odoo Dynamic Dashboard with AI or drag-and-drop widgets.",
+    "step": [
+      { "@type": "HowToStep", "name": "Install the Dashboard app", "text": "Install Odoo Dynamic Dashboard with AI on Odoo 19 Community, Enterprise, or Odoo.sh." },
+      { "@type": "HowToStep", "name": "Create or generate a board", "text": "Use templates, AI keyword generation, or drag-and-drop widgets." },
+      { "@type": "HowToStep", "name": "Connect data sources", "text": "Connect Odoo models, SQL, Excel/CSV, Google Sheets, APIs, or external databases." },
+      { "@type": "HowToStep", "name": "Add filters and KPIs", "text": "Configure date filters, drill-down, KPI targets, and alerts." },
+      { "@type": "HowToStep", "name": "Share or display", "text": "Share links, export, schedule emails, or use TV Mode." }
+    ]
+  }
+  </script>
+  <style>
+    body { margin:0; font-family:"Figtree",sans-serif; color:#152033; background:#f7f9fc; line-height:1.7; }
+    .wrap { width:min(740px, calc(100% - 40px)); margin:0 auto; padding:48px 0 72px; }
+    h1,h2,h3 { font-family:"Bricolage Grotesque",sans-serif; letter-spacing:-0.03em; line-height:1.15; }
+    h1 { font-size:clamp(32px,5vw,46px); margin:0 0 12px; }
+    h2 { font-size:28px; margin:40px 0 12px; }
+    .meta { color:#64748b; font-size:14px; margin-bottom:28px; }
+    p,li { font-size:17px; color:#334155; }
+    a { color:#1d4ed8; font-weight:600; }
+    ol { padding-left:22px; }
+    ol > li { margin: 0 0 18px; }
+    .tip { background:#ecfeff; border:1px solid #a5f3fc; border-radius:14px; padding:16px 18px; margin:20px 0; }
+    .cta { margin-top:40px; padding:24px; border-radius:16px; background:#e8eefc; border:1px solid #c9d7f5; }
+  </style>
+</head>
+<body>
+  <article class="wrap">
+    <p class="meta">NexGen Solutions · Updated July 2026 · 6 min read</p>
+    <h1>How to Create a Dynamic Dashboard in Odoo 19 (Step by Step)</h1>
+    <p>
+      This tutorial shows how to create a <strong>Dynamic Dashboard in Odoo</strong> using
+      <a href="https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen">Odoo Dynamic Dashboard with AI</a>.
+      You can generate boards with AI, start from templates, or design widgets manually.
+    </p>
+
+    <h2>Before you start</h2>
+    <ul>
+      <li>Odoo 19 on Community, Enterprise (on-premise), or Odoo.sh</li>
+      <li>Admin rights to install apps</li>
+      <li>(Optional) Your own AI provider API key if you want AI generation</li>
+    </ul>
+
+    <h2>Step 1 — Install the Odoo Dashboard app</h2>
+    <ol>
+      <li>Open <a href="https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen">Odoo Dynamic Dashboard with AI</a> on the Apps Store and purchase/download for 19.0.</li>
+      <li>Add the module to your addons path (or install via your Odoo.sh / deployment flow).</li>
+      <li>Update the Apps list and install <strong>Odoo Dynamic Dashboard with AI</strong>.</li>
+    </ol>
+    <div class="tip">
+      <strong>Tip:</strong> Sample Sales, Purchase, Inventory, or Accounting boards appear when those apps are already installed. The Dashboard module itself does not require them.
+    </div>
+
+    <h2>Step 2 — Create your first Dynamic Dashboard</h2>
+    <p>Pick one of three paths:</p>
+    <h3>Option A — Ready-made examples</h3>
+    <p>Open the Dashboard app and explore demo boards (Sales, CRM, Inventory, Accounting, HR, Project). Duplicate a board and adapt filters to your company.</p>
+    <h3>Option B — AI generation</h3>
+    <ol>
+      <li>Go to Settings and add your AI provider API key (OpenAI, Gemini, Claude, Cursor, or compatible endpoint).</li>
+      <li>Choose generate by model or by keyword (for example “Sales”, “Pipeline”, “Overdue invoices”).</li>
+      <li>Preview suggested widgets, keep what you need, then save.</li>
+    </ol>
+    <h3>Option C — Drag-and-drop Dashboard Builder</h3>
+    <p>Create a blank board, add tiles/charts/lists, bind each widget to an Odoo model or query, then arrange the layout.</p>
+
+    <h2>Step 3 — Connect the right data</h2>
+    <ul>
+      <li><strong>Odoo models</strong> for standard ERP metrics</li>
+      <li><strong>Custom SQL</strong> or <strong>Visual Query Builder</strong> for joins and custom aggregations</li>
+      <li><strong>Excel / CSV / Google Sheets</strong> for side datasets</li>
+      <li><strong>APIs / PostgreSQL / MySQL / SQL Server</strong> for external systems</li>
+    </ul>
+
+    <h2>Step 4 — Add KPIs, filters, and targets</h2>
+    <ol>
+      <li>Create KPI tiles for headline numbers (revenue, overdue AR, on-hand stock).</li>
+      <li>Add date filters and domains so users can switch “This Month” vs “This Quarter”.</li>
+      <li>Set targets and alerts when achievement drifts.</li>
+      <li>Enable drill-down so a chart click opens underlying records.</li>
+    </ol>
+
+    <h2>Step 5 — Share, export, or put it on TV</h2>
+    <ul>
+      <li>Share a secure link with the right users</li>
+      <li>Export PNG, PDF, Excel, or CSV</li>
+      <li>Schedule email reports for Monday morning packs</li>
+      <li>Use <strong>TV Mode</strong> to rotate boards on office screens</li>
+    </ul>
+
+    <h2>Example: Sales Dashboard in 10 minutes</h2>
+    <ol>
+      <li>Generate with keyword “Sales” (or duplicate the Sales example board).</li>
+      <li>Keep tiles for Revenue, Orders, Win Rate.</li>
+      <li>Add a monthly bar/line for revenue vs target.</li>
+      <li>Add a funnel for quotation stages and a list of top orders.</li>
+      <li>Filter by company/sales team and pin the board to your menu favorites.</li>
+    </ol>
+
+    <h2>Troubleshooting</h2>
+    <ul>
+      <li><strong>No sample board for Accounting?</strong> Install Accounting first, then refresh demos.</li>
+      <li><strong>AI returns nothing?</strong> Check the API key, provider endpoint, and that AI is enabled in Settings. Boards still work without AI.</li>
+      <li><strong>Empty chart?</strong> Verify the model domain, date field, and that demo/real records exist.</li>
+    </ul>
+
+    <div class="cta">
+      <h3>Build yours now</h3>
+      <p>
+        Get the app:
+        <a href="https://apps.odoo.com/apps/modules/19.0/dynamic_dashboard_ai_nexgen">Odoo Dynamic Dashboard with AI</a>.
+        Need a guided walkthrough? Email <a href="mailto:nexgensolutionsodoo@gmail.com">nexgensolutionsodoo@gmail.com</a>.
+      </p>
+    </div>
+  </article>
+</body>
+</html>

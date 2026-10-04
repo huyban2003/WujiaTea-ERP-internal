@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dynamic_dashboard_ai_nexgen_view_form" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.form</field>
+        <field name="model">dynamic.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard">
+                <header>
+                    <button name="action_open_dashboard" string="Open Dashboard" type="object"
+                            class="btn-primary" icon="fa-external-link" display="always"/>
+                    <button name="action_open_present_mode" string="Present" type="object"
+                            class="btn-secondary" icon="fa-play"/>
+                    <button name="action_create_share_link" string="Share Link" type="object"
+                            class="btn-secondary" icon="fa-share-alt"/>
+                    <button name="%(action_dynamic_dashboard_ai_nexgen_ai_wizard_items)d" string="Generate with AI"
+                            type="action" class="btn-secondary" icon="fa-magic"
+                            context="{'default_dashboard_id': id, 'default_generation_mode': 'add_items'}"/>
+                    <button name="export_dashboard" string="Export JSON" type="object"
+                            class="btn-secondary" icon="fa-download"/>
+                    <button name="action_duplicate_dashboard" string="Duplicate" type="object"
+                            class="btn-secondary" icon="fa-copy"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_items" type="object" class="oe_stat_button" icon="fa-th-large">
+                            <field name="item_count" widget="statinfo" string="Items"/>
+                        </button>
+                        <button name="action_create_menu" type="object" class="oe_stat_button" icon="fa-bars"
+                                invisible="menu_id or not top_menu_id or not menu_name"
+                                title="Create a top-level menu entry for this dashboard">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Create Menu</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Sales Overview" class="o_text_overflow"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="general_left" string="General">
+                            <field name="active" invisible="1"/>
+                            <field name="category_id" options="{'no_create_edit': False}"/>
+                            <field name="category" invisible="1"/>
+                            <field name="sequence"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                      options="{'no_create': True}"/>
+                            <field name="default_date_filter"/>
+                            <field name="email_user_ids" widget="many2many_tags"
+                                      options="{'no_create': True}"
+                                      placeholder="Default email recipients…"/>
+                        </group>
+                        <group name="general_right" string="Display &amp; Layout">
+                            <field name="layout_direction"/>
+                            <field name="is_rtl"/>
+                            <field name="chart_theme"/>
+                            <field name="background_color" widget="color"/>
+                            <field name="sticky_navbar"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Items" name="items">
+                            <field name="item_ids" mode="list,kanban"
+                                     context="{'default_dashboard_id': id}">
+                                <list string="Items" multi_edit="1"
+                                      decoration-info="item_type in ('tile', 'kpi', 'scorecard')"
+                                      decoration-muted="item_type in ('iframe', 'odoo_view')">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="item_type"/>
+                                    <field name="model_id" optional="show"/>
+                                    <field name="data_calculation_type" optional="show"/>
+                                    <field name="analysis_id" optional="hide"/>
+                                    <field name="kpi_id" optional="hide"/>
+                                    <field name="auto_update_type" optional="hide"/>
+                                    <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Global Filters" name="filters">
+                            <field name="custom_filter_ids" context="{'default_dashboard_id': id}">
+                                <list editable="bottom" string="Filters">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="model_id"/>
+                                    <field name="model_name" column_invisible="1"/>
+                                    <field name="domain" widget="domain" options="{'model': 'model_name'}"/>
+                                    <field name="widget_type"/>
+                                    <field name="filter_field_id"
+                                             optional="show"
+                                             required="widget_type in ('selection', 'many2one', 'date')"
+                                             invisible="widget_type == 'toggle'"/>
+                                    <field name="is_linked" optional="show"/>
+                                    <field name="item_ids" widget="many2many_tags"
+                                             optional="show"
+                                             domain="[('dashboard_id', '=', parent.id)]"
+                                             invisible="not is_linked"/>
+                                    <field name="is_active" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="TV &amp; Present" name="tv_present">
+                            <group>
+                                <group string="TV Mode">
+                                    <field name="tv_mode_type"/>
+                                    <field name="tv_interval"/>
+                                    <field name="tv_hide_chrome"/>
+                                </group>
+                                <group string="Present Mode">
+                                    <field name="present_notes" placeholder="Optional presenter notes shown during Present / slideshow…"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Menu" name="menu">
+                            <group string="Menu Configuration">
+                                <field name="menu_name" placeholder="Label shown in the app menu"/>
+                                <field name="top_menu_id" options="{'no_create': True}"/>
+                                <field name="menu_id" invisible="not menu_id" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Share Links" name="shares">
+                            <field name="share_ids" context="{'default_dashboard_id': id}">
+                                <list string="Share Links" decoration-muted="not active">
+                                    <field name="name"/>
+                                    <field name="token" optional="hide"/>
+                                    <field name="expiry_hours"/>
+                                    <field name="expires_at"/>
+                                    <field name="access_count"/>
+                                    <field name="active" widget="boolean_toggle"/>
+                                    <button name="action_open_link" type="object" string="Open"
+                                            icon="fa-external-link" title="Open share URL"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Scheduled Reports" name="reports">
+                            <field name="report_ids" context="{'default_dashboard_id': id}">
+                                <list editable="bottom" string="Reports"
+                                      decoration-danger="last_status == 'error'"
+                                      decoration-success="last_status == 'ok'"
+                                      decoration-muted="not active">
+                                    <field name="name"/>
+                                    <field name="user_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                    <field name="interval_number"/>
+                                    <field name="interval_type"/>
+                                    <field name="date_filter" optional="show"/>
+                                    <field name="include_charts" optional="hide"/>
+                                    <field name="next_execution_date"/>
+                                    <field name="last_sent_date" optional="show"/>
+                                    <field name="last_status" optional="show" widget="badge"
+                                              decoration-success="last_status == 'ok'"
+                                              decoration-danger="last_status == 'error'"
+                                              decoration-info="last_status == 'never'"/>
+                                    <field name="active" optional="hide" widget="boolean_toggle"/>
+                                    <button name="action_send_report" type="object" string="Send Now"
+                                            icon="fa-paper-plane" title="Send report email now"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Access" name="security">
+                            <group>
+                                <group string="Allowed Groups">
+                                    <field name="group_ids" widget="many2many_tags" nolabel="1"
+                                            colspan="2" options="{'no_create': True}"
+                                            placeholder="Leave empty to allow all users with dashboard access"/>
+                                </group>
+                                <group string="Bookmarked By">
+                                    <field name="bookmarked_user_ids" widget="many2many_tags"
+                                             nolabel="1" colspan="2" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_view_tree" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.list</field>
+        <field name="model">dynamic.dashboard</field>
+        <field name="arch" type="xml">
+            <list string="Dashboards" multi_edit="1"
+                  sample="1"
+                  decoration-muted="not active">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="category_id" optional="show"/>
+                <field name="category" optional="hide"/>
+                <field name="item_count" string="Items" optional="show"/>
+                <field name="layout_direction" optional="hide"/>
+                <field name="default_date_filter" optional="hide"/>
+                <field name="menu_id" optional="show"/>
+                <field name="active" optional="hide" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_view_search" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.search</field>
+        <field name="model">dynamic.dashboard</field>
+        <field name="arch" type="xml">
+            <search string="Dashboards">
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="category"/>
+                <field name="menu_name"/>
+                <field name="menu_id"/>
+                <field name="top_menu_id"/>
+                <field name="item_ids" string="Items"/>
+                <field name="group_ids"/>
+                <field name="email_user_ids"/>
+                <field name="bookmarked_user_ids"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <separator/>
+                <filter name="filter_active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <filter name="filter_bookmarked" string="My Bookmarks" domain="[('bookmarked_user_ids', 'in', [uid])]"/>
+                <filter name="filter_has_menu" string="Has Menu" domain="[('menu_id', '!=', False)]"/>
+                <filter name="filter_rtl" string="Force RTL" domain="[('is_rtl', '=', True)]"/>
+                <separator/>
+                <filter name="filter_layout_auto" string="Layout: Auto" domain="[('layout_direction', '=', 'auto')]"/>
+                <filter name="filter_layout_ltr" string="Layout: LTR" domain="[('layout_direction', '=', 'ltr')]"/>
+                <filter name="filter_layout_rtl" string="Layout: RTL" domain="[('layout_direction', '=', 'rtl')]"/>
+                <group>
+                    <filter name="group_category" string="Category" context="{'group_by': 'category_id'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                    <filter name="group_layout" string="Layout Direction" context="{'group_by': 'layout_direction'}"/>
+                    <filter name="group_date_filter" string="Default Date Filter" context="{'group_by': 'default_date_filter'}"/>
+                    <filter name="group_tv_mode" string="TV Mode Type" context="{'group_by': 'tv_mode_type'}"/>
+                </group>
+                <searchpanel>
+                    <field name="category_id" select="multi" enable_counters="1"/>
+                    <field name="company_id" groups="base.group_multi_company" enable_counters="1"/>
+                    <field name="layout_direction" enable_counters="1"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_view_kanban" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.kanban</field>
+        <field name="model">dynamic.dashboard</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_dashboard o_dd_kanban" sample="1" records_draggable="0">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="item_count"/>
+                <field name="category_id"/>
+                <field name="category"/>
+                <field name="active"/>
+                <field name="background_color"/>
+                <field name="layout_direction"/>
+                <field name="company_id"/>
+                <templates>
+                    <t t-name="card" class="flex-row">
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <div class="d-flex flex-column flex-grow-1 min-w-0">
+                            <field name="name" class="fw-bold text-truncate fs-5"/>
+                            <div class="text-muted small mt-1" t-if="record.category.raw_value">
+                                <field name="category"/>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between mt-3 gap-2 flex-wrap">
+                                <span class="text-muted">
+                                    <i class="fa fa-th-large me-1" title="Items"/>
+                                    <field name="item_count"/> Items
+                                </span>
+                                <button type="object" name="action_open_dashboard"
+                                        class="btn btn-primary btn-sm"
+                                        title="Open Dashboard">
+                                    <i class="fa fa-external-link me-1"/>Open
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_dynamic_dashboard_ai_nexgen" model="ir.actions.act_window">
+        <field name="name">Dashboards</field>
+        <field name="res_model">dynamic.dashboard</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="dynamic_dashboard_ai_nexgen_view_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first dashboard
+            </p>
+            <p>
+                Build dynamic dashboards with KPIs, charts, lists and more.
+            </p>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_client_action" model="ir.actions.client">
+        <field name="name">My Dashboard</field>
+        <field name="path">dynamic-dashboard</field>
+        <field name="tag">dynamic_dashboard_ai_nexgen.dashboard_view</field>
+    </record>
+</odoo>

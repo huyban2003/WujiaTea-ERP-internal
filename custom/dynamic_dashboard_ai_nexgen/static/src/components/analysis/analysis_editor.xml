@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="dynamic_dashboard_ai_nexgen.AnalysisEditor">
+        <div class="o_action h-100 d-flex flex-column p-3 bg-light">
+            <div t-if="state.loading" class="text-center p-5">Loading analysis…</div>
+            <t t-elif="!state.analysisId">
+                <div class="alert alert-warning">Open an Analysis record and click <b>Open Editor</b>.</div>
+            </t>
+            <t t-else="">
+                <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
+                    <h3 class="mb-0" t-esc="state.analysis.name"/>
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <select class="form-select form-select-sm" style="width:auto" t-on-change="onVisualChange" t-att-value="state.analysis.visual_type">
+                            <option value="bar">Bar</option>
+                            <option value="barLine">Bar + Line</option>
+                            <option value="line">Line</option>
+                            <option value="pie">Pie</option>
+                            <option value="list">Table</option>
+                            <option value="tile">Tile</option>
+                            <option value="kpi">KPI</option>
+                            <option value="scorecard">Scorecard</option>
+                            <option value="heatmap">Heat Map</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-primary" t-on-click="explain">Explain AI</button>
+                        <button class="btn btn-sm btn-secondary" t-on-click="reload">Refresh</button>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mb-3">
+                    <input class="form-control" placeholder="Ask AI: e.g. partners by country"
+                           t-model="state.aiPrompt"/>
+                    <button class="btn btn-primary" t-on-click="generateFromKeyword" t-att-disabled="state.aiBusy">
+                        Generate
+                    </button>
+                </div>
+                <div class="row g-3 flex-grow-1" style="min-height:0">
+                    <div class="col-md-3">
+                        <div class="card h-100">
+                            <div class="card-header fw-bold">Fields</div>
+                            <div class="card-body overflow-auto p-2" style="max-height:70vh">
+                                <t t-foreach="state.catalog" t-as="f" t-key="f.id">
+                                    <div class="d-flex justify-content-between align-items-center border-bottom py-1 small">
+                                        <span t-esc="f.label"/>
+                                        <span class="btn-group btn-group-sm">
+                                            <button t-if="f.is_metric || f.ttype === 'integer'" class="btn btn-outline-success" title="Add metric" t-on-click="() => this.addMetric(f)">M</button>
+                                            <button t-if="f.is_dimension" class="btn btn-outline-info" title="Add dimension" t-on-click="() => this.addDimension(f)">D</button>
+                                        </span>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card mb-3">
+                            <div class="card-header fw-bold">Metrics</div>
+                            <ul class="list-group list-group-flush">
+                                <t t-foreach="state.metrics" t-as="m" t-key="m.id">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span><t t-esc="m.name"/> (<t t-esc="m.aggregation"/>)</span>
+                                        <button class="btn btn-sm btn-link text-danger" t-on-click="() => this.removeMetric(m.id)">×</button>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <div class="card-header fw-bold">Dimensions</div>
+                            <ul class="list-group list-group-flush">
+                                <t t-foreach="state.dimensions" t-as="d" t-key="d.id">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span t-esc="d.name"/>
+                                        <button class="btn btn-sm btn-link text-danger" t-on-click="() => this.removeDimension(d.id)">×</button>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header fw-bold">Preview</div>
+                            <div class="card-body">
+                                <t t-if="state.preview and state.preview.error">
+                                    <div class="alert alert-danger" t-esc="state.preview.error"/>
+                                </t>
+                                <t t-elif="state.preview">
+                                    <div t-if="state.preview.value !== undefined" class="display-6">
+                                        <t t-esc="state.preview.value"/>
+                                    </div>
+                                    <pre class="small bg-dark text-white p-2 rounded" style="max-height:60vh;overflow:auto"
+                                         t-esc="JSON.stringify({labels: state.preview.labels, datasets: state.preview.datasets, columns: state.preview.columns, records: (state.preview.records||[]).slice(0,5)}, null, 2)"/>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

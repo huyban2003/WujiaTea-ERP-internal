@@ -1,0 +1,96 @@
+<odoo>
+	<data>
+		<record id="view_wujia_fields_value_form" model="ir.ui.view">
+			<field name="name">wujia.fields.value.form</field>
+			<field name="model">wujia.fields.value</field>
+			<field name="arch" type="xml">
+				<form string="View Fields Value">
+					<sheet>
+						<div class="row mb-3 px-2">
+							<div class="col-md-5 d-flex align-items-center mb-2">
+								<strong class="me-2 text-nowrap">Model:</strong>
+								<field name="model_id" options="{'no_create': True, 'no_create_edit': True}" class="fw-bold me-2 flex-grow-1"/>
+							</div>
+							<div class="col-md-4 d-flex align-items-center mb-2">
+								<strong class="me-2 text-nowrap">Record ID:</strong>
+								<field name="res_id" class="fw-bold me-2" placeholder="Enter ID..."/>
+							</div>
+							<div class="col-md-3 d-flex align-items-center mb-2">
+								<button name="action_reload_fields" type="object" string="Reload" class="btn btn-primary" icon="fa-refresh"/>
+							</div>
+							<div class="col-12 mt-2">
+								<strong class="me-2">Fields:</strong>
+								<field name="model" invisible="1"/>
+								<field name="field_ids" context="{'from_fields_value': True}" widget="many2many_tags"
+								       domain="[('model_id', '=', model_id)]"
+								       options="{'no_create_edit': True, 'no_quick_create': True}"
+								       placeholder="Select fields to filter..."/>
+							</div>
+						</div>
+						<field name="field_value_line_ids" class="o_wujia_fields_value_lines">
+							<list create="false" delete="false" edit="false">
+								<field name="field_label"/>
+								<field name="field_name"/>
+								<field name="field_type"/>
+								<field name="field_value"/>
+								<field name="has_relation" widget="wujia_fields_value_actions" string=" "/>
+							</list>
+							<form string="Field Value Line Detail">
+								<group>
+									<group>
+										<field name="sequence"/>
+										<field name="field_label"/>
+										<field name="field_name"/>
+									</group>
+									<group>
+										<field name="field_type"/>
+										<field name="relation_model"/>
+										<field name="has_relation"/>
+									</group>
+								</group>
+								<group string="Value">
+									<field name="field_value" nolabel="1"/>
+								</group>
+							</form>
+						</field>
+					</sheet>
+					<footer/>
+				</form>
+			</field>
+		</record>
+
+		<record id="view_wujia_fields_value_line_form" model="ir.ui.view">
+			<field name="name">wujia.fields.value.line.form</field>
+			<field name="model">wujia.fields.value.line</field>
+			<field name="arch" type="xml">
+				<form string="Field Value Line Detail">
+					<sheet>
+						<group>
+							<group>
+								<field name="sequence"/>
+								<field name="field_label"/>
+								<field name="field_name"/>
+							</group>
+							<group>
+								<field name="field_type"/>
+								<field name="relation_model"/>
+								<field name="has_relation"/>
+							</group>
+						</group>
+						<group string="Value">
+							<field name="field_value" nolabel="1"/>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record id="action_wujia_fields_value" model="ir.actions.act_window">
+			<field name="name">wujia.fields.value.action</field>
+			<field name="res_model">wujia.fields.value</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+	</data>
+</odoo>
+

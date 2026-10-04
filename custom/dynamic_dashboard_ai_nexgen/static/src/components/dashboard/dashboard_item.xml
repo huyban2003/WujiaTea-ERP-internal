@@ -1,0 +1,948 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="dynamic_dashboard_ai_nexgen.DashboardItem">
+        <div t-attf-class="card h-100 shadow-sm dynamic-dashboard-item {{getItemShellClass()}}" t-ref="itemCard" t-att-style="getItemShellStyle()">
+            <div t-if="state.loading" class="card-body d-flex justify-content-center align-items-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            
+            <div t-elif="state.error" class="d-flex flex-column h-100">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center pb-0 pt-3">
+                    <h5 class="card-title mb-0 text-truncate fw-bold">
+                        <t t-esc="state.data.name or 'Error'"/>
+                    </h5>
+                    <button class="btn btn-sm text-muted opacity-50" t-on-click.stop.prevent="editItem" title="Edit Item">
+                        <i class="fa fa-pencil"/>
+                    </button>
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center text-danger text-center">
+                    <div>
+                        <i class="fa fa-exclamation-triangle fa-2x mb-2"></i><br/>
+                        <t t-esc="state.error"/>
+                    </div>
+                </div>
+            </div>
+            
+            <t t-else="">
+                <!-- Tile View -->
+                <div t-if="activeItemType === 'tile'"
+                     t-attf-class="card-body dd-kpi dd-tile dd-kpi-{{state.data.tile_layout || 'layout1'}} dd-theme-{{state.data.tile_theme || 'ocean'}} position-relative"
+                     t-att-style="getKpiCardStyle()"
+                     t-on-click="onChartClick">
+                    <button class="btn btn-sm dd-kpi-edit" t-on-click.stop.prevent="editItem" title="Edit Item">
+                        <i class="fa fa-pencil"/>
+                    </button>
+                    <div class="dd-card-quickbar" t-on-click.stop="">
+                        <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="cycleTileLayout" title="Cycle card layout">
+                            <i class="fa fa-th-large"/>
+                        </button>
+                        <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="cycleTileTheme" title="Cycle card theme">
+                            <i class="fa fa-paint-brush"/>
+                        </button>
+                        <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="quickRefreshItem" title="Refresh">
+                            <i class="fa fa-refresh"/>
+                        </button>
+                        <div class="dropdown dd-card-more-dropdown">
+                            <button class="btn btn-sm dd-quick-btn dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown"
+                                    data-bs-popper-config='{"strategy":"fixed"}'
+                                    aria-expanded="false" title="More options">
+                                <i class="fa fa-ellipsis-v"/>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm dd-item-menu dd-card-more-menu">
+                                <li t-if="state.canEdit"><a class="dropdown-item" href="#" t-on-click.prevent="editItem"><i class="fa fa-pencil me-2"/> Edit Item</a></li>
+                                <li><h6 class="dropdown-header">Card Layout</h6></li>
+                                <t t-foreach="tileLayoutOptions" t-as="layoutOpt" t-key="layoutOpt.value">
+                                    <li>
+                                        <a t-attf-class="dropdown-item d-flex justify-content-between align-items-center {{isTileLayout(layoutOpt.value) ? 'active' : ''}}"
+                                           href="#" t-on-click.prevent="() => this.setTileLayout(layoutOpt.value)">
+                                            <span t-esc="layoutOpt.label"/>
+                                            <i t-if="isTileLayout(layoutOpt.value)" class="fa fa-check text-primary"/>
+                                        </a>
+                                    </li>
+                                </t>
+                                <li><hr class="dropdown-divider"/></li>
+                                <li><h6 class="dropdown-header">Card Theme</h6></li>
+                                <li class="px-2 pb-1">
+                                    <div class="dd-theme-swatch-grid">
+                                        <t t-foreach="tileThemeOptions" t-as="themeOpt" t-key="themeOpt.value">
+                                            <button type="button"
+                                                    t-attf-class="dd-theme-swatch-btn {{isTileTheme(themeOpt.value) ? 'is-active' : ''}}"
+                                                    t-att-style="'background:' + themeOpt.swatch"
+                                                    t-att-title="themeOpt.label"
+                                                    t-on-click.stop.prevent="() => this.setTileTheme(themeOpt.value)"/>
+                                        </t>
+                                    </div>
+                                </li>
+                                <li><h6 class="dropdown-header">Accent Colors</h6></li>
+                                <li class="px-2 pb-2">
+                                    <div class="dd-theme-swatch-grid">
+                                        <t t-foreach="tileColorPresets" t-as="colorHex" t-key="colorHex">
+                                            <button type="button"
+                                                    t-attf-class="dd-theme-swatch-btn {{isTileColor(colorHex) ? 'is-active' : ''}}"
+                                                    t-att-style="'background:' + colorHex"
+                                                    t-att-title="colorHex"
+                                                    t-on-click.stop.prevent="() => this.setTileColor(colorHex)"/>
+                                        </t>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"/></li>
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeItemType('kpi')"><i class="fa fa-tachometer me-2"/> Switch to KPI</a></li>
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeItemType('scorecard')"><i class="fa fa-id-card-o me-2"/> Switch to Scorecard</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dd-kpi-glow" aria-hidden="true"/>
+                    <div class="dd-kpi-band" aria-hidden="true">
+                        <i t-attf-class="fa {{state.data.icon || state.data.tile_icon || 'fa-bar-chart'}}"/>
+                    </div>
+                    <div class="dd-kpi-header-strip">
+                        <span class="dd-kpi-strip-title" t-esc="state.data.name"/>
+                        <span class="dd-kpi-strip-icon">
+                            <i t-attf-class="fa {{state.data.icon || state.data.tile_icon || 'fa-bar-chart'}}"/>
+                        </span>
+                    </div>
+                    <div class="dd-kpi-main">
+                        <div class="dd-kpi-meta">
+                            <div class="dd-kpi-title-row">
+                                <span class="dd-kpi-title" t-esc="state.data.name"/>
+                                <span t-if="state.data.compare_previous_period"
+                                      t-attf-class="dd-kpi-status {{getKpiGrowth() &gt; 0 ? 'is-up' : (getKpiGrowth() &lt; 0 ? 'is-down' : 'is-flat')}}">
+                                    <i t-attf-class="fa {{getKpiGrowth() &gt; 0 ? 'fa-arrow-up' : (getKpiGrowth() &lt; 0 ? 'fa-arrow-down' : 'fa-minus')}}"/>
+                                    <t t-esc="Math.abs(getKpiGrowth())"/>%
+                                </span>
+                            </div>
+                            <div class="dd-kpi-value-row">
+                                <span class="dd-kpi-value" t-esc="formatNumber(state.data.value)"/>
+                            </div>
+                            <div t-if="state.data.enable_target and state.data.target_value and state.data.target_view !== 'progress_bar'" class="dd-kpi-target">
+                                Target <t t-esc="formatNumber(state.data.target_value)"/>
+                                <t t-if="getKpiAchievement() !== null"> · <t t-esc="getKpiAchievement()"/>%</t>
+                            </div>
+                            <div t-if="state.data.enable_target and state.data.target_value and state.data.target_view === 'progress_bar'" class="dd-kpi-progress">
+                                <div class="dd-kpi-progress-bar">
+                                    <div class="dd-kpi-progress-fill" t-att-style="'width:' + Math.min(getKpiAchievement() || 0, 100) + '%'"/>
+                                </div>
+                                <div class="dd-kpi-target">
+                                    Target <t t-esc="formatNumber(state.data.target_value)"/> · <t t-esc="getKpiAchievement() || 0"/>%
+                                </div>
+                            </div>
+                            <div class="dd-kpi-accent-bar" aria-hidden="true"/>
+                        </div>
+                        <div class="dd-kpi-visual">
+                            <div t-if="state.data.enable_target and state.data.target_value and state.data.target_view !== 'progress_bar'"
+                                 class="dd-kpi-ring" t-att-title="(getKpiAchievement() || 0) + '% of target'">
+                                <svg viewBox="0 0 36 36" aria-hidden="true">
+                                    <path class="dd-kpi-ring-bg"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <path class="dd-kpi-ring-fg"
+                                          t-att-stroke="getKpiAccent()"
+                                          t-att-stroke-dasharray="getKpiRingDash()"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                </svg>
+                                <span class="dd-kpi-ring-label"><t t-esc="getKpiAchievement() || 0"/>%</span>
+                            </div>
+                            <div t-else="" class="dd-tile-icon-bubble">
+                                <i t-attf-class="fa {{state.data.icon || state.data.tile_icon || 'fa-bar-chart'}}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI View -->
+                <div t-elif="activeItemType === 'kpi'"
+                     t-attf-class="card-body dd-kpi dd-kpi-card dd-kpi-{{state.data.tile_layout || 'layout1'}} dd-theme-{{state.data.tile_theme || 'ocean'}} position-relative"
+                     t-att-style="getKpiCardStyle()"
+                     t-on-click="onChartClick">
+                    <button class="btn btn-sm dd-kpi-edit" t-on-click.stop.prevent="editItem" title="Edit Item">
+                        <i class="fa fa-pencil"/>
+                    </button>
+                    <div class="dd-card-quickbar" t-on-click.stop="">
+                        <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="cycleTileLayout" title="Cycle card layout">
+                            <i class="fa fa-th-large"/>
+                        </button>
+                        <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="cycleTileTheme" title="Cycle card theme">
+                            <i class="fa fa-paint-brush"/>
+                        </button>
+                        <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="quickRefreshItem" title="Refresh">
+                            <i class="fa fa-refresh"/>
+                        </button>
+                        <div class="dropdown dd-card-more-dropdown">
+                            <button class="btn btn-sm dd-quick-btn dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown"
+                                    data-bs-popper-config='{"strategy":"fixed"}'
+                                    aria-expanded="false" title="More options">
+                                <i class="fa fa-ellipsis-v"/>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm dd-item-menu dd-card-more-menu">
+                                <li t-if="state.canEdit"><a class="dropdown-item" href="#" t-on-click.prevent="editItem"><i class="fa fa-pencil me-2"/> Edit Item</a></li>
+                                <li><h6 class="dropdown-header">Card Layout</h6></li>
+                                <t t-foreach="tileLayoutOptions" t-as="layoutOpt" t-key="layoutOpt.value">
+                                    <li>
+                                        <a t-attf-class="dropdown-item d-flex justify-content-between align-items-center {{isTileLayout(layoutOpt.value) ? 'active' : ''}}"
+                                           href="#" t-on-click.prevent="() => this.setTileLayout(layoutOpt.value)">
+                                            <span t-esc="layoutOpt.label"/>
+                                            <i t-if="isTileLayout(layoutOpt.value)" class="fa fa-check text-primary"/>
+                                        </a>
+                                    </li>
+                                </t>
+                                <li><hr class="dropdown-divider"/></li>
+                                <li><h6 class="dropdown-header">Card Theme</h6></li>
+                                <li class="px-2 pb-1">
+                                    <div class="dd-theme-swatch-grid">
+                                        <t t-foreach="tileThemeOptions" t-as="themeOpt" t-key="themeOpt.value">
+                                            <button type="button"
+                                                    t-attf-class="dd-theme-swatch-btn {{isTileTheme(themeOpt.value) ? 'is-active' : ''}}"
+                                                    t-att-style="'background:' + themeOpt.swatch"
+                                                    t-att-title="themeOpt.label"
+                                                    t-on-click.stop.prevent="() => this.setTileTheme(themeOpt.value)"/>
+                                        </t>
+                                    </div>
+                                </li>
+                                <li><h6 class="dropdown-header">Accent Colors</h6></li>
+                                <li class="px-2 pb-2">
+                                    <div class="dd-theme-swatch-grid">
+                                        <t t-foreach="tileColorPresets" t-as="colorHex" t-key="colorHex">
+                                            <button type="button"
+                                                    t-attf-class="dd-theme-swatch-btn {{isTileColor(colorHex) ? 'is-active' : ''}}"
+                                                    t-att-style="'background:' + colorHex"
+                                                    t-att-title="colorHex"
+                                                    t-on-click.stop.prevent="() => this.setTileColor(colorHex)"/>
+                                        </t>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"/></li>
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeItemType('tile')"><i class="fa fa-th-large me-2"/> Switch to Tile</a></li>
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeItemType('scorecard')"><i class="fa fa-id-card-o me-2"/> Switch to Scorecard</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dd-kpi-glow" aria-hidden="true"/>
+                    <div class="dd-kpi-band" aria-hidden="true">
+                        <i t-attf-class="fa {{state.data.icon || state.data.tile_icon || 'fa-line-chart'}}"/>
+                    </div>
+                    <div class="dd-kpi-header-strip">
+                        <span class="dd-kpi-strip-title" t-esc="state.data.name"/>
+                        <span class="dd-kpi-strip-icon">
+                            <i t-attf-class="fa {{state.data.icon || state.data.tile_icon || 'fa-line-chart'}}"/>
+                        </span>
+                    </div>
+                    <div class="dd-kpi-main">
+                        <div class="dd-kpi-meta">
+                            <div class="dd-kpi-title-row">
+                                <span class="dd-kpi-title" t-esc="state.data.name"/>
+                                <span t-if="state.data.compare_previous_period"
+                                      t-attf-class="dd-kpi-status {{getKpiGrowth() &gt; 0 ? 'is-up' : (getKpiGrowth() &lt; 0 ? 'is-down' : 'is-flat')}}">
+                                    <i t-attf-class="fa {{getKpiGrowth() &gt; 0 ? 'fa-arrow-up' : (getKpiGrowth() &lt; 0 ? 'fa-arrow-down' : 'fa-minus')}}"/>
+                                    <t t-esc="Math.abs(getKpiGrowth())"/>%
+                                </span>
+                            </div>
+                            <div class="dd-kpi-value-row">
+                                <span class="dd-kpi-value" t-esc="formatNumber(state.data.value)"/>
+                            </div>
+                            <div t-if="state.data.target_value and state.data.target_view !== 'progress_bar'" class="dd-kpi-target">
+                                Target <t t-esc="formatNumber(state.data.target_value)"/>
+                                <t t-if="getKpiAchievement() !== null"> · <t t-esc="getKpiAchievement()"/>%</t>
+                            </div>
+                            <div t-if="state.data.target_value and state.data.target_view === 'progress_bar'" class="dd-kpi-progress">
+                                <div class="dd-kpi-progress-bar">
+                                    <div class="dd-kpi-progress-fill" t-att-style="'width:' + Math.min(getKpiAchievement() || 0, 100) + '%'"/>
+                                </div>
+                                <div class="dd-kpi-target">
+                                    Target <t t-esc="formatNumber(state.data.target_value)"/> · <t t-esc="getKpiAchievement() || 0"/>%
+                                </div>
+                            </div>
+                            <div class="dd-kpi-accent-bar" aria-hidden="true"/>
+                        </div>
+                        <div class="dd-kpi-visual">
+                            <div t-if="state.data.target_value and state.data.target_view !== 'progress_bar'" class="dd-kpi-ring" t-att-title="(getKpiAchievement() || 0) + '% of target'">
+                                <svg viewBox="0 0 36 36" aria-hidden="true">
+                                    <path class="dd-kpi-ring-bg"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <path class="dd-kpi-ring-fg"
+                                          t-att-stroke="getKpiAccent()"
+                                          t-att-stroke-dasharray="getKpiRingDash()"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                </svg>
+                                <span class="dd-kpi-ring-label"><t t-esc="getKpiAchievement() || 0"/>%</span>
+                            </div>
+                            <div t-else="" class="dd-tile-icon-bubble dd-kpi-icon-wrap">
+                                <i t-attf-class="fa {{state.data.icon || state.data.tile_icon || 'fa-line-chart'}}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scorecard -->
+                <div t-elif="activeItemType === 'scorecard'"
+                     t-attf-class="card-body dd-scorecard-wrap dd-theme-{{state.data.tile_theme || 'ocean'}} overflow-auto position-relative"
+                     t-att-style="getScorecardWrapStyle()">
+                    <div class="dd-card-quickbar" t-on-click.stop="">
+                        <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="cycleTileLayout" title="Cycle card layout">
+                            <i class="fa fa-th-large"/>
+                        </button>
+                        <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="cycleTileTheme" title="Cycle card theme">
+                            <i class="fa fa-paint-brush"/>
+                        </button>
+                        <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="quickRefreshItem" title="Refresh">
+                            <i class="fa fa-refresh"/>
+                        </button>
+                        <div class="dropdown dd-card-more-dropdown">
+                            <button class="btn btn-sm dd-quick-btn dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown"
+                                    data-bs-popper-config='{"strategy":"fixed"}'
+                                    aria-expanded="false" title="More options">
+                                <i class="fa fa-ellipsis-v"/>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm dd-item-menu dd-card-more-menu">
+                                <li t-if="state.canEdit"><a class="dropdown-item" href="#" t-on-click.prevent="editItem"><i class="fa fa-pencil me-2"/> Edit Item</a></li>
+                                <li><h6 class="dropdown-header">Columns</h6></li>
+                                <t t-foreach="scorecardColumnOptions" t-as="colOpt" t-key="colOpt.value">
+                                    <li>
+                                        <a t-attf-class="dropdown-item d-flex justify-content-between align-items-center {{isScorecardColumns(colOpt.value) ? 'active' : ''}}"
+                                           href="#" t-on-click.prevent="() => this.setScorecardColumns(colOpt.value)">
+                                            <span t-esc="colOpt.label"/>
+                                            <i t-if="isScorecardColumns(colOpt.value)" class="fa fa-check text-primary"/>
+                                        </a>
+                                    </li>
+                                </t>
+                                <li><hr class="dropdown-divider"/></li>
+                                <li><h6 class="dropdown-header">Card Layout</h6></li>
+                                <t t-foreach="tileLayoutOptions" t-as="layoutOpt" t-key="layoutOpt.value">
+                                    <li>
+                                        <a t-attf-class="dropdown-item d-flex justify-content-between align-items-center {{isTileLayout(layoutOpt.value) ? 'active' : ''}}"
+                                           href="#" t-on-click.prevent="() => this.setTileLayout(layoutOpt.value)">
+                                            <span t-esc="layoutOpt.label"/>
+                                            <i t-if="isTileLayout(layoutOpt.value)" class="fa fa-check text-primary"/>
+                                        </a>
+                                    </li>
+                                </t>
+                                <li><hr class="dropdown-divider"/></li>
+                                <li><h6 class="dropdown-header">Card Theme</h6></li>
+                                <li class="px-2 pb-1">
+                                    <div class="dd-theme-swatch-grid">
+                                        <t t-foreach="tileThemeOptions" t-as="themeOpt" t-key="themeOpt.value">
+                                            <button type="button"
+                                                    t-attf-class="dd-theme-swatch-btn {{isTileTheme(themeOpt.value) ? 'is-active' : ''}}"
+                                                    t-att-style="'background:' + themeOpt.swatch"
+                                                    t-att-title="themeOpt.label"
+                                                    t-on-click.stop.prevent="() => this.setTileTheme(themeOpt.value)"/>
+                                        </t>
+                                    </div>
+                                </li>
+                                <li><h6 class="dropdown-header">Accent Colors</h6></li>
+                                <li class="px-2 pb-2">
+                                    <div class="dd-theme-swatch-grid">
+                                        <t t-foreach="tileColorPresets" t-as="colorHex" t-key="colorHex">
+                                            <button type="button"
+                                                    t-attf-class="dd-theme-swatch-btn {{isTileColor(colorHex) ? 'is-active' : ''}}"
+                                                    t-att-style="'background:' + colorHex"
+                                                    t-att-title="colorHex"
+                                                    t-on-click.stop.prevent="() => this.setTileColor(colorHex)"/>
+                                        </t>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"/></li>
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeItemType('tile')"><i class="fa fa-th-large me-2"/> Switch to Tile</a></li>
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeItemType('kpi')"><i class="fa fa-tachometer me-2"/> Switch to KPI</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dd-scorecard-heading">
+                        <span t-esc="state.data.name"/>
+                    </div>
+                    <div t-attf-class="dd-scorecard-grid dd-scorecard-cols-{{state.data.scorecard_columns || 'auto'}}">
+                        <t t-foreach="state.data.scorecard_values || [{label: state.data.name, value: state.data.value}]" t-as="sv" t-key="sv_index">
+                            <div t-attf-class="dd-kpi dd-scorecard-cell dd-kpi-{{state.data.tile_layout || 'layout1'}} dd-theme-{{state.data.tile_theme || 'ocean'}}"
+                                 t-att-style="getKpiCardStyle()">
+                                <div class="dd-kpi-glow" aria-hidden="true"/>
+                                <div class="dd-kpi-band" aria-hidden="true">
+                                    <i class="fa fa-circle-o"/>
+                                </div>
+                                <div class="dd-kpi-header-strip">
+                                    <span class="dd-kpi-strip-title" t-esc="sv.label"/>
+                                </div>
+                                <div class="dd-kpi-main">
+                                    <div class="dd-kpi-meta">
+                                        <div class="dd-kpi-title-row">
+                                            <span class="dd-kpi-title" t-esc="sv.label"/>
+                                        </div>
+                                        <div class="dd-kpi-value-row">
+                                            <span class="dd-kpi-value" t-esc="formatNumber(sv.value)"/>
+                                        </div>
+                                        <div t-if="sv.target" class="dd-kpi-target">
+                                            Target <t t-esc="formatNumber(sv.target)"/>
+                                            <t t-if="sv.achievement"> · <t t-esc="Math.round(sv.achievement)"/>%</t>
+                                        </div>
+                                        <div class="dd-kpi-accent-bar" aria-hidden="true"/>
+                                    </div>
+                                    <div t-if="sv.target" class="dd-kpi-visual">
+                                        <div class="dd-kpi-ring">
+                                            <svg viewBox="0 0 36 36" aria-hidden="true">
+                                                <path class="dd-kpi-ring-bg"
+                                                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                                <path class="dd-kpi-ring-fg"
+                                                      t-att-stroke="getKpiAccent()"
+                                                      t-att-stroke-dasharray="Math.min(Math.round(sv.achievement || 0), 100) + ', 100'"
+                                                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                            </svg>
+                                            <span class="dd-kpi-ring-label"><t t-esc="Math.round(sv.achievement || 0)"/>%</span>
+                                        </div>
+                                    </div>
+                                    <div t-else="" class="dd-kpi-visual">
+                                        <div class="dd-tile-icon-bubble">
+                                            <i class="fa fa-area-chart"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Iframe -->
+                <div t-elif="activeItemType === 'iframe'" class="card-body p-0 h-100">
+                    <!-- We use object instead of iframe because Odoo's Popover useClickAway hook iterates over all iframes and throws cross-origin SecurityErrors on destroy -->
+                    <object t-att-data="state.data.iframe_url" type="text/html" class="w-100 h-100 border-0" style="min-height:240px" title="Embedded"></object>
+                </div>
+
+                <!-- Odoo View embed trigger -->
+                <div t-elif="activeItemType === 'odoo_view'" class="card-body d-flex flex-column justify-content-center align-items-center gap-2">
+                    <h6 t-esc="state.data.name"/>
+                    <button class="btn btn-primary" t-on-click="openEmbeddedAction" t-att-disabled="!state.data.odoo_action_id">
+                        Open Odoo View
+                    </button>
+                </div>
+
+                <!-- Chart Views -->
+                <div t-elif="isAmChartsVisual" class="card-body d-flex flex-column p-3 h-100 dd-chart-card-body">
+                    <div class="dd-chart-header d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
+                        <div class="d-flex align-items-center gap-2 min-w-0">
+                            <h6 class="dd-chart-title text-truncate mb-0"
+                                t-att-style="'color: ' + (state.data.font_color || '#374151') + ';'"
+                                t-esc="state.data.name"/>
+                            <span t-if="state.data.compare_previous_period" class="dd-kpi-status is-flat flex-shrink-0" title="Compared with previous period">
+                                Prev: <t t-esc="formatNumber(state.data.previous_value || 0)"/>
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1 flex-shrink-0 dd-item-quickbar">
+                            <div t-if="supportsChartZoom" class="btn-group btn-group-sm dd-zoom-btns" role="group">
+                                <button type="button" class="btn btn-light" t-on-click.stop.prevent="zoomChartIn"
+                                        title="Zoom in (scroll up on chart)">
+                                    <i class="fa fa-search-plus"/>
+                                </button>
+                                <button type="button" class="btn btn-light" t-on-click.stop.prevent="zoomChartOut"
+                                        title="Zoom out (scroll down on chart)">
+                                    <i class="fa fa-search-minus"/>
+                                </button>
+                                <button type="button" class="btn btn-light" t-on-click.stop.prevent="resetChartZoom"
+                                        title="Reset zoom">
+                                    <i class="fa fa-compress"/>
+                                </button>
+                            </div>
+                            <button type="button"
+                                    t-attf-class="btn btn-sm dd-quick-btn {{_displayOptionValue('hide_legend') ? '' : 'is-active'}}"
+                                    t-on-click.stop.prevent="() => this.toggleDisplayOption('hide_legend')"
+                                    title="Toggle legend">
+                                <i class="fa fa-list-ul"/>
+                            </button>
+                            <button type="button"
+                                    t-attf-class="btn btn-sm dd-quick-btn {{_displayOptionValue('show_data_value') ? 'is-active' : ''}}"
+                                    t-on-click.stop.prevent="() => this.toggleDisplayOption('show_data_value')"
+                                    title="Toggle data labels">
+                                <i class="fa fa-tag"/>
+                            </button>
+                            <button t-if="supportsStackedOption" type="button"
+                                    t-attf-class="btn btn-sm dd-quick-btn {{_displayOptionValue('is_stacked') ? 'is-active' : ''}}"
+                                    t-on-click.stop.prevent="() => this.toggleDisplayOption('is_stacked')"
+                                    title="Toggle stacked">
+                                <i class="fa fa-bars"/>
+                            </button>
+                            <button t-if="supportsGridOption" type="button"
+                                    t-attf-class="btn btn-sm dd-quick-btn {{_displayOptionValue('show_grid') ? 'is-active' : ''}}"
+                                    t-on-click.stop.prevent="() => this.toggleDisplayOption('show_grid')"
+                                    title="Toggle grid lines">
+                                <i class="fa fa-th"/>
+                            </button>
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-sm dd-quick-btn dropdown-toggle"
+                                        data-bs-toggle="dropdown" aria-expanded="false"
+                                        title="Chart theme">
+                                    <i class="fa fa-paint-brush"/>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm dd-item-menu dd-theme-menu">
+                                    <li><h6 class="dropdown-header">Chart Theme</h6></li>
+                                    <t t-foreach="chartThemeOptions" t-as="themeOpt" t-key="themeOpt.value">
+                                        <li>
+                                            <a t-attf-class="dropdown-item d-flex justify-content-between align-items-center {{isChartTheme(themeOpt.value) ? 'active' : ''}}"
+                                               href="#"
+                                               t-on-click.prevent="() => this.setChartTheme(themeOpt.value)">
+                                                <span class="d-flex align-items-center gap-2">
+                                                    <span class="dd-theme-swatch" t-att-style="'background:' + themeOpt.swatch"/>
+                                                    <t t-esc="themeOpt.label"/>
+                                                </span>
+                                                <i t-if="isChartTheme(themeOpt.value)" class="fa fa-check text-primary"/>
+                                            </a>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </div>
+                            <button type="button" class="btn btn-sm dd-quick-btn"
+                                    t-on-click.stop.prevent="quickRefreshItem"
+                                    title="Refresh">
+                                <i class="fa fa-refresh"/>
+                            </button>
+                            <div class="dropdown dd-card-more-dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="More options">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm dd-item-menu dd-card-more-menu">
+                                    <li t-if="state.canEdit"><a class="dropdown-item" href="#" t-on-click.prevent="openQuickEdit"><i class="fa fa-bolt me-2"/> Quick Edit</a></li>
+                                    <li t-if="state.canEdit"><a class="dropdown-item" href="#" t-on-click.prevent="editItem"><i class="fa fa-pencil me-2"/> Edit Item</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="exportToCSV"><i class="fa fa-file-text-o me-2"/> Export CSV</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="exportToExcel"><i class="fa fa-file-excel-o me-2"/> Export Excel</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="exportToPNG"><i class="fa fa-file-image-o me-2"/> Export PNG</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="exportToPDF"><i class="fa fa-file-pdf-o me-2"/> Export PDF</a></li>
+                                    <li t-if="state.data.model"><a class="dropdown-item" href="#" t-on-click.prevent="openRecordsFromDrill"><i class="fa fa-list me-2"/> Open Records</a></li>
+                                    <li><hr class="dropdown-divider"/></li>
+                                    <li><h6 class="dropdown-header">Chart Options</h6></li>
+                                    <li>
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('hide_legend')">
+                                            <span><i class="fa fa-list-ul me-2"/> Legend</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('hide_legend') ? 'fa-toggle-off text-muted' : 'fa-toggle-on text-primary'}}"/>
+                                        </a>
+                                    </li>
+                                    <li class="px-3 py-1">
+                                        <div class="btn-group btn-group-sm w-100" role="group">
+                                            <button type="button"
+                                                    t-attf-class="btn {{isLegendPosition('bottom') ? 'btn-primary' : 'btn-outline-secondary'}}"
+                                                    t-on-click.stop.prevent="() => this.setLegendPosition('bottom')" title="Legend bottom">Bot</button>
+                                            <button type="button"
+                                                    t-attf-class="btn {{isLegendPosition('top') ? 'btn-primary' : 'btn-outline-secondary'}}"
+                                                    t-on-click.stop.prevent="() => this.setLegendPosition('top')" title="Legend top">Top</button>
+                                            <button type="button"
+                                                    t-attf-class="btn {{isLegendPosition('left') ? 'btn-primary' : 'btn-outline-secondary'}}"
+                                                    t-on-click.stop.prevent="() => this.setLegendPosition('left')" title="Legend left">Left</button>
+                                            <button type="button"
+                                                    t-attf-class="btn {{isLegendPosition('right') ? 'btn-primary' : 'btn-outline-secondary'}}"
+                                                    t-on-click.stop.prevent="() => this.setLegendPosition('right')" title="Legend right">Right</button>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('show_data_value')">
+                                            <span><i class="fa fa-tag me-2"/> Data Labels</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('show_data_value') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('show_tooltip')">
+                                            <span><i class="fa fa-comment me-2"/> Tooltip</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('show_tooltip') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('enable_animation')">
+                                            <span><i class="fa fa-magic me-2"/> Animation</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('enable_animation') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li t-if="supportsGridOption">
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('show_grid')">
+                                            <span><i class="fa fa-th me-2"/> Grid Lines</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('show_grid') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li t-if="supportsCursorOption">
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('show_cursor')">
+                                            <span><i class="fa fa-crosshairs me-2"/> Cursor</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('show_cursor') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li t-if="supportsStackedOption">
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('is_stacked')">
+                                            <span><i class="fa fa-bars me-2"/> Stacked</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('is_stacked') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li t-if="supportsStackedOption and _displayOptionValue('is_stacked')">
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('is_stacked_100')">
+                                            <span><i class="fa fa-percent me-2"/> 100% Stacked</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('is_stacked_100') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li t-if="supportsSemiCircleOption">
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('is_semi_circle')">
+                                            <span><i class="fa fa-pie-chart me-2"/> Semi Circle</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('is_semi_circle') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li t-if="supportsZoomOption">
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('enable_zoom')">
+                                            <span><i class="fa fa-search-plus me-2"/> Zoom</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('enable_zoom') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li t-if="supportsScrollbarOption">
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
+                                           t-on-click.prevent="() => this.toggleDisplayOption('show_scrollbar_x')">
+                                            <span><i class="fa fa-arrows-h me-2"/> Zoom Bar</span>
+                                            <i t-attf-class="fa {{_displayOptionValue('show_scrollbar_x') ? 'fa-toggle-on text-primary' : 'fa-toggle-off text-muted'}}"/>
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"/></li>
+                                    <li><h6 class="dropdown-header">Chart Theme</h6></li>
+                                    <t t-foreach="chartThemeOptions" t-as="themeOpt" t-key="themeOpt.value">
+                                        <li>
+                                            <a t-attf-class="dropdown-item d-flex justify-content-between align-items-center {{isChartTheme(themeOpt.value) ? 'active' : ''}}"
+                                               href="#"
+                                               t-on-click.prevent="() => this.setChartTheme(themeOpt.value)">
+                                                <span class="d-flex align-items-center gap-2">
+                                                    <span class="dd-theme-swatch" t-att-style="'background:' + themeOpt.swatch"/>
+                                                    <t t-esc="themeOpt.label"/>
+                                                </span>
+                                                <i t-if="isChartTheme(themeOpt.value)" class="fa fa-check text-primary"/>
+                                            </a>
+                                        </li>
+                                    </t>
+                                    <li>
+                                        <a class="dropdown-item" href="#" t-on-click.prevent="changeColorTheme">
+                                            <i class="fa fa-random me-2"/> Cycle Theme
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"/></li>
+                                    <li><h6 class="dropdown-header">Switch Layout</h6></li>
+                                    <t t-foreach="chartLayoutOptions" t-as="layoutOpt" t-key="layoutOpt.value">
+                                        <li>
+                                            <a t-attf-class="dropdown-item d-flex justify-content-between align-items-center {{isChartLayout(layoutOpt.value) ? 'active' : ''}}"
+                                               href="#"
+                                               t-on-click.prevent="() => this.changeItemType(layoutOpt.value)">
+                                                <span>
+                                                    <i t-attf-class="fa {{layoutOpt.icon}} me-2"/>
+                                                    <t t-esc="layoutOpt.label"/>
+                                                </span>
+                                                <i t-if="isChartLayout(layoutOpt.value)" class="fa fa-check text-primary"/>
+                                            </a>
+                                        </li>
+                                    </t>
+                                    <li><hr class="dropdown-divider"/></li>
+                                    <li t-if="state.canEdit"><a class="dropdown-item" href="#" t-on-click.prevent="openInternalChat"><i class="fa fa-comments me-2"/> Internal Chat</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="generateAIInsight"><i class="fa fa-magic text-purple me-2"/> AI Insight</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div t-if="state.drillStack.length" class="d-flex align-items-center flex-wrap gap-1 mb-2 small">
+                        <button class="btn btn-sm btn-outline-secondary py-0" t-on-click="() => this.drillUp()" title="Drill up">
+                            <i class="fa fa-level-up"/>
+                        </button>
+                        <a href="#" class="text-decoration-none" t-on-click.prevent="() => this.drillUp(-1)">All</a>
+                        <t t-foreach="state.drillStack" t-as="step" t-key="step_index">
+                            <span class="text-muted">/</span>
+                            <a href="#" class="text-decoration-none" t-on-click.prevent="() => this.drillUp(step_index)" t-esc="step.label"/>
+                        </t>
+                    </div>
+                    <div t-if="state.data.warning" class="alert alert-warning py-1 px-2 mb-2 small">
+                        <i class="fa fa-info-circle me-1"/> <t t-esc="state.data.warning"/>
+                    </div>
+                    <div class="chart-container flex-grow-1 d-flex flex-column min-h-0" style="position: relative; width:100%; min-height: 0;">
+                        <div t-if="activeItemType !== 'map' and activeItemType !== 'mapPoints'" t-ref="chartContainer" class="dd-chart-host flex-grow-1 w-100"></div>
+                        <div t-if="activeItemType === 'map' or activeItemType === 'mapPoints'" t-ref="mapContainer" class="dd-chart-host dd-map-host flex-grow-1 w-100"></div>
+                    </div>
+                    <div t-if="state.insight" class="alert alert-info mt-3 p-2 small">
+                        <strong><i class="fa fa-magic"/> AI Insight:</strong> <t t-esc="state.insight"/>
+                    </div>
+                    <div t-if="state.insightLoading" class="text-center mt-2">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div><small class="ms-2">Analyzing...</small>
+                    </div>
+                </div>
+
+                <!-- List View -->
+                <div t-elif="activeItemType === 'list'" class="card-body d-flex flex-column overflow-auto p-3 dd-list-card">
+                    <div class="dd-list-header d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="dd-list-title text-truncate mb-0" t-esc="state.data.name"/>
+                        <div class="d-flex align-items-center gap-1 dd-item-quickbar">
+                            <button type="button"
+                                    t-attf-class="btn btn-sm dd-quick-btn {{(!state.data.list_view_layout || state.data.list_view_layout === 'layout1') ? 'is-active' : ''}}"
+                                    t-on-click.stop.prevent="() => this.setListLayout('layout1')"
+                                    title="Table layout">
+                                <i class="fa fa-table"/>
+                            </button>
+                            <button type="button"
+                                    t-attf-class="btn btn-sm dd-quick-btn {{state.data.list_view_layout === 'layout2' ? 'is-active' : ''}}"
+                                    t-on-click.stop.prevent="() => this.setListLayout('layout2')"
+                                    title="Card grid layout">
+                                <i class="fa fa-th-large"/>
+                            </button>
+                            <button type="button"
+                                    t-attf-class="btn btn-sm dd-quick-btn {{state.data.list_view_layout === 'layout3' ? 'is-active' : ''}}"
+                                    t-on-click.stop.prevent="() => this.setListLayout('layout3')"
+                                    title="Compact rows layout">
+                                <i class="fa fa-list"/>
+                            </button>
+                            <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="quickRefreshItem" title="Refresh">
+                                <i class="fa fa-refresh"/>
+                            </button>
+                            <div class="dropdown dd-card-more-dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm dd-item-menu dd-card-more-menu">
+                                    <li t-if="state.canEdit"><a class="dropdown-item" href="#" t-on-click.prevent="editItem"><i class="fa fa-pencil me-2"/> Edit Item</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="exportToCSV"><i class="fa fa-file-text-o me-2"/> Export CSV</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="exportToExcel"><i class="fa fa-file-excel-o me-2"/> Export Excel</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="exportToPNG"><i class="fa fa-file-image-o me-2"/> Export PNG</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="exportToPDF"><i class="fa fa-file-pdf-o me-2"/> Export PDF</a></li>
+                                    <li><hr class="dropdown-divider"/></li>
+                                    <li><h6 class="dropdown-header">List Layout</h6></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.setListLayout('layout1')"><i class="fa fa-table me-2"/> Table</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.setListLayout('layout2')"><i class="fa fa-th-large me-2"/> Card Grid</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.setListLayout('layout3')"><i class="fa fa-list me-2"/> Compact Rows</a></li>
+                                    <li><hr class="dropdown-divider"/></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="openInternalChat"><i class="fa fa-comments me-2"/> Internal Chat</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
+                        <input type="search" class="form-control form-control-sm dd-list-search"
+                               placeholder="Filter rows…"
+                               t-att-value="state.listSearch"
+                               t-on-input="onListSearchInput"/>
+                        <small class="text-muted text-nowrap" t-if="displayedListRecords.length !== (state.data.records || []).length">
+                            <t t-esc="displayedListRecords.length"/> shown
+                        </small>
+                    </div>
+
+                    <!-- Layout 1: Table (Default) -->
+                    <div t-if="!state.data.list_view_layout || state.data.list_view_layout === 'layout1'" class="table-responsive dd-list-table-wrap">
+                    <table class="table table-hover table-sm mb-0 dd-list-table">
+                        <thead class="dd-list-sticky-head">
+                            <tr>
+                                <th t-foreach="state.data.columns || []" t-as="col" t-key="col"
+                                    class="dd-list-sortable user-select-none"
+                                    t-on-click="() => this.toggleListSort((state.data.column_keys || state.data.columns || [])[col_index] || col)"
+                                    style="cursor: pointer;">
+                                    <t t-esc="col"/>
+                                    <t t-set="sortKey" t-value="(state.data.column_keys || state.data.columns || [])[col_index] || col"/>
+                                    <i t-if="state.listSortCol === sortKey"
+                                       t-attf-class="fa fa-sort-#{state.listSortAsc ? 'asc' : 'desc'} ms-1 text-primary"/>
+                                    <i t-else="" class="fa fa-sort ms-1 text-muted opacity-50"/>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="displayedListRecords" t-as="record" t-key="record.id || record_index">
+                                <td t-foreach="state.data.columns || []" t-as="col" t-key="col">
+                                    <t t-set="cellKey" t-value="(state.data.column_keys || state.data.columns || [])[col_index] || col"/>
+                                    <t t-set="cellVal" t-value="record[cellKey]"/>
+                                    <t t-if="Array.isArray(cellVal)">
+                                        <t t-esc="cellVal[1]"/>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-esc="cellVal"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr t-if="displayedListRecords.length === 0">
+                                <td colspan="100%" class="text-center text-muted py-4">No records found</td>
+                            </tr>
+                            <tr t-if="state.data.list_show_grand_total and state.data.grand_total" class="dd-list-total fw-bold">
+                                <td t-foreach="state.data.columns || []" t-as="col" t-key="'gt-' + col">
+                                    <t t-set="cellKey" t-value="(state.data.column_keys || state.data.columns || [])[col_index] || col"/>
+                                    <t t-if="col_index === 0">Total</t>
+                                    <t t-elif="state.data.grand_total[cellKey] !== undefined">
+                                        <t t-esc="state.data.grand_total[cellKey]"/>
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                    <!-- Layout 2: Card Grid -->
+                    <div t-elif="state.data.list_view_layout === 'layout2'" class="dd-list-cards row g-2 mt-1">
+                        <div t-if="displayedListRecords.length === 0" class="col-12 text-center text-muted py-4">No records found</div>
+                        <div t-foreach="displayedListRecords" t-as="record" t-key="record.id || record_index" class="col-12 col-md-6">
+                            <div class="dd-list-record-card">
+                                <div t-foreach="Object.keys(record || {})" t-as="key" t-key="key" t-if="key !== 'id'" class="dd-list-record-row">
+                                    <span class="dd-list-record-key"><t t-esc="(state.data.columns || [])[key_index] || key"/></span>
+                                    <strong class="dd-list-record-val">
+                                        <t t-if="Array.isArray(record[key])"><t t-esc="record[key][1]"/></t>
+                                        <t t-else=""><t t-esc="record[key]"/></t>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layout 3: Clean Rows -->
+                    <div t-elif="state.data.list_view_layout === 'layout3'" class="dd-list-compact mt-1">
+                        <div t-if="displayedListRecords.length === 0" class="text-center text-muted py-4">No records found</div>
+                        <div t-foreach="displayedListRecords" t-as="record" t-key="record.id || record_index" class="dd-list-compact-row">
+                            <div class="flex-grow-1 min-w-0">
+                                <t t-set="first_key" t-value="Object.keys(record || {}).filter(k => k !== 'id')[0]"/>
+                                <div class="dd-list-compact-title text-truncate">
+                                    <t t-if="first_key">
+                                        <t t-if="Array.isArray(record[first_key])"><t t-esc="record[first_key][1]"/></t>
+                                        <t t-else=""><t t-esc="record[first_key]"/></t>
+                                    </t>
+                                </div>
+                                <div class="dd-list-compact-meta">
+                                    <t t-foreach="Object.keys(record || {})" t-as="key" t-key="key">
+                                        <t t-if="key !== 'id' and key !== first_key">
+                                            <span class="dd-list-chip">
+                                                <small><t t-esc="(state.data.columns || [])[key_index] || key"/></small>
+                                                <t t-if="Array.isArray(record[key])"><t t-esc="record[key][1]"/></t>
+                                                <t t-else=""><t t-esc="record[key]"/></t>
+                                            </span>
+                                        </t>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div t-if="listPageInfo" class="dd-list-pager d-flex justify-content-between align-items-center mt-auto pt-2">
+                        <small class="text-muted">
+                            <t t-esc="listPageInfo.from"/>–<t t-esc="listPageInfo.to"/> / <t t-esc="listPageInfo.total"/>
+                        </small>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary" t-att-disabled="!listPageInfo.canPrev" t-on-click="listPrevPage">
+                                <i class="fa fa-chevron-left"/>
+                            </button>
+                            <button class="btn btn-outline-secondary" t-att-disabled="!listPageInfo.canNext" t-on-click="listNextPage">
+                                <i class="fa fa-chevron-right"/>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div t-elif="activeItemType === 'todo'" class="card-body d-flex flex-column h-100 overflow-auto p-4">
+                    <div class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
+                        <h6 class="card-title text-truncate mb-0 fw-bold" style="color: #2b3674; font-size: 1.1rem;" t-esc="state.data.name"/>
+                        <div class="d-flex align-items-center gap-1 dd-item-quickbar">
+                            <button type="button" class="btn btn-sm dd-quick-btn" t-on-click.stop.prevent="quickRefreshItem" title="Refresh">
+                                <i class="fa fa-refresh"/>
+                            </button>
+                            <div class="dropdown dd-card-more-dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm dd-item-menu dd-card-more-menu">
+                                    <li t-if="state.canEdit"><a class="dropdown-item" href="#" t-on-click.prevent="editItem"><i class="fa fa-pencil me-2"/> Edit Item</a></li>
+                                    <li><a class="dropdown-item" href="#" t-on-click.prevent="openInternalChat"><i class="fa fa-comments me-2"/> Internal Chat</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="list-group list-group-flush flex-grow-1">
+                        <li t-foreach="state.data.todos || []" t-as="todo" t-key="todo.id" class="list-group-item d-flex justify-content-between align-items-center border-0 mb-1 rounded bg-light">
+                            <div class="form-check w-100">
+                                <input class="form-check-input" type="checkbox" t-att-id="'todo_' + todo.id" t-att-checked="todo.is_done" t-att-disabled="!state.canEdit" t-on-change="(ev) => this.toggleTodo(todo.id, ev)"/>
+                                <label class="form-check-label text-truncate w-100" t-att-for="'todo_' + todo.id" t-att-class="todo.is_done ? 'text-decoration-line-through text-muted' : ''" t-esc="todo.name"/>
+                            </div>
+                        </li>
+                    </ul>
+                    <div t-if="state.canEdit" class="input-group mt-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Add new task..." t-ref="newTodoInput" t-on-keyup="onNewTodoKeyup"/>
+                        <button class="btn btn-primary btn-sm" type="button" t-on-click="addTodo"><i class="fa fa-plus"/></button>
+                    </div>
+                </div>
+                
+                <div t-else="" class="card-body">
+                    Unsupported Item Type
+                </div>
+            </t>
+
+            <!-- Quick Edit Modal -->
+            <div t-if="state.quickEditOpen" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,.35); z-index: 20;" t-on-click="closeQuickEdit">
+                <div class="bg-white rounded shadow p-3" style="min-width: 280px; max-width: 90%;" t-on-click.stop="">
+                    <h6 class="fw-bold mb-3">Quick Edit</h6>
+                    <div class="mb-2">
+                        <label class="form-label small mb-1">Name</label>
+                        <input type="text" class="form-control form-control-sm" t-model="state.quickEdit.name"/>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small mb-1">Theme</label>
+                        <select class="form-select form-select-sm" t-model="state.quickEdit.chart_theme">
+                            <option value="default">Default</option>
+                            <option value="cool">Cool</option>
+                            <option value="warm">Warm</option>
+                            <option value="neon">Neon</option>
+                            <option value="pastel">Pastel</option>
+                            <option value="corporate">Corporate</option>
+                            <option value="vibrant">Vibrant</option>
+                            <option value="ocean">Ocean</option>
+                            <option value="sunset">Sunset</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small mb-1">Type</label>
+                        <select class="form-select form-select-sm" t-model="state.quickEdit.item_type">
+                            <option value="bar">Bar</option>
+                            <option value="barLine">Bar + Line</option>
+                            <option value="horizontalBar">Horizontal Bar</option>
+                            <option value="line">Line</option>
+                            <option value="area">Area</option>
+                            <option value="stepLine">Step Line</option>
+                            <option value="smoothedLine">Smoothed Line</option>
+                            <option value="waterfall">Waterfall</option>
+                            <option value="pie">Pie</option>
+                            <option value="doughnut">Doughnut</option>
+                            <option value="polarArea">Polar</option>
+                            <option value="radar">Radar</option>
+                            <option value="flower">Flower</option>
+                            <option value="scatter">Scatter</option>
+                            <option value="radialBar">Radial Bar</option>
+                            <option value="gauge">Gauge</option>
+                            <option value="funnel">Funnel</option>
+                            <option value="pyramid">Pyramid</option>
+                            <option value="treemap">Treemap</option>
+                            <option value="sunburst">Sunburst</option>
+                            <option value="forceDirected">Force Directed</option>
+                            <option value="pack">Pack</option>
+                            <option value="tree">Tree</option>
+                            <option value="partition">Partition</option>
+                            <option value="voronoiTreemap">Voronoi Treemap</option>
+                            <option value="sankey">Sankey</option>
+                            <option value="chord">Chord</option>
+                            <option value="chordDirected">Directed Chord</option>
+                            <option value="chordNonRibbon">Chord Non-Ribbon</option>
+                            <option value="arcDiagram">Arc Diagram</option>
+                            <option value="heatmap">Heatmap</option>
+                            <option value="matrixHeatmap">Matrix Heatmap</option>
+                            <option value="map">Map</option>
+                            <option value="mapPoints">Map Points</option>
+                            <option value="wordCloud">Word Cloud</option>
+                            <option value="venn">Venn</option>
+                            <option value="candlestick">Candlestick</option>
+                            <option value="ohlc">OHLC</option>
+                            <option value="timeline">Timeline</option>
+                            <option value="serpentine">Serpentine</option>
+                            <option value="spiral">Spiral</option>
+                            <option value="pictorial">Pictorial</option>
+                            <option value="bullet">Bullet</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-sm btn-light" t-on-click="closeQuickEdit">Cancel</button>
+                        <button class="btn btn-sm btn-primary" t-on-click="saveQuickEdit">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

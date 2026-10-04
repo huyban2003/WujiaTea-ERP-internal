@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dynamic_dashboard_ai_nexgen_number_system_view_list" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.number.system.list</field>
+        <field name="model">dynamic.dashboard.number.system</field>
+        <field name="arch" type="xml">
+            <list string="Number Systems" multi_edit="1"
+                  decoration-muted="not active">
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_number_system_view_form" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.number.system.form</field>
+        <field name="model">dynamic.dashboard.number.system</field>
+        <field name="arch" type="xml">
+            <form string="Number System">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. English (K / M / B)" class="o_text_overflow"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="active" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                      options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group string="Thresholds">
+                        <field name="line_ids" nolabel="1" colspan="2">
+                            <list editable="bottom">
+                                <field name="threshold"/>
+                                <field name="divisor"/>
+                                <field name="suffix"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="dynamic_dashboard_ai_nexgen_number_system_view_search" model="ir.ui.view">
+        <field name="name">dynamic.dashboard.number.system.search</field>
+        <field name="model">dynamic.dashboard.number.system</field>
+        <field name="arch" type="xml">
+            <search string="Number Systems">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <separator/>
+                <filter name="filter_active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dynamic_dashboard_ai_nexgen_number_system" model="ir.actions.act_window">
+        <field name="name">Number Systems</field>
+        <field name="res_model">dynamic.dashboard.number.system</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="dynamic_dashboard_ai_nexgen_number_system_view_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define how large numbers are abbreviated
+            </p>
+            <p>
+                Example: 1,500,000 → 1.5M using English thresholds.
+            </p>
+        </field>
+    </record>
+</odoo>

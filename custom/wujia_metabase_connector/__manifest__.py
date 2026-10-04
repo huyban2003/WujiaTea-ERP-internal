@@ -8,7 +8,6 @@
     'license': 'LGPL-3',
     'depends': [
         'base',
-        'wujia_core',
     ],
     'data': [
         'security/res_groups.xml',
