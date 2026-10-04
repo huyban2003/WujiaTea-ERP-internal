@@ -11,7 +11,8 @@
         <template id="wujia_portal_layout.login_form">
             <div class="wj-auth-card">
                 <h1 class="wj-auth-card__title">Đăng nhập tài khoản</h1>
-                <p class="wj-auth-card__sub">Sử dụng tài khoản Ngô Gia đã cấp để truy cập hệ thống.</p>
+                <t t-set="wj_txt">Sử dụng tài khoản {brand} đã cấp để truy cập hệ thống.</t>
+                <p class="wj-auth-card__sub" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
 
                 <p class="wj-auth-alert wj-auth-alert--error" t-if="error" role="alert">
                     <t t-esc="error"/>
@@ -239,19 +240,21 @@
                         </div>
                     </div>
 
-                    <div class="wj-auth__brand">
+                    <div class="wj-auth__brand"
+                         t-att-style="wj_brand['has_login_background'] and 'background: var(--wujia-primary) url(%s) center / cover no-repeat' % env.company._wj_brand_url('login_background', 0) or None">
                         <span class="wj-auth__decor wj-auth__decor--1"/>
                         <span class="wj-auth__decor wj-auth__decor--2"/>
 
                         <div class="wj-auth__logo">
-                            <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}"
-                                 alt="Ngô Gia"/>
+                            <img t-if="wj_brand['has_logo']" t-att-src="env.company._wj_brand_url('logo', 180)"
+                                 t-att-alt="wj_brand['name']"/>
                         </div>
 
                         <div class="wj-auth__pitch">
                             <div class="wj-auth__eyebrow">CỔNG THÔNG TIN NHƯỢNG QUYỀN</div>
                             <h1 class="wj-auth__headline">Vận hành cửa hàng<br/>trên một nền tảng</h1>
-                            <p class="wj-auth__lead">Theo dõi nghiệp vụ dành cho hệ thống cửa hàng nhượng quyền Ngô Gia trong cùng một cổng thông tin.</p>
+                            <t t-set="wj_txt">Theo dõi nghiệp vụ dành cho hệ thống cửa hàng nhượng quyền {brand} trong cùng một cổng thông tin.</t>
+                            <p class="wj-auth__lead" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                             <hr class="wj-auth__rule"/>
                             <div class="wj-auth__features">
                                 <span>Đơn hàng</span>
@@ -277,7 +280,7 @@
             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush rounded-0 mb-0 px-2 py-1">
                 <div class="wj-surface-card__head pb-1">
                     <div class="card-title d-flex flex-column align-items-center w-100 text-center">
-                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="" width="200" height="100" style="object-fit: contain"/>
+                        <img t-if="wj_brand['has_logo']" t-att-src="env.company._wj_brand_url('logo', 180)" t-att-alt="wj_brand['name']" width="200" height="100" style="object-fit: contain"/>
                     </div>
 
                 </div>

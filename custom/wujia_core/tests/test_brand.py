@@ -1,11 +1,13 @@
 import base64
 import io
 
+from markupsafe import Markup
 from PIL import Image
 
 from odoo.exceptions import ValidationError
 from odoo.tests import HttpCase, TransactionCase, tagged
 
+from ..models.res_company import DEFAULT_BRAND_NAME
 from ..tools.brand_palette import (
     DEFAULT_PALETTE, brand_palette, contrast_with_white, derive_palette, palette_css,
 )
@@ -69,6 +71,30 @@ class TestBrandCompany(TransactionCase):
         self.company.wj_brand_name = False
         self.assertEqual(self.company._wj_brand_info()['name'], self.company.name)
 
+    def test_has_logo_follows_company_logo(self):
+        self.company.logo = _png('red')
+        self.assertTrue(self.company._wj_brand_info()['has_logo'])
+        self.company.logo = False
+        self.assertFalse(self.company._wj_brand_info()['has_logo'])
+
+    def test_fill_default_name_keeps_existing(self):
+        other = self.env['res.company'].create({'name': 'B2 Other'})
+        self.company.wj_brand_name = 'Acme Tea'
+        other.wj_brand_name = False
+        self.env['res.company']._wj_fill_default_brand_name()
+        self.assertEqual(self.company.wj_brand_name, 'Acme Tea')
+        self.assertEqual(other.wj_brand_name, DEFAULT_BRAND_NAME)
+        # Cache đã xoá khi ghi ⇒ trang thấy tên mới ngay.
+        self.assertEqual(other._wj_brand_info()['name'], DEFAULT_BRAND_NAME)
+
+    def test_brand_text_fills_placeholder(self):
+        self.company.wj_brand_name = 'Acme <Tea>'
+        self.assertEqual(self.company._wj_brand_text('Liên hệ {brand}.'), 'Liên hệ Acme <Tea>.')
+        # Markup giữ an toàn: tên được escape khi chèn vào câu Markup.
+        out = self.company._wj_brand_text(Markup('<b>{brand}</b>'))
+        self.assertEqual(str(out), '<b>Acme &lt;Tea&gt;</b>')
+        self.assertFalse(self.company._wj_brand_text(False))
+
     def test_settings_write_company(self):
         settings = self.env['res.config.settings'].create({
             'wj_brand_name': 'Acme Tea', 'wj_primary_color': '#2E7D32',
@@ -103,3 +129,30 @@ class TestBrandRoute(HttpCase):
         # Nền đăng nhập không có dự phòng ⇒ trống là 404 (trang tự dùng ảnh mặc định).
         self.assertEqual(self.url_open('/wj/brand/%s/login_background' % cid).status_code, 404)
         self.assertEqual(self.url_open('/wj/brand/999999/logo').status_code, 404)
+
+
+@tagged('post_install', '-at_install', 'wujia_brand')
+class TestBrandBackendLayout(HttpCase):
+    """`web.layout` (backend + /web/login): favicon + title fallback theo brand."""
+
+    def setUp(self):
+        super().setUp()
+        self.company = self.env.company
+        self.company.write({'wj_brand_name': 'Acme Tea', 'logo': _png('red'), 'wj_favicon': False})
+
+    def _head(self):
+        html = self.url_open('/web/login').text
+        return html[:html.index('</head>')]
+
+    def test_login_tab_uses_brand(self):
+        head = self._head()
+        self.assertIn('<title>Acme Tea</title>', head)
+        self.assertIn('href="/wj/brand/%s/favicon?' % self.company.id, head)
+        self.assertNotIn('<title>Odoo</title>', head)
+
+    def test_no_logo_no_brand_icon(self):
+        # Công ty không logo, không favicon ⇒ không in link brand (tránh 404), giữ icon mặc định.
+        self.company.write({'logo': False, 'wj_favicon': False})
+        head = self._head()
+        self.assertNotIn('/wj/brand/', head)
+        self.assertIn('rel="shortcut icon"', head)

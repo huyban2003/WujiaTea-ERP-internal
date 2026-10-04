@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <!-- Head dùng chung 2 shell (layout + login_layout): title · thương hiệu, favicon qua
+             /wj/brand (không nhúng base64 vào mọi trang). Không có ảnh ⇒ không in link (route 404). -->
+        <template id="brand_head" name="Brand head">
+            <meta name="author" t-att-content="wj_brand['name']"/>
+            <title t-esc="title and '%s · %s' % (title, wj_brand['name']) or wj_brand['name']"/>
+            <t t-if="wj_brand['has_favicon'] or wj_brand['has_logo']">
+                <link rel="apple-touch-icon" t-att-href="env.company._wj_brand_url('favicon', 180)"/>
+                <link rel="icon" type="image/png" t-att-href="env.company._wj_brand_url('favicon', 32)"/>
+            </t>
+        </template>
+
+        <!-- Token màu thương hiệu: đặt SAU mọi CSS. Màu mặc định ⇒ css rỗng ⇒ không in gì. -->
+        <template id="brand_style" name="Brand style">
+            <style t-if="wj_brand['css']" id="wj-brand-css" t-out="wj_brand['css']"/>
+        </template>
+
         <template id="layout" name="Basic layout">
             <html class="no-js" t-att-lang="request.env['ir.http']._wj_html_lang()">
                 <head>
@@ -9,14 +25,10 @@
                     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui"/>
                     <meta t-if="description" name="description" t-att-content="description"/>
                     <meta t-if="keywords" name="keywords" t-att-content="keywords"/>
-                    <meta name="author" content="Cloudmedia"/>
-                    <title>
-                        <t t-esc="title or 'Portal'"/>
-                    </title>
-                    <link rel="apple-touch-icon" t-attf-href="data:image/png;base64,{{env.company.logo or ''}}"/>
-                    <link rel="shortcut icon" type="image/x-icon"
-                          t-attf-href="data:image/png;base64,{{env.company.logo or ''}}"/>                    <t t-call="wujia_portal_layout.asset_frontend"/>
+                    <t t-call="wujia_portal_layout.brand_head"/>
+                    <t t-call="wujia_portal_layout.asset_frontend"/>
                     <t t-call-assets="web.assets_frontend" t-js="false" t-css="true"/>
+                    <t t-call="wujia_portal_layout.brand_style"/>
                 </head>
                 <body class="vertical-layout  navbar-floating  vertical-menu-modern footer-static" data-open="click"
                       data-menu="vertical-menu-modern">
@@ -48,8 +60,8 @@
                                          d-xl-none = chỉ mobile/tablet, desktop dùng logo sidebar. -->
                                     <li class="nav-item d-xl-none wujia-navbar-logo">
                                         <a class="navbar-brand p-0 m-0" href="/portal">
-                                            <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}"
-                                                 alt="Wujia" class="wujia-navbar-logo-img"/>
+                                            <img t-if="wj_brand['has_logo']" t-att-src="env.company._wj_brand_url('logo', 180)"
+                                                 t-att-alt="wj_brand['name']" class="wujia-navbar-logo-img"/>
                                         </a>
                                     </li>
                                     <li class="nav-item mobile-menu d-xl-none mr-auto">
@@ -133,7 +145,7 @@
                  data-scroll-to-active="true">
                 <div class="navbar-header wj-sidebar__brand">
                     <a class="navbar-brand wj-sidebar__logo" href="/portal">
-                        <img t-attf-src="data:image/png;base64,{{env.company.logo_web}}" alt="Wujia"/>
+                        <img t-if="wj_brand['has_logo']" t-att-src="env.company._wj_brand_url('logo', 180)" t-att-alt="wj_brand['name']"/>
                     </a>
                     <button type="button" class="wj-sidebar__close" aria-label="Đóng menu">
                         <i class="feather icon-x" aria-hidden="true"/>
@@ -201,14 +213,10 @@
                           content=""/>
                     <meta name="keywords"
                           content=""/>
-                    <meta name="author" content="Cloudmedia"/>
-                    <title>
-                        <t t-esc="title or 'Portal'"/>
-                    </title>
-                    <link rel="apple-touch-icon" t-attf-src="data:image/png;base64,{{env.company.logo_web}}"/>
-                    <link rel="shortcut icon" type="image/x-icon"
-                          t-attf-src="data:image/png;base64,{{env.company.logo_web}}"/>                    <t t-call="wujia_portal_layout.asset_frontend"/>
+                    <t t-call="wujia_portal_layout.brand_head"/>
+                    <t t-call="wujia_portal_layout.asset_frontend"/>
                     <t t-call="wujia_portal_layout.asset_css_authentication"/>
+                    <t t-call="wujia_portal_layout.brand_style"/>
                 </head>
                 <body class="vertical-layout vertical-menu-modern 1-column  navbar-floating footer-static bg-full-login  blank-page blank-page wj-auth-body"
                       data-open="click" data-menu="vertical-menu-modern" data-col="1-column">

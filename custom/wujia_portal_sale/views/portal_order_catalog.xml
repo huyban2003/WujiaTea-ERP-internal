@@ -226,7 +226,8 @@
                         <div t-if="error" class="alert alert-danger" role="alert"><t t-esc="error"/></div>
                         <div t-if="message" class="alert alert-success" role="status"><t t-esc="message"/></div>
                         <div t-if="order_window_not_configured" class="alert alert-warning" role="alert">
-                            Chưa có cấu hình thời gian đặt hàng. Vui lòng liên hệ Ngô Gia.
+                            <t t-set="wj_txt">Chưa có cấu hình thời gian đặt hàng. Vui lòng liên hệ {brand}.</t>
+                            <t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                         </div>
 
                         <div class="wj-pc-order-grid">

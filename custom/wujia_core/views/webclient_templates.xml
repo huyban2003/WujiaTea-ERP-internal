@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Backend + /web/login: favicon và title rỗng theo thương hiệu. priority 99 ⇒ áp sau
+         muk_web_theme (cũng đặt x_icon = favicon riêng của MuK) nên brand thắng; x_icon của
+         trang khác tự đặt (vd scoped app) thì giữ. -->
+    <template id="web_layout_brand" inherit_id="web.layout" priority="99">
+        <xpath expr="//title" position="before">
+            <t t-set="wj_brand_info" t-value="request and request.env.company._wj_brand_info()"/>
+        </xpath>
+        <xpath expr="//title" position="attributes">
+            <attribute name="t-esc">title or (wj_brand_info and wj_brand_info['name']) or 'Odoo'</attribute>
+        </xpath>
+        <xpath expr="//link[@rel='shortcut icon']" position="before">
+            <t t-if="wj_brand_info and (wj_brand_info['has_favicon'] or wj_brand_info['has_logo'])
+                     and (not x_icon or x_icon.startswith('/web/image/res.company/'))"
+               t-set="x_icon" t-value="request.env.company._wj_brand_url('favicon', 32)"/>
+        </xpath>
+    </template>
+</odoo>

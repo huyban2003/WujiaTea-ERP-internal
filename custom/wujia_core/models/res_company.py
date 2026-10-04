@@ -4,6 +4,9 @@ from odoo.exceptions import ValidationError
 from ..tools.brand_palette import DEFAULT_PRIMARY, brand_palette, normalize_hex, palette_css
 
 # Field mà portal/backend đọc qua _wj_brand_info() — đổi field nào trong đây thì xoá cache.
+# Tên thương hiệu điền sẵn khi cài / nâng cấp lên 19.0.2.1.0 (công ty UAT tên "My Company").
+DEFAULT_BRAND_NAME = 'Ngô Gia'
+
 BRAND_FIELDS = {
     'name', 'logo', 'wj_brand_name', 'wj_primary_color',
     'wj_logo_mobile', 'wj_favicon', 'wj_login_background',
@@ -57,6 +60,11 @@ class ResCompany(models.Model):
             self.env.registry.clear_cache()
         return res
 
+    @api.model
+    def _wj_fill_default_brand_name(self):
+        """Điền tên thương hiệu cho công ty còn trống — không ghi đè tên đã đặt."""
+        self.sudo().search([('wj_brand_name', '=', False)]).write({'wj_brand_name': DEFAULT_BRAND_NAME})
+
     @tools.ormcache('self.id')
     def _wj_brand_info(self):
         """Mọi thứ trang cần để dựng brand, 1 lần/công ty (1500 user ⇒ không đọc lại mỗi request).
@@ -70,12 +78,17 @@ class ResCompany(models.Model):
             'primary': primary,
             'palette': brand_palette(primary),
             'css': palette_css(primary),
+            'has_logo': bool(company.logo),
             'has_logo_mobile': bool(company.wj_logo_mobile),
             'has_favicon': bool(company.wj_favicon),
             'has_login_background': bool(company.wj_login_background),
             # Bust cache trình duyệt cho ảnh: đổi bất kỳ field brand nào ⇒ write_date đổi.
             'version': int(company.write_date.timestamp()) if company.write_date else 0,
         }
+
+    def _wj_brand_text(self, text):
+        """Điền tên thương hiệu vào chỗ `{brand}` của câu hiển thị (giữ nguyên Markup)."""
+        return text.replace('{brand}', self._wj_brand_info()['name']) if text else text
 
     def _wj_brand_url(self, kind, width=0):
         """URL ảnh brand có `?v=` ⇒ trình duyệt cache lâu, đổi ảnh là đổi URL."""

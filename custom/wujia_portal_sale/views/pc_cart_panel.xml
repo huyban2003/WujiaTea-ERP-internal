@@ -99,8 +99,9 @@
                     <label class="wj-pc-cart-note-label" for="wj-pc-cart-note">Ghi chú đơn hàng</label>
                     <!-- Note chung của giỏ (mọi user cùng store) — autosave qua /cart/note.
                          wj-cart-note = hook chung PC/mobile: autosave + guard swap khi đang gõ. -->
+                    <t t-set="wj_txt">Nhập ghi chú cho {brand} nếu cần</t>
                     <textarea id="wj-pc-cart-note" name="portal_note" class="wj-pc-cart-note wj-cart-note" rows="2"
-                              placeholder="Nhập ghi chú cho Ngô Gia nếu cần"
+                              t-att-placeholder="wj_txt.replace('{brand}', wj_brand['name'])"
                               t-out="cart_state['note'] if cart_state else ''"/>
                     <div class="wj-pc-cart-totals">
                         <div class="wj-pc-cart-total-line">

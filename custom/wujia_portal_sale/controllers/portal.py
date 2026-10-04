@@ -59,10 +59,10 @@ ERROR_MESSAGES = {
     'STORE_NOT_SELECTED': "Vui lòng chọn cửa hàng trước khi đặt hàng.",
     'STORE_ACCESS_DENIED': "Bạn không có quyền thao tác tại cửa hàng này.",
     'MEMBERSHIP_INACTIVE': "Tài khoản của bạn hiện không còn hiệu lực tại cửa hàng này.",
-    'ORDER_TIME_NOT_CONFIGURED': "Chưa có cấu hình thời gian đặt hàng. Vui lòng liên hệ Ngô Gia.",
+    'ORDER_TIME_NOT_CONFIGURED': "Chưa có cấu hình thời gian đặt hàng. Vui lòng liên hệ {brand}.",
     'ORDER_TIME_CLOSED': "Hiện ngoài khung giờ đặt hàng. Vui lòng gửi đơn trong thời gian cho phép.",
     'PRODUCT_NOT_AVAILABLE': "Sản phẩm này hiện không còn được phép đặt hàng.",
-    'MIN_QTY_NOT_CONFIGURED': "Sản phẩm chưa được cấu hình số lượng đặt tối thiểu. Vui lòng liên hệ Ngô Gia.",
+    'MIN_QTY_NOT_CONFIGURED': "Sản phẩm chưa được cấu hình số lượng đặt tối thiểu. Vui lòng liên hệ {brand}.",
     'QTY_BELOW_MIN': "Số lượng thấp hơn mức tối thiểu của sản phẩm.",
     'QTY_ABOVE_MAX': "Số lượng vượt mức tối đa của sản phẩm.",
     'QTY_INVALID_STEP': "Số lượng phải tăng theo bước bằng số lượng tối thiểu.",
@@ -71,18 +71,23 @@ ERROR_MESSAGES = {
     'CART_HAS_INVALID_PRODUCT': "Một số sản phẩm trong giỏ không còn được phép đặt. Vui lòng kiểm tra lại.",
     'CART_QUANTITY_INVALID': "Số lượng một số sản phẩm chưa hợp lệ. Vui lòng kiểm tra lại.",
     'CART_IS_PROCESSING': "Giỏ hàng đang được một người dùng khác gửi đơn. Vui lòng thử lại sau.",
-    'STORE_CUSTOMER_NOT_CONFIGURED': "Cửa hàng chưa được cấu hình khách hàng đặt hàng. Vui lòng liên hệ Ngô Gia.",
-    'ORDER_CREATE_FAILED': "Không thể tạo đơn hàng. Vui lòng thử lại hoặc liên hệ Ngô Gia.",
+    'STORE_CUSTOMER_NOT_CONFIGURED': "Cửa hàng chưa được cấu hình khách hàng đặt hàng. Vui lòng liên hệ {brand}.",
+    'ORDER_CREATE_FAILED': "Không thể tạo đơn hàng. Vui lòng thử lại hoặc liên hệ {brand}.",
     'OLD_PORTAL_QUOTATION_CANCEL_FAILED': "Không thể hoàn tất đơn hàng do đơn nháp cũ chưa được xử lý. Vui lòng thử lại.",
     'PRODUCT_LIST_UNAVAILABLE': "Không thể tải danh sách sản phẩm. Vui lòng thử lại.",
     'invalid_input': "Dữ liệu gửi lên không hợp lệ.",
     # legacy codes (redirect cũ có thể còn bookmark)
     'no_active_franchise': "Vui lòng chọn cửa hàng trước khi đặt hàng.",
     'cart_empty': "Giỏ hàng chưa có sản phẩm.",
-    'branch_locked': "Cửa hàng đang tạm khóa đặt hàng. Vui lòng liên hệ Ngô Gia.",
+    'branch_locked': "Cửa hàng đang tạm khóa đặt hàng. Vui lòng liên hệ {brand}.",
     'outside_order_window': "Hiện ngoài khung giờ đặt hàng. Vui lòng gửi đơn trong thời gian cho phép.",
-    'internal_error': "Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ Ngô Gia.",
+    'internal_error': "Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ {brand}.",
 }
+
+def _error_message(code, default=''):
+    """Câu lỗi theo mã, đã điền tên thương hiệu (`{brand}`)."""
+    return request.env.company._wj_brand_text(ERROR_MESSAGES.get(code, default))
+
 
 # Câu lỗi số lượng theo mã của `product._portal_qty_error` (thêm tên SP + ngưỡng).
 QTY_MESSAGES = {
@@ -165,7 +170,7 @@ class WujiaPortalSale(http.Controller):
         return False, 'STORE_NOT_SELECTED'
 
     def _err(self, code, **extra):
-        res = {'error': code, 'message': ERROR_MESSAGES.get(code, code)}
+        res = {'error': code, 'message': _error_message(code, code)}
         res.update(extra)
         return res
 
@@ -411,7 +416,7 @@ class WujiaPortalSale(http.Controller):
     def _resolve_messages(self, kw):
         # Chỉ resolve mã đã biết — không reflect chuỗi lạ từ query string ra UI.
         return {
-            'error': ERROR_MESSAGES.get(kw.get('error') or '', ''),
+            'error': _error_message(kw.get('error') or ''),
             'message': SUCCESS_MESSAGES.get(kw.get('message') or '', ''),
         }
 
@@ -482,7 +487,7 @@ class WujiaPortalSale(http.Controller):
             'keyword': keyword,
             'category_id': cat_id,
             'message': msgs['message'],
-            'error': msgs['error'] or (ERROR_MESSAGES.get(gate_error, '') if gate_error else ''),
+            'error': msgs['error'] or (_error_message(gate_error) if gate_error else ''),
             **self._order_window_context(franchise),
         }
 
@@ -542,7 +547,7 @@ class WujiaPortalSale(http.Controller):
             'cart': cart,
             'cart_state': cart_state,
             'message': msgs['message'],
-            'error': msgs['error'] or (ERROR_MESSAGES.get(gate_error, '') if gate_error else ''),
+            'error': msgs['error'] or (_error_message(gate_error) if gate_error else ''),
             **self._order_window_context(franchise),
         })
 

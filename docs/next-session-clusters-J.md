@@ -45,8 +45,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 
 | Phiên | Nội dung | Module | Trạng thái |
 |---|---|---|---|
-| J-B1 | Nguồn brand trong `wujia_core` (res.company + Settings + palette + route ảnh) | wujia_core | ✅ 04/10 — chưa commit |
-| J-B2 | Áp brand vào portal (head, logo, CSS var) + backend (favicon, title tab) | portal_layout, core (+ ~7 CSS module màn) | ☐ |
+| J-B1 | Nguồn brand trong `wujia_core` (res.company + Settings + palette + route ảnh) | wujia_core | ✅ 04/10 — `de64704` |
+| J-B2 | Áp brand vào portal (head, logo, CSS var) + backend (favicon, title tab) | portal_layout, core (+ ~7 CSS module màn) | ✅ 04/10 — chưa deploy |
 | J-T1 | `wujia_i18n`: danh mục chuỗi + màn sửa + quét | wujia_i18n (mới) | ☐ |
 | J-T2 | Áp ngay (TranslationImporter overwrite) + tự áp lại sau `-u` | wujia_i18n | ☐ |
 | J-T3 | Spike lớp phủ chuỗi Python/JS không restart (có đường lùi) | wujia_i18n | ☐ |

@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Returns',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Wujia',
     'summary': 'Đổi trả / bù hàng — yêu cầu 1 sản phẩm/phiếu, duyệt HQ, SO bù 0đ, theo dõi giao bù.',
     'description': """

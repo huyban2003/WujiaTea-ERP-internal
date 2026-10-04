@@ -2045,3 +2045,51 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Playwright backend Odoo 19: `wait_for_load_state('networkidle')` treo (bus longpoll) ⇒ dùng `wait_for_timeout`.
 - Nợ để lại: commit J-B1 (chờ lệnh) · xoá DB `wujia_b1`, `wujia_b1t` khi xong cụm · I0 (push `bea5fa8` + deploy top bar) vẫn treo.
 - Phiên kế: **J-B2** — áp brand vào portal + backend (prompt ở `docs/next-session-clusters-J.md` §4).
+
+## J-B2 Áp brand vào portal + backend · 04/10/2026 · Mac
+- Kết quả: ✅ code + test, commit (chờ deploy), 0 ghi sheet (không có ID Issue List).
+- Chủ dự án chốt: thay đủ 25 câu "Ngô Gia" QWeb + 15 chuỗi Python · 2 sắc gần #1895C7/#168FBE gộp về `--wujia-primary-dark` ·
+  title backend chỉ thay fallback "Odoo" (giữ tên action) · tên brand mặc định "Ngô Gia" tự điền khi cài/nâng cấp (hiện ở Settings).
+- Đã làm:
+  - `wujia_core` 19.0.2.1.0: `has_logo` trong `_wj_brand_info`; `_wj_fill_default_brand_name` (data `noupdate` cho `-i` +
+    migration 19.0.2.1.0 cho `-u`, không ghi đè tên đã đặt); `_wj_brand_text('…{brand}…')`; `web.layout` priority 99 (sau MuK):
+    favicon brand + title fallback; `session_info.wj_brand_name` + `brand_title.js` (tab backend "Odoo" → brand khi chưa có action).
+  - `wujia_portal_layout` 19.0.60.0.0 (depends +`wujia_core`): biến QWeb `wj_brand` (`ir.qweb._prepare_environment`, không cần
+    request); 2 head dùng `brand_head` (title `… · brand`, author, favicon/apple-touch qua URL) + `brand_style` (CSS màu sau
+    `_variables.css`); logo sidebar/navbar/mobile/login/signup = URL `/wj/brand/…` thay base64; nền login theo Settings.
+  - CSS: token trùng hex → `var(--wujia-primary|-soft|-dark)`, thêm `--wujia-primary-rgb`; rgba cứng → `rgb(var(--wujia-primary-rgb) / a)`
+    ở theme + components + 5 CSS module màn.
+  - Câu "Ngô Gia": QWeb mẫu `<t t-set="wj_txt">…{brand}…</t>` + `t-out="wj_txt.replace('{brand}', wj_brand['name'])"` (giữ 1 term dịch,
+    tên được escape); Python qua `env.company._wj_brand_text()` (sale `ERROR_MESSAGES`, exam, purchase_history, `wujia_return`).
+  - Bump: portal_base 7.35 · debt 4.17 · sale 4.28 · exam 6.2 · portal_return 4.1 · support 4.1 · delivery 3.22 · notification 3.1 ·
+    purchase_history 3.22 · wujia_return 1.1.
+- Số đo (cấu hình mặc định, HEAD vs mới, DB copy `wujia_g5s`):
+  - probe 26 route × 2 khổ: chỉ đổi title (+" · Ngô Gia"), href icon, author (Cloudmedia → Ngô Gia), alt logo; logo cùng cỡ; màu 0 đổi.
+  - HTML: `/portal/login` 45 953 → 13 365 byte; tổng 26 trang 4,72 → 3,03 MB (−36%, bỏ base64 logo).
+  - `wj_measure` 0 cell mất record; pixel 26 route + login × 1440/992/390: 0 lệch thật (3 cell lệch 1–2 mức màu lặp lại cả khi so HEAD
+    với chính nó ⇒ nhiễu caret/carousel).
+  - Test DB trắng `-i wujia_core,wujia_portal_layout`: 262 test 0 failed (10 test mới `test_brand` + `test_j2_brand`); mutation 4/4 đỏ đúng.
+  - Suite 11 module (layout, base, debt, sale, exam, return ×2, support, delivery, notification, purchase_history) DB trắng cài rồi `-u --test-enable`: 893 test, 1 đỏ = test `portal_base` khoá cứng `rgba(40, 169, 223, 0.04)` ⇒ sửa sang token, chạy lại 0 failed.
+  - `check_layers`: 0 vi phạm depend mới, R6 0 (R7 ×2 có sẵn trong `wujia_franchise` của Thái).
+- Lệch / LIMIT:
+  - Không chạy lại `sync_translations`: câu "Ngô Gia" cũ trong `vi_VN.po` (debt/exam/return) đều `msgstr` rỗng, chưa có `th_TH` ⇒ 0 bản dịch
+    mất; term mới (`{brand}`) gom vào J-T.
+  - Kịch bản đổi brand (Trà ABC/#E4572E/logo/nền login) kiểm bằng test HTTP trên trang khung (login, hồ sơ, đổi mật khẩu, backend);
+    chưa chụp ảnh 23 route với brand khác (filestore local mất, xem dưới) ⇒ làm ở ★JR hoặc trên UAT sau deploy.
+  - JS chart Khảo sát `#28A9DF` (`wujia_portal_inspection`, code Thái) chưa theo brand — defer.
+- Sự cố: lệnh copy DB trong zsh (`set -- $p` không tách chuỗi ⇒ `$2` rỗng) chạy `rm -rf data/filestore/` ⇒ **mất toàn bộ filestore
+  local** `WujiaTea/data/filestore` (DB vẫn còn). Script khôi phục: `scripts/dev/filestore_pack.py` (chạy máy còn filestore, ra 1 .tar
+  khử trùng sha1) + `scripts/dev/filestore_restore.py` (Mac: trả file theo `ir_attachment.store_fname`, xoá dòng bundle thiếu để build lại).
+- Bài học:
+  - zsh KHÔNG tách biến không ngoặc (`$O`, `set -- $p`) ⇒ lệnh nhiều tham số chạy bằng file `#!/bin/bash` + `set -u`, mảng `"${O[@]}"`;
+    không bao giờ `rm -rf` đường dẫn ghép biến khi chưa kiểm biến khác rỗng.
+  - QWeb: node có `t-*` không dịch được và cắt câu ⇒ dùng mẫu `wj_txt` + `.replace('{brand}', …)`.
+  - `<function>` trong `noupdate` chỉ chạy lúc `-i` ⇒ cần migration cho `-u`. Route portal không `website=True` ⇒ không dùng
+    `_prepare_frontend_environment`, chèn biến ở `ir.qweb._prepare_environment`.
+  - Odoo chỉ liệt kê DB do `db_user` sở hữu ⇒ `createdb` xong `ALTER DATABASE … OWNER TO odoo19`. `createdb -T` không copy filestore.
+  - `-i` + `--test-enable` có `wujia_franchise` ⇒ ImportError test Thái ⇒ cài trước rồi `-u <module> --test-enable`.
+- Lệnh deploy: `-u wujia_core,wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_sale,wujia_portal_exam,
+  wujia_portal_return,wujia_portal_support,wujia_portal_delivery,wujia_portal_notification,wujia_portal_purchase_history,wujia_return`.
+- Nợ để lại: khôi phục filestore local (script trên) · xoá DB nháp `wujia_b1`, `wujia_b1t`, `wujia_b2`, `wujia_b2h`, `wujia_b2t`,
+  `wujia_b2u` + worktree `scratchpad/b2/head` · server cũ giữ slot Postgres (g1, g3s, g5s:8055, e4b1…) — user tự dừng · I0 vẫn treo.
+- Phiên kế: **J-T1** — `wujia_i18n` danh mục chuỗi + màn sửa + quét.

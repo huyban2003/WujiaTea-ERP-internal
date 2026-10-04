@@ -153,7 +153,8 @@ class TestDataListPcTable(TransactionCase):
             css = fh.read()
         body = _rule(css, '.wj-data-table.wj-pc-noti-table tbody tr:hover')
         self.assertIsNotNone(body, 'thiếu rule hover nâng độ đặc hiệu cho bảng noti')
-        self.assertIn('rgba(40, 169, 223, 0.04)', body)
+        # Nền hover = màu chủ đạo 4% — qua token brand (J-B2), không hex cứng.
+        self.assertIn('rgb(var(--wujia-primary-rgb) / 0.04)', body)
 
     def test_skeleton_delivery_khop_row_that(self):
         """Skeleton giả hàng bảng — lệch số là loading nhảy hình khi đổ dữ liệu."""

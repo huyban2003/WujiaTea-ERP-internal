@@ -42,7 +42,7 @@
                     <t t-set="res_page_title" t-value="'Đặt hàng'"/>
                     <t t-set="res_tone" t-value="'ok'"/>
                     <t t-set="res_title" t-value="'Đặt hàng thành công'"/>
-                    <t t-set="res_sub" t-value="'Đơn hàng đã được tạo và đang chờ Ngô Gia xác nhận.'"/>
+                    <t t-set="res_sub" t-value="'Đơn hàng đã được tạo và đang chờ %s xác nhận.' % wj_brand['name']"/>
 
                     <!-- 4 dòng thông tin đơn — lấy từ sale.order vừa tạo. -->
                     <dl class="wujia-mres-info">
