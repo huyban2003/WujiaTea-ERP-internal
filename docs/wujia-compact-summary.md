@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-01 · **END-SPRINT 64 — CỤM G CHỐT SỔ** (chapter 78 `chapters/78-sprint64-cluster-g-issue-list.tex`, PDF build lại). G1–G3 + H150/151 + G5 + G6 đã deploy UAT 30/09, 11 issue (140–145, 147–151) → Ready for Retest; G4 (146) ⏸ vì dòng bị xoá khỏi sheet. Hàng đợi Dev 01/10 = 0. **Top bar PC 992–1199 đã sửa** (`bea5fa8`, `portal_layout` 19.0.59.3.0 · `portal_base` 19.0.7.34.0) — chờ push + deploy UAT. Phiên kế: chạy `issue_queue.py --dev`.
+**Cập nhật:** 2026-10-04 · **LẬP CỤM J + J-B1 BRANDING** — chủ dự án chốt 3 việc mới làm TRƯỚC Issue List: branding cấu hình trong Settings (`wujia_core`), tool dịch backend `wujia_i18n` (bản đầy đủ), portal Vận hành `wujia_portal_operations` trên backend của Thái. Lộ trình + prompt: `docs/next-session-clusters-J.md`. J-B1 xong (chưa commit). Phiên kế: **J-B2** áp brand vào portal/backend. Issue List 15 Ready for Dev chờ sau cụm J.
 
 ---
 
@@ -123,6 +123,10 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-10-04 · lập cụm J + J-B1) — BRANDING CÓ NGUỒN CẤU HÌNH; CHƯA ÁP VÀO PORTAL; CHƯA COMMIT.** `wujia_core` 19.0.2.0.0 (depends +`web`): `res.company` `wj_brand_name` · `wj_primary_color` (#RRGGBB, mặc định #28A9DF) · `wj_logo_mobile` · `wj_favicon` · `wj_login_background` (logo PC = `logo` sẵn có) + tab Settings "Thương hiệu" + `_wj_brand_info()` (ormcache, write brand ⇒ clear_cache) + `_wj_brand_url(kind, width)` + route public `/wj/brand/<cid>/<kind>` + `tools/brand_palette.py` (mặc định = bộ token BA, css rỗng ⇒ 0 pixel đổi; màu khác sinh HSL, CTA ≥4.5:1). Test DB trắng 10/0, mutation 5/5. **Bẫy:** KHÔNG `-u wujia_core --test-enable` trên DB đủ module (test franchise của Thái import file đã xoá). **Pending:** J-B2 → J-T1…T4 → J-O0…O4 → ★JR → Issue List (cụm I + 156–167) · I0 push/deploy `bea5fa8` · commit J-B1.
+
+**State (2026-10-02 · review chuẩn component) — LÕI COMPONENT ĐỦ; LẬP CỤM I (5 issue) + CỤM H (chuẩn hoá lượt 2); 0 dòng code, 0 ghi sheet.** Đo tĩnh + Playwright 23 route: PageHeader 63 · SurfaceCard 94 · CardHeader 93 · DataList 36 · Pagination 23 · FilterBar 19 · StatusBadge 76. Hở: EmptyState 7 họ · nhãn–giá trị 8 họ · InfoBanner (`alert` 50 + 10 họ) · StatCard 7 họ · badge ngoài trạng thái · Modal · FormField; code chết `wj_button` 0 call, `.wujia-btn`, khối Legacy DataList; `_components.css` ~800 dòng CSS trang. Đầu ra: `portal-component-standard.pdf` (20 tr, không tên người/không nhắc module nhóm Khảo sát) · `ba-component-spec-proposal.{xlsx,pdf}` (sinh từ `scripts/qa/ba_spec_proposal.py`, 17 cột, `Dev Proposed`, 19 câu CẦN BA CHỐT) · `next-session-clusters-H.md`. Gốc #152 `get_active_franchise_ids_filter` (`portal_base/controllers/portal.py:78`), #153 `get_max_role_in_franchises` (`:89`) — helper dùng chung với Khảo sát ⇒ fork hỏi. **Pending:** I0 push/deploy `bea5fa8` · gửi 2 PDF · I1 #155 → I2 #62 (xác nhận Owner) → I3 #154 → I4a/b #152 → I5 #153 → ★IR → H0…
 
 **State (2026-10-01 · phiên top bar 992) — HEADER PC 992–1199 KHÔNG CÒN RỚT KHỐI CỬA HÀNG; commit `bea5fa8`, CHƯA PUSH/DEPLOY.** Gốc: hàng trái 600 + cụm phải 406 cần ~1034px, `ul.nav` wrap ⇒ khối rớt dòng 2 + `mr-auto` hamburger 423px (lộ ở mọi khổ 992–1033 khi tên dài, UAT chỉ thấy 992). Sửa trong `@media` 992–1199: pill ngôn ngữ chỉ cờ, chuỗi `min-width: 0` + `nowrap`, khối Cửa hàng giữ 430 khi đủ chỗ, co + ellipsis khi thiếu. Test 3, mutation 5/5, 653/0/0, `wj_shell_g2` sạch. **Bẫy:** UAT + github:22 không vào được từ mạng hiện tại; push bị chặn phía Claude ⇒ chủ dự án push tay. Không có issue sheet ⇒ không ledger.
 

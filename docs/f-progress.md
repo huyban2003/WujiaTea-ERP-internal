@@ -1996,3 +1996,52 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ để lại: deploy UAT (`-u wujia_portal_layout,wujia_portal_base`) + đo lại chỉ-đọc 992/993/1000/1199 với `em.hcm`;
   FYI BA: pill ngôn ngữ 992–1199 chỉ còn cờ (đã vậy từ trước về chữ, nay cả bề rộng).
 - Phiên kế: sau deploy đo UAT; `issue_queue.py --dev`.
+
+## Review chuẩn component + lập cụm I/H · 02/10/2026 · Mac
+- Kết quả: ✅ chỉ tài liệu, **0 dòng `custom/`**, 0 ghi sheet, chưa commit. 3 đầu ra:
+  - `docs/portal-component-standard.{tex,pdf}` (20 trang): chuẩn component dùng chung + 1 trang "chưa có chuẩn" —
+    gửi nhóm dev khác tự chỉnh màn của họ; không tên người, không nhắc module của nhóm đó.
+  - `docs/ba-component-spec-proposal.{xlsx,tex,pdf}` (27 trang) sinh từ `scripts/qa/ba_spec_proposal.py`: 7 dòng đúng
+    17 cột khối spec tab UI Component, Status `Dev Proposed` — ES · DS(+KeyValue) · IB · KPI · TAG · MD (mới) · FF (mới),
+    19 câu hỏi CẦN BA CHỐT kèm phương án Dev.
+  - `docs/next-session-clusters-H.md`: cụm **I** (I0–I5 + ★IR, issue 152–155 + 62) rồi cụm **H** (H0–H10 + ★HR-1/2), bảng
+    trạng thái + prompt từng phiên.
+- Đầu phiên: `issue_queue --dev` = 5 Ready for Dev (152, 153, 154, 155 mới; 62 BA đổi yêu cầu 01/10, Owner sheet lệch).
+  Chủ dự án hỏi review chuẩn component; chốt **Issue trước, H sau** · Dev soạn spec, BA duyệt · PDF = chuẩn + 1 trang chưa chuẩn.
+- Số đo (tĩnh template + Playwright local 8055 `anh.owner`, 1440 + 390, 23 route): lõi đủ (PageHeader 63 · SurfaceCard 94 ·
+  CardHeader 93 · DataList 36 · Pagination 23 · FilterBar 19 · StatusBadge 76 class); hở: EmptyState 7 họ/198 · nhãn–giá trị
+  8 họ/170 · Bootstrap `alert` 50 + 10 họ/53 · StatCard 7 họ · `wujia-badge` 38 · Modal 4 JS riêng + 3 `confirm()` trình duyệt ·
+  FormField 6 họ, chữ trong ô mobile 12.25px.
+- Lệch / quyết định: không tách thêm module (`wujia_ui_core` chưa cần theo ADR-027). Gốc 152 = `get_active_franchise_ids_filter`
+  (`portal_base/controllers/portal.py:78`), 153 = `get_max_role_in_franchises` (`:89`) — module Khảo sát gọi cùng helper ⇒ fork
+  phải hỏi ở I4a/I5.
+- Bài học:
+  - LuaTeX bỏ qua `{}` khi ghép ligature: `-{}-` vẫn ra gạch ngang; token CSS `--x` phải viết `-\kern0pt-`.
+  - Đo cùng lúc thấy PC `/portal/order` báo "Chưa có cấu hình thời gian đặt hàng" còn mobile báo "Đang trong khung giờ"
+    (hai phiên đăng nhập riêng) — ghi vào prompt I3 để tái hiện, chưa kết luận.
+- Nợ để lại: gửi PDF chuẩn cho nhóm dev khác + gửi bản đề xuất cho BA (chủ dự án) · I0 push `bea5fa8` + deploy top bar ·
+  nợ cũ giữ nguyên (bảng giá UAT USD · G4 chờ BA · `auto_install` · 7 câu hỏi ADR-027).
+- Phiên kế: **I1** (#155 WJ-ORD-031) theo `docs/next-session-clusters-H.md` §3, sau I0.
+
+## Lập cụm J + J-B1 Branding trong `wujia_core` · 04/10/2026 · Mac
+- Kết quả: ✅ plan cụm J (`docs/next-session-clusters-J.md`) + J-B1 code + test, **chưa commit/push/deploy**, 0 ghi sheet.
+- Đầu phiên: `git pull` (merge `b5ce925`: module dashboard AI + `wujia_fields_value` của Thái, không đụng vùng cụm J).
+  `issue_queue --dev` = **15 Ready for Dev** (5 cụm I + 10 mới 156, 157, 159, 160, 162–167; reconcile 0 commit; WJ-EXAM-001 /
+  WJ-NOTI-001 là ID BA dùng lại). Chủ dự án giao 3 việc mới và chốt **làm trước Issue List**: (1) branding cấu hình được trong
+  Settings để dùng source cho thương hiệu khác; (2) tool dịch portal ở backend (bản đầy đủ) thay up `.po`; (3) portal Vận hành
+  nhượng quyền trên backend `wujia_franchise_operations` hiện có (chấm công/nghỉ phép chờ BA).
+- Đã làm (J-B1): `wujia_core` 19.0.2.0.0 — 5 field brand trên `res.company` + tab Settings "Thương hiệu" + `_wj_brand_info()`
+  (ormcache) + `_wj_brand_url()` + route ảnh `/wj/brand/<cid>/<kind>` (public, width cố định, `?v=` ⇒ immutable) + bộ token màu
+  `tools/brand_palette.py` (mặc định = đúng bộ BA, `css` rỗng; màu khác sinh HSL, CTA ≥4.5:1). 17 dòng VN vào glossary,
+  `vi_VN.po` + `wujia_core.pot` mới.
+- Số đo: DB trắng `wujia_b1t` 10 test 0 failed; mutation 5/5 đỏ đúng (1 đột biến tương đương bị loại, thay bằng đột biến thật);
+  DB copy `wujia_b1` (`wujia_g5s`) `-u wujia_core` rc=0, 0 ERROR; vi_VN đọc lại nhãn Settings + lỗi Python đúng; ảnh Settings OK.
+- Lệch / quyết định: logo PC dùng lại `res.company.logo` (không field trùng); không dùng `res.company.primary_color` sẵn có (là màu
+  báo cáo PDF, wizard Document Layout tự đổi theo logo) ⇒ field riêng `wj_primary_color`. Công ty không có logo ⇒ route 404, B2 xử.
+- Bài học:
+  - `-u wujia_core --test-enable` trên DB đủ module chết vì test `wujia_franchise` của Thái import file đã xoá ⇒ test `wujia_core`
+    chạy DB trắng `-i`. `wujia_core` đổi đường log sang `<dir>/<năm>/<tháng>/<ngày>.log`.
+  - `sync_translations.py` ghi đè bản dịch cũ bằng glossary (vd `Active` → "Kích hoạt (Active)") ⇒ so babel trước/sau, trả lại.
+  - Playwright backend Odoo 19: `wait_for_load_state('networkidle')` treo (bus longpoll) ⇒ dùng `wait_for_timeout`.
+- Nợ để lại: commit J-B1 (chờ lệnh) · xoá DB `wujia_b1`, `wujia_b1t` khi xong cụm · I0 (push `bea5fa8` + deploy top bar) vẫn treo.
+- Phiên kế: **J-B2** — áp brand vào portal + backend (prompt ở `docs/next-session-clusters-J.md` §4).
