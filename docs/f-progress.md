@@ -2074,8 +2074,11 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Lệch / LIMIT:
   - Không chạy lại `sync_translations`: câu "Ngô Gia" cũ trong `vi_VN.po` (debt/exam/return) đều `msgstr` rỗng, chưa có `th_TH` ⇒ 0 bản dịch
     mất; term mới (`{brand}`) gom vào J-T.
-  - Kịch bản đổi brand (Trà ABC/#E4572E/logo/nền login) kiểm bằng test HTTP trên trang khung (login, hồ sơ, đổi mật khẩu, backend);
-    chưa chụp ảnh 23 route với brand khác (filestore local mất, xem dưới) ⇒ làm ở ★JR hoặc trên UAT sau deploy.
+  - Test trình duyệt (sau khôi phục filestore) 26 route + login × 1440/390 + backend: mặc định 0 request ảnh/CSS lỗi, 0 ảnh vỡ;
+    brand "Trà ABC"/#E4572E/logo/logo mobile/favicon/nền login ⇒ 0 chữ "Ngô Gia", title/màu/logo/nền login/favicon backend đổi theo.
+    Phát hiện 12 token sắc xanh brand sót (gradient thẻ tổng quan + thanh giỏ mobile, nền ô hành động nhanh, nền ảnh SP mobile,
+    sắc nhạt Thi, viền thẻ Thông báo) ⇒ `brand_palette.TINT_TOKENS` + `retint()` (xoay sắc, giữ độ sáng; mặc định trả đúng hex cũ)
+    ⇒ đổi theo brand; mặc định chụp lại 0 lệch (chỉ đồng hồ đếm ngược). 404 `app-assets/data/locales/en.json` (JS Vuexy) có từ trước.
   - JS chart Khảo sát `#28A9DF` (`wujia_portal_inspection`, code Thái) chưa theo brand — defer.
 - Sự cố: lệnh copy DB trong zsh (`set -- $p` không tách chuỗi ⇒ `$2` rỗng) chạy `rm -rf data/filestore/` ⇒ **mất toàn bộ filestore
   local** `WujiaTea/data/filestore` (DB vẫn còn). Script khôi phục: `scripts/dev/filestore_pack.py` (chạy máy còn filestore, ra 1 .tar

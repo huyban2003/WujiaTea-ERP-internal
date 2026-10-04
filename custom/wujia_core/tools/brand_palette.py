@@ -23,8 +23,26 @@ DEFAULT_PALETTE = {
     'primary-rgb': '40 169 223',
 }
 
+# Token ngoài bộ chính nhưng mang sắc xanh brand (Home/Đặt hàng mobile, Thi, Thông báo).
+# Mặc định giữ nguyên trong CSS module; màu khác ⇒ xoay sắc theo màu chính, giữ độ sáng.
+TINT_TOKENS = {
+    'wujia-mhome-hero-grad': 'linear-gradient(135deg, #0B2430 0%, #1B5C75 100%)',
+    'wujia-mhome-hero-label': '#C7E6EF',
+    'wujia-mhome-hero-area': '#D9F3FA',
+    'wujia-mhome-kpi-label': '#BEE7F1',
+    'wujia-mhome-action-icon-bg': '#E9F7FC',
+    'wujia-morder-thumb-bg': '#DDF6FF',
+    'wujia-morder-floatbar-bg': 'linear-gradient(90deg, #0B2430 0%, #1B5C75 100%)',
+    'wujia-morder-floatbar-sub': '#DDF6FF',
+    'wujia-mexam-slot-sel-bg': '#F2FBFF',
+    'wujia-mexam-note-bg': '#F1F8FC',
+    'wj-exam-pc-tint': '#F2FBFF',
+    'wj-noti-card-border': '#BDEAFB',
+}
+
 AA_CONTRAST = 4.5
 HEX_RE = re.compile(r'^#[0-9A-Fa-f]{6}$')
+HEX_ANY_RE = re.compile(r'#[0-9A-Fa-f]{6}')
 
 
 def normalize_hex(value):
@@ -88,6 +106,17 @@ def derive_palette(primary):
     }
 
 
+def retint(value, primary):
+    """Đổi mọi mã hex trong `value` sang sắc của `primary` (giữ độ sáng, co độ bão hoà theo tỉ lệ)."""
+    h0, _l0, s0 = colorsys.rgb_to_hls(*(c / 255.0 for c in _rgb(DEFAULT_PRIMARY)))
+    h1, _l1, s1 = colorsys.rgb_to_hls(*(c / 255.0 for c in _rgb(primary)))
+
+    def one(match):
+        h, l, s = colorsys.rgb_to_hls(*(c / 255.0 for c in _rgb(match.group(0))))
+        return _from_hls((h + h1 - h0) % 1.0, l, s * s1 / s0)
+    return HEX_ANY_RE.sub(one, value)
+
+
 def brand_palette(primary):
     primary = normalize_hex(primary) or DEFAULT_PRIMARY
     if primary == DEFAULT_PRIMARY:
@@ -101,4 +130,5 @@ def palette_css(primary):
     if primary == DEFAULT_PRIMARY:
         return ''
     body = ';'.join('--wujia-%s:%s' % kv for kv in brand_palette(primary).items())
-    return ':root{%s}' % body
+    tint = ';'.join('--%s:%s' % (k, retint(v, primary)) for k, v in TINT_TOKENS.items())
+    return ':root{%s;%s}' % (body, tint)

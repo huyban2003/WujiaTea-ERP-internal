@@ -9,7 +9,8 @@ from odoo.tests import HttpCase, TransactionCase, tagged
 
 from ..models.res_company import DEFAULT_BRAND_NAME
 from ..tools.brand_palette import (
-    DEFAULT_PALETTE, brand_palette, contrast_with_white, derive_palette, palette_css,
+    DEFAULT_PALETTE, DEFAULT_PRIMARY, TINT_TOKENS, brand_palette, contrast_with_white, derive_palette,
+    palette_css, retint,
 )
 
 
@@ -44,6 +45,22 @@ class TestBrandPalette(TransactionCase):
         css = palette_css('#e4572e')
         self.assertTrue(css.startswith(':root{--wujia-primary:#E4572E;'))
         self.assertIn('--wujia-primary-rgb:228 87 46', css)
+
+    def test_tint_tokens_follow_brand(self):
+        # Màu mặc định: xoay sắc 0 ⇒ trả đúng hex cũ (CSS module giữ nguyên, 0 pixel đổi).
+        for value in TINT_TOKENS.values():
+            self.assertEqual(retint(value, DEFAULT_PRIMARY), value)
+        css = palette_css('#E4572E')
+        for name in TINT_TOKENS:
+            self.assertIn('--%s:' % name, css)
+        # Nền ô hành động nhanh: vẫn rất nhạt nhưng sang sắc cam (đỏ > xanh dương).
+        r, g, b = bytes.fromhex(retint('#E9F7FC', '#E4572E')[1:])
+        self.assertGreater(r, b)
+        self.assertGreater(min(r, g, b), 225)
+        # Gradient giữ cú pháp, chỉ đổi mã màu.
+        grad = retint(TINT_TOKENS['wujia-mhome-hero-grad'], '#E4572E')
+        self.assertTrue(grad.startswith('linear-gradient(135deg, #'))
+        self.assertNotIn('#0B2430', grad)
 
 
 @tagged('post_install', '-at_install', 'wujia_brand')

@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Notification',
-    'version': '19.0.3.1.0',
+    'version': '19.0.3.2.0',
     'category': 'Wujia',
     'summary': 'Màn thông báo trên portal cửa hàng + chuông header — nghiệp vụ ở wujia_notification (F11)',
     'author': 'WujiaTea',
