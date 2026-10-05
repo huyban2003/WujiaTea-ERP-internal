@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Mobile Kanban View for Sales Orders -->
+    <!-- Mobile Kanban View for Sales Orders (Standard Odoo Fields) -->
     <record id="view_sale_order_kanban_wujia_mobile" model="ir.ui.view">
         <field name="name">sale.order.kanban.wujia.mobile</field>
         <field name="model">sale.order</field>
@@ -10,15 +10,10 @@
             <kanban class="wj_mobile_kanban" sample="1">
                 <field name="name" />
                 <field name="partner_id" />
-                <field name="franchise_id" />
-                <field name="area_id" />
                 <field name="date_order" />
                 <field name="amount_total" />
-                <field name="total_planned_weight" />
                 <field name="currency_id" />
                 <field name="state" />
-                <field name="is_portal_order" />
-                <field name="is_return_order" />
                 <field name="mobile_badge_class" />
                 <field name="mobile_card_title" />
                 <templates>
@@ -35,23 +30,17 @@
                                 </span>
                             </div>
 
-                            <!-- Title Row: Primary Store or Customer Name -->
+                            <!-- Title Row: Customer Name -->
                             <div class="wj_mobile_card__title mb-2">
                                 <field name="mobile_card_title" />
                             </div>
 
-                            <!-- Footer Row: Calendar Icon & Date on Left, Total Amount and Weight on Right -->
+                            <!-- Footer Row: Calendar Icon & Date on Left, Total Amount on Right -->
                             <div class="d-flex align-items-end justify-content-between pt-1">
                                 <span class="wj_mobile_card__meta text-nowrap"
                                     style="white-space: nowrap !important;">
                                     <i class="fa fa-calendar-o me-1" title="Order Date" />
                                     <field name="date_order" widget="date" />
-                                    <t t-if="record.is_portal_order.raw_value">
-                                        <span class="badge bg-light text-primary ms-1">Portal</span>
-                                    </t>
-                                    <t t-if="record.is_return_order.raw_value">
-                                        <span class="badge bg-light text-danger ms-1">Return</span>
-                                    </t>
                                 </span>
                                 <div class="text-end text-nowrap ms-2">
                                     <span class="wj_mobile_card__value font-weight-bold"
@@ -107,37 +96,6 @@
                                 <field name="partner_id" readonly="state in ['cancel','sale']" class="wujia-mobile-field" />
                             </div>
                         </div>
-                        <div class="wujia-mobile-row">
-                            <label for="is_portal_order" string="Portal Order" class="o_form_label wujia-mobile-label" />
-                            <div class="wujia-mobile-content">
-                                <field name="is_portal_order" readonly="1" class="wujia-mobile-field" />
-                            </div>
-                        </div>
-                        <div class="wujia-mobile-row">
-                            <label for="is_return_order" string="Compensation Orders" class="o_form_label wujia-mobile-label" />
-                            <div class="wujia-mobile-content">
-                                <field name="is_return_order" readonly="1" class="wujia-mobile-field" />
-                            </div>
-                        </div>
-                        <div class="wujia-mobile-row">
-                            <label for="franchise_id" string="Franchise Store" class="o_form_label wujia-mobile-label" />
-                            <div class="wujia-mobile-content">
-                                <field name="franchise_id" options="{'no_create': True}" required="is_portal_order" class="wujia-mobile-field" />
-                            </div>
-                        </div>
-                        <div class="wujia-mobile-row">
-                            <label for="franchise_partner_id" string="Store Partner" class="o_form_label wujia-mobile-label" />
-                            <div class="wujia-mobile-content">
-                                <field name="franchise_partner_id" options="{'no_create': True}" required="is_portal_order" class="wujia-mobile-field" />
-                            </div>
-                        </div>
-                        <div class="wujia-mobile-row has-icon">
-                            <label for="area_id" string="Area" class="o_form_label wujia-mobile-label" />
-                            <div class="wujia-mobile-content">
-                                <span class="wujia-mobile-icon"><i class="fa fa-map-marker" /></span>
-                                <field name="area_id" readonly="1" class="wujia-mobile-field" />
-                            </div>
-                        </div>
                         <div class="wujia-mobile-row has-icon">
                             <label for="partner_invoice_id" string="Invoice Address" class="o_form_label wujia-mobile-label" />
                             <div class="wujia-mobile-content">
@@ -186,12 +144,12 @@
         </field>
     </record>
 
-    <!-- Update Wujia Sales Orders Window Action: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban (sequence 2) -->
-    <record id="wujia_sale.action_wujia_sale_orders" model="ir.actions.act_window">
+    <!-- Update Sales Orders Window Action: Desktop defaults to List (sequence 1), Mobile auto-switches to Kanban (sequence 2) -->
+    <record id="sale.action_orders" model="ir.actions.act_window">
         <field name="view_mode">list,kanban,form</field>
         <field name="view_ids" eval="[
             (5, 0, 0),
-            (0, 0, {'view_mode': 'list', 'view_id': ref('wujia_sale.view_order_tree_wujia'), 'sequence': 1}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('sale.view_order_tree'), 'sequence': 1}),
             (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_sale_order_kanban_wujia_mobile'), 'sequence': 2}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('sale.view_order_form'), 'sequence': 3})
         ]" />

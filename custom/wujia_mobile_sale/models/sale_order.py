@@ -16,13 +16,13 @@ class SaleOrder(models.Model):
         store=False,
     )
 
-    @api.depends('state', 'franchise_id', 'franchise_id.name', 'area_id', 'area_id.name', 'partner_id', 'partner_id.name')
+    @api.depends('state', 'partner_id', 'partner_id.name', 'name')
     def _compute_mobile_card_helpers(self):
         for rec in self:
             rec.mobile_badge_class = rec.get_mobile_badge_class(rec.state)
 
-            if rec.franchise_id:
-                if rec.area_id:
+            if 'franchise_id' in self._fields and getattr(rec, 'franchise_id', False):
+                if 'area_id' in self._fields and getattr(rec, 'area_id', False):
                     rec.mobile_card_title = f"{rec.franchise_id.name} ({rec.area_id.name})"
                 else:
                     rec.mobile_card_title = rec.franchise_id.name
@@ -30,3 +30,4 @@ class SaleOrder(models.Model):
                 rec.mobile_card_title = rec.partner_id.name
             else:
                 rec.mobile_card_title = rec.name or ""
+

@@ -9,7 +9,6 @@
     'license': 'LGPL-3',
     'depends': [
         'sale',
-        'wujia_sale',
         'wujia_mobile_core',
     ],
     'data': [
@@ -17,5 +16,5 @@
     ],
     'installable': True,
     'application': False,
-    'auto_install': False,
+    'auto_install': True,
 }
