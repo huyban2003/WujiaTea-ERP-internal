@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_wujia_translator" model="res.groups">
+        <field name="name">Translator</field>
+        <field name="comment">Scan, edit and apply translations in the Translations tool.</field>
+    </record>
+
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_wujia_translator'))]"/>
+    </record>
+</odoo>

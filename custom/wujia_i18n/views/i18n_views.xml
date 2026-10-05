@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Bản dịch: mỗi dòng = term × ngôn ngữ, sửa tại chỗ -->
+    <record id="view_wujia_i18n_value_list" model="ir.ui.view">
+        <field name="name">wujia.i18n.value.list</field>
+        <field name="model">wujia.i18n.value</field>
+        <field name="arch" type="xml">
+            <list string="Translations" editable="bottom" create="false" delete="false"
+                  decoration-muted="not term_active" decoration-warning="pending">
+                <header>
+                    <button name="action_apply" type="object" string="Apply"/>
+                    <button name="action_apply_all_pending" type="object" string="Apply all waiting" display="always"/>
+                </header>
+                <field name="module" optional="show"/>
+                <field name="kind" optional="hide"/>
+                <field name="lang"/>
+                <field name="src"/>
+                <field name="value"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'synced'" decoration-info="state == 'override'"
+                       decoration-danger="state == 'missing'"/>
+                <field name="pending" optional="show"/>
+                <field name="term_active" column_invisible="1"/>
+                <field name="term_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_i18n_value_search" model="ir.ui.view">
+        <field name="name">wujia.i18n.value.search</field>
+        <field name="model">wujia.i18n.value</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="src"/>
+                <field name="value"/>
+                <field name="module"/>
+                <field name="lang"/>
+                <filter name="current" string="Current terms" domain="[('term_active', '=', True)]"/>
+                <filter name="source_changed" string="Source changed / removed" domain="[('term_active', '=', False)]"/>
+                <separator/>
+                <filter name="missing" string="Not translated" domain="[('state', '=', 'missing')]"/>
+                <filter name="edited" string="Edited" domain="[('state', '=', 'override')]"/>
+                <filter name="pending" string="Waiting to apply" domain="[('pending', '=', True)]"/>
+                <separator/>
+                <filter name="kind_db" string="Labels, menus, views" domain="[('kind', 'in', ('model', 'model_terms'))]"/>
+                <filter name="kind_code" string="Python / JavaScript code" domain="[('kind', 'in', ('code_python', 'code_js'))]"/>
+                <group>
+                    <filter name="group_module" string="Module" context="{'group_by': 'module'}"/>
+                    <filter name="group_lang" string="Language" context="{'group_by': 'lang'}"/>
+                    <filter name="group_kind" string="Kind" context="{'group_by': 'kind'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_i18n_value" model="ir.actions.act_window">
+        <field name="name">Translations</field>
+        <field name="res_model">wujia.i18n.value</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_current': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No terms yet</p>
+            <p>Use <b>Scan terms</b> to read the strings of the modules into the catalog.</p>
+        </field>
+    </record>
+
+    <!-- Term: các ngôn ngữ đặt cạnh nhau -->
+    <record id="view_wujia_i18n_term_list" model="ir.ui.view">
+        <field name="name">wujia.i18n.term.list</field>
+        <field name="model">wujia.i18n.term</field>
+        <field name="arch" type="xml">
+            <list string="Terms" create="false" delete="false" decoration-muted="not active">
+                <field name="module"/>
+                <field name="kind"/>
+                <field name="src"/>
+                <field name="res_id" optional="show"/>
+                <field name="name" optional="hide"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_i18n_term_form" model="ir.ui.view">
+        <field name="name">wujia.i18n.term.form</field>
+        <field name="model">wujia.i18n.term</field>
+        <field name="arch" type="xml">
+            <form string="Term" create="false" delete="false">
+                <sheet>
+                    <widget name="web_ribbon" title="Not found" bg_color="text-bg-secondary" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="module"/>
+                            <field name="kind"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="name"/>
+                            <field name="res_id"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="kind not in ('code_python', 'code_js')">
+                        Code string: the edit takes effect after exporting the .po file and restarting the server.
+                    </div>
+                    <label for="src"/>
+                    <field name="src" nolabel="1"/>
+                    <field name="value_ids" nolabel="1">
+                        <list editable="bottom" create="false" delete="false" decoration-warning="pending">
+                            <field name="lang"/>
+                            <field name="value"/>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == 'synced'" decoration-info="state == 'override'"
+                                   decoration-danger="state == 'missing'"/>
+                            <field name="pending"/>
+                            <button name="action_apply" type="object" string="Apply" icon="fa-check"
+                                    invisible="not pending"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wujia_i18n_term_search" model="ir.ui.view">
+        <field name="name">wujia.i18n.term.search</field>
+        <field name="model">wujia.i18n.term</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="src"/>
+                <field name="module"/>
+                <field name="res_id"/>
+                <filter name="inactive" string="Not found by last scan" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_module" string="Module" context="{'group_by': 'module'}"/>
+                    <filter name="group_kind" string="Kind" context="{'group_by': 'kind'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_i18n_term" model="ir.actions.act_window">
+        <field name="name">Terms</field>
+        <field name="res_model">wujia.i18n.term</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Độ phủ: module × ngôn ngữ -->
+    <record id="view_wujia_i18n_coverage_list" model="ir.ui.view">
+        <field name="name">wujia.i18n.coverage.list</field>
+        <field name="model">wujia.i18n.coverage</field>
+        <field name="arch" type="xml">
+            <list string="Coverage" create="false" edit="false" delete="false"
+                  decoration-danger="percent &lt; 50" decoration-success="percent &gt;= 95">
+                <field name="module"/>
+                <field name="lang"/>
+                <field name="total" sum="Total"/>
+                <field name="translated" sum="Total"/>
+                <field name="missing" sum="Total"/>
+                <field name="edited" sum="Total"/>
+                <field name="pending" sum="Total"/>
+                <field name="percent" widget="progressbar"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_i18n_coverage_pivot" model="ir.ui.view">
+        <field name="name">wujia.i18n.coverage.pivot</field>
+        <field name="model">wujia.i18n.coverage</field>
+        <field name="arch" type="xml">
+            <pivot string="Coverage" disable_linking="1">
+                <field name="module" type="row"/>
+                <field name="lang" type="col"/>
+                <field name="percent" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_wujia_i18n_coverage_search" model="ir.ui.view">
+        <field name="name">wujia.i18n.coverage.search</field>
+        <field name="model">wujia.i18n.coverage</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="module"/>
+                <field name="lang"/>
+                <filter name="incomplete" string="Incomplete" domain="[('missing', '&gt;', 0)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_i18n_coverage" model="ir.actions.act_window">
+        <field name="name">Coverage</field>
+        <field name="res_model">wujia.i18n.coverage</field>
+        <field name="view_mode">list,pivot</field>
+    </record>
+
+    <menuitem id="menu_wujia_i18n_root" name="Translation Tool" sequence="95"
+              groups="group_wujia_translator" web_icon="wujia_i18n,static/description/icon.png"/>
+    <menuitem id="menu_wujia_i18n_value" name="Translations" parent="menu_wujia_i18n_root"
+              action="action_wujia_i18n_value" sequence="10"/>
+    <menuitem id="menu_wujia_i18n_term" name="Terms" parent="menu_wujia_i18n_root"
+              action="action_wujia_i18n_term" sequence="20"/>
+    <menuitem id="menu_wujia_i18n_coverage" name="Coverage" parent="menu_wujia_i18n_root"
+              action="action_wujia_i18n_coverage" sequence="30"/>
+    <menuitem id="menu_wujia_i18n_scan" name="Scan terms" parent="menu_wujia_i18n_root"
+              action="action_wujia_i18n_scan_wizard" sequence="40"/>
+</odoo>

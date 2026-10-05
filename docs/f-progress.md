@@ -2096,3 +2096,36 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ để lại: khôi phục filestore local (script trên) · xoá DB nháp `wujia_b1`, `wujia_b1t`, `wujia_b2`, `wujia_b2h`, `wujia_b2t`,
   `wujia_b2u` + worktree `scratchpad/b2/head` · server cũ giữ slot Postgres (g1, g3s, g5s:8055, e4b1…) — user tự dừng · I0 vẫn treo.
 - Phiên kế: **J-T1** — `wujia_i18n` danh mục chuỗi + màn sửa + quét.
+
+## J-T1+T2 Tool dịch `wujia_i18n` (danh mục + sửa + Áp dụng + bền qua `-u`) · 05/10/2026 · Mac
+- Kết quả: ✅ code + test, **chưa commit/push/deploy**, 0 ghi sheet (không có ID Issue List).
+- Đầu phiên: `git pull` (up to date). `issue_queue --dev` = 15 Ready for Dev (không đổi, chờ sau cụm J).
+  Chủ dự án chốt **gộp cụm J còn 7 phiên**: T1+T2 gộp, **bỏ T3** (chuỗi code đổi ⇒ xuất `.po` + restart), O3+O4 gộp.
+- Đã làm: module mới `wujia_i18n` 19.0.1.0.0 (L1) — `wujia.i18n.term` + `wujia.i18n.value` + `wujia.i18n.coverage` (SQL view)
+  + wizard quét (`TranslationModuleReader`) + nút Áp dụng (`TranslationImporter` force_overwrite + xoá cache đúng loại) + override
+  `ir.module.module._update_translations` áp lại bản sửa tay. App menu "Bản dịch", nhóm Người dịch (admin implied).
+  67 dòng VN vào glossary; `vi_VN.po` + `wujia_i18n.pot`. `check_layers.LAYER` += `wujia_i18n: CORE`.
+- Số đo:
+  - DB trắng `wujia_t1t` `-i wujia_i18n --test-enable`: 12 test 0 failed; mutation 7/7 đỏ đúng (1 mutation ban đầu sống —
+    bỏ xoá cache `templates` — vì test đọc `arch_db` thẳng ⇒ sửa test đọc qua `get_views`, đỏ đúng).
+  - DB copy `wujia_t1` (`wujia_g5s` + `-u` 12 module J-B2 + `-i wujia_i18n`, 0 ERROR): bật vi/zh/th + nạp `.po` ⇒ quét 29 module
+    × 3 ngôn ngữ: 4 839 term / 14 517 dòng, **3,1 s** (quét lại 1,8 s; 0 trùng) ⇒ chạy đồng bộ, không cần cron.
+  - E2E: sửa 1 chuỗi QWeb portal (`wujia_portal_base.acct_menu_store`) + 1 nhãn field ở zh_CN ⇒ Áp dụng ⇒ process mới đọc thấy;
+    chạy thật `-u wujia_portal_base --i18n-overwrite` ⇒ bản sửa vẫn còn.
+  - Ảnh 1440: list Bản dịch, form Chuỗi (3 ngôn ngữ cạnh nhau), Độ phủ, wizard Quét — tiếng Việt đủ, 0 lỗi console.
+- Phát hiện: **90% câu gốc portal (1 384/1 533) viết cứng tiếng Việt, module portal không có `i18n/`** ⇒ độ phủ portal ≈0% cả
+  3 tiếng — đây là gốc chuyện "up .po lâu lâu không ăn" phía portal. vi_VN báo "chưa dịch" nhưng hiển thị đúng ⇒ xử ở T4.
+  `wujia_franchise_inspection` (Thái) 856 term chỉ ~10% khớp DB dù `.pot` 1 156 msgid (phần lớn là chuỗi survey đọc `.po` lúc chạy).
+- Lệch / LIMIT: chuỗi Python/JS sửa được trong tool nhưng **không áp** (giữ "Chờ áp dụng") tới T4 xuất `.po` + restart.
+  Xoá trắng ô bản dịch ⇒ `missing`, không gỡ bản dịch đã áp trong DB (lần quét sau đồng bộ lại).
+- Bài học: `res.lang._activate_lang` chỉ bật ngôn ngữ, KHÔNG nạp `.po` ⇒ phải `_update_translations([lang])`.
+  Chạy test khi đang có server chụp ảnh cùng `--http-port` ⇒ test không chạy, không báo lỗi rõ ⇒ dừng server trước.
+- Lệnh deploy: `-i wujia_i18n` (sau đó vào app Bản dịch → Quét chuỗi). Kèm deploy J-B2 đang treo (lệnh ở mục J-B2).
+- Nợ để lại: commit J-T1+T2 (chờ lệnh) · deploy J-B2 + J-T · xoá DB nháp `wujia_t1`, `wujia_t1t` (+ b1/b2 cũ) · I0 treo.
+- Bổ sung cuối phiên: quét `scripts/qa/vn_hardcode_scan.py` (mới) ⇒ **2 659 chuỗi tiếng Việt viết cứng** (team ≈ 2 375, Thái 284;
+  + 945 trong test; bỏ `vendors/` lịch 1 700 chuỗi locale) ⇒ `docs/vn-hardcode-inventory.{md,csv}`. Chủ dự án: "ưu tiên xử lý
+  trước" ⇒ lập **Phần V** (V0–V8 + ★VR) trong `next-session-clusters-J.md` §6, làm trước J-T4. Gom mọi tồn đọng vào
+  **`docs/pending-backlog.md`** (thứ tự lô · chờ lệnh · chờ BA · nợ kỹ thuật · dọn local). UAT đọc-only: ngôn ngữ bật en/th/vi
+  (chưa zh_CN); user portal 6 vi_VN + 1 en_US. `lang.js` portal là code chết template đầu tư, vẫn nạp. `bea5fa8` đã ở origin.
+- Phiên kế: **J-V0** — chốt 4 câu (JS portal dịch bằng gì · user en_US · bật zh_CN · BA duyệt câu EN) + công cụ cặp EN↔VN + probe
+  text vi_VN; rồi V1 `wujia_portal_layout`.

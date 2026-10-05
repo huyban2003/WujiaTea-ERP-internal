@@ -27,7 +27,7 @@ CUSTOM = ROOT / 'custom'
 CORE, BIZ, FRAME, BASE, CHANNEL = 'L1 core', 'L2 nghiệp vụ', 'L2 khung', 'L3a portal_base', 'L3b ghép'
 
 LAYER = {
-    'wujia_core': CORE,
+    'wujia_core': CORE, 'wujia_i18n': CORE,
     'wujia_sale': BIZ, 'wujia_order_window': BIZ, 'wujia_info_request': BIZ, 'wujia_knowledge': BIZ, 'wujia_support': BIZ, 'wujia_notification': BIZ, 'wujia_exam': BIZ, 'wujia_return': BIZ, 'wujia_fleet': BIZ, 'wujia_delivery': BIZ, 'wujia_account': BIZ,
     'wujia_franchise': BIZ, 'wujia_franchise_contract': BIZ,
     'wujia_franchise_inspection': BIZ, 'wujia_franchise_operations': BIZ,

@@ -2,7 +2,9 @@
 
 > Chủ dự án chốt 04/10: **3 việc này làm TRƯỚC Issue List** (15 Ready for Dev — cụm I trong `next-session-clusters-H.md`
 > + 10 issue mới 156–167 chưa phân cụm — chờ tới sau ★JR-O). Thứ tự trong cụm: Branding → Dịch → Vận hành.
-> Chi tiết Phần T + Phần O: §5 Phụ lục cuối file.
+> Chi tiết Phần T + Phần O: §5 Phụ lục cuối file. **05/10: gộp còn 7 phiên** (T1+T2 gộp, bỏ T3, O3+O4 gộp).
+> **05/10 (sau T1+T2): thêm Phần V — Việt hoá source (V0–V8 + ★VR), làm TRƯỚC J-T4** (chủ dự án: "ưu tiên xử lý trước").
+> Thứ tự: V0 → V1…V8 → ★VR → J-T4 → J-O0…O4 → ★JR → Issue List. Tồn đọng toàn dự án: `docs/pending-backlog.md`.
 
 ## 0. Luật áp suốt cụm
 
@@ -47,15 +49,24 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 |---|---|---|---|
 | J-B1 | Nguồn brand trong `wujia_core` (res.company + Settings + palette + route ảnh) | wujia_core | ✅ 04/10 — `de64704` |
 | J-B2 | Áp brand vào portal (head, logo, CSS var) + backend (favicon, title tab) | portal_layout, core (+ ~7 CSS module màn) | ✅ 04/10 — chưa deploy |
-| J-T1 | `wujia_i18n`: danh mục chuỗi + màn sửa + quét | wujia_i18n (mới) | ☐ |
-| J-T2 | Áp ngay (TranslationImporter overwrite) + tự áp lại sau `-u` | wujia_i18n | ☐ |
-| J-T3 | Spike lớp phủ chuỗi Python/JS không restart (có đường lùi) | wujia_i18n | ☐ |
+| J-T1+T2 | `wujia_i18n`: danh mục chuỗi + màn sửa + quét + Áp dụng ngay + áp lại sau `-u` (gộp 05/10) | wujia_i18n (mới) | ✅ 05/10 — chưa commit |
+| ~~J-T3~~ | ~~Lớp phủ chuỗi Python/JS không restart~~ — **bỏ** (chủ dự án 05/10: chuỗi code đổi ⇒ xuất `.po` + restart) | — | ✗ |
+| **J-V0** | **Ưu tiên kế (chủ dự án 05/10).** Chốt quy ước + công cụ Việt hoá source (xem §6) | docs, scripts | ☐ |
+| J-V1 | `wujia_portal_layout` (259) + xoá `lang.js` chết | portal_layout | ☐ |
+| J-V2 | `wujia_portal_base` (382) | portal_base | ☐ |
+| J-V3 | `wujia_portal_exam` (345) + `wujia_exam` (63) | exam ×2 | ☐ |
+| J-V4 | `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) | sale ×3 | ☐ |
+| J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) | debt | ☐ |
+| J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) | return ×2 | ☐ |
+| J-V7 | support (112+2) + knowledge (46+2) + notification (86+27) | 6 module | ☐ |
+| J-V8 | purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21) | 9 module | ☐ |
+| ★J-VR | Review Phần V: quét lại = 0 (code team), vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi danh sách 284 chuỗi cho Thái | — | ☐ |
 | J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; script CLI gọi lại module | wujia_i18n, scripts | ☐ |
+| J-T5 | **Dịch tự động (DeepL)**: chọn ngôn ngữ (tự bật nếu chưa có) → dịch hàng loạt chuỗi chưa dịch → BA rà → Áp dụng (xem §6b) | wujia_i18n | ☐ |
 | J-O0 | Bảng đối chiếu CT-059…067 ↔ backend + danh sách màn + câu hỏi BA (0 code) | docs | ☐ |
 | J-O1 | Luật portal ở L2 (file mới `portal_rules.py`, báo Thái) | franchise_operations (thêm file) | ☐ |
 | J-O2 | Hub + Nhân viên + Lịch ca (chỉ đọc) | wujia_portal_operations (mới) | ☐ |
-| J-O3 | Chi phí: danh sách + tạo nháp | portal_operations | ☐ |
-| J-O4 | Doanh thu ngày: danh sách + khai nháp | portal_operations | ☐ |
+| J-O3+O4 | Chi phí + Doanh thu ngày: danh sách + tạo/khai nháp (gộp 05/10) | portal_operations | ☐ |
 | ★JR | Review: ma trận role × cửa hàng × route, ảnh, query, mutation, quét chuỗi mới vào tool dịch | — | ☐ |
 
 ## 3. Đã làm ở J-B1 (để B2 dùng)
@@ -75,6 +86,22 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 - Test `tests/test_brand.py` tag `wujia_brand`: 10 test, DB trắng 0 failed; mutation 5/5 đỏ đúng.
 - `vi_VN.po` + `wujia_core.pot` (mới) sinh lại; 17 dòng VN mới trong glossary; nhãn Settings + lỗi Python đọc lại tiếng Việt OK.
 - DB nháp: `wujia_b1` (copy `wujia_g5s`, đã `-u wujia_core`, bật vi_VN, admin/admin) · `wujia_b1t` (DB trắng test) — xoá được.
+
+## 3b. Đã làm ở J-T1+T2 (05/10, để T4/JR dùng)
+
+- `wujia_i18n` 19.0.1.0.0 (L1, depends `base`,`web`; app menu "Bản dịch", nhóm `group_wujia_translator`, admin implied).
+- `wujia.i18n.term` (module, kind `model|model_terms|code_python|code_js`, name, res_id, src, `key_hash` md5, active) — khoá:
+  chuỗi DB theo (kind, model,field, xmlid, src); chuỗi code theo (kind, src) vì Odoo tra code theo msgid/module.
+  `_wj_scan(modules, langs)` = `TranslationModuleReader` mỗi ngôn ngữ 1 lượt; upsert, **không đè `override`**, term mất ⇒ archive.
+- `wujia.i18n.value` (term × lang, value, state `synced|override|missing`, `pending`); sửa tay ⇒ override + pending.
+  `action_apply` ⇒ `TranslationImporter._load` + `save(overwrite=True, force_overwrite=True)` + xoá cache `default` (+`templates`
+  nếu view, +`stable` nếu nhãn field). Chuỗi code không áp (chờ T4 xuất `.po` + restart).
+- `ir.module.module._update_translations` override ⇒ áp lại `override` của module vừa nạp (mọi `-u`, bật ngôn ngữ).
+- `wujia.i18n.coverage` (SQL view) module × lang. Wizard quét: mặc định module `wujia_%`/`wj_%` × ngôn ngữ active ≠ en_US.
+- Số đo DB copy (29 module × 3 ngôn ngữ): 4 839 term / 14 517 dòng, quét 3,1 s (lại 1,8 s) ⇒ chạy đồng bộ, không cần cron.
+- ⚠️ Cho T4/JR: **90% câu gốc portal (1 384/1 533) viết cứng tiếng Việt**, module portal không có `i18n/` ⇒ độ phủ portal ≈0%
+  ở cả 3 tiếng; vi_VN "chưa dịch" nhưng hiển thị đúng (câu gốc đã là VN). zh/th phải dịch từ câu VN. Cân nhắc ở T4: coi
+  vi_VN = câu gốc khi src có dấu tiếng Việt (để độ phủ không báo sai).
 
 ## 4. Prompt từng phiên
 
@@ -154,3 +181,50 @@ L3b, depends `wujia_portal_base` + `wujia_franchise_operations`. Chia theo **ch�
 
 ---
 
+
+---
+
+## 6. Phần V — Việt hoá source (lập 05/10, ưu tiên trước J-T4)
+
+**Vì sao**: quét `scripts/qa/vn_hardcode_scan.py` ra **2 659 chuỗi tiếng Việt viết cứng** (code team ≈ 2 375, Thái 284) + 945 trong
+test — chi tiết `docs/vn-hardcode-inventory.{md,csv}`. Odoo chỉ dịch khi câu gốc là tiếng Anh ⇒ portal EN/ZH/TH vẫn hiện tiếng
+Việt dù có tool dịch. Tool `wujia_i18n` (T1+T2) đã sẵn để kiểm độ phủ sau mỗi phiên V.
+
+**Quy ước mỗi phiên V1–V8** (chốt ở V0):
+1. Câu gốc trong QWeb/Python/JS → tiếng Anh (ngắn, rõ; không dịch máy câu dài — giữ nghĩa nghiệp vụ).
+2. Dòng glossary `key=<EN>, VN=<câu cũ>` ⇒ `sync_translations.py` sinh `vi_VN.po` + `.pot` ⇒ **user vi_VN thấy y như cũ**.
+3. Hằng nhãn Python (`ROLE_LABELS`, `RETURN_STATUS_LABELS`, `SALE_STATE_META`…) → `_lt()`; thông báo controller → `_()`.
+4. Câu trong biểu thức `t-out="… or 'Chưa có'"` → tách `<t t-set>` (dịch được) hoặc truyền từ controller.
+5. Test assert theo nhãn VN: chạy với `lang=vi_VN` (có `.po`) hoặc assert theo key; không xoá assert.
+6. Nghiệm thu: quét lại module = 0 · probe text 26 route × vi_VN **0 lệch chữ** + ảnh 0 lệch · en_US/th_TH chụp ảnh không vỡ
+   layout (câu tiếng Anh/Thái dài hơn) · suite module 0 đỏ mới · độ phủ trong app "Bản dịch" vi_VN ≈100%.
+
+**J-V0 — chốt quy ước + công cụ (0 sửa giao diện)**. Câu phải hỏi chủ dự án/BA trước khi code:
+- (a) **JS portal không có `_t`** (script Vuexy thuần, ngoài bundle Odoo): chọn 1 — truyền chuỗi qua `data-*` từ QWeb (khuyên dùng,
+  dịch bằng `.po` như QWeb) · hoặc 1 từ điển JSON render server-side `window.wjI18n` · hoặc đưa JS vào bundle Odoo để dùng `_t`.
+- (b) 1 user portal + admin UAT đang `en_US` ⇒ sau V họ thấy **tiếng Anh**. Đổi ngôn ngữ mặc định user mới/portal thành vi_VN
+  (`base.default_user` + user hiện có) hay chấp nhận?
+- (c) Có bật **zh_CN trên UAT** không (đang chỉ en/th/vi)? ZH/TH/ngôn ngữ mới **dịch bằng J-T5 (DeepL) + người bản xứ rà**
+  (chủ dự án 05/10) ⇒ Phần V chỉ cần câu EN + VI, không dịch tay ZH/TH.
+- (d) Câu tiếng Anh do dev đặt — BA có cần duyệt bộ câu EN không, hay chỉ duyệt VN (giữ nguyên) + ZH/TH?
+Công cụ V0: script `vn_to_en_pairs.py` gom (EN mới, VN cũ) → glossary + kiểm trùng nghĩa; probe text vi_VN trước/sau (dùng lại
+`scratchpad/b2/b2_probe.py` 26 route); thêm `vn_hardcode_scan.py --module` để đo từng phiên.
+
+## 6b. J-T5 — Dịch tự động (chủ dự án 05/10: "chọn ngôn ngữ rồi dịch add ào")
+
+Mục tiêu: thêm ngôn ngữ mới = chọn ngôn ngữ → bấm dịch → rà → Áp dụng, không cần dev. Làm sau J-T4 (câu nguồn EN sạch sau Phần V
+thì dịch máy mới chuẩn; chuỗi code dịch xong vẫn đi đường xuất `.po` + restart của J-T4).
+- **Nhà cung cấp cắm được**: lớp provider chung, DeepL trước; API key + gói (Free/Pro) trong Settings (`ir.config_parameter`,
+  chỉ admin). Ngôn ngữ DeepL không hỗ trợ ⇒ báo rõ trên wizard (kiểm danh sách ngôn ngữ DeepL lúc code), chừa chỗ provider khác.
+- **Wizard**: chọn ngôn ngữ đích (chưa active ⇒ bật + quét), module, phạm vi (chỉ "Chưa dịch" / cả "Đã dịch" chưa sửa tay);
+  ước số ký tự trước khi gửi; chạy nền theo lô (cron + `_trigger`), không treo request.
+- **Giữ nguyên định dạng**: `%s`, `%(x)s`, `{x}`, thẻ HTML/QWeb (`tag_handling=xml`), khoảng trắng đầu/cuối; kiểm lại sau dịch,
+  lệch placeholder ⇒ không nhận, đánh dấu lỗi.
+- **Glossary thuật ngữ** (trà sữa, nhượng quyền, tên sản phẩm) gửi kèm DeepL glossary; không bao giờ đè bản `override`.
+- **Trạng thái mới `machine`** (dịch máy, chờ rà): lọc riêng, BA/người bản xứ duyệt ⇒ `synced`/`override` rồi Áp dụng; độ phủ
+  tách "dịch máy" với "đã duyệt".
+- Câu hỏi chủ dự án/BA: tài khoản DeepL (Free 500k ký tự/tháng hay Pro — kiểm hạn mức lúc code), đồng ý gửi chuỗi giao diện ra
+  DeepL, ai rà từng ngôn ngữ.
+
+**Code của Thái** (`wujia_portal_inspection` 178 · `wujia_franchise_inspection` 94 · `wujia_franchise` 7 · `_contract` 3 ·
+`_operations` 2): KHÔNG sửa; ★VR gửi Thái danh sách (lọc CSV cột `owner=Thái`).

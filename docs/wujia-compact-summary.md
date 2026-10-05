@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-04 · **LẬP CỤM J + J-B1 BRANDING** — chủ dự án chốt 3 việc mới làm TRƯỚC Issue List: branding cấu hình trong Settings (`wujia_core`), tool dịch backend `wujia_i18n` (bản đầy đủ), portal Vận hành `wujia_portal_operations` trên backend của Thái. Lộ trình + prompt: `docs/next-session-clusters-J.md`. J-B1 (`de64704`) + J-B2 xong (áp brand vào portal/backend, chưa deploy). Phiên kế: **J-T1** tool dịch. Issue List 15 Ready for Dev chờ sau cụm J.
+**Cập nhật:** 2026-10-05 · **CỤM J — J-T1+T2 TOOL DỊCH XONG + LẬP PHẦN V (VIỆT HOÁ SOURCE)** — module `wujia_i18n` (app "Bản dịch"). Quét ra **2 659 chuỗi tiếng Việt viết cứng** ⇒ chủ dự án chốt làm **Phần V (V0–V8 + ★VR) TRƯỚC** J-T4 → J-O → Issue List. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-V0**.
 
 ---
 
@@ -123,6 +123,8 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-10-05 · J-T1+T2 + lập Phần V) — TOOL DỊCH `wujia_i18n` XONG, CHƯA COMMIT/DEPLOY; LẬP PHẦN V + BACKLOG TỔNG.** `wujia_i18n` 19.0.1.0.0 (L1): `wujia.i18n.term`/`.value`/`.coverage` + wizard quét (`TranslationModuleReader`, 29 module × 3 ngôn ngữ = 4 839 term, 3,1 s) + Áp dụng (`TranslationImporter` force_overwrite + xoá cache đúng loại, không restart) + override `ir.module.module._update_translations` áp lại bản sửa tay sau `-u`. 12 test, mutation 7/7, E2E `-u --i18n-overwrite` giữ bản sửa. Cụm J gộp: T1+T2 gộp, bỏ T3, O3+O4 gộp. **Phát hiện:** 2 659 chuỗi VN viết cứng (`scripts/qa/vn_hardcode_scan.py`, `docs/vn-hardcode-inventory.{md,csv}`; Thái 284) ⇒ **Phần V** ở `next-session-clusters-J.md` §6. UAT: ngôn ngữ bật en/th/vi (chưa zh), user portal 6 vi + 1 en. **Pending:** xem `docs/pending-backlog.md` (thứ tự: V0…★VR → J-T4 → J-O → cụm I → 156–167 → H; chờ lệnh commit + deploy J-B2/J-T/top bar 992; 4 câu hỏi V0).
 
 **State (2026-10-04 · lập cụm J + J-B1) — BRANDING CÓ NGUỒN CẤU HÌNH; CHƯA ÁP VÀO PORTAL; CHƯA COMMIT.** `wujia_core` 19.0.2.0.0 (depends +`web`): `res.company` `wj_brand_name` · `wj_primary_color` (#RRGGBB, mặc định #28A9DF) · `wj_logo_mobile` · `wj_favicon` · `wj_login_background` (logo PC = `logo` sẵn có) + tab Settings "Thương hiệu" + `_wj_brand_info()` (ormcache, write brand ⇒ clear_cache) + `_wj_brand_url(kind, width)` + route public `/wj/brand/<cid>/<kind>` + `tools/brand_palette.py` (mặc định = bộ token BA, css rỗng ⇒ 0 pixel đổi; màu khác sinh HSL, CTA ≥4.5:1). Test DB trắng 10/0, mutation 5/5. **Bẫy:** KHÔNG `-u wujia_core --test-enable` trên DB đủ module (test franchise của Thái import file đã xoá). **J-B2 (04/10) ✅:** portal_layout 19.0.60.0.0 dùng `wj_brand` (head/logo URL/CSS màu/câu `{brand}`), backend favicon + title fallback; HTML −36%; 0 lệch ở cấu hình mặc định. **Pending:** J-T1…T4 → J-O0…O4 → ★JR → Issue List (cụm I + 156–167) · I0 push/deploy `bea5fa8` · deploy J-B2 (`-u` 12 module, xem f-progress) · khôi phục filestore local (`scripts/dev/filestore_*.py`).
 
