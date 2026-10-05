@@ -6,8 +6,8 @@
                 <!-- ===== Desktop (>=992px) — Figma wujia_pc_01_account_info_v3 (read-only).
                      Profile do HQ (Ngô Gia) quản lý → chỉ hiển thị, không form sửa. ===== -->
                 <t t-set="acct_page" t-value="'profile'"/>
-                <t t-set="acct_title">Tài khoản</t>
-                <t t-set="acct_subtitle">Quản lý thông tin người dùng portal đang đăng nhập</t>
+                <t t-set="acct_title">Account</t>
+                <t t-set="acct_subtitle">Manage the signed-in portal user</t>
                 <t t-set="acct_store_code" t-value="franchise_code"/>
                 <t t-set="acct_store_name" t-value="franchise_name"/>
                 <t t-set="acct_role_label" t-value="role_label"/>
@@ -27,15 +27,15 @@
                             <p class="wj-pc-acct-headcard__sub" t-out="profile.email or user.login"/>
                             <div class="wj-pc-acct-headcard__chips">
                                 <span t-if="role_label" class="wj-pc-badge wj-pc-badge--confirmed" t-out="role_label"/>
-                                <span class="wj-status-badge wj-status-badge--success">Đang hoạt động</span>
+                                <span class="wj-status-badge wj-status-badge--success">Enabled</span>
                             </div>
                         </div>
                         <div class="wj-pc-acct-headcard__box">
-                            <span class="wj-pc-acct-headcard__box-label">Cửa hàng hiện tại</span>
+                            <span class="wj-pc-acct-headcard__box-label">Current store</span>
                             <span class="wj-pc-acct-headcard__box-value">
                                 <t t-out="franchise_code or ''"/><t t-if="franchise_code and franchise_name"> · </t><t t-out="franchise_name or '—'"/>
                             </span>
-                            <span class="wj-pc-acct-headcard__box-sub">Dữ liệu hiển thị theo cửa hàng đang thao tác</span>
+                            <span class="wj-pc-acct-headcard__box-sub">Data is shown for the active store</span>
                         </div>
                     </t>
 
@@ -44,13 +44,13 @@
                         <t t-set="sc_class" t-value="'wj-pc-card'"/>
                         <div class="wj-pc-card__head">
                             <div>
-                                <h3 class="wj-pc-acct-panel-title">Thông tin cá nhân</h3>
-                                <p class="wj-pc-acct-panel-sub">Các thông tin cơ bản của tài khoản portal</p>
+                                <h3 class="wj-pc-acct-panel-title">Personal information</h3>
+                                <p class="wj-pc-acct-panel-sub">Basic details of your portal account</p>
                             </div>
                         </div>
                         <div class="wj-pc-acct-kv-grid">
                             <div class="wj-pc-acct-field">
-                                <span class="wj-pc-acct-field__label">Họ tên</span>
+                                <span class="wj-pc-acct-field__label">Full name</span>
                                 <span class="wj-pc-acct-field__value" t-out="profile.name or '—'"/>
                             </div>
                             <div class="wj-pc-acct-field">
@@ -58,30 +58,30 @@
                                 <span class="wj-pc-acct-field__value" t-out="profile.email or '—'"/>
                             </div>
                             <div class="wj-pc-acct-field">
-                                <span class="wj-pc-acct-field__label">Số điện thoại</span>
+                                <span class="wj-pc-acct-field__label">Phone number</span>
                                 <span class="wj-pc-acct-field__value" t-out="profile.phone or '—'"/>
                             </div>
                             <div class="wj-pc-acct-field">
-                                <span class="wj-pc-acct-field__label">Vai trò portal</span>
+                                <span class="wj-pc-acct-field__label">Portal role</span>
                                 <span class="wj-pc-acct-field__value wj-pc-acct-field__value--chip">
                                     <span t-if="role_label" class="wj-pc-badge wj-pc-badge--confirmed" t-out="role_label"/>
                                     <t t-else="">—</t>
                                 </span>
                             </div>
                             <div class="wj-pc-acct-field">
-                                <span class="wj-pc-acct-field__label">Cửa hàng hiện tại</span>
+                                <span class="wj-pc-acct-field__label">Current store</span>
                                 <span class="wj-pc-acct-field__value">
                                     <t t-out="franchise_code or ''"/><t t-if="franchise_code and franchise_name"> — </t><t t-out="franchise_name or '—'"/>
                                 </span>
                             </div>
                             <div class="wj-pc-acct-field">
-                                <span class="wj-pc-acct-field__label">Trạng thái tài khoản</span>
+                                <span class="wj-pc-acct-field__label">Account status</span>
                                 <span class="wj-pc-acct-field__value wj-pc-acct-field__value--chip">
-                                    <span class="wj-status-badge wj-status-badge--success">Đang hoạt động</span>
+                                    <span class="wj-status-badge wj-status-badge--success">Enabled</span>
                                 </span>
                             </div>
                         </div>
-                        <t t-set="wj_txt">Thông tin tài khoản được quản lý bởi {brand}. Vui lòng liên hệ quản trị nếu cần cập nhật.</t>
+                        <t t-set="wj_txt">Account details are managed by {brand}. Please contact the administrator to update them.</t>
                         <div class="wj-pc-acct-note" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                     </t>
                 </t>
@@ -96,13 +96,13 @@
                     <t t-call="wujia_portal_layout.wj_page_header">
                         <t t-set="ph_platform" t-value="'m'"/>
                         <t t-set="ph_variant" t-value="'title'"/>
-                        <t t-set="ph_title">Tài khoản</t>
+                        <t t-set="ph_title">Account</t>
                     </t>
 
                     <t t-call="wujia_portal_layout.wj_surface_card">
                         <t t-set="sc_variant" t-value="'section'"/>
                         <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
-                        <h2 class="wujia-maccount-cardtitle">Hồ sơ cá nhân</h2>
+                        <h2 class="wujia-maccount-cardtitle">My profile</h2>
                         <div class="wujia-maccount-head">
                             <img class="wujia-maccount-avatar"
                                  t-attf-src="/portal/profile/avatar/{{ user.id }}" alt="Avatar"/>
@@ -110,11 +110,11 @@
                                 <span class="wujia-maccount-name" t-out="user.name"/>
                                 <span class="wujia-maccount-login" t-out="user.login"/>
                             </div>
-                            <span class="wj-status-badge wj-status-badge--success">Active</span>
+                            <span class="wj-status-badge wj-status-badge--success">Enabled</span>
                         </div>
                         <div class="wujia-maccount-kvlist">
                             <div class="wujia-maccount-kv">
-                                <span class="wujia-maccount-kv-key">Họ tên</span>
+                                <span class="wujia-maccount-kv-key">Full name</span>
                                 <span class="wujia-maccount-kv-val" t-out="profile.name or '—'"/>
                             </div>
                             <div class="wujia-maccount-kv">
@@ -126,15 +126,15 @@
                                 <span class="wujia-maccount-kv-val" t-out="profile.email or '—'"/>
                             </div>
                             <div class="wujia-maccount-kv">
-                                <span class="wujia-maccount-kv-key">SĐT</span>
+                                <span class="wujia-maccount-kv-key">Phone</span>
                                 <span class="wujia-maccount-kv-val" t-out="profile.phone or '—'"/>
                             </div>
                             <div class="wujia-maccount-kv">
-                                <span class="wujia-maccount-kv-key">Cửa hàng</span>
+                                <span class="wujia-maccount-kv-key">Store</span>
                                 <span class="wujia-maccount-kv-val" t-out="franchise_name or '—'"/>
                             </div>
                             <div class="wujia-maccount-kv">
-                                <span class="wujia-maccount-kv-key">Vai trò</span>
+                                <span class="wujia-maccount-kv-key">Role</span>
                                 <span class="wujia-maccount-kv-val" t-out="role_label or '—'"/>
                             </div>
                         </div>

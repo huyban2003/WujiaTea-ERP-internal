@@ -15,6 +15,8 @@ from lxml import etree
 
 from odoo.tests import HttpCase, TransactionCase, tagged
 
+from .common import load_vi
+
 from .test_e7_page_container import _body
 
 HERE = os.path.dirname(__file__)
@@ -142,6 +144,11 @@ class TestSidebarJs(TransactionCase):
 
 @tagged('post_install', '-at_install', 'wujia_e8')
 class TestSidebarShell(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = load_vi(cls.env)
 
     def _arch(self, key):
         return self.env.ref(key).arch

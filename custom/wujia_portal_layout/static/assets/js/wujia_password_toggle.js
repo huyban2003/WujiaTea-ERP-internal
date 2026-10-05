@@ -5,6 +5,10 @@
 (function () {
     "use strict";
 
+    function msg(el, key, fallback) {
+        return window.wjMsg ? window.wjMsg(el, key, fallback) : fallback;
+    }
+
     function toggle(btn) {
         // Mobile eye-icon wrapper (.wujia-maccount-pwd) + PC text toggle (.wj-pc-acct-pw-input)
         // + màn auth Figma v3 (.wj-auth-pwd, Sprint 39).
@@ -19,8 +23,8 @@
             icon.classList.toggle("icon-eye", !show);
             icon.classList.toggle("icon-eye-off", show);
         } else {
-            // PC text toggle "Hiện" ↔ "Ẩn".
-            btn.textContent = show ? "Ẩn" : "Hiện";
+            // PC text toggle Show ↔ Hide — câu dịch lấy từ #wj-msgs (wj_msg.js, J-V1).
+            btn.textContent = show ? msg(btn, "hide", "Hide") : msg(btn, "show", "Show");
         }
         btn.classList.toggle("is-active", show);
     }

@@ -8,6 +8,12 @@
         return new URLSearchParams(new FormData(form)).toString();
     }
 
+    // Câu dịch theo ngôn ngữ user: lấy từ data-wj-msg-unsaved-changes (wj_msg.js, J-V1).
+    function message(el) {
+        const fallback = "You have unsaved changes. Leave this page?";
+        return window.wjMsg ? window.wjMsg(el, "unsaved-changes", fallback) : fallback;
+    }
+
     function init() {
         const forms = document.querySelectorAll("form[data-wj-dirty-guard]");
         if (!forms.length) return;
@@ -30,7 +36,7 @@
 
         document.querySelectorAll(".wj-page-header__back").forEach(function (link) {
             link.addEventListener("click", function (ev) {
-                if (isDirty() && !window.confirm("Bạn có thay đổi chưa lưu. Rời khỏi trang?")) {
+                if (isDirty() && !window.confirm(message(link))) {
                     ev.preventDefault();
                 }
             });

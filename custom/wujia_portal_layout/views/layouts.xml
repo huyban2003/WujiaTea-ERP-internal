@@ -42,6 +42,7 @@
                         var odoo = odoo || {};
                         odoo.__session_info__ = <t t-out="json.dumps(request.env['ir.http'].get_frontend_session_info())"/>;
                     </script>
+                    <t t-call="wujia_portal_layout.wj_msgs"/>
                     <t t-call="wujia_portal_layout.asset_frontend_js"/>
                     <t t-call-assets="web.assets_frontend" t-js="true" t-css="false"/>
                 </body>
@@ -66,7 +67,7 @@
                                     </li>
                                     <li class="nav-item mobile-menu d-xl-none mr-auto">
                                         <button type="button" class="nav-link nav-menu-main menu-toggle hidden-xs wj-menu-toggle"
-                                                aria-label="Mở menu" aria-controls="wj-main-menu" aria-expanded="false">
+                                                aria-label="Open menu" aria-controls="wj-main-menu" aria-expanded="false">
                                             <i class="ficon feather icon-menu" aria-hidden="true"/>
                                         </button>
                                     </li>
@@ -98,7 +99,7 @@
                                      Active item suy từ request.httprequest.path. -->
                                 <li class="dropdown dropdown-user nav-item">
                                     <a class="dropdown-toggle nav-link dropdown-user-link" href="#"
-                                       data-toggle="dropdown" role="button" aria-label="Tài khoản"
+                                       data-toggle="dropdown" role="button" aria-label="Account"
                                        aria-haspopup="true" aria-expanded="false">
                                         <!-- UI-03 (cụm B): avatar đứng TRƯỚC tên theo source v1.5.
                                              Đảo DOM chứ không dùng `order` để thứ tự đọc màn hình
@@ -141,13 +142,13 @@
             <!-- CMP-SN-001 (E8b): sidebar PC 264. ≥1200 cố định; 992–1199 drawer đóng mặc định
                  (wujia_sidebar.js); <992 không hiển thị (mobile dùng bottom-nav). -->
             <div class="main-menu menu-fixed menu-light menu-accordion menu-shadow wj-sidebar"
-                 id="wj-main-menu" role="navigation" aria-label="Điều hướng chính"
+                 id="wj-main-menu" role="navigation" aria-label="Main navigation"
                  data-scroll-to-active="true">
                 <div class="navbar-header wj-sidebar__brand">
                     <a class="navbar-brand wj-sidebar__logo" href="/portal">
                         <img t-if="wj_brand['has_logo']" t-att-src="env.company._wj_brand_url('logo', 180)" t-att-alt="wj_brand['name']"/>
                     </a>
-                    <button type="button" class="wj-sidebar__close" aria-label="Đóng menu">
+                    <button type="button" class="wj-sidebar__close" aria-label="Close menu">
                         <i class="feather icon-x" aria-hidden="true"/>
                     </button>
                 </div>
@@ -159,9 +160,9 @@
                     <t t-set="_p" t-value="request.httprequest.path or ''"/>
                     <ul class="navigation navigation-main" id="main-menu-navigation"
                         data-menu="menu-navigation">
-                        <li class="navigation-header wujia-nav-header" id="nav_header_main"><span>Chức năng chính</span></li>
-                        <li class="navigation-header wujia-nav-header" id="nav_header_finance"><span>Tài chính &amp; xử lý</span></li>
-                        <li class="navigation-header wujia-nav-header" id="nav_header_ops"><span>Hỗ trợ vận hành</span></li>
+                        <li class="navigation-header wujia-nav-header" id="nav_header_main"><span>Main features</span></li>
+                        <li class="navigation-header wujia-nav-header" id="nav_header_finance"><span>Finance &amp; processing</span></li>
+                        <li class="navigation-header wujia-nav-header" id="nav_header_ops"><span>Operations support</span></li>
                         <li class="wj-sidebar__end" id="nav_end" aria-hidden="true"/>
                         <t t-out="0"/>
                     </ul>
@@ -221,9 +222,22 @@
                 <body class="vertical-layout vertical-menu-modern 1-column  navbar-floating footer-static bg-full-login  blank-page blank-page wj-auth-body"
                       data-open="click" data-menu="vertical-menu-modern" data-col="1-column">
                     <t t-out="0"/>
+                    <t t-call="wujia_portal_layout.wj_msgs"/>
                     <t t-call="wujia_portal_layout.asset_frontend_js"/>
                 </body>
             </html>
+        </template>
+
+        <!-- J-V1: câu JS dùng chung mọi màn. Text node trong <t t-set> dịch được bằng .po,
+             data-wj-msg-* thì không ⇒ gắn qua t-att. JS đọc bằng wjMsg(el, key, fallback). -->
+        <template id="wj_msgs">
+            <t t-set="_m_unsaved">You have unsaved changes. Leave this page?</t>
+            <t t-set="_m_show">Show</t>
+            <t t-set="_m_hide">Hide</t>
+            <div id="wj-msgs" hidden="hidden" aria-hidden="true"
+                 t-att-data-wj-msg-unsaved-changes="_m_unsaved"
+                 t-att-data-wj-msg-show="_m_show"
+                 t-att-data-wj-msg-hide="_m_hide"/>
         </template>
 
         <template id="dashboard">

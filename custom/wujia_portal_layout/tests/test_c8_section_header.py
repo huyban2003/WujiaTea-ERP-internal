@@ -12,11 +12,18 @@ from markupsafe import Markup
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import load_vi
+
 TMPL = 'wujia_portal_layout.wj_section_header'
 
 
 @tagged('post_install', '-at_install', 'wujia_section_header_c8')
 class TestSectionHeaderComponent(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = load_vi(cls.env)
 
     def _root(self, **values):
         values.setdefault('sh_title', 'Tiêu đề')

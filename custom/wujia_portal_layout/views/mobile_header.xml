@@ -20,7 +20,7 @@
         <header class="wujia-mheader d-lg-none">
             <!-- Logo slot (placeholder per BA; dùng company.logo_web tạm — BA sẽ cấp
                  logo tối ưu mobile sau). -->
-            <a href="/portal" class="wujia-mheader-logo" aria-label="Trang chủ">
+            <a href="/portal" class="wujia-mheader-logo" aria-label="Home">
                 <img t-if="wj_brand['has_logo'] or wj_brand['has_logo_mobile']" t-att-src="env.company._wj_brand_url('logo_mobile', 180)"
                      t-att-alt="wj_brand['name']" class="wujia-mheader-logo-img"/>
             </a>
@@ -51,7 +51,7 @@
                 <!-- Avatar (dropdown profile / change-password / logout, như desktop). -->
                 <div class="dropdown dropdown-user wujia-mheader-action-wrap">
                     <a class="wujia-mheader-action wujia-mheader-avatar dropdown-toggle" href="#"
-                       data-toggle="dropdown" role="button" aria-label="Tài khoản"
+                       data-toggle="dropdown" role="button" aria-label="Account"
                        aria-haspopup="true" aria-expanded="false">
                         <!-- UI-04 (Sprint 34): real photo when uploaded, else generic user
                              icon (image_128 is False for portal users w/o avatar; avatar_128

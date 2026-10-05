@@ -16,6 +16,8 @@ from lxml import etree, html
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import load_vi
+
 TMPL = 'wujia_portal_layout.wj_filter_bar'
 HERE = os.path.dirname(__file__)
 CSS_DIR = os.path.join(HERE, '..', 'static', 'assets', 'css')
@@ -41,6 +43,11 @@ def _view(module, filename):
 
 @tagged('post_install', '-at_install', 'wujia_filter_e4')
 class TestFilterBarTemplate(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = load_vi(cls.env)
 
     def _render(self, slots=None, **ctx):
         sets = ''.join(
@@ -321,6 +328,11 @@ class TestFilterBarE4b1Contract(TransactionCase):
 @tagged('post_install', '-at_install', 'wujia_filter_e4')
 class TestFilterBarE4b2MobileContract(TransactionCase):
     """E4b2 — hợp đồng khi nhân component ra 6 thanh lọc mobile."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = load_vi(cls.env)
 
     _render = TestFilterBarTemplate._render
     _mobile = TestFilterBarTemplate._mobile

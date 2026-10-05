@@ -7,7 +7,7 @@ ghi `f-progress.md`. Nguồn gom: compact summary §5, `f-progress.md` (mục N�
 
 | # | Lô | Nội dung | Số phiên | Plan |
 |---|---|---|---|---|
-| 1 | **Phần V — Việt hoá source** | 2 659 chuỗi VN viết cứng → tiếng Anh + `.po` (~~V0~~ ✅ 05/10 → **V1** … V8 → ★VR) | 9 còn lại | `next-session-clusters-J.md` §6 |
+| 1 | **Phần V — Việt hoá source** | 2 659 chuỗi VN viết cứng → tiếng Anh + `.po` (~~V0~~ ~~V1~~ ✅ 05/10 → **V2** … V8 → ★VR) | 8 còn lại | `next-session-clusters-J.md` §6 |
 | 2 | J-T4 | Tool dịch: nhập/xuất CSV kiểu Thái + zip `.po/.pot` | 1 | `next-session-clusters-J.md` §5 |
 | 2b | J-T5 | Tool dịch: dịch tự động DeepL — chọn ngôn ngữ → dịch hàng loạt → rà → Áp dụng | 1 | `next-session-clusters-J.md` §6b |
 | 3 | J-O0…O4 + ★JR | Portal Vận hành nhượng quyền (O0 đối chiếu + câu hỏi BA → O1 luật → O2 → O3+O4 → review) — **tạm gác, chủ dự án hỏi BA trước (05/10)**; chưa có trả lời thì nhảy sang lô 4 | 5 | `next-session-clusters-J.md` §5 |
@@ -21,7 +21,9 @@ chủ dự án trước khi làm lô kế.
 ## 2. Chờ lệnh chủ dự án (làm được ngay khi có lệnh)
 
 - [x] ~~Commit J-T1+T2~~ — `ba08698e`, đã push 05/10.
-- [ ] **Commit J-V0** (`wujia_i18n` 19.0.1.1.0 + `wujia_portal_layout` 19.0.60.1.0 + 2 script mới + docs/i18n-pairs + baseline).
+- [x] ~~Commit J-V0~~ — `d2966119`, đã ở `origin/main`.
+- [ ] **Commit J-V1** (`wujia_portal_layout` 19.0.60.2.0 + `i18n/` mới + glossary +171 + pairs + mốc vi_VN + `vn_hardcode_scan.py`).
+- [ ] **Deploy UAT J-V1**: nằm sẵn trong lệnh `-u` J-B2 (`wujia_portal_layout`) — **phải restart** sau `-u` (chuỗi `_()` đọc `.po` lúc nạp).
 - [ ] **Deploy UAT J-V0**: gộp vào lệnh `-i wujia_i18n` (tự bật zh_CN) (`wujia_portal_layout` đã có trong lệnh `-u` J-B2 ⇒ không thêm lệnh).
 - [ ] **Deploy UAT J-B2**: `-u wujia_core,wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_sale,wujia_portal_exam,`
       `wujia_portal_return,wujia_portal_support,wujia_portal_delivery,wujia_portal_notification,wujia_portal_purchase_history,wujia_return`.
@@ -47,7 +49,10 @@ chủ dự án trước khi làm lô kế.
 - [ ] Áp `auto_install: True` cho module ghép thuần (`portal_report`, `portal_purchase_history`, `portal_delivery`, 3 mobile Thái) — 1 phiên, sau 7 câu ADR-027.
 - [ ] Nợ chapter 77: ghi trực tiếp ở `portal_sale` (chuyển về L2) · `_sql_constraints` cũ → `models.Constraint` · tài liệu bàn giao Thái.
 - [ ] 2 error fixture có sẵn trong suite `wujia_sale`.
-- [ ] `lang.js` code chết (template đầu tư) vẫn nạp ở `wujia_portal_layout/views/assets.xml:119` ⇒ xoá ở J-V1.
+- [x] ~~`lang.js` code chết~~ — xoá ở J-V1 (+ khối ví/đầu tư trong `my_js.js`, `overview_member.js`, `extensions/i18n.js`).
+- [ ] ★VR gom: template `signup_form`/`signup` + `forgot_pass_back` (`wujia_portal_layout`, tiếng Anh, không route nào render) ⇒ xoá ·
+      gallery dev `/portal/_pc-preview` còn ~19 nhãn kỹ thuật tiếng Anh (chỉ nhân viên nội bộ) ⇒ để nguyên ·
+      404 `/vi/app-assets/data/locales/en.json` (i18next của Vuexy `app.js`, có từ trước) ⇒ no-op sớm hơn.
 - [ ] `@route(type='json')` deprecated (Odoo 19 ⇒ `jsonrpc`) ở 5 controller portal (exam, info_request, knowledge, notification, sale) + `wj_ks_dashboard_ninja` — gộp vào phiên V cùng module (`wujia_franchise_inspection` là của Thái).
 - [ ] `check_layers.py`: 3 module chưa phân tầng (`wujia_audit`, `wujia_fields_value`, `wujia_metabase_connector`) · R7 ×2 trong `wujia_franchise` (Thái).
 - [ ] Tool dịch: vi_VN báo "chưa dịch" với câu gốc đã là tiếng Việt (tự hết sau Phần V) · chuỗi code chỉ áp sau xuất `.po` + restart (J-T4).
@@ -62,6 +67,7 @@ web_survey_ui" · `msgid ""` rỗng ở `wujia_franchise_inspection.py:1725` · 
 ## 5. Dọn máy local (không ảnh hưởng UAT)
 
 - [ ] Khôi phục filestore local (`scripts/dev/filestore_pack.py` máy còn filestore → `filestore_restore.py` trên Mac).
-- [ ] Xoá DB nháp: `wujia_b1`, `wujia_b1t`, `wujia_b2`, `wujia_b2h`, `wujia_b2t`, `wujia_b2u`, `wujia_t1`, `wujia_t1t` + các DB đo cũ
+- [ ] Xoá DB nháp: `wujia_b1`, `wujia_b1t`, `wujia_b2`, `wujia_b2h`, `wujia_b2t`, `wujia_b2u`, `wujia_t1t`, `wujia_v0t`, `wujia_v1t`, `wujia_v1b`
+      (**giữ `wujia_t1`** tới hết Phần V — mốc `docs/i18n-baseline/vi_VN.json` đo trên nó) + các DB đo cũ
       (`wujia_e4*`, `wujia_f*`, `wujia_fra3_*`, `wujia_g*`, `wujia_rhythm_*`) + filestore tương ứng + worktree `scratchpad/b2/head`.
 - [ ] Dừng các server Odoo cũ còn giữ slot Postgres (g1, g3s, g5s:8055, e4b1, b2…).

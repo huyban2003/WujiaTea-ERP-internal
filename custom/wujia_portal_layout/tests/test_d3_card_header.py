@@ -17,12 +17,19 @@ from markupsafe import Markup
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import load_vi
+
 TMPL = 'wujia_portal_layout.wj_card_header'
 CSS_DIR = os.path.join(os.path.dirname(__file__), '..', 'static', 'assets', 'css')
 
 
 @tagged('post_install', '-at_install', 'wujia_card_header_d3')
 class TestCardHeaderComponent(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = load_vi(cls.env)
 
     def _root(self, **values):
         values.setdefault('ch_title', 'Tiêu đề')

@@ -11,7 +11,7 @@
              không thể sinh ra lúc render bằng t-att-id. Lớp `active` cũng ở <li> — module
              tự khai điều kiện theo route của mình, dùng biến `_p` layout đặt sẵn, và truyền
              cùng điều kiện đó qua `ni_active` để mục đang mở có aria-current="page". -->
-        <template id="wj_nav_item" name="Wujia — thân mục sidebar PC">
+        <template id="wj_nav_item" name="Wujia — PC sidebar item body">
             <a t-att-href="ni_href" t-att-aria-current="'page' if ni_active else None">
                 <i t-attf-class="#{ni_icon}" aria-hidden="true"/>
                 <span class="menu-title"><t t-out="ni_label"/></span>
@@ -30,7 +30,7 @@
         </template>
 
         <!-- Dòng trong sheet "Thêm chức năng". Nội dung t-call = badge trong tiêu đề. -->
-        <template id="wj_msheet_item" name="Wujia — dòng sheet Thêm">
+        <template id="wj_msheet_item" name="Wujia — More sheet row">
             <a t-att-href="mi_href" t-attf-class="wujia-msheet-item #{mi_class or ''}">
                 <span class="wujia-msheet-item-icon"><i t-attf-class="#{mi_icon}"/></span>
                 <span class="wujia-msheet-item-text">

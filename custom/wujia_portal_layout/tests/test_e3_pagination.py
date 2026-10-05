@@ -16,6 +16,8 @@ from lxml import html
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import load_vi
+
 TMPL = 'wujia_portal_layout.wj_pagination'
 CSS_DIR = os.path.join(os.path.dirname(__file__), '..', 'static', 'assets', 'css')
 ELLIPSIS = '…'
@@ -59,6 +61,11 @@ def _pgn(total, page, page_size, *, item_label='bản ghi', page_size_options=()
 
 @tagged('post_install', '-at_install', 'wujia_pagination_e3')
 class TestPaginationTemplate(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = load_vi(cls.env)
 
     def _render(self, pgn):
         arch = ('<t t-name="wujia_portal_layout.wj_pgn_probe">'

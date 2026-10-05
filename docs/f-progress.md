@@ -2164,3 +2164,43 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ để lại: commit J-V0 (chờ lệnh) · deploy J-B2 + J-T + J-V0 · xoá DB nháp `wujia_v0t` (+ `wujia_t1t`, b1/b2 cũ) · I0 treo.
 - Phiên kế: **J-V1** — `wujia_portal_layout`: điền EN cho `docs/i18n-pairs/wujia_portal_layout.csv` → check → apply → sửa tay
   (helper `wjMsg` + `#wj-msgs`, xoá `lang.js`) → `.po` → probe 0 lệch.
+
+## J-V1 Việt hoá source `wujia_portal_layout` + helper `wjMsg` · 05/10/2026 · Mac
+- Kết quả: ✅ code + test, **chưa commit/push/deploy**, 0 ghi sheet (không có ID Issue List).
+- Đầu phiên: `git pull` (up to date; J-V0 `d2966119` đã ở origin). `issue_queue --dev` = 15 Ready for Dev (không đổi, chờ sau cụm J).
+- Đã làm (`wujia_portal_layout` 19.0.60.2.0):
+  - Câu gốc → tiếng Anh: `vn_to_en_pairs.py apply` thay 204/205 dòng tự động (`docs/i18n-pairs/wujia_portal_layout.csv` điền đủ EN,
+    `check` 0 lỗi — 3 EN đổi vì đụng glossary: "Hoàn tất"=Finished, "Đang xử lý"=Processing, "Đang hoạt động"=Enabled); sửa tay 54:
+    `_ROLE_LABELS` → `_lt()` · `_()` nối literal gộp 1 · nhãn mặc định component (`Xem tất cả`, `Tạo mới`, filter bar `Tìm kiếm/Tất cả/
+    Xóa lọc/Từ/Đến/Từ ngày/Đến ngày`) → `<t t-set>` dịch được · gallery `pc_preview` · tên kỹ thuật template sang EN.
+  - Form đổi mật khẩu: viền đỏ ô lỗi theo `error_field` (`old`/`new`/`confirm`) controller trả, bỏ dò chữ trong câu lỗi (dịch xong là chết).
+  - JS: helper mới `static/assets/js/wj_msg.js` (`wjMsg(el, key, fallbackEN)`) nạp ở `asset_frontend_js` + khối chung
+    `wujia_portal_layout.wj_msgs` (`#wj-msgs`: unsaved-changes/show/hide) ở cả layout app và layout đăng nhập; `wj_back_guard.js`,
+    `wujia_password_toggle.js` dùng helper. Xoá JS chết: `lang.js` + khối ví/đầu tư `my_js.js` (route `/bcore/*` không tồn tại),
+    `overview_member.js`, `extensions/i18n.js`. `vn_hardcode_scan.py` bỏ qua `pick-a-datetime.js` (lib, chữ Pháp).
+  - Tiếng Việt không dấu máy quét sót (`Trang sau`, `/ trang`, `Trang x / y`, `Xem`) → EN, bắt bằng danh sách msgid chưa dịch của `.po`.
+  - Chuỗi tiếng Anh có sẵn mà user VN vẫn thấy: `Wrong login/password` (lỗi đăng nhập sai), nhãn `Login`/badge `Active` profile mobile,
+    alt `avatar`, aria `Breadcrumb`/`Language` ⇒ nay ra tiếng Việt.
+  - `i18n/vi_VN.po` + `.pot` mới (218 msgid, 185 dịch); glossary +171 dòng; test helper `tests/common.py::load_vi`.
+- Số đo:
+  - `vn_hardcode_scan --module wujia_portal_layout --fail-on-any` = **0** (trước 259).
+  - DB trắng `wujia_v1t`: suite `/wujia_portal_layout` **257/0** (250 cũ — 18 đỏ do assert nhãn VN ⇒ chạy `lang=vi_VN`, không xoá assert —
+    + 7 test mới `test_jv1_i18n`). Mutation: trả dò chữ cũ + gỡ `#wj-msgs` ⇒ đỏ đúng 3/3.
+  - DB copy `wujia_v1b` (từ `wujia_t1`): suite `/wujia_portal_base` **316/0**.
+  - `wj_text_probe` vi_VN 52 trang so mốc V0: chữ hiển thị lệch **chỉ 2 trang** (profile 1440/390: `Active`→`Đang hoạt động`,
+    `Login`→`Tên đăng nhập` — chủ ý); attr: alt/aria sang tiếng Việt + 3 `data-wj-msg-*`. Đo lại 2 lần 0/52 ⇒ **mốc mới**
+    `docs/i18n-baseline/vi_VN.json` cho V2.
+  - Ảnh en_US/th_TH 1440 + 390 (login, home, profile, đổi mật khẩu, lịch sử, công nợ, menu avatar): 0 tràn ngang, không vỡ bố cục;
+    nút Show/Hide + câu rời trang đúng ngôn ngữ (vi: Hiện/Ẩn). Console chỉ còn 404 `app-assets/data/locales/en.json` (có từ trước).
+  - App "Bản dịch" độ phủ vi_VN `wujia_portal_layout` **85,5%** (213/249); 36 còn lại không tới user: gallery dev, metadata
+    `ir.model`, mã đơn mẫu, 2 template cũ không route nào render.
+- Lệch / LIMIT: plan đặt `wj_msg.js` trong bundle `web.assets_frontend` ⇒ đổi sang `asset_frontend_js` vì layout đăng nhập không nạp
+  bundle. th_TH/zh_CN của khung chưa có bản dịch (thấy EN) — đúng plan, chờ J-T5 DeepL. Chữ VN còn trên màn (sidebar, chip vai trò
+  topbar, "Hồ sơ cửa hàng") thuộc `portal_base` ⇒ V2.
+- Bài học: máy quét theo dấu sót chữ không dấu ⇒ luôn xem msgid chưa dịch sau sync · Odoo gom thẻ inline thành 1 term ⇒ glossary
+  đúng msgid đó · `sync --import` xong phải restart server mới thấy (cache template) · `_()` module không mượn bản dịch core.
+- Lệnh deploy: không thêm — `wujia_portal_layout` đã trong lệnh `-u` J-B2; **restart sau `-u`**.
+- Nợ để lại: commit J-V1 (chờ lệnh) · deploy J-B2 + J-T + J-V0 + J-V1 · xoá DB nháp `wujia_v1t`, `wujia_v1b` (giữ `wujia_t1` tới hết
+  Phần V) · ★VR: xoá template `signup*`/`forgot_pass_back` chết · I0 treo.
+- Phiên kế: **J-V2** — `wujia_portal_base` (382 chuỗi): `draft` → điền EN → `check` → `apply` → sửa tay (`ROLE_LABELS`, nav item, home KPI,
+  chip vai trò topbar) → `.po` + liệt kê msgid chưa dịch → test `load_vi` → probe so mốc mới.

@@ -117,6 +117,8 @@ Quy ước + lý do: `docs/next-session-clusters-J.md` §6. Python env Odoo (c�
 3. `vn_to_en_pairs.py apply --module X` → thay QWeb text/attr dịch được + `_()`/`string=` + thêm glossary; in danh sách sửa tay.
 4. Sửa tay theo §6: `t-out="… or 'Chưa có'"` → `<t t-set>`; hằng nhãn Python → `_lt()`; chuỗi JS → `data-wj-msg-*` + `wjMsg()`;
    attr không dịch (`data-*`, `value` không phải input) → `<t t-set>`. Test assert nhãn VN → chạy với `lang=vi_VN`.
-5. `scripts/sync_translations.py --modules X --langs vi_VN --import` → `i18n/vi_VN.po` + `.pot` (tự tạo thư mục `i18n/`).
-6. `-u X` + restart ⇒ `vn_hardcode_scan.py --module X --fail-on-any` = 0 · `wj_text_probe.py --diff before after` = 0 trang lệch ·
+5. `-u X` trên DB đo rồi `scripts/sync_translations.py --modules X --langs vi_VN --db <DB> --import` → `i18n/vi_VN.po` + `.pot` (tự tạo
+   `i18n/`). **Liệt kê msgid chưa dịch** của `.po` (babel) — bắt tiếng Việt KHÔNG dấu mà máy quét sót (J-V1: `Trang sau`, `/ trang`) và
+   term Odoo gom cả thẻ inline (`<span>…</span>`) ⇒ thêm glossary đúng msgid đó rồi chạy lại.
+6. `-u X` + **restart** (server đang chạy giữ cache template ⇒ probe ra chữ cũ) ⇒ `vn_hardcode_scan.py --module X --fail-on-any` = 0 · `wj_text_probe.py --diff before after` = 0 trang lệch ·
    chụp en_US/th_TH không vỡ layout · suite module 0 đỏ mới · app "Bản dịch" độ phủ vi_VN ≈100%.

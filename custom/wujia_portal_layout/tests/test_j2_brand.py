@@ -11,6 +11,8 @@ from PIL import Image
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
+from .common import load_vi
+
 
 def _png(color):
     buf = io.BytesIO()
@@ -24,12 +26,13 @@ class TestPortalBrand(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.env = load_vi(cls.env)
         cls.company = cls.env.company
         cls.company.write({'wj_brand_name': 'Trà ABC', 'wj_primary_color': '#E4572E',
                            'logo': _png('red'), 'wj_favicon': False,
                            'wj_logo_mobile': False, 'wj_login_background': False})
         cls.user = cls.env['res.users'].create({
-            'name': 'j2_me', 'login': 'j2_me', 'password': 'j2_me',
+            'name': 'j2_me', 'login': 'j2_me', 'password': 'j2_me', 'lang': 'vi_VN',
             'group_ids': [(6, 0, [cls.env.ref('base.group_portal').id])]})
 
     def _get(self, url):

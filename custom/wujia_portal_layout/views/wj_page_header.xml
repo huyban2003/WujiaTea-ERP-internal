@@ -15,11 +15,11 @@
                  giữ filter/page → fallback list cha). Icon arrow-left ở PC, chevron ở mobile. -->
             <a t-if="ph_variant == 'back'"
                t-att-href="request.env['ir.http']._wj_back_url(ph_back_url)"
-               class="wj-page-header__back" aria-label="Quay lại">
+               class="wj-page-header__back" aria-label="Back">
                 <i t-attf-class="feather icon-#{'arrow-left' if ph_platform == 'pc' else 'chevron-left'}"/>
                 <!-- Nhãn chỉ hiện ở PC (nút chữ 122×40); mobile ẩn bằng CSS để giữ nút
                      tròn 42×42 + vùng chạm 44. -->
-                <span class="wj-page-header__back-label">Quay lại</span>
+                <span class="wj-page-header__back-label">Back</span>
             </a>
             <h1 class="wj-page-header__title" t-att-title="ph_title" t-out="ph_title"/>
             <!-- ph_meta (CMP-PG-001): markup thô, KHÔNG bọc element — 3 route có meta là slot
@@ -29,7 +29,8 @@
                  class="wj-page-header__actions">
                 <a t-att-href="ph_create_url or '#'" class="wj-page-header__create">
                     <i class="feather icon-plus"/>
-                    <span t-out="ph_create_label or 'Tạo mới'"/>
+                    <t t-set="_ph_t_create">Create</t>
+                    <span t-out="ph_create_label or _ph_t_create"/>
                 </a>
             </div>
         </header>

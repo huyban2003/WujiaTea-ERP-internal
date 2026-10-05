@@ -9,12 +9,12 @@
              hiện tại · Đổi cửa hàng · Hồ sơ cửa hàng] · Đăng xuất. Khung chỉ giữ route của chính
              nó; nhóm cửa hàng do module sở hữu route chèn TRƯỚC neo `acct_store_end` (neo là
              data-attribute, không phải id, vì partial render hai lần trên cùng trang). -->
-        <template id="wj_acct_menu_items" name="Wujia — thân menu avatar (PC + mobile)">
+        <template id="wj_acct_menu_items" name="Wujia — avatar menu body (PC + mobile)">
             <t t-set="_am_path" t-value="request.httprequest.path or ''"/>
             <a t-attf-class="dropdown-item #{_am_path == '/portal/profile' and 'is-active' or ''}"
                href="/portal/profile" t-att-aria-current="'page' if _am_path == '/portal/profile' else None">
                 <i class="feather icon-user" aria-hidden="true"/>
-                Thông tin tài khoản
+                Account information
             </a>
             <a t-attf-class="dropdown-item #{_am_path == '/portal/change-password' and 'is-active' or ''}"
                href="/portal/change-password"
@@ -25,11 +25,11 @@
                      stroke-linejoin="round" aria-hidden="true">
                     <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
                 </svg>
-                Đổi mật khẩu
+                Change password
             </a>
             <div class="dropdown-divider"/>
-            <div class="wj-acct-menu__group" role="group" aria-label="Ngôn ngữ">
-                <span class="wj-acct-menu__label" aria-hidden="true">Ngôn ngữ</span>
+            <div class="wj-acct-menu__group" role="group" aria-label="Language">
+                <span class="wj-acct-menu__label" aria-hidden="true">Language</span>
                 <a t-foreach="request.env['ir.http']._wj_portal_langs()" t-as="l"
                    t-attf-class="dropdown-item wj-acct-menu__lang #{l['current'] and 'is-current' or ''}"
                    t-attf-href="/portal/set-lang/{{l['code']}}"
@@ -42,7 +42,7 @@
             <div class="dropdown-divider" data-wj-anchor="acct_store_end"/>
             <a class="dropdown-item wj-acct-menu__logout" href="/portal/logout">
                 <i class="feather icon-log-out" aria-hidden="true"/>
-                Đăng xuất
+                Sign out
             </a>
         </template>
     </data>

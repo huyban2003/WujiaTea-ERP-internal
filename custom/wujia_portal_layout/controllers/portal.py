@@ -16,6 +16,7 @@ from werkzeug.exceptions import Forbidden, NotFound
 from odoo import _, http
 from odoo.exceptions import AccessDenied, UserError, ValidationError
 from odoo.http import request
+from odoo.tools.translate import LazyTranslate
 
 from .utils import safe_local_path
 
@@ -31,7 +32,8 @@ _AVATAR_MIME = ('image/png', 'image/jpeg', 'image/jpg', 'image/webp')
 
 # Role label map — bản local (wujia_portal_layout KHÔNG depend wujia_portal_base
 # nên KHÔNG import ROLE_LABELS từ đó; xem registry-guard ở _resolve_active_store).
-_ROLE_LABELS = {'owner': 'Chủ tiệm', 'manager': 'Quản lý', 'staff': 'Nhân viên'}
+_lt = LazyTranslate(__name__)
+_ROLE_LABELS = {'owner': _lt('Store owner'), 'manager': _lt('Manager'), 'staff': _lt('Staff')}
 # Cookie chứa franchise đang chọn — owned by wujia_portal_base. Đọc theo tên
 # (coupling bằng string, có guard) để hiển thị "Cửa hàng / Vai trò" ở màn profile.
 _ACTIVE_FRANCHISE_COOKIE = 'wujia_active_franchise_id'
@@ -69,7 +71,7 @@ class WujiaPortalLayout(http.Controller):
             if not member:
                 return None, None, None  # multi-franchise chưa chọn store
             fr = member.franchise_id
-            return fr.name, fr.code, _ROLE_LABELS.get(member.role, member.role)
+            return fr.name, fr.code, str(_ROLE_LABELS.get(member.role, member.role))
         except (ValueError, TypeError, AccessDenied):
             return None, None, None
 
@@ -78,7 +80,7 @@ class WujiaPortalLayout(http.Controller):
     def portal_profile(self, **kw):
         fr_name, fr_code, role_label = self._resolve_active_store()
         return request.render('wujia_portal_layout.profile_page', {
-            'title': _('Hồ sơ'),
+            'title': _('Profile'),
             'lang': request.env.lang or 'en',
             'profile': request.env.user.partner_id,
             'user': request.env.user,
@@ -105,9 +107,9 @@ class WujiaPortalLayout(http.Controller):
 
         # Validation
         if not name:
-            return request.redirect('/portal/profile?error=' + _('Họ tên không được trống'))
+            return request.redirect('/portal/profile?error=' + _('Full name is required'))
         if phone and not _PHONE_RE.match(phone):
-            return request.redirect('/portal/profile?error=' + _('Số điện thoại không hợp lệ'))
+            return request.redirect('/portal/profile?error=' + _('Invalid phone number'))
 
         # Build partner vals — KHÔNG cho đổi login email (chỉ partner contact email).
         vals = {'name': name, 'phone': phone, 'street': street}
@@ -126,17 +128,17 @@ class WujiaPortalLayout(http.Controller):
         if avatar and avatar.filename:
             data = avatar.read()
             if len(data) > _AVATAR_MAX_BYTES:
-                return request.redirect('/portal/profile?error=' + _('Ảnh đại diện vượt quá 2MB'))
+                return request.redirect('/portal/profile?error=' + _('Avatar exceeds 2MB'))
             if avatar.mimetype not in _AVATAR_MIME:
-                return request.redirect('/portal/profile?error=' + _('Định dạng ảnh không hỗ trợ'))
+                return request.redirect('/portal/profile?error=' + _('Unsupported image format'))
             try:
                 # image_1920 → Odoo auto-generate _128/_256/_512.
                 user.sudo().write({'image_1920': base64.b64encode(data)})
             except Exception:
                 _logger.exception('Avatar write failed for user %s', user.login)
-                return request.redirect('/portal/profile?error=' + _('Lưu ảnh thất bại'))
+                return request.redirect('/portal/profile?error=' + _('Failed to save image'))
 
-        return request.redirect('/portal/profile?message=' + _('Cập nhật thành công'))
+        return request.redirect('/portal/profile?message=' + _('Updated successfully'))
 
     @http.route('/portal/profile/avatar/<int:user_id>', type='http',
                 auth='user', website=False, sitemap=False)
@@ -177,7 +179,7 @@ class WujiaPortalLayout(http.Controller):
         # Store/role feed the shared PC account-nav card (Figma pc_05..08).
         fr_name, fr_code, role_label = self._resolve_active_store()
         values = {
-            'title': _('Đổi mật khẩu'),
+            'title': _('Change password'),
             'lang': request.env.lang or 'en',
             'user': request.env.user,
             'franchise_name': fr_name,
@@ -191,27 +193,33 @@ class WujiaPortalLayout(http.Controller):
         new_pwd = post.get('new-password') or ''
         confirm = post.get('con-password') or ''
 
+        # error_field = ô cần viền đỏ; template đọc mã này, không dò chữ trong câu lỗi
+        # (câu lỗi đã dịch theo ngôn ngữ user).
         if not old_pwd or not new_pwd:
-            values['error'] = _('Vui lòng nhập đầy đủ.')
+            values['error'] = _('Please fill in all fields.')
         elif new_pwd != confirm:
-            values['error'] = _('Mật khẩu xác nhận không khớp với mật khẩu mới.')
+            values['error'] = _('Password confirmation does not match the new password.')
+            values['error_field'] = 'confirm'
         elif len(new_pwd) < 8:
-            values['error'] = _('Mật khẩu mới tối thiểu 8 ký tự.')
+            values['error'] = _('New password must be at least 8 characters.')
+            values['error_field'] = 'new'
         elif new_pwd == old_pwd:
-            values['error'] = _('Mật khẩu mới phải khác mật khẩu cũ.')
+            values['error'] = _('New password must differ from the old password.')
+            values['error_field'] = 'new'
         else:
             try:
                 # change_password(old, new) tự verify old qua _check_credentials.
                 request.env['res.users'].change_password(old_pwd, new_pwd)
-                values['message'] = _('Mật khẩu đã được cập nhật thành công.')
+                values['message'] = _('Your password has been updated.')
             except AccessDenied:
-                values['error'] = _('Mật khẩu hiện tại không đúng. Vui lòng kiểm tra lại.')
+                values['error'] = _('Current password is incorrect. Please check again.')
+                values['error_field'] = 'old'
             except UserError as e:
                 values['error'] = str(e)
             except Exception:
                 _logger.exception('Change password failed for %s',
                                   request.env.user.login)
-                values['error'] = _('Có lỗi xảy ra. Vui lòng thử lại.')
+                values['error'] = _('Something went wrong. Please try again.')
 
         return request.render('wujia_portal_layout.change_password_page', values)
 

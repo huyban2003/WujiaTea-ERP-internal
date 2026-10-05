@@ -4,7 +4,7 @@
 QA components against the BA SVGs and to copy markup when reworking desktop
 screens in later sprints. Not linked in any portal menu; harmless static markup.
 """
-from odoo import http
+from odoo import _, http
 from odoo.http import request
 
 
@@ -22,5 +22,5 @@ class WujiaPcPreview(http.Controller):
         from odoo.addons.wujia_portal_base.controllers.utils import build_pager
         return request.render('wujia_portal_layout.pc_preview_page', {
             'pgn': build_pager(128, 2, 10, path='/portal/_pc-preview',
-                               item_label='bản ghi', page_size_options=(10, 20, 50)),
+                               item_label=_('records'), page_size_options=(10, 20, 50)),
         })

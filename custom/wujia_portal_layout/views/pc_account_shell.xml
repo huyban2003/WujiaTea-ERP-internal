@@ -17,7 +17,7 @@
                     <t t-call="wujia_portal_layout.wj_page_header">
                         <t t-set="ph_platform" t-value="'pc'"/>
                         <t t-set="ph_variant" t-value="'title'"/>
-                        <t t-set="ph_crumb">Wujia Portal / Tài khoản</t>
+                        <t t-set="ph_crumb">Wujia Portal / Account</t>
                         <t t-set="ph_title" t-value="acct_title"/>
                     </t>
                     <p t-if="acct_subtitle" class="wj-pc-acct-head__sub" t-out="acct_subtitle"/>
@@ -31,7 +31,8 @@
                                  t-att-src="'/web/image/res.users/' + str(request.env.user.id) + '/avatar_128'"/>
                             <div>
                                 <span class="wj-pc-acct-nav__name" t-out="request.env.user.name"/>
-                                <span class="wj-pc-acct-nav__role" t-out="acct_role_label or 'Người dùng portal'"/>
+                                <t t-set="wj_def_role">Portal user</t>
+                                <span class="wj-pc-acct-nav__role" t-out="acct_role_label or wj_def_role"/>
                             </div>
                         </div>
                         <div t-if="acct_store_code or acct_store_name" class="wj-pc-acct-nav__store">
@@ -42,21 +43,21 @@
                             <a href="/portal/profile"
                                t-attf-class="wj-pc-acct-nav__item #{acct_page == 'profile' and 'is-active' or ''}">
                                 <i class="feather icon-user"/>
-                                <span>Thông tin tài khoản</span>
+                                <span>Account information</span>
                             </a>
                             <!-- F5a: mục "Thông tin cửa hàng" do wujia_portal_base chèn
                                  vào (trước mục Đổi mật khẩu) — route của module đó. -->
                             <a href="/portal/change-password"
                                t-attf-class="wj-pc-acct-nav__item #{acct_page == 'password' and 'is-active' or ''}">
                                 <i class="feather icon-lock"/>
-                                <span>Đổi mật khẩu</span>
+                                <span>Change password</span>
                             </a>
                         </nav>
 
                         <div class="wj-pc-acct-nav__divider"/>
                         <a href="/portal/logout" class="wj-pc-acct-nav__item wj-pc-acct-nav__logout">
                             <i class="feather icon-log-out"/>
-                            <span>Đăng xuất</span>
+                            <span>Sign out</span>
                         </a>
                     </aside>
 

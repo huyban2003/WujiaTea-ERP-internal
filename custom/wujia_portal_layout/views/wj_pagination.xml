@@ -9,9 +9,9 @@
            t-value="bool(pgn_sizes) and pgn['total_items'] &gt; min(pgn_sizes)"/>
         <nav t-if="pgn and (pgn['total_pages'] &gt; 1 or pgn_show_size)"
              t-attf-class="wj-pagination#{' is-navless' if pgn['total_pages'] &lt;= 1 else ''}"
-             aria-label="Phân trang">
+             aria-label="Pagination">
             <span class="wj-pagination__count">
-                Hiển thị <t t-out="pgn['from_']"/>–<t t-out="pgn['to']"/>
+                Showing <t t-out="pgn['from_']"/>–<t t-out="pgn['to']"/>
                 / <t t-out="pgn['total_items']"/> <t t-out="pgn['item_label']"/>
             </span>
 
@@ -20,11 +20,11 @@
                 <input t-foreach="pgn['hidden']" t-as="h" type="hidden"
                        t-att-name="h[0]" t-att-value="h[1]"/>
                 <select t-att-name="pgn['size_param']" class="wj-pagination__size"
-                        aria-label="Số dòng mỗi trang"
+                        aria-label="Rows per page"
                         onchange="this.form.requestSubmit()">
                     <option t-foreach="pgn_sizes" t-as="ps" t-att-value="ps"
                             t-att-selected="'selected' if ps == pgn['page_size'] else None">
-                        <t t-out="ps"/> / trang
+                        <t t-out="ps"/> / page
                     </option>
                 </select>
             </form>
@@ -35,11 +35,11 @@
                 <span t-if="pgn_first" class="wj-pagination__btn is-disabled"
                       aria-disabled="true">
                     <span class="wj-pagination__chev" aria-hidden="true">‹</span>
-                    <span class="wj-pagination__label">Trang trước</span>
+                    <span class="wj-pagination__label">Previous page</span>
                 </span>
                 <a t-else="" t-att-href="pgn['prev_url']" class="wj-pagination__btn">
                     <span class="wj-pagination__chev" aria-hidden="true">‹</span>
-                    <span class="wj-pagination__label">Trang trước</span>
+                    <span class="wj-pagination__label">Previous page</span>
                 </a>
 
                 <span class="wj-pagination__pages">
@@ -54,16 +54,16 @@
                     </t>
                 </span>
                 <span class="wj-pagination__status">
-                    Trang <t t-out="pgn['page']"/> / <t t-out="pgn['total_pages']"/>
+                    Page <t t-out="pgn['page']"/> / <t t-out="pgn['total_pages']"/>
                 </span>
 
                 <span t-if="pgn_last" class="wj-pagination__btn is-disabled"
                       aria-disabled="true">
-                    <span class="wj-pagination__label">Trang sau</span>
+                    <span class="wj-pagination__label">Next page</span>
                     <span class="wj-pagination__chev" aria-hidden="true">›</span>
                 </span>
                 <a t-else="" t-att-href="pgn['next_url']" class="wj-pagination__btn">
-                    <span class="wj-pagination__label">Trang sau</span>
+                    <span class="wj-pagination__label">Next page</span>
                     <span class="wj-pagination__chev" aria-hidden="true">›</span>
                 </a>
             </div>

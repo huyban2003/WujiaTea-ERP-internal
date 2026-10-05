@@ -7,6 +7,14 @@
          cơ chế AJAX + query hiện có (FB-07). -->
     <template id="wj_filter_bar" name="Wujia — Filter Bar component">
         <t t-set="_fb_pc" t-value="fb_platform == 'pc'"/>
+        <!-- Nhãn mặc định đặt bằng text node để QWeb dịch được (J-V1). -->
+        <t t-set="_fb_t_search">Search</t>
+        <t t-set="_fb_t_all">All</t>
+        <t t-set="_fb_t_reset">Clear filters</t>
+        <t t-set="_fb_t_from">From</t>
+        <t t-set="_fb_t_to">To</t>
+        <t t-set="_fb_t_from_date">From date</t>
+        <t t-set="_fb_t_to_date">To date</t>
         <!-- Biến thể BA 04-DateRangeOnly: mobile chỉ có ngày ⇒ nút tìm nằm CÙNG hàng. -->
         <t t-set="_fb_inline_go" t-value="not _fb_pc and not fb_search and fb_dates"/>
         <t t-set="_fb_shell"
@@ -22,10 +30,10 @@
                         <input type="text" t-att-name="fb_search['name']"
                                t-att-value="fb_search.get('value') or ''"
                                t-att-placeholder="fb_search.get('placeholder')"
-                               t-att-aria-label="fb_search.get('label') or 'Tìm kiếm'"/>
+                               t-att-aria-label="fb_search.get('label') or _fb_t_search"/>
                     </label>
                     <button t-if="not _fb_pc" type="submit" class="wj-filter-search-btn"
-                            t-att-aria-label="fb_submit_label or 'Tìm kiếm'">
+                            t-att-aria-label="fb_submit_label or _fb_t_search">
                         <i class="feather icon-search"/>
                     </button>
                 </div>
@@ -33,7 +41,7 @@
                 <!-- FB-05: nhãn "Từ"/"Đến" nằm TRONG pill nên vẫn đọc được sau khi chọn ngày. -->
                 <div t-if="fb_dates"
                      t-attf-class="wj-filter-dates#{' wj-filter-dates--compact' if _fb_inline_go else ''}">
-                    <t t-foreach="[('from', 'Từ'), ('to', 'Đến')]" t-as="fbd">
+                    <t t-foreach="[('from', _fb_t_from, _fb_t_from_date), ('to', _fb_t_to, _fb_t_to_date)]" t-as="fbd">
                         <span t-if="fbd[0] == 'to'" class="wj-filter-date-sep">–</span>
                         <label class="wj-filter-date wj-filter-date--hit">
                             <!-- Không kẹp min/max: kẹp thì lịch chặn IM LẶNG cú dời
@@ -44,12 +52,12 @@
                                 <input type="date"
                                        t-att-name="fb_dates.get(fbd[0] + '_name') or ('date_' + fbd[0])"
                                        t-att-value="fb_dates.get(fbd[0]) or ''"
-                                       t-att-aria-label="fbd[1] + ' ngày'"/>
+                                       t-att-aria-label="fbd[2]"/>
                             </span>
                         </label>
                     </t>
                     <button t-if="_fb_inline_go" type="submit" class="wj-filter-search-btn"
-                            t-att-aria-label="fb_submit_label or 'Tìm kiếm'">
+                            t-att-aria-label="fb_submit_label or _fb_t_search">
                         <i class="feather icon-search"/>
                     </button>
                 </div>
@@ -59,7 +67,7 @@
                         <select t-att-name="fbs['name']" class="wj-filter-select"
                                 t-att-aria-label="fbs.get('label') or fbs.get('all_label')"
                                 t-att-onchange="'this.form.requestSubmit()' if fbs.get('auto') else None">
-                            <option value="" t-out="fbs.get('all_label') or 'Tất cả'"/>
+                            <option value="" t-out="fbs.get('all_label') or _fb_t_all"/>
                             <option t-foreach="fbs.get('options') or []" t-as="fbo"
                                     t-att-value="fbo[0]"
                                     t-att-selected="'selected' if str(fbs.get('value') or '') == str(fbo[0]) else None"
@@ -75,11 +83,11 @@
                     <!-- FB-03: mobile không có reset trong Filter, chỉ PC. -->
                     <a t-if="fb_reset_url and _fb_pc" t-att-href="fb_reset_url" data-wj-nav="1"
                        class="wj-pc-btn wj-pc-btn--secondary"
-                       t-out="fb_reset_label or 'Xóa lọc'"/>
+                       t-out="fb_reset_label or _fb_t_reset"/>
                     <button type="submit"
                             t-attf-class="#{'wj-pc-btn wj-pc-btn--primary' if _fb_pc else 'wj-filter-search-btn wj-filter-search-btn--wide'}">
                         <i class="feather icon-search"/>
-                        <span t-out="fb_submit_label or 'Tìm kiếm'"/>
+                        <span t-out="fb_submit_label or _fb_t_search"/>
                     </button>
                 </span>
             </div>

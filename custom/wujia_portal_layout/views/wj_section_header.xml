@@ -22,7 +22,8 @@
 
             <a t-if="_sh_slot == 'action'" t-att-href="sh_action_url"
                class="wj-section-header__action">
-                <span t-out="sh_action_label or 'Xem tất cả'"/>
+                <t t-set="_sh_t_view_all">View all</t>
+                <span t-out="sh_action_label or _sh_t_view_all"/>
                 <i t-if="sh_action_icon" t-attf-class="feather icon-#{sh_action_icon}"/>
             </a>
             <t t-elif="_sh_slot == 'control'" t-out="sh_control"/>

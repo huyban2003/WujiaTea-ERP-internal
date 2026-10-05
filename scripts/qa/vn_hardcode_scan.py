@@ -172,6 +172,12 @@ def scan_xml(path, is_test):
             yield cat, el.sourceline, f'{att}="{val}"'
 
 
+# File thư viện bên thứ ba nằm ngoài vendors/ — chữ có dấu không phải tiếng Việt (J-V1: locale tiếng Pháp mẫu
+# của pickadate, "Février"/"Décembre"). Đường dẫn tính từ gốc module.
+VENDOR_FILES = {
+    'static/assets/js/scripts/pickers/dateTime/pick-a-datetime.js',
+}
+
 SCANNERS = {'.py': scan_python, '.js': scan_js, '.xml': scan_xml, '.css': scan_css, '.scss': scan_css}
 
 
@@ -190,6 +196,8 @@ def scan(only=None, raw=False):
                 if ext not in SCANNERS or f.endswith('.min.js'):
                     continue
                 path = os.path.join(dirpath, f)
+                if os.path.relpath(path, root).replace(os.sep, '/') in VENDOR_FILES:
+                    continue
                 for cat, line, text in SCANNERS[ext](path, is_test):
                     yield mod, owner(mod), cat, os.path.relpath(path, BASE), line, (text if raw else clip(text))
 

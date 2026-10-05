@@ -10,8 +10,8 @@
 
         <template id="wujia_portal_layout.login_form">
             <div class="wj-auth-card">
-                <h1 class="wj-auth-card__title">Đăng nhập tài khoản</h1>
-                <t t-set="wj_txt">Sử dụng tài khoản {brand} đã cấp để truy cập hệ thống.</t>
+                <h1 class="wj-auth-card__title">Sign in to your account</h1>
+                <t t-set="wj_txt">Use the {brand} account issued to you to access the system.</t>
                 <p class="wj-auth-card__sub" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
 
                 <p class="wj-auth-alert wj-auth-alert--error" t-if="error" role="alert">
@@ -27,53 +27,53 @@
                            t-att-value="request.params.get('redirect')"/>
 
                     <div class="wj-auth-field">
-                        <label class="wj-auth-field__label" for="wj-auth-login">Email / Tên đăng nhập</label>
+                        <label class="wj-auth-field__label" for="wj-auth-login">Email / Username</label>
                         <span class="wj-auth-input">
                             <i class="wj-auth-input__icon feather icon-mail"/>
                             <input class="wj-auth-control" type="text" id="wj-auth-login" name="login"
-                                   placeholder="Nhập email hoặc tên đăng nhập" required="required"
+                                   placeholder="Enter email or username" required="required"
                                    autofocus="autofocus" autocapitalize="off" autocomplete="username"
                                    t-att-value="login"/>
                         </span>
                     </div>
 
                     <div class="wj-auth-field">
-                        <label class="wj-auth-field__label" for="wj-auth-password">Mật khẩu</label>
+                        <label class="wj-auth-field__label" for="wj-auth-password">Password</label>
                         <span class="wj-auth-input wj-auth-pwd">
                             <i class="wj-auth-input__icon feather icon-lock"/>
                             <input class="wj-auth-control" type="password" id="wj-auth-password"
-                                   name="password" placeholder="Nhập mật khẩu" required="required"
+                                   name="password" placeholder="Enter password" required="required"
                                    autocomplete="current-password"/>
                             <button class="wj-auth-eye" type="button" data-wujia-pwd-toggle=""
-                                    aria-label="Hiện mật khẩu">
+                                    aria-label="Show password">
                                 <i class="feather icon-eye"/>
                             </button>
                         </span>
                     </div>
 
                     <div class="wj-auth-helper">
-                        <a class="wj-auth-link" href="/portal/forgot-pass">Quên mật khẩu?</a>
+                        <a class="wj-auth-link" href="/portal/forgot-pass">Forgot password?</a>
                     </div>
 
-                    <button class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wj-auth-submit" type="submit">Đăng nhập</button>
+                    <button class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wj-auth-submit" type="submit">Sign in</button>
                 </form>
 
                 <div class="wj-auth-note">
                     <i class="wj-auth-note__icon feather icon-shield"/>
                     <div>
-                        <p class="wj-auth-note__title">Bảo mật tài khoản</p>
-                        <p class="wj-auth-note__text">Không chia sẻ thông tin đăng nhập cho người khác.</p>
+                        <p class="wj-auth-note__title">Account security</p>
+                        <p class="wj-auth-note__text">Do not share your login details with anyone.</p>
                     </div>
                 </div>
 
-                <div class="wj-auth-foot">Cần hỗ trợ? Liên hệ quản trị hệ thống</div>
+                <div class="wj-auth-foot">Need help? Contact the system administrator</div>
             </div>
         </template>
 
         <template id="wujia_portal_layout.login_2fa_form">
             <div class="wj-auth-card wj-auth-card--forgot">
-                <h1 class="wj-auth-card__title">Xác thực hai lớp</h1>
-                <p class="wj-auth-card__sub">Mở ứng dụng xác thực trên thiết bị của bạn để lấy mã và xác minh danh tính.</p>
+                <h1 class="wj-auth-card__title">Two-factor authentication</h1>
+                <p class="wj-auth-card__sub">Open the authenticator app on your device to get a code and verify your identity.</p>
 
                 <p class="wj-auth-alert wj-auth-alert--error" t-if="error" role="alert">
                     <t t-esc="error"/>
@@ -86,36 +86,36 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                     <div class="wj-auth-field">
-                        <label class="wj-auth-field__label" for="wj-auth-totp">Mã xác thực (6 chữ số)</label>
+                        <label class="wj-auth-field__label" for="wj-auth-totp">Verification code (6 digits)</label>
                         <span class="wj-auth-input">
                             <i class="wj-auth-input__icon feather icon-shield"/>
                             <input class="wj-auth-control" type="text" id="wj-auth-totp" name="totp_token"
-                                   placeholder="Nhập 6 chữ số" required="required"
+                                   placeholder="Enter 6 digits" required="required"
                                    inputmode="numeric" autocomplete="one-time-code" autofocus="autofocus"/>
                         </span>
                     </div>
 
-                    <button class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wj-auth-submit" type="submit">Xác nhận</button>
+                    <button class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wj-auth-submit" type="submit">Confirm</button>
                 </form>
 
-                <a class="wj-auth-back" href="/portal/login">← Quay lại đăng nhập</a>
+                <a class="wj-auth-back" href="/portal/login">← Back to sign in</a>
 
                 <div class="wj-auth-note">
                     <i class="wj-auth-note__icon wj-auth-note__icon--chip">i</i>
                     <div>
-                        <p class="wj-auth-note__title">Bảo vệ thông tin tài khoản</p>
-                        <p class="wj-auth-note__text">Mã xác thực chỉ có hiệu lực trong thời gian ngắn.<br/>Không chia sẻ mã cho người khác.</p>
+                        <p class="wj-auth-note__title">Protect your account</p>
+                        <p class="wj-auth-note__text">Verification codes are valid for a short time only.<br/>Do not share the code with anyone.</p>
                     </div>
                 </div>
 
-                <div class="wj-auth-foot">Cần hỗ trợ? Liên hệ quản trị hệ thống</div>
+                <div class="wj-auth-foot">Need help? Contact the system administrator</div>
             </div>
         </template>
 
         <template id="wujia_portal_layout.forgot_pass_form">
             <div class="wj-auth-card wj-auth-card--forgot">
-                <h1 class="wj-auth-card__title">Quên mật khẩu</h1>
-                <p class="wj-auth-card__sub">Nhập email đăng nhập. Nếu thông tin phù hợp, hệ thống sẽ gửi hướng dẫn đặt lại mật khẩu đến email của bạn.</p>
+                <h1 class="wj-auth-card__title">Forgot password</h1>
+                <p class="wj-auth-card__sub">Enter your login email. If it matches an account, we will send password reset instructions to your email.</p>
 
                 <p class="wj-auth-alert wj-auth-alert--error" t-if="error" role="alert">
                     <t t-esc="error"/>
@@ -128,37 +128,37 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                     <div class="wj-auth-field">
-                        <label class="wj-auth-field__label" for="wj-auth-email">Email đăng nhập</label>
+                        <label class="wj-auth-field__label" for="wj-auth-email">Login email</label>
                         <span class="wj-auth-input">
                             <i class="wj-auth-input__icon feather icon-mail"/>
                             <input class="wj-auth-control" type="email" id="wj-auth-email" name="login"
-                                   placeholder="Nhập email đã được cấp" required="required"
+                                   placeholder="Enter the email issued to you" required="required"
                                    autofocus="autofocus" autocapitalize="off" autocomplete="email"
                                    t-att-value="login"/>
                         </span>
                     </div>
 
-                    <button class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wj-auth-submit" type="submit">Gửi hướng dẫn</button>
+                    <button class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wj-auth-submit" type="submit">Send instructions</button>
                 </form>
 
-                <a class="wj-auth-back" href="/portal/login">← Quay lại đăng nhập</a>
+                <a class="wj-auth-back" href="/portal/login">← Back to sign in</a>
 
                 <div class="wj-auth-note">
                     <i class="wj-auth-note__icon wj-auth-note__icon--chip">i</i>
                     <div>
-                        <p class="wj-auth-note__title">Bảo vệ thông tin tài khoản</p>
-                        <p class="wj-auth-note__text">Hệ thống không xác nhận email có tồn tại hay không.<br/>Vui lòng kiểm tra hộp thư và thư rác sau khi gửi.</p>
+                        <p class="wj-auth-note__title">Protect your account</p>
+                        <p class="wj-auth-note__text">We do not confirm whether an email exists.<br/>Please check your inbox and spam folder after sending.</p>
                     </div>
                 </div>
 
-                <div class="wj-auth-foot">Cần hỗ trợ? Liên hệ quản trị hệ thống</div>
+                <div class="wj-auth-foot">Need help? Contact the system administrator</div>
             </div>
         </template>
 
         <template id="wujia_portal_layout.reset_pass_form">
             <div class="wj-auth-card wj-auth-card--forgot">
-                <h1 class="wj-auth-card__title">Đặt lại mật khẩu</h1>
-                <p class="wj-auth-card__sub">Tạo mật khẩu mới cho tài khoản <t t-esc="login"/>.</p>
+                <h1 class="wj-auth-card__title">Reset password</h1>
+                <p class="wj-auth-card__sub">Create a new password for your account <t t-esc="login"/>.</p>
 
                 <p class="wj-auth-alert wj-auth-alert--error" t-if="error" role="alert">
                     <t t-esc="error"/>
@@ -171,47 +171,47 @@
                     <input type="hidden" name="name" t-att-value="name"/>
 
                     <div class="wj-auth-field">
-                        <label class="wj-auth-field__label" for="wj-auth-newpass">Mật khẩu mới</label>
+                        <label class="wj-auth-field__label" for="wj-auth-newpass">New password</label>
                         <span class="wj-auth-input wj-auth-pwd">
                             <i class="wj-auth-input__icon feather icon-lock"/>
                             <input class="wj-auth-control" type="password" id="wj-auth-newpass"
-                                   name="password" placeholder="Tối thiểu 8 ký tự" required="required"
+                                   name="password" placeholder="Minimum 8 characters" required="required"
                                    minlength="8" autocomplete="new-password" autofocus="autofocus"/>
                             <button class="wj-auth-eye" type="button" data-wujia-pwd-toggle=""
-                                    aria-label="Hiện mật khẩu">
+                                    aria-label="Show password">
                                 <i class="feather icon-eye"/>
                             </button>
                         </span>
                     </div>
 
                     <div class="wj-auth-field">
-                        <label class="wj-auth-field__label" for="wj-auth-confirmpass">Xác nhận mật khẩu</label>
+                        <label class="wj-auth-field__label" for="wj-auth-confirmpass">Confirm password</label>
                         <span class="wj-auth-input wj-auth-pwd">
                             <i class="wj-auth-input__icon feather icon-lock"/>
                             <input class="wj-auth-control" type="password" id="wj-auth-confirmpass"
-                                   name="confirm_password" placeholder="Nhập lại mật khẩu mới"
+                                   name="confirm_password" placeholder="Re-enter new password"
                                    required="required" minlength="8" autocomplete="new-password"/>
                             <button class="wj-auth-eye" type="button" data-wujia-pwd-toggle=""
-                                    aria-label="Hiện mật khẩu">
+                                    aria-label="Show password">
                                 <i class="feather icon-eye"/>
                             </button>
                         </span>
                     </div>
 
-                    <button class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wj-auth-submit" type="submit">Đặt lại mật khẩu</button>
+                    <button class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wj-auth-submit" type="submit">Reset password</button>
                 </form>
 
-                <a class="wj-auth-back" href="/portal/login">← Quay lại đăng nhập</a>
+                <a class="wj-auth-back" href="/portal/login">← Back to sign in</a>
 
                 <div class="wj-auth-note">
                     <i class="wj-auth-note__icon feather icon-shield"/>
                     <div>
-                        <p class="wj-auth-note__title">Bảo mật tài khoản</p>
-                        <p class="wj-auth-note__text">Mật khẩu tối thiểu 8 ký tự.<br/>Không chia sẻ thông tin đăng nhập cho người khác.</p>
+                        <p class="wj-auth-note__title">Account security</p>
+                        <p class="wj-auth-note__text">Password must be at least 8 characters.<br/>Do not share your login details with anyone.</p>
                     </div>
                 </div>
 
-                <div class="wj-auth-foot">Cần hỗ trợ? Liên hệ quản trị hệ thống</div>
+                <div class="wj-auth-foot">Need help? Contact the system administrator</div>
             </div>
         </template>
 
@@ -251,19 +251,19 @@
                         </div>
 
                         <div class="wj-auth__pitch">
-                            <div class="wj-auth__eyebrow">CỔNG THÔNG TIN NHƯỢNG QUYỀN</div>
-                            <h1 class="wj-auth__headline">Vận hành cửa hàng<br/>trên một nền tảng</h1>
-                            <t t-set="wj_txt">Theo dõi nghiệp vụ dành cho hệ thống cửa hàng nhượng quyền {brand} trong cùng một cổng thông tin.</t>
+                            <div class="wj-auth__eyebrow">FRANCHISE PORTAL</div>
+                            <h1 class="wj-auth__headline">Run your store<br/>on one platform</h1>
+                            <t t-set="wj_txt">Track daily operations for the {brand} franchise store network in a single portal.</t>
                             <p class="wj-auth__lead" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                             <hr class="wj-auth__rule"/>
                             <div class="wj-auth__features">
-                                <span>Đơn hàng</span>
+                                <span>Orders</span>
                                 <i/>
-                                <span>Giao nhận</span>
+                                <span>Deliveries</span>
                                 <i/>
-                                <span>Công nợ</span>
+                                <span>Debts</span>
                                 <i/>
-                                <span>Thông báo</span>
+                                <span>Notifications</span>
                             </div>
                         </div>
                     </div>

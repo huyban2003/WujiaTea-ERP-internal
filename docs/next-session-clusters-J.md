@@ -52,8 +52,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-T1+T2 | `wujia_i18n`: danh mục chuỗi + màn sửa + quét + Áp dụng ngay + áp lại sau `-u` (gộp 05/10) | wujia_i18n (mới) | ✅ 05/10 — chưa commit |
 | ~~J-T3~~ | ~~Lớp phủ chuỗi Python/JS không restart~~ — **bỏ** (chủ dự án 05/10: chuỗi code đổi ⇒ xuất `.po` + restart) | — | ✗ |
 | J-V0 | Chốt quy ước + công cụ Việt hoá source (xem §6) + khách portal mặc định vi_VN + bật zh_CN | docs, scripts, i18n, portal_layout | ✅ 05/10 — chưa commit |
-| **J-V1** | **Phiên kế.** `wujia_portal_layout` (259) + helper `wjMsg` + khối `#wj-msgs` + xoá `lang.js` chết | portal_layout | ☐ |
-| J-V2 | `wujia_portal_base` (382) | portal_base | ☐ |
+| J-V1 | `wujia_portal_layout` (259) + helper `wjMsg` + khối `#wj-msgs` + xoá `lang.js` chết | portal_layout | ✅ 05/10 — chưa commit |
+| **J-V2** | **Phiên kế.** `wujia_portal_base` (382) | portal_base | ☐ |
 | J-V3 | `wujia_portal_exam` (345) + `wujia_exam` (63) | exam ×2 | ☐ |
 | J-V4 | `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) | sale ×3 | ☐ |
 | J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) | debt | ☐ |
@@ -221,6 +221,21 @@ wjMsg(el, 'upload-failed', 'Upload failed. Please try again.')
 ```
 Câu dùng chung nhiều màn (lỗi mạng, "Có lỗi xảy ra") đặt 1 lần trong `<div id="wj-msgs" hidden …>` ở layout. Fallback trong JS là
 câu tiếng Anh (không còn tiếng Việt trong `.js`).
+
+**J-V1 — ✅ 05/10: helper JS + bài học cho V2–V8**
+- `wjMsg(el, key, fallbackEN)` ở `wujia_portal_layout/static/assets/js/wj_msg.js`, nạp trong `asset_frontend_js` (layout đăng nhập
+  KHÔNG nạp bundle `web.assets_frontend` ⇒ không đặt helper trong bundle). Khối chung `wujia_portal_layout.wj_msgs` (`#wj-msgs`,
+  gọi ở cả 2 layout): `unsaved-changes`, `show`, `hide`. Câu riêng 1 màn ⇒ `data-wj-msg-*` trên phần tử gần nhất. Caller giữ fallback
+  `window.wjMsg ? … : 'EN'`.
+- Nhãn mặc định trong component: `<t t-set="_fb_t_search">Search</t>` rồi `x or _fb_t_search` (đặt tên `_<tiền tố>_t_*`).
+- Logic dò chữ trong câu lỗi (`'không khớp' in error`) phải đổi sang mã (`error_field`) — câu đã dịch thì dò chữ hỏng ở ngôn ngữ khác.
+- ⚠️ `vn_hardcode_scan.py` nhận tiếng Việt qua **dấu** ⇒ sót chữ không dấu (`Trang`, `Trang sau`, `/ trang`, `Xem`). Sau `sync_translations`
+  luôn liệt kê msgid chưa dịch của `.po` ⇒ bắt được nhóm này.
+- Odoo gom phần tử inline thành 1 term (`<span>A &amp; B</span>`, `<span class=…>Login</span>`) ⇒ glossary phải có đúng msgid dạng đó.
+- Chuỗi tiếng Anh có sẵn từ trước mà user thấy (`Wrong login/password`, nhãn `Login`, alt `avatar`, aria `Breadcrumb`) ⇒ dịch luôn
+  (đúng chốt b "VN thấy VN"); `_()` của module KHÔNG dùng bản dịch của Odoo core.
+- Test assert nhãn VN: `tests/common.py::load_vi(env)` (bật vi_VN + nạp `.po` của khung, trả env `lang=vi_VN`); user HttpCase
+  tạo với `'lang': 'vi_VN'`. V2+ chép mẫu này cho module mình (nạp `.po` của chính module).
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

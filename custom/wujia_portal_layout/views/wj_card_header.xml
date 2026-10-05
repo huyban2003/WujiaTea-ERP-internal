@@ -45,7 +45,8 @@
 
             <a t-if="_ch_slot == 'action'" t-att-href="ch_action_url"
                class="wj-card-header__action">
-                <span t-out="ch_action_label or 'Xem tất cả'"/>
+                <t t-set="_ch_t_view_all">View all</t>
+                <span t-out="ch_action_label or _ch_t_view_all"/>
                 <i t-if="ch_action_icon" t-attf-class="feather icon-#{ch_action_icon}"/>
             </a>
             <t t-elif="_ch_slot == 'control'" t-out="ch_control"/>

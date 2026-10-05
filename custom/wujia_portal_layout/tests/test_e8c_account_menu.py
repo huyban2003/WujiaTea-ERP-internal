@@ -11,6 +11,8 @@ from lxml import etree
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase, TransactionCase
 
+from .common import load_vi
+
 FRAME_HREFS = ['/portal/profile', '/portal/change-password', '/portal/set-lang/', '/portal/logout']
 
 
@@ -24,6 +26,11 @@ def _arch(env, xmlid):
 
 @tagged('post_install', '-at_install', 'wujia_e8')
 class TestAccountMenuArch(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = load_vi(cls.env)
 
     def test_than_menu_chi_co_route_khung_dung_thu_tu(self):
         root = _arch(self.env, 'wujia_portal_layout.wj_acct_menu_items')
@@ -76,10 +83,16 @@ class TestAccountMenuArch(TransactionCase):
 class TestAccountMenuRendered(HttpCase):
     """Trang thật của khung — chạy được cả trên DB chỉ cài khung."""
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = load_vi(cls.env)
+
     def setUp(self):
         super().setUp()
         self.env['res.users'].create({
-            'name': 'E8c Acct', 'login': 'e8c.acct@wujia.test', 'password': 'e8c-acct-pw'})
+            'name': 'E8c Acct', 'login': 'e8c.acct@wujia.test', 'password': 'e8c-acct-pw',
+            'lang': 'vi_VN'})
         self.authenticate('e8c.acct@wujia.test', 'e8c-acct-pw')
         res = self.url_open('/portal/profile', timeout=30)
         self.assertEqual(res.status_code, 200)

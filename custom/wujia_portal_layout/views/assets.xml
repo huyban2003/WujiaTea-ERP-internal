@@ -29,6 +29,8 @@
         <template id="asset_frontend_js">
             <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
             <script src="/wujia_portal_layout/static/assets/js/core/libraries/jquery.min.js"/>
+            <!-- J-V1: wjMsg() — chuỗi JS dịch qua data-wj-msg-* (khối #wj-msgs ở layouts.xml). -->
+            <script src="/wujia_portal_layout/static/assets/js/wj_msg.js?v=1"/>
             <script src="/wujia_portal_layout/static/assets/vendors/js/vendors.min.js"/>
             <script src="/wujia_portal_layout/static/assets/vendors/js/pickers/pickadate/picker.js"/>
             <script src="/wujia_portal_layout/static/assets/vendors/js/pickers/pickadate/picker.date.js"/>
@@ -116,8 +118,7 @@
              <!-- UI-PC-BASE-012 (2026-08-03): bộ dò active theo href được thu hẹp phạm vi
                   → bump ?v= vì file này trước giờ không có cache-buster. -->
              <script src="/wujia_portal_layout/static/assets/js/app.js?v=1158"/>
-             <script src="/wujia_portal_layout/static/assets/js/lang.js"/>
-             <script src="/wujia_portal_layout/static/assets/js/my_js.js?v=1320"/>
+             <script src="/wujia_portal_layout/static/assets/js/my_js.js?v=1323"/>
              <!-- Sprint 9.6 (2026-05-25): dynamic body-class swap for responsive menu. -->
              <script src="/wujia_portal_layout/static/assets/js/wujia_responsive_menu.js?v=1010"/>
              <!-- E8b: drawer sidebar 992–1199 (CMP-SN-001). -->
@@ -125,7 +126,7 @@
              <!-- Sprint 14 (2026-06-11): "Thêm" bottom sheet toggle (Figma WJ_MoreBottom). -->
              <script src="/wujia_portal_layout/static/assets/js/wujia_mobile_more_sheet.js?v=1174"/>
              <!-- Sprint 18 (2026-06-15): password eye-toggle (Figma Mobile_Account_Info màn 03). -->
-             <script src="/wujia_portal_layout/static/assets/js/wujia_password_toggle.js?v=1160"/>
+             <script src="/wujia_portal_layout/static/assets/js/wujia_password_toggle.js?v=1161"/>
              <!-- E6a (2026-09-20): loading + chặn submit lặp cho Button CMP-BTN-001.
                   G5 (WJ-ORD-027): thêm sự kiện wj:form:release cho form ở lại trang. -->
              <script src="/wujia_portal_layout/static/assets/js/wujia_button_loading.js?v=1322"/>

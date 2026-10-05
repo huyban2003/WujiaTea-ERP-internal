@@ -94,7 +94,7 @@ class WujiaAuthController(AuthSignupHome):
         if request.httprequest.method == 'POST':
             login = (kw.get('login') or '').strip()
             if not login:
-                values['error'] = _('Vui lòng nhập email.')
+                values['error'] = _('Please enter your email.')
                 return request.render('wujia_portal_layout.forgot_pass', values)
             try:
                 # sudo() vì public user không có quyền search res.users
@@ -111,8 +111,8 @@ class WujiaAuthController(AuthSignupHome):
             # Luôn show success message (anti email-enumeration)
             return request.render('wujia_portal_layout.forgot_pass', {
                 'message': _(
-                    'Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại '
-                    'mật khẩu đã được gửi tới hộp thư của bạn.'
+                    'If the email exists in our system, password reset instructions '
+                    'have been sent to your inbox.'
                 ),
             })
         return request.render('wujia_portal_layout.forgot_pass', values)
@@ -134,9 +134,9 @@ class WujiaAuthController(AuthSignupHome):
             password = qcontext.get('password') or ''
             confirm = qcontext.get('confirm_password') or ''
             if not password or password != confirm:
-                qcontext['error'] = _('Mật khẩu xác nhận không khớp.')
+                qcontext['error'] = _('Password confirmation does not match.')
             elif len(password) < 8:
-                qcontext['error'] = _('Mật khẩu tối thiểu 8 ký tự.')
+                qcontext['error'] = _('Password must be at least 8 characters.')
             else:
                 try:
                     self.do_signup(qcontext)
@@ -147,6 +147,6 @@ class WujiaAuthController(AuthSignupHome):
                     qcontext['error'] = str(e)
                 except Exception:
                     _logger.exception('Reset password error')
-                    qcontext['error'] = _('Có lỗi xảy ra. Vui lòng thử lại.')
+                    qcontext['error'] = _('Something went wrong. Please try again.')
 
         return request.render('wujia_portal_layout.reset_pass', qcontext)
