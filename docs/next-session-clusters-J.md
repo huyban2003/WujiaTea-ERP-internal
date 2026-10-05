@@ -51,8 +51,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-B2 | Áp brand vào portal (head, logo, CSS var) + backend (favicon, title tab) | portal_layout, core (+ ~7 CSS module màn) | ✅ 04/10 — chưa deploy |
 | J-T1+T2 | `wujia_i18n`: danh mục chuỗi + màn sửa + quét + Áp dụng ngay + áp lại sau `-u` (gộp 05/10) | wujia_i18n (mới) | ✅ 05/10 — chưa commit |
 | ~~J-T3~~ | ~~Lớp phủ chuỗi Python/JS không restart~~ — **bỏ** (chủ dự án 05/10: chuỗi code đổi ⇒ xuất `.po` + restart) | — | ✗ |
-| **J-V0** | **Ưu tiên kế (chủ dự án 05/10).** Chốt quy ước + công cụ Việt hoá source (xem §6) | docs, scripts | ☐ |
-| J-V1 | `wujia_portal_layout` (259) + xoá `lang.js` chết | portal_layout | ☐ |
+| J-V0 | Chốt quy ước + công cụ Việt hoá source (xem §6) + khách portal mặc định vi_VN + bật zh_CN | docs, scripts, i18n, portal_layout | ✅ 05/10 — chưa commit |
+| **J-V1** | **Phiên kế.** `wujia_portal_layout` (259) + helper `wjMsg` + khối `#wj-msgs` + xoá `lang.js` chết | portal_layout | ☐ |
 | J-V2 | `wujia_portal_base` (382) | portal_base | ☐ |
 | J-V3 | `wujia_portal_exam` (345) + `wujia_exam` (63) | exam ×2 | ☐ |
 | J-V4 | `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) | sale ×3 | ☐ |
@@ -199,16 +199,39 @@ Việt dù có tool dịch. Tool `wujia_i18n` (T1+T2) đã sẵn để kiểm đ
 6. Nghiệm thu: quét lại module = 0 · probe text 26 route × vi_VN **0 lệch chữ** + ảnh 0 lệch · en_US/th_TH chụp ảnh không vỡ
    layout (câu tiếng Anh/Thái dài hơn) · suite module 0 đỏ mới · độ phủ trong app "Bản dịch" vi_VN ≈100%.
 
-**J-V0 — chốt quy ước + công cụ (0 sửa giao diện)**. Câu phải hỏi chủ dự án/BA trước khi code:
-- (a) **JS portal không có `_t`** (script Vuexy thuần, ngoài bundle Odoo): chọn 1 — truyền chuỗi qua `data-*` từ QWeb (khuyên dùng,
-  dịch bằng `.po` như QWeb) · hoặc 1 từ điển JSON render server-side `window.wjI18n` · hoặc đưa JS vào bundle Odoo để dùng `_t`.
-- (b) 1 user portal + admin UAT đang `en_US` ⇒ sau V họ thấy **tiếng Anh**. Đổi ngôn ngữ mặc định user mới/portal thành vi_VN
-  (`base.default_user` + user hiện có) hay chấp nhận?
-- (c) Có bật **zh_CN trên UAT** không (đang chỉ en/th/vi)? ZH/TH/ngôn ngữ mới **dịch bằng J-T5 (DeepL) + người bản xứ rà**
-  (chủ dự án 05/10) ⇒ Phần V chỉ cần câu EN + VI, không dịch tay ZH/TH.
-- (d) Câu tiếng Anh do dev đặt — BA có cần duyệt bộ câu EN không, hay chỉ duyệt VN (giữ nguyên) + ZH/TH?
-Công cụ V0: script `vn_to_en_pairs.py` gom (EN mới, VN cũ) → glossary + kiểm trùng nghĩa; probe text vi_VN trước/sau (dùng lại
-`scratchpad/b2/b2_probe.py` 26 route); thêm `vn_hardcode_scan.py --module` để đo từng phiên.
+**J-V0 — ✅ 05/10: quy ước đã chốt + công cụ** (chủ dự án trả lời 4 câu):
+
+| # | Câu | Chốt |
+|---|---|---|
+| a | JS portal (Vuexy, không có `_t`) dịch bằng gì | Chuỗi đi từ QWeb sang JS qua `data-wj-msg-*` ⇒ dịch bằng `.po` như QWeb |
+| b | User `en_US` | EN thấy EN, VN thấy VN. **Mặc định vi_VN**: user portal mới (đã có, `portal_base/res_users.py`) + **khách chưa đăng nhập trên `/portal`** (mới, không theo ngôn ngữ trình duyệt). Không đổi user đã chọn en_US |
+| c | Ngôn ngữ | **Bật hết** vi/en/th/**zh_CN** (`wujia_i18n` tự bật lúc `-i`); thêm ngôn ngữ ở Settings là bộ chọn portal có ngay cho mọi người (WJ-LANG-001) |
+| d | BA duyệt câu EN? | **Không.** EN do dev đặt; ZH/TH dịch bằng DeepL (J-T5). Câu cần sửa gom **1 danh sách gửi BA 1 lần ở ★VR** |
+
+**Quy ước JS (a)** — Odoo 19 chỉ dịch attribute trong `TRANSLATED_ATTRS` (`odoo/tools/translate.py:74`: `title`, `placeholder`,
+`aria-label`, `alt`, `data-tooltip`…); `data-*` tuỳ ý **không** dịch. Vì vậy câu đặt trong text node `<t t-set>` (dịch được, như mẫu
+`wj_txt` của J-B2) rồi gắn vào attribute:
+```xml
+<t t-set="wj_msg_upload_failed">Upload failed. Please try again.</t>
+<form class="wj-avatar-form" t-att-data-wj-msg-upload-failed="wj_msg_upload_failed"> … </form>
+```
+```js
+// helper đặt ở wujia_portal_layout (làm ở V1): tìm attr gần nhất từ el lên tổ tiên, rồi khối chung #wj-msgs, cuối cùng fallback.
+wjMsg(el, 'upload-failed', 'Upload failed. Please try again.')
+```
+Câu dùng chung nhiều màn (lỗi mạng, "Có lỗi xảy ra") đặt 1 lần trong `<div id="wj-msgs" hidden …>` ở layout. Fallback trong JS là
+câu tiếng Anh (không còn tiếng Việt trong `.js`).
+
+**Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
+- `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).
+- `vn_to_en_pairs.py draft|check|apply --module X` ⇒ `docs/i18n-pairs/X.csv` (cột `en` lấy sẵn từ glossary nếu VN đã có); `check`
+  bắt EN trống, còn dấu tiếng Việt, placeholder/thẻ lệch, 1 EN cho nhiều VN (msgid trùng = 1 bản dịch), đụng glossary; `apply` thay
+  QWeb text/attr dịch được + `_()`/`string=`, thêm glossary, in danh sách sửa tay. Chạy thử V0 trên bản copy `wujia_portal_layout`:
+  thay 204/205 (1 chuỗi Python nối nhiều literal ⇒ sửa tay), XML/Python hợp lệ, phần còn lại đúng nhóm sửa tay (JS 30 · `t-*` 17 ·
+  hằng Python 4 · attr không dịch 3).
+- `wj_text_probe.py` ⇒ mọi text node (cả modal ẩn) + attr dịch được + `data-wj-msg-*`, số che `#`; 52 trang (21 route + 4 chi tiết +
+  login khách × 1440/390). Mốc vi_VN trên DB `wujia_t1`: `docs/i18n-baseline/vi_VN.json` (2 lần đo 0/52 lệch).
+- `docs/i18n-pairs/wujia_portal_layout.csv` đã draft (259 dòng: auto 205 · sửa tay 54) cho V1.
 
 ## 6b. J-T5 — Dịch tự động (chủ dự án 05/10: "chọn ngôn ngữ rồi dịch add ào")
 

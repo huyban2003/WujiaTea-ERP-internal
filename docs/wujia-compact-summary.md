@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-05 · **CỤM J — J-T1+T2 TOOL DỊCH XONG + LẬP PHẦN V (VIỆT HOÁ SOURCE)** — module `wujia_i18n` (app "Bản dịch"). Quét ra **2 659 chuỗi tiếng Việt viết cứng** ⇒ chủ dự án chốt làm **Phần V (V0–V8 + ★VR) TRƯỚC** J-T4 → J-O → Issue List. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-V0**.
+**Cập nhật:** 2026-10-05 · **CỤM J — J-V0 XONG (quy ước Việt hoá + công cụ; J-T1+T2 đã push `ba08698e`)** · trước đó: J-T1+T2 TOOL DỊCH XONG + LẬP PHẦN V (VIỆT HOÁ SOURCE) — module `wujia_i18n` (app "Bản dịch"). Quét ra **2 659 chuỗi tiếng Việt viết cứng** ⇒ chủ dự án chốt làm **Phần V (V0–V8 + ★VR) TRƯỚC** J-T4 → J-O → Issue List. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-V1** (`wujia_portal_layout`).
 
 ---
 
@@ -123,6 +123,8 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-10-05 · J-V0) — QUY ƯỚC VIỆT HOÁ CHỐT + CÔNG CỤ; CHƯA COMMIT/DEPLOY (J-T1+T2 đã push `ba08698e`).** Chốt: JS portal qua `data-wj-msg-*` (Odoo chỉ dịch attr `TRANSLATED_ATTRS` ⇒ câu trong `<t t-set>`); EN thấy EN, VN thấy VN, **khách `/portal` mặc định vi_VN** (`portal_layout` 19.0.60.1.0 `_pre_dispatch`, không theo Accept-Language); **bật vi/en/th/zh** (`wujia_i18n` 19.0.1.1.0 `_wj_enable_languages`, lúc `-i` + migration); BA không duyệt EN, ZH/TH qua DeepL, gửi BA 1 danh sách ở ★VR. Công cụ: `vn_hardcode_scan --module --fail-on-any` · `vn_to_en_pairs draft|check|apply` (thử copy layout: 204/205 thay, 0 file hỏng) · `wj_text_probe` (52 trang, mốc `docs/i18n-baseline/vi_VN.json`, 2 lần 0 lệch). Test 26/0, mutation đỏ đúng. Quy trình: `scripts/qa/README.md` §Phần V. **Pending:** commit J-V0 · deploy J-B2 + J-T + J-V0 · **J-V1**.
 
 **State (2026-10-05 · J-T1+T2 + lập Phần V) — TOOL DỊCH `wujia_i18n` XONG, CHƯA COMMIT/DEPLOY; LẬP PHẦN V + BACKLOG TỔNG.** `wujia_i18n` 19.0.1.0.0 (L1): `wujia.i18n.term`/`.value`/`.coverage` + wizard quét (`TranslationModuleReader`, 29 module × 3 ngôn ngữ = 4 839 term, 3,1 s) + Áp dụng (`TranslationImporter` force_overwrite + xoá cache đúng loại, không restart) + override `ir.module.module._update_translations` áp lại bản sửa tay sau `-u`. 12 test, mutation 7/7, E2E `-u --i18n-overwrite` giữ bản sửa. Cụm J gộp: T1+T2 gộp, bỏ T3, O3+O4 gộp. **Phát hiện:** 2 659 chuỗi VN viết cứng (`scripts/qa/vn_hardcode_scan.py`, `docs/vn-hardcode-inventory.{md,csv}`; Thái 284) ⇒ **Phần V** ở `next-session-clusters-J.md` §6. UAT: ngôn ngữ bật en/th/vi (chưa zh), user portal 6 vi + 1 en. **Pending:** xem `docs/pending-backlog.md` (thứ tự: V0…★VR → J-T4 → J-O → cụm I → 156–167 → H; chờ lệnh commit + deploy J-B2/J-T/top bar 992; 4 câu hỏi V0).
 

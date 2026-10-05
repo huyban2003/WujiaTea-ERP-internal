@@ -74,3 +74,33 @@ class TestSetLangRoute(HttpCase):
             self.assertIn('/portal/set-lang/%s' % code, body)
         self.assertIn('flag-icon-th', body)
         self.assertTrue(user.lang)  # sanity: user vẫn hợp lệ sau render
+
+
+@tagged('post_install', '-at_install', 'wujia_lang_c10')
+class TestGuestDefaultLang(HttpCase):
+    """J-V0: khách chưa đăng nhập ở /portal mặc định tiếng Việt, không theo trình duyệt."""
+
+    def setUp(self):
+        super().setUp()
+        self.env['res.lang']._activate_lang('vi_VN')
+        self.env['res.lang']._activate_lang('th_TH')
+        self.env.cr.flush()
+
+    def _html_lang(self, url, accept='en-US,en;q=0.9'):
+        body = self.url_open(url, headers={'Accept-Language': accept}).text
+        return body.split('<html', 1)[1].split('>', 1)[0]
+
+    def test_english_browser_gets_vietnamese_login(self):
+        self.assertIn('lang="vi-VN"', self._html_lang('/portal/login'))
+
+    def test_guest_choice_wins(self):
+        self.url_open('/portal/set-lang/th_TH', allow_redirects=False)
+        self.assertIn('lang="th-TH"', self._html_lang('/portal/login'))
+
+    def test_logged_in_user_keeps_own_lang(self):
+        self.env['res.users'].create({
+            'name': 'V0 En', 'login': 'v0.en@wujia.test', 'lang': 'en_US', 'password': 'v0-en-pw',
+            'group_ids': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        self.authenticate('v0.en@wujia.test', 'v0-en-pw')
+        self.assertIn('lang="en-US"', self._html_lang('/portal/profile', accept='vi-VN'))

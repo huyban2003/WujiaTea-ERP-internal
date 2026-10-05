@@ -114,3 +114,23 @@ class TestI18nTool(TransactionCase):
         self.assertEqual(val.state, 'override')
         with self.assertRaises(AccessError):
             val.term_id.write({'src': 'hack'})
+
+
+@tagged('post_install', '-at_install', 'wujia_i18n')
+class TestEnableLanguages(TransactionCase):
+
+    def test_default_languages_active(self):
+        from odoo.addons.wujia_i18n.models.res_lang import WJ_LANGS
+        active = self.env['res.lang']._get_active_by('code')
+        for code in WJ_LANGS:
+            self.assertIn(code, active)
+
+    def test_enable_is_idempotent(self):
+        self.assertEqual(self.env['res.lang']._wj_enable_languages(), [])
+
+    def test_enable_loads_translations(self):
+        Lang = self.env['res.lang']
+        Lang._wj_enable_languages(('ja_JP',))
+        self.assertIn('ja_JP', Lang._get_active_by('code'))
+        menu = self.env.ref('base.menu_administration').with_context(lang='ja_JP')
+        self.assertNotEqual(menu.name, 'Settings')

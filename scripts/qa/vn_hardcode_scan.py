@@ -3,6 +3,8 @@
 
     python3 scripts/qa/vn_hardcode_scan.py                 # in bảng tóm tắt
     python3 scripts/qa/vn_hardcode_scan.py --csv out.csv   # + danh sách từng chuỗi
+    python3 scripts/qa/vn_hardcode_scan.py --module wujia_portal_layout --fail-on-any
+                                                           # nghiệm thu 1 phiên V: exit 1 nếu còn chuỗi (trừ test)
 
 Loại (category):
   qweb_text    chữ trong template/view XML (text node)
@@ -173,8 +175,11 @@ def scan_xml(path, is_test):
 SCANNERS = {'.py': scan_python, '.js': scan_js, '.xml': scan_xml, '.css': scan_css, '.scss': scan_css}
 
 
-def scan():
+def scan(only=None, raw=False):
+    """Yield (module, owner, category, file, line, text). `raw=True` giữ nguyên câu (không cắt/gộp khoảng trắng)."""
     for mod in modules():
+        if only and mod not in only:
+            continue
         root = os.path.join(CUSTOM, mod)
         for dirpath, dirnames, files in os.walk(root):
             dirnames[:] = [d for d in dirnames if d not in ('i18n', '__pycache__', 'lib', 'node_modules', 'vendors', 'vendor')]
@@ -186,14 +191,19 @@ def scan():
                     continue
                 path = os.path.join(dirpath, f)
                 for cat, line, text in SCANNERS[ext](path, is_test):
-                    yield mod, owner(mod), cat, os.path.relpath(path, BASE), line, clip(text)
+                    yield mod, owner(mod), cat, os.path.relpath(path, BASE), line, (text if raw else clip(text))
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--csv')
+    ap.add_argument('--module', help='chỉ quét các module này (phẩy ngăn cách)')
+    ap.add_argument('--fail-on-any', action='store_true', help='exit 1 nếu còn chuỗi ngoài tests/ (thước nghiệm thu phiên V)')
     a = ap.parse_args()
-    rows = list(scan())
+    only = {m.strip() for m in a.module.split(',') if m.strip()} if a.module else None
+    if only and (unknown := only - set(modules())):
+        ap.error('không có module: %s' % ', '.join(sorted(unknown)))
+    rows = list(scan(only))
     if a.csv:
         with open(a.csv, 'w', encoding='utf-8', newline='') as fh:
             w = csv.writer(fh)
@@ -214,6 +224,10 @@ def main():
         tot.update(c)
     print(f'| | **Tổng** | ' + ' | '.join(str(tot.get(k, '')) for k in cats) +
           f' | **{sum(v for k, v in tot.items() if k != "test")}** |')
+    remaining = sum(v for k, v in tot.items() if k != 'test')
+    if a.fail_on_any and remaining:
+        print(f'\nCòn {remaining} chuỗi tiếng Việt viết cứng (trừ test).', file=sys.stderr)
+        return 1
     return 0
 
 

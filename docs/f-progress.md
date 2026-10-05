@@ -2129,3 +2129,38 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   (chưa zh_CN); user portal 6 vi_VN + 1 en_US. `lang.js` portal là code chết template đầu tư, vẫn nạp. `bea5fa8` đã ở origin.
 - Phiên kế: **J-V0** — chốt 4 câu (JS portal dịch bằng gì · user en_US · bật zh_CN · BA duyệt câu EN) + công cụ cặp EN↔VN + probe
   text vi_VN; rồi V1 `wujia_portal_layout`.
+
+## J-V0 Chốt quy ước Việt hoá source + công cụ · 05/10/2026 · Mac
+- Kết quả: ✅ code + test, **chưa commit/deploy** (theo lệnh: chỉ commit + push phần đã làm trước), 0 ghi sheet (không có ID Issue List).
+- Đầu phiên: `git pull` (kéo 8 file mobile của Thái). `issue_queue --dev` = 15 Ready for Dev (không đổi). **Commit + push J-T1+T2
+  `ba08698e`** (chỉ `wujia_i18n` + docs/scripts của phiên; không commit `UI/`, `figma/`, `docs/mockups/`, `wj_measure.json`, `.bak`).
+- Chủ dự án chốt 4 câu V0: (a) JS portal qua `data-wj-msg-*` · (b) EN thấy EN, VN thấy VN, mặc định vi_VN · (c) bật hết vi/en/th/zh,
+  thêm sau tự hiện cho mọi người chọn · (d) BA không duyệt EN; ZH/TH dịch DeepL; câu cần sửa gửi BA 1 lần ở ★VR.
+- Đã làm:
+  - `wujia_i18n` 19.0.1.1.0: `res.lang._wj_enable_languages()` (bật vi/en/th/zh + `_update_translations` từng ngôn ngữ), gọi từ
+    data `noupdate` lúc `-i` + migration 19.0.1.1.0 cho DB đã cài; 3 test.
+  - `wujia_portal_layout` 19.0.60.1.0: `ir.http._pre_dispatch` ⇒ khách chưa đăng nhập trên `/portal*` dùng vi_VN thay vì ngôn ngữ
+    trình duyệt (Odoo lấy Accept-Language cho phiên mới ⇒ sau Phần V trình duyệt tiếng Anh sẽ ra login tiếng Anh); khách đã chọn ở
+    bộ chọn (`PRE_LOGIN_LANG`) và user đã đăng nhập giữ lựa chọn của mình; `/web/login` backend không đụng. 3 test.
+  - Quy ước JS: Odoo 19 chỉ dịch attr trong `TRANSLATED_ATTRS` (`data-*` tuỳ ý không dịch) ⇒ câu đặt trong `<t t-set>` rồi
+    `t-att-data-wj-msg-*`; helper `wjMsg()` + khối `#wj-msgs` làm ở V1. Ghi `next-session-clusters-J.md` §6.
+  - Công cụ: `vn_hardcode_scan.py --module/--fail-on-any` · `vn_to_en_pairs.py draft|check|apply` (mới) · `wj_text_probe.py` (mới,
+    nâng từ `b2_probe.py`) · quy trình 1 phiên V trong `scripts/qa/README.md`. `sync_translations.py` đã tự tạo `i18n/` ⇒ không sửa.
+  - Chuẩn bị V1: `docs/i18n-pairs/wujia_portal_layout.csv` (259 dòng, auto 205 · sửa tay 54, 4 EN lấy sẵn từ glossary).
+- Số đo:
+  - DB trắng `wujia_v0t` `-i wujia_i18n,wujia_portal_layout`: test `/wujia_i18n` + 3 lớp lang `portal_layout` **26/0**; mutation
+    tắt luật khách ⇒ đỏ đúng `test_english_browser_gets_vietnamese_login`.
+  - DB copy `wujia_t1` `-u wujia_i18n,wujia_portal_layout`: RC 0, 0 ERROR; khách `Accept-Language: en-US` ⇒ `/portal/login`
+    `lang="vi-VN"`, `/web/login` không đổi; bộ chọn 4 ngôn ngữ.
+  - `apply` thử trên bản copy `wujia_portal_layout` (EN giả): thay **204/205**, XML/Python hợp lệ 100%, quét lại còn đúng nhóm sửa tay
+    (JS 30 · `t-*` 17 · hằng Python 4 · attr không dịch 3 · 1 `_()` nối nhiều literal). Bắt được bẫy: lxml báo dòng CUỐI của thẻ mở ⇒
+    attr phải tìm ngược lên.
+  - `wj_text_probe` 52 trang × 2 lần: 0/52 lệch ⇒ mốc `docs/i18n-baseline/vi_VN.json` (DB `wujia_t1`, user `anh.owner`; không có
+    chi tiết giao hàng/hỗ trợ/yêu cầu thông tin trong dữ liệu).
+- Lệch / LIMIT: mốc chữ gắn với dữ liệu `wujia_t1` ⇒ V1…V8 đo trên cùng DB. Trang chi tiết thiếu 3 loại (dữ liệu).
+- Bài học: Odoo lấy ngôn ngữ phiên khách từ Accept-Language, không từ `base.public_user.lang`. HttpCase không pin `--db-filter`
+  ⇒ request rơi vào DB mặc định (`wujia_tea_19`) ⇒ đỏ giả. Câu log cũng bị quét ⇒ log viết tiếng Anh.
+- Lệnh deploy (gộp với J-B2/J-T đang chờ): `-i wujia_i18n` (tự bật zh_CN) + `-u` J-B2 (đã gồm `wujia_portal_layout`).
+- Nợ để lại: commit J-V0 (chờ lệnh) · deploy J-B2 + J-T + J-V0 · xoá DB nháp `wujia_v0t` (+ `wujia_t1t`, b1/b2 cũ) · I0 treo.
+- Phiên kế: **J-V1** — `wujia_portal_layout`: điền EN cho `docs/i18n-pairs/wujia_portal_layout.csv` → check → apply → sửa tay
+  (helper `wjMsg` + `#wj-msgs`, xoá `lang.js`) → `.po` → probe 0 lệch.

@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Translations',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Wujia',
     'summary': 'Translation catalog: scan, edit, apply instantly, keep edits across module upgrades',
     'description': """
@@ -15,6 +15,7 @@ Backend translation tool (cluster J, sessions J-T1+T2):
     'depends': ['base', 'web'],
     'data': [
         'security/i18n_security.xml',
+        'data/res_lang_data.xml',
         'security/ir.model.access.csv',
         'wizard/scan_wizard_views.xml',
         'views/i18n_views.xml',

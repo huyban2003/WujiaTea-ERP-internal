@@ -4,8 +4,36 @@ from odoo import models
 from odoo.http import request
 
 
+# Ngôn ngữ portal của khách chưa đăng nhập khi chưa tự chọn (chủ dự án chốt 05/10, J-V0).
+PORTAL_GUEST_LANG = 'vi_VN'
+
+
 class IrHttp(models.AbstractModel):
     _inherit = 'ir.http'
+
+    @classmethod
+    def _pre_dispatch(cls, rule, args):
+        super()._pre_dispatch(rule, args)
+        cls._wj_guest_portal_lang()
+
+    @classmethod
+    def _wj_guest_portal_lang(cls):
+        """Khách chưa đăng nhập trên /portal thấy tiếng Việt, không theo ngôn ngữ trình duyệt.
+
+        Odoo lấy ngôn ngữ phiên mới từ Accept-Language ⇒ trình duyệt tiếng Anh sẽ ra trang login
+        tiếng Anh khi câu gốc đã là tiếng Anh (Phần V). Khách đã chọn ở bộ chọn (PRE_LOGIN_LANG)
+        thì giữ lựa chọn đó; user đã đăng nhập dùng `res.users.lang` như cũ.
+        """
+        from ..controllers.portal import PRE_LOGIN_LANG
+        if request.session.uid or request.session.get(PRE_LOGIN_LANG):
+            return
+        path = request.httprequest.path
+        if path != '/portal' and not path.startswith('/portal/'):
+            return
+        if request.env.lang == PORTAL_GUEST_LANG:
+            return
+        if PORTAL_GUEST_LANG in request.env['res.lang']._get_active_by('code'):
+            request.update_context(lang=PORTAL_GUEST_LANG)
 
     def _wj_portal_path(self, url):
         """Chỉ nhận đích điều hướng NỘI BỘ portal (CMP-BPH-001) — chặn open redirect."""

@@ -7,7 +7,7 @@ ghi `f-progress.md`. Nguồn gom: compact summary §5, `f-progress.md` (mục N�
 
 | # | Lô | Nội dung | Số phiên | Plan |
 |---|---|---|---|---|
-| 1 | **Phần V — Việt hoá source** | 2 659 chuỗi VN viết cứng → tiếng Anh + `.po` (V0 chốt quy ước → V1…V8 → ★VR) | 10 | `next-session-clusters-J.md` §6 |
+| 1 | **Phần V — Việt hoá source** | 2 659 chuỗi VN viết cứng → tiếng Anh + `.po` (~~V0~~ ✅ 05/10 → **V1** … V8 → ★VR) | 9 còn lại | `next-session-clusters-J.md` §6 |
 | 2 | J-T4 | Tool dịch: nhập/xuất CSV kiểu Thái + zip `.po/.pot` | 1 | `next-session-clusters-J.md` §5 |
 | 2b | J-T5 | Tool dịch: dịch tự động DeepL — chọn ngôn ngữ → dịch hàng loạt → rà → Áp dụng | 1 | `next-session-clusters-J.md` §6b |
 | 3 | J-O0…O4 + ★JR | Portal Vận hành nhượng quyền (O0 đối chiếu + câu hỏi BA → O1 luật → O2 → O3+O4 → review) — **tạm gác, chủ dự án hỏi BA trước (05/10)**; chưa có trả lời thì nhảy sang lô 4 | 5 | `next-session-clusters-J.md` §5 |
@@ -20,7 +20,9 @@ chủ dự án trước khi làm lô kế.
 
 ## 2. Chờ lệnh chủ dự án (làm được ngay khi có lệnh)
 
-- [ ] **Commit** J-T1+T2 (`custom/wujia_i18n/` + docs + glossary + `check_layers.py` + `vn_hardcode_scan.py` + inventory).
+- [x] ~~Commit J-T1+T2~~ — `ba08698e`, đã push 05/10.
+- [ ] **Commit J-V0** (`wujia_i18n` 19.0.1.1.0 + `wujia_portal_layout` 19.0.60.1.0 + 2 script mới + docs/i18n-pairs + baseline).
+- [ ] **Deploy UAT J-V0**: gộp vào lệnh `-i wujia_i18n` (tự bật zh_CN) (`wujia_portal_layout` đã có trong lệnh `-u` J-B2 ⇒ không thêm lệnh).
 - [ ] **Deploy UAT J-B2**: `-u wujia_core,wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_sale,wujia_portal_exam,`
       `wujia_portal_return,wujia_portal_support,wujia_portal_delivery,wujia_portal_notification,wujia_portal_purchase_history,wujia_return`.
 - [ ] **Deploy UAT J-T1+T2**: `-i wujia_i18n` → app "Bản dịch" → Quét chuỗi.
@@ -31,7 +33,7 @@ chủ dự án trước khi làm lô kế.
 
 | Chủ đề | Câu hỏi | Chặn lô |
 |---|---|---|
-| Phần V | (a) cơ chế dịch JS portal · (b) user `en_US` sẽ thấy tiếng Anh — đổi mặc định vi_VN? · (c) bật zh_CN trên UAT? ai dịch ZH/TH · (d) BA có duyệt bộ câu EN? | V0 |
+| ~~Phần V~~ | ✅ chốt 05/10 (§6 plan J): JS qua `data-wj-msg-*` · mặc định vi_VN · bật hết vi/en/th/zh · EN không cần BA duyệt, ZH/TH DeepL — **gửi BA 1 danh sách câu cần sửa ở ★VR** | — |
 | Vận hành | Chấm công/nghỉ phép có trong portal? · duyệt ca (cửa hàng/HQ) · Staff xem gì · gắn nhân viên ↔ tài khoản portal · spec Model Field mục G lệch backend · Figma | J-O0 |
 | Dịch tự động | Tài khoản DeepL (Free/Pro) + API key · đồng ý gửi chuỗi giao diện ra DeepL · ai rà từng ngôn ngữ | J-T5 |
 | ADR-027 | 7 câu hỏi BA (chapter 74 §Câu hỏi) | áp `auto_install` |

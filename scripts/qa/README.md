@@ -106,3 +106,17 @@ python3 scripts/qa/check_layers.py --strict   # exit 1 nếu vi phạm — bật
 
 Đọc `__manifest__.py` của `custom/wujia_*`, bảng tầng khai tay trong script (module mới chưa
 khai ⇒ báo "chưa phân tầng", không đoán theo tên cho tầng L1/L2). Luật R1–R5 theo chapter 74.
+
+## Phần V — Việt hoá source (quy trình 1 phiên, chốt J-V0 05/10)
+
+Quy ước + lý do: `docs/next-session-clusters-J.md` §6. Python env Odoo (cần lxml/playwright).
+
+1. `vn_to_en_pairs.py draft --module X` → `docs/i18n-pairs/X.csv`; điền cột `en` (câu ngắn, rõ nghĩa nghiệp vụ). Dòng muốn tự sửa
+   thì `mode=manual`. Đo mốc trước: `wj_text_probe.py --lang vi_VN --out before.json` (hoặc dùng `docs/i18n-baseline/vi_VN.json`).
+2. `vn_to_en_pairs.py check --module X` → 0 lỗi.
+3. `vn_to_en_pairs.py apply --module X` → thay QWeb text/attr dịch được + `_()`/`string=` + thêm glossary; in danh sách sửa tay.
+4. Sửa tay theo §6: `t-out="… or 'Chưa có'"` → `<t t-set>`; hằng nhãn Python → `_lt()`; chuỗi JS → `data-wj-msg-*` + `wjMsg()`;
+   attr không dịch (`data-*`, `value` không phải input) → `<t t-set>`. Test assert nhãn VN → chạy với `lang=vi_VN`.
+5. `scripts/sync_translations.py --modules X --langs vi_VN --import` → `i18n/vi_VN.po` + `.pot` (tự tạo thư mục `i18n/`).
+6. `-u X` + restart ⇒ `vn_hardcode_scan.py --module X --fail-on-any` = 0 · `wj_text_probe.py --diff before after` = 0 trang lệch ·
+   chụp en_US/th_TH không vỡ layout · suite module 0 đỏ mới · app "Bản dịch" độ phủ vi_VN ≈100%.
