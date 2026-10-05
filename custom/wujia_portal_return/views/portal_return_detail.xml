@@ -92,7 +92,8 @@
                                     <t t-if="comp and comp.get('approval_note')">
                                         <hr/>
                                         <t t-call="wujia_portal_layout.wj_card_header">
-                                            <t t-set="ch_title">Phản hồi từ Ngô Gia</t>
+                                            <t t-set="wj_txt">Phản hồi từ {brand}</t>
+                                            <t t-set="ch_title" t-value="wj_txt.replace('{brand}', wj_brand['name'])"/>
                                             <t t-set="ch_level" t-value="4"/>
                                             <t t-set="ch_platform" t-value="'pc'"/>
                                             <t t-set="ch_class" t-value="'wj-card-header--sublabel wj-return-sublabel'"/>
@@ -384,12 +385,13 @@
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mreturn-response'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
-                        <t t-set="ch_title">Phản hồi của Ngô Gia</t>
+                        <t t-set="wj_txt">Phản hồi của {brand}</t>
+                        <t t-set="ch_title" t-value="wj_txt.replace('{brand}', wj_brand['name'])"/>
                         <t t-set="ch_platform" t-value="'m'"/>
                     </t>
                     <p t-if="rr.reject_reason" class="wujia-mreturn-resp-body" t-out="rr.reject_reason"/>
                     <p t-elif="comp and comp.get('approval_note')" class="wujia-mreturn-resp-body" t-out="comp['approval_note']"/>
-                    <p t-else="" class="wujia-mhist-note">Chưa có phản hồi từ Ngô Gia.</p>
+                    <p t-else="" class="wujia-mhist-note"><t t-set="wj_txt">Chưa có phản hồi từ {brand}.</t><t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/></p>
                 </t>
             </div>
         </t>

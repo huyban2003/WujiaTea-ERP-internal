@@ -81,9 +81,8 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="wj-pc-acct-note">
-                            Thông tin tài khoản được quản lý bởi Ngô Gia. Vui lòng liên hệ quản trị nếu cần cập nhật.
-                        </div>
+                        <t t-set="wj_txt">Thông tin tài khoản được quản lý bởi {brand}. Vui lòng liên hệ quản trị nếu cần cập nhật.</t>
+                        <div class="wj-pc-acct-note" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                     </t>
                 </t>
 

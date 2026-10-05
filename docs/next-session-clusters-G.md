@@ -33,6 +33,7 @@ mục "🔴 Bài học G&lt;n&gt;" ngay dưới khối prompt (tiền lệ D/E).
 | G4 | `WJ-PORTAL-ROUTING-001` (146) | `wujia_portal_base` (+ `wujia_portal_layout` cho AC4) | ⏸ 30/09 — **dòng 146 không còn trên sheet** (STT nhảy 145 → 147), chờ BA xác nhận xoá hay chuyển chỗ. Cách làm đã chốt, xem khối G4 |
 | G5 | `WJ-ORD-028` (148, High) → `WJ-ORD-027` (147) | `wujia_portal_sale` + `wujia_portal_base` + `wujia_portal_layout` | ✅ 30/09 — code + đo xong, commit `887da0a`, push 30/09 ~19:05 · ĐÃ DEPLOY UAT 19:46 (cùng G6) · Nghiệm thu `docs/g5-acceptance-matrix.md` (148 6/6, 147 4/4) |
 | G6 | `WJ-ORD-029` (149) | `wujia_portal_purchase_history` | ✅ 30/09 — code + đo xong, commit `9efa67f`, push 30/09 19:39 · ĐÃ DEPLOY UAT 19:46, đo UAT chỉ-đọc 12/12 · Nghiệm thu `docs/g6-acceptance-matrix.md` (5/5) |
+| Chốt sổ | End-sprint 64 — chapter 78 + PDF | — (chỉ docs) | ✅ 01/10 — `chapters/78-sprint64-cluster-g-issue-list.tex`, PDF build lại; hàng đợi Dev = 0 |
 
 **Reconcile 26/09** (`git log --all -S"<ID>"` + `grep -rn "<ID>" custom/ docs/qa-issue-ledger.yaml`
 cho cả 7 ID): commit nhắc tới chỉ là docs (`1c4f1a0`, `2835f8e`, `8ef3081` — ghi chú review/chapter),

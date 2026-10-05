@@ -36,7 +36,7 @@ BATCH_STATUS_LABELS = {
     'done': 'Đã giao xong',
     'cancelled': 'Hủy chuyến',
 }
-BACKEND_REQUESTER_LABEL = 'Ngô Gia tạo đơn'
+BACKEND_REQUESTER_LABEL = '{brand} tạo đơn'
 
 ERR_NO_STORE = 'Không xác định được cửa hàng đang thao tác. Vui lòng chọn lại cửa hàng.'
 ERR_NOT_FOUND = 'Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.'
@@ -80,7 +80,7 @@ def _status_domain(key):
 def _requester_display(order):
     # BA: đơn portal → tên user tạo; đơn backend (không có requester) → nhãn chung,
     # KHÔNG lộ create_uid.name nội bộ lên portal.
-    return order.portal_requester_user_id.name or BACKEND_REQUESTER_LABEL
+    return order.portal_requester_user_id.name or order.env.company._wj_brand_text(BACKEND_REQUESTER_LABEL)
 
 
 def _confirm_date(order, tz):

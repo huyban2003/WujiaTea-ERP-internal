@@ -1951,3 +1951,148 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   BA retest 027/028/029 + 142 + 150/151.
 - Nợ: top bar PC vỡ ở 992; bảng giá UAT USD; G4 chờ BA; server 8055 + DB `wujia_g5s`, `wujia_g3s` + worktree
   `scratchpad/g5/base_wt` (`git worktree prune`) xoá được.
+
+## End-sprint 64 — chốt sổ cụm G · 01/10/2026 · Mac
+- Kết quả: ✅ chỉ docs, 0 dòng code. Chapter 78 `docs/chapters/78-sprint64-cluster-g-issue-list.tex` (Sprint 64: vì sao có
+  cụm G · bảng 8 lượt (issue/commit/version) · G1 · G2 · G3a/b · H150/151 · review UAT · G4 ⏸ · G5 · G6 · nghiệp vụ ·
+  trade-off · bài học · nợ) + `\include` vào `wujia-tea-doc.tex`; PDF build lại (lualatex, 0 lỗi, ch.78 = trang 319).
+- Đầu phiên: chủ dự án nói "làm tiếp G6" — G6 đã xong trọn từ 30/09 (deploy + đo 12/12 + Ready for Retest). Chủ dự án chọn
+  đóng sprint cụm G. `issue_queue --dev` = 0; STT cuối sheet 151, 146 vẫn mất; không có Retest Failed.
+- Đã làm: chapter 78 · compact summary (header, §4 dòng 64, §5 State) · bảng Tiến độ `next-session-clusters-G.md` dòng chốt sổ.
+  7 hash commit trong chapter kiểm bằng `git cat-file -e`.
+- Lệch plan / quyết định mới: không.
+- Bài học:
+  - `build-doc.sh` chạy `-halt-on-error`: lỗi LaTeX ⇒ **PDF cũ bị xoá** (không giữ bản trước). Ký hiệu toán ngoài preamble
+    (`\Diamond`) làm hỏng build — dùng chữ thường.
+  - Máy không có `pdftoppm`/PyMuPDF: soát trang PDF bằng `gs -sDEVICE=png16m -dFirstPage=… -dLastPage=…`.
+  - `git pull` qua SSH github cổng 22 có thể timeout ⇒ ghi HEAD lúc bắt đầu, kiểm lại trước khi push.
+- Nợ để lại: như §Nợ chapter 78 (top bar 992 · bảng giá UAT USD · G4 chờ BA · 2 error fixture `wujia_sale` · cột R 6 dòng ·
+  dọn server/DB đo · `auto_install` · 7 câu hỏi ADR-027).
+- Phiên kế: `issue_queue.py --dev` (BA retest 11 ID có thể trả Retest Failed); nếu trống ⇒ sửa top bar PC 992
+  (`wujia_portal_layout`, nhỏ).
+
+## Top bar PC 992–1199 (nợ review cụm G) · 01/10/2026 · Mac
+- Kết quả: ✅ code + test + đo local, commit `bea5fa8`. **Chưa push / chưa deploy UAT** — push bị chặn ở phía Claude
+  (máy không ra được github cổng 22; SSH 443 chạy được nhưng lệnh push không được phép), chủ dự án push tay.
+  Không có issue trên sheet (BA chưa tách) ⇒ không ledger, không `qa_sync`.
+- Đầu phiên: `issue_queue --dev` = 0 (16 Ready for Retest, 3 Need Clarification, STT cuối 151).
+- Chẩn đoán (đo local 8055 `wujia_g5s`, `anh.owner`): không phải lỗi "đúng 992". Hàng trái 104 + 44 + 452 = 600 + cụm
+  phải 406 cần ~1034px; hẹp hơn thì `ul.nav` (Bootstrap `flex-wrap: wrap`) đẩy khối Cửa hàng xuống dòng 2 và `mr-auto`
+  của hamburger nhận 423px. UAT `em.hcm` tên ngắn nên chỉ lộ ở 992.
+- Đã làm (chỉ `@media (min-width: 992px) and (max-width: 1199.98px)`):
+  - `wujia_portal_layout` 19.0.59.3.0 (`_pc_account.css`, `?v=1328`): pill ngôn ngữ `width: auto` (nhãn đã ẩn ở dải
+    này, 118 → 55); `navbar-collapse` / `bookmark-wrapper` / `ul` `min-width: 0`, `ul` `nowrap`.
+  - `wujia_portal_base` 19.0.7.34.0 (`store_picker.css`): `<li>` chứa khối + khối `min-width: 0` — giữ 430 khi đủ chỗ.
+- Số đo: 992–1199 (9 khổ) khối ở hàng 1 (y=12), hamburger mr 0; 16 ca tên cửa hàng/user dài × 4 khổ: 1 hàng, chip
+  trong khối, 0 đè, 0 tràn; ép cụm phải +60/+120/+200 ⇒ khối co 405/345/265, cụm phải giữ mép 992. ≥1200 không đổi;
+  `wj_shell_g2` PC 27 + mobile 75 trang 0 lỗi. Test 3 (tag `wujia_pc_topbar_992` + 1 trong `wujia_store_switcher_g2`),
+  mutation **5/5**, 4 module (`layout`, `base`, `debt`, `exam`) **653/0/0**.
+- Lệch / quyết định: bản đầu dùng `width: auto` cho khối ⇒ khối ôm chữ, co còn 273 cả khi đủ chỗ — bỏ. Thiếu
+  `min-width: 0` ở `navbar-collapse` thì khối không co mà cụm phải bị đẩy ra ngoài mép (1003 > 978) — thêm.
+- Bài học:
+  - Lỗi "chỉ ở một mốc" có thể là ngưỡng phụ thuộc dữ liệu (độ dài tên) — đo bằng user tên dài + ép DOM trước khi kết luận.
+  - Flex co được phải có `min-width: 0` ở MỌI mắt từ container co tới phần tử co; kiểm bằng ép cụm bên cạnh rộng ra.
+  - UAT + github cổng 22 cùng không vào được từ mạng này ⇒ đo trên server local có version = UAT.
+- Nợ để lại: deploy UAT (`-u wujia_portal_layout,wujia_portal_base`) + đo lại chỉ-đọc 992/993/1000/1199 với `em.hcm`;
+  FYI BA: pill ngôn ngữ 992–1199 chỉ còn cờ (đã vậy từ trước về chữ, nay cả bề rộng).
+- Phiên kế: sau deploy đo UAT; `issue_queue.py --dev`.
+
+## Review chuẩn component + lập cụm I/H · 02/10/2026 · Mac
+- Kết quả: ✅ chỉ tài liệu, **0 dòng `custom/`**, 0 ghi sheet, chưa commit. 3 đầu ra:
+  - `docs/portal-component-standard.{tex,pdf}` (20 trang): chuẩn component dùng chung + 1 trang "chưa có chuẩn" —
+    gửi nhóm dev khác tự chỉnh màn của họ; không tên người, không nhắc module của nhóm đó.
+  - `docs/ba-component-spec-proposal.{xlsx,tex,pdf}` (27 trang) sinh từ `scripts/qa/ba_spec_proposal.py`: 7 dòng đúng
+    17 cột khối spec tab UI Component, Status `Dev Proposed` — ES · DS(+KeyValue) · IB · KPI · TAG · MD (mới) · FF (mới),
+    19 câu hỏi CẦN BA CHỐT kèm phương án Dev.
+  - `docs/next-session-clusters-H.md`: cụm **I** (I0–I5 + ★IR, issue 152–155 + 62) rồi cụm **H** (H0–H10 + ★HR-1/2), bảng
+    trạng thái + prompt từng phiên.
+- Đầu phiên: `issue_queue --dev` = 5 Ready for Dev (152, 153, 154, 155 mới; 62 BA đổi yêu cầu 01/10, Owner sheet lệch).
+  Chủ dự án hỏi review chuẩn component; chốt **Issue trước, H sau** · Dev soạn spec, BA duyệt · PDF = chuẩn + 1 trang chưa chuẩn.
+- Số đo (tĩnh template + Playwright local 8055 `anh.owner`, 1440 + 390, 23 route): lõi đủ (PageHeader 63 · SurfaceCard 94 ·
+  CardHeader 93 · DataList 36 · Pagination 23 · FilterBar 19 · StatusBadge 76 class); hở: EmptyState 7 họ/198 · nhãn–giá trị
+  8 họ/170 · Bootstrap `alert` 50 + 10 họ/53 · StatCard 7 họ · `wujia-badge` 38 · Modal 4 JS riêng + 3 `confirm()` trình duyệt ·
+  FormField 6 họ, chữ trong ô mobile 12.25px.
+- Lệch / quyết định: không tách thêm module (`wujia_ui_core` chưa cần theo ADR-027). Gốc 152 = `get_active_franchise_ids_filter`
+  (`portal_base/controllers/portal.py:78`), 153 = `get_max_role_in_franchises` (`:89`) — module Khảo sát gọi cùng helper ⇒ fork
+  phải hỏi ở I4a/I5.
+- Bài học:
+  - LuaTeX bỏ qua `{}` khi ghép ligature: `-{}-` vẫn ra gạch ngang; token CSS `--x` phải viết `-\kern0pt-`.
+  - Đo cùng lúc thấy PC `/portal/order` báo "Chưa có cấu hình thời gian đặt hàng" còn mobile báo "Đang trong khung giờ"
+    (hai phiên đăng nhập riêng) — ghi vào prompt I3 để tái hiện, chưa kết luận.
+- Nợ để lại: gửi PDF chuẩn cho nhóm dev khác + gửi bản đề xuất cho BA (chủ dự án) · I0 push `bea5fa8` + deploy top bar ·
+  nợ cũ giữ nguyên (bảng giá UAT USD · G4 chờ BA · `auto_install` · 7 câu hỏi ADR-027).
+- Phiên kế: **I1** (#155 WJ-ORD-031) theo `docs/next-session-clusters-H.md` §3, sau I0.
+
+## Lập cụm J + J-B1 Branding trong `wujia_core` · 04/10/2026 · Mac
+- Kết quả: ✅ plan cụm J (`docs/next-session-clusters-J.md`) + J-B1 code + test, **chưa commit/push/deploy**, 0 ghi sheet.
+- Đầu phiên: `git pull` (merge `b5ce925`: module dashboard AI + `wujia_fields_value` của Thái, không đụng vùng cụm J).
+  `issue_queue --dev` = **15 Ready for Dev** (5 cụm I + 10 mới 156, 157, 159, 160, 162–167; reconcile 0 commit; WJ-EXAM-001 /
+  WJ-NOTI-001 là ID BA dùng lại). Chủ dự án giao 3 việc mới và chốt **làm trước Issue List**: (1) branding cấu hình được trong
+  Settings để dùng source cho thương hiệu khác; (2) tool dịch portal ở backend (bản đầy đủ) thay up `.po`; (3) portal Vận hành
+  nhượng quyền trên backend `wujia_franchise_operations` hiện có (chấm công/nghỉ phép chờ BA).
+- Đã làm (J-B1): `wujia_core` 19.0.2.0.0 — 5 field brand trên `res.company` + tab Settings "Thương hiệu" + `_wj_brand_info()`
+  (ormcache) + `_wj_brand_url()` + route ảnh `/wj/brand/<cid>/<kind>` (public, width cố định, `?v=` ⇒ immutable) + bộ token màu
+  `tools/brand_palette.py` (mặc định = đúng bộ BA, `css` rỗng; màu khác sinh HSL, CTA ≥4.5:1). 17 dòng VN vào glossary,
+  `vi_VN.po` + `wujia_core.pot` mới.
+- Số đo: DB trắng `wujia_b1t` 10 test 0 failed; mutation 5/5 đỏ đúng (1 đột biến tương đương bị loại, thay bằng đột biến thật);
+  DB copy `wujia_b1` (`wujia_g5s`) `-u wujia_core` rc=0, 0 ERROR; vi_VN đọc lại nhãn Settings + lỗi Python đúng; ảnh Settings OK.
+- Lệch / quyết định: logo PC dùng lại `res.company.logo` (không field trùng); không dùng `res.company.primary_color` sẵn có (là màu
+  báo cáo PDF, wizard Document Layout tự đổi theo logo) ⇒ field riêng `wj_primary_color`. Công ty không có logo ⇒ route 404, B2 xử.
+- Bài học:
+  - `-u wujia_core --test-enable` trên DB đủ module chết vì test `wujia_franchise` của Thái import file đã xoá ⇒ test `wujia_core`
+    chạy DB trắng `-i`. `wujia_core` đổi đường log sang `<dir>/<năm>/<tháng>/<ngày>.log`.
+  - `sync_translations.py` ghi đè bản dịch cũ bằng glossary (vd `Active` → "Kích hoạt (Active)") ⇒ so babel trước/sau, trả lại.
+  - Playwright backend Odoo 19: `wait_for_load_state('networkidle')` treo (bus longpoll) ⇒ dùng `wait_for_timeout`.
+- Nợ để lại: commit J-B1 (chờ lệnh) · xoá DB `wujia_b1`, `wujia_b1t` khi xong cụm · I0 (push `bea5fa8` + deploy top bar) vẫn treo.
+- Phiên kế: **J-B2** — áp brand vào portal + backend (prompt ở `docs/next-session-clusters-J.md` §4).
+
+## J-B2 Áp brand vào portal + backend · 04/10/2026 · Mac
+- Kết quả: ✅ code + test, commit (chờ deploy), 0 ghi sheet (không có ID Issue List).
+- Chủ dự án chốt: thay đủ 25 câu "Ngô Gia" QWeb + 15 chuỗi Python · 2 sắc gần #1895C7/#168FBE gộp về `--wujia-primary-dark` ·
+  title backend chỉ thay fallback "Odoo" (giữ tên action) · tên brand mặc định "Ngô Gia" tự điền khi cài/nâng cấp (hiện ở Settings).
+- Đã làm:
+  - `wujia_core` 19.0.2.1.0: `has_logo` trong `_wj_brand_info`; `_wj_fill_default_brand_name` (data `noupdate` cho `-i` +
+    migration 19.0.2.1.0 cho `-u`, không ghi đè tên đã đặt); `_wj_brand_text('…{brand}…')`; `web.layout` priority 99 (sau MuK):
+    favicon brand + title fallback; `session_info.wj_brand_name` + `brand_title.js` (tab backend "Odoo" → brand khi chưa có action).
+  - `wujia_portal_layout` 19.0.60.0.0 (depends +`wujia_core`): biến QWeb `wj_brand` (`ir.qweb._prepare_environment`, không cần
+    request); 2 head dùng `brand_head` (title `… · brand`, author, favicon/apple-touch qua URL) + `brand_style` (CSS màu sau
+    `_variables.css`); logo sidebar/navbar/mobile/login/signup = URL `/wj/brand/…` thay base64; nền login theo Settings.
+  - CSS: token trùng hex → `var(--wujia-primary|-soft|-dark)`, thêm `--wujia-primary-rgb`; rgba cứng → `rgb(var(--wujia-primary-rgb) / a)`
+    ở theme + components + 5 CSS module màn.
+  - Câu "Ngô Gia": QWeb mẫu `<t t-set="wj_txt">…{brand}…</t>` + `t-out="wj_txt.replace('{brand}', wj_brand['name'])"` (giữ 1 term dịch,
+    tên được escape); Python qua `env.company._wj_brand_text()` (sale `ERROR_MESSAGES`, exam, purchase_history, `wujia_return`).
+  - Bump: portal_base 7.35 · debt 4.17 · sale 4.28 · exam 6.2 · portal_return 4.1 · support 4.1 · delivery 3.22 · notification 3.1 ·
+    purchase_history 3.22 · wujia_return 1.1.
+- Số đo (cấu hình mặc định, HEAD vs mới, DB copy `wujia_g5s`):
+  - probe 26 route × 2 khổ: chỉ đổi title (+" · Ngô Gia"), href icon, author (Cloudmedia → Ngô Gia), alt logo; logo cùng cỡ; màu 0 đổi.
+  - HTML: `/portal/login` 45 953 → 13 365 byte; tổng 26 trang 4,72 → 3,03 MB (−36%, bỏ base64 logo).
+  - `wj_measure` 0 cell mất record; pixel 26 route + login × 1440/992/390: 0 lệch thật (3 cell lệch 1–2 mức màu lặp lại cả khi so HEAD
+    với chính nó ⇒ nhiễu caret/carousel).
+  - Test DB trắng `-i wujia_core,wujia_portal_layout`: 262 test 0 failed (10 test mới `test_brand` + `test_j2_brand`); mutation 4/4 đỏ đúng.
+  - Suite 11 module (layout, base, debt, sale, exam, return ×2, support, delivery, notification, purchase_history) DB trắng cài rồi `-u --test-enable`: 893 test, 1 đỏ = test `portal_base` khoá cứng `rgba(40, 169, 223, 0.04)` ⇒ sửa sang token, chạy lại 0 failed.
+  - `check_layers`: 0 vi phạm depend mới, R6 0 (R7 ×2 có sẵn trong `wujia_franchise` của Thái).
+- Lệch / LIMIT:
+  - Không chạy lại `sync_translations`: câu "Ngô Gia" cũ trong `vi_VN.po` (debt/exam/return) đều `msgstr` rỗng, chưa có `th_TH` ⇒ 0 bản dịch
+    mất; term mới (`{brand}`) gom vào J-T.
+  - Test trình duyệt (sau khôi phục filestore) 26 route + login × 1440/390 + backend: mặc định 0 request ảnh/CSS lỗi, 0 ảnh vỡ;
+    brand "Trà ABC"/#E4572E/logo/logo mobile/favicon/nền login ⇒ 0 chữ "Ngô Gia", title/màu/logo/nền login/favicon backend đổi theo.
+    Phát hiện 12 token sắc xanh brand sót (gradient thẻ tổng quan + thanh giỏ mobile, nền ô hành động nhanh, nền ảnh SP mobile,
+    sắc nhạt Thi, viền thẻ Thông báo) ⇒ `brand_palette.TINT_TOKENS` + `retint()` (xoay sắc, giữ độ sáng; mặc định trả đúng hex cũ)
+    ⇒ đổi theo brand; mặc định chụp lại 0 lệch (chỉ đồng hồ đếm ngược). 404 `app-assets/data/locales/en.json` (JS Vuexy) có từ trước.
+  - JS chart Khảo sát `#28A9DF` (`wujia_portal_inspection`, code Thái) chưa theo brand — defer.
+- Sự cố: lệnh copy DB trong zsh (`set -- $p` không tách chuỗi ⇒ `$2` rỗng) chạy `rm -rf data/filestore/` ⇒ **mất toàn bộ filestore
+  local** `WujiaTea/data/filestore` (DB vẫn còn). Script khôi phục: `scripts/dev/filestore_pack.py` (chạy máy còn filestore, ra 1 .tar
+  khử trùng sha1) + `scripts/dev/filestore_restore.py` (Mac: trả file theo `ir_attachment.store_fname`, xoá dòng bundle thiếu để build lại).
+- Bài học:
+  - zsh KHÔNG tách biến không ngoặc (`$O`, `set -- $p`) ⇒ lệnh nhiều tham số chạy bằng file `#!/bin/bash` + `set -u`, mảng `"${O[@]}"`;
+    không bao giờ `rm -rf` đường dẫn ghép biến khi chưa kiểm biến khác rỗng.
+  - QWeb: node có `t-*` không dịch được và cắt câu ⇒ dùng mẫu `wj_txt` + `.replace('{brand}', …)`.
+  - `<function>` trong `noupdate` chỉ chạy lúc `-i` ⇒ cần migration cho `-u`. Route portal không `website=True` ⇒ không dùng
+    `_prepare_frontend_environment`, chèn biến ở `ir.qweb._prepare_environment`.
+  - Odoo chỉ liệt kê DB do `db_user` sở hữu ⇒ `createdb` xong `ALTER DATABASE … OWNER TO odoo19`. `createdb -T` không copy filestore.
+  - `-i` + `--test-enable` có `wujia_franchise` ⇒ ImportError test Thái ⇒ cài trước rồi `-u <module> --test-enable`.
+- Lệnh deploy: `-u wujia_core,wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_sale,wujia_portal_exam,
+  wujia_portal_return,wujia_portal_support,wujia_portal_delivery,wujia_portal_notification,wujia_portal_purchase_history,wujia_return`.
+- Nợ để lại: khôi phục filestore local (script trên) · xoá DB nháp `wujia_b1`, `wujia_b1t`, `wujia_b2`, `wujia_b2h`, `wujia_b2t`,
+  `wujia_b2u` + worktree `scratchpad/b2/head` · server cũ giữ slot Postgres (g1, g3s, g5s:8055, e4b1…) — user tự dừng · I0 vẫn treo.
+- Phiên kế: **J-T1** — `wujia_i18n` danh mục chuỗi + màn sửa + quét.

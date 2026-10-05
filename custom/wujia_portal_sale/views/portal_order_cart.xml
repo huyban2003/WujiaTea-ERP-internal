@@ -115,8 +115,9 @@
                 <input type="hidden" name="flow" value="m"/>
                 <div class="wujia-mcart-noteblock">
                     <label class="wujia-mcart-note-label" for="wj-mcart-note">Ghi chú đơn hàng</label>
+                    <t t-set="wj_txt">Nhập ghi chú cho {brand} nếu cần</t>
                     <textarea id="wj-mcart-note" name="portal_note" class="wujia-mcart-note wj-cart-note" rows="2"
-                              placeholder="Nhập ghi chú cho Ngô Gia nếu cần"
+                              t-att-placeholder="wj_txt.replace('{brand}', wj_brand['name'])"
                               t-out="cart_state['note'] if cart_state else ''"/>
                 </div>
                 <!-- Sticky summary CTA — submit thẳng (BA, no delivery fields) -->

@@ -13,7 +13,8 @@
             <div class="wj-pc-modal__panel wj-order-confirm__panel" role="dialog" aria-modal="true"
                  aria-labelledby="wjOrderConfirmTitle" aria-describedby="wjOrderConfirmDesc">
                 <h2 class="wj-pc-modal__title" id="wjOrderConfirmTitle">Xác nhận gửi đơn</h2>
-                <p class="wj-pc-modal__body" id="wjOrderConfirmDesc">Kiểm tra lại thông tin trước khi gửi đơn cho Ngô Gia.</p>
+                <t t-set="wj_txt">Kiểm tra lại thông tin trước khi gửi đơn cho {brand}.</t>
+                <p class="wj-pc-modal__body" id="wjOrderConfirmDesc" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                 <p class="wj-order-confirm__changed" data-wj-oc="changed" role="alert" hidden="hidden">
                     Giỏ hàng vừa thay đổi. Vui lòng kiểm tra lại trước khi gửi.
                 </p>

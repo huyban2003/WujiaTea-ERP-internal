@@ -470,7 +470,7 @@ def _m_detail(reg):
         'id': reg.id, 'name': reg.name,
         'title': reg.course_id.name or reg.session_id.name,
         'date_label': _session_day_label(reg.session_id),
-        'location': reg.session_id.location or 'Trung tâm đào tạo Ngô Gia',
+        'location': reg.session_id.location or request.env.company._wj_brand_text('Trung tâm đào tạo {brand}'),
         'summary': '%d nhân sự%s' % (
             reg.participant_count,
             (' • ' + _result_summary(reg)[0]) if published else ''),
@@ -488,19 +488,19 @@ def _pc_detail(reg):
     show_results = reg.state == 'confirmed'
     if reg.state == 'submitted':
         publish_state, banner_kind = 'none', 'warning'
-        card_sub = 'Phiếu đang chờ Ngô Gia xác nhận.'
-        banner_title = 'Yêu cầu đã được gửi đến Ngô Gia.'
+        card_sub = 'Phiếu đang chờ {brand} xác nhận.'
+        banner_title = 'Yêu cầu đã được gửi đến {brand}.'
         banner_text = ('Portal chưa hiển thị kết quả cho đến khi phiếu được xác'
                        ' nhận và công bố.')
     elif reg.state == 'confirmed':
         publish_state = 'published' if published else 'unpublished'
         banner_kind = 'info'
-        card_sub = 'Thông tin phiếu đã được Ngô Gia xác nhận.'
+        card_sub = 'Thông tin phiếu đã được {brand} xác nhận.'
         if published:
             banner_title = 'Kết quả đã được công bố.'
             banner_text = 'Trang hiển thị giá trị kết quả mới nhất theo từng người.'
         else:
-            banner_title = 'Ngô Gia đã xác nhận danh sách đăng ký.'
+            banner_title = '{brand} đã xác nhận danh sách đăng ký.'
             banner_text = ('Kết quả sẽ xuất hiện trên chính danh sách người tham'
                            ' gia sau khi công bố.')
     elif reg.state == 'rejected':
@@ -515,10 +515,11 @@ def _pc_detail(reg):
         banner_title = 'Lý do: %s' % (reg.cancellation_reason or 'Không có.')
         banner_text = ('Phiếu không tham gia công bố kết quả và không có nút hủy'
                        ' trên portal.')
+    brand = reg.env.company._wj_brand_text
     return {
         'id': reg.id, 'name': reg.name, 'state': reg.state,
         'publish_state': publish_state, 'show_results': show_results,
-        'card_sub': card_sub,
+        'card_sub': brand(card_sub),
         'course_name': reg.course_id.name or reg.session_id.name,
         'exam_datetime': _session_dt_label(reg.session_id),
         'location': reg.session_id.location or '—',
@@ -527,7 +528,7 @@ def _pc_detail(reg):
         'request_date': (_to_local(reg.request_date).strftime('%d/%m/%Y · %H:%M')
                          if reg.request_date else '—'),
         'participant_label': '%02d người' % reg.participant_count,
-        'banner_kind': banner_kind, 'banner_title': banner_title,
+        'banner_kind': banner_kind, 'banner_title': brand(banner_title),
         'banner_text': banner_text,
         'lines': _reg_lines(reg, published),
     }

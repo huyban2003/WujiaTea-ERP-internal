@@ -61,4 +61,5 @@ if logfile:
                         f"<năm-tháng-ngày>.log\n")
             break
 
+from . import controllers
 from . import models

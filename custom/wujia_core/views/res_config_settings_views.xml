@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_wujia_brand" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.wujia.brand</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="55"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Brand" string="Brand" name="wujia_core" logo="/base/static/description/settings.png">
+                    <block title="Brand" name="wujia_brand_container">
+                        <setting id="wj_brand_name_setting" string="Brand name" company_dependent="1"
+                                 help="Shown in the browser tab, logo alt text and login page. Empty = company name.">
+                            <field name="wj_brand_name" placeholder="Company name"/>
+                        </setting>
+                        <setting id="wj_primary_color_setting" string="Primary color" company_dependent="1"
+                                 help="Darker/lighter shades and the button color are generated from it.">
+                            <field name="wj_primary_color" widget="color" class="d-block w-25 p-0 m-0"/>
+                        </setting>
+                        <setting id="wj_logo_setting" string="Logo (desktop)" company_dependent="1"
+                                 help="Company logo, used in the desktop sidebar and login page.">
+                            <field name="wj_logo" widget="image" class="w-50" options="{'size': [0, 60]}"/>
+                        </setting>
+                        <setting id="wj_logo_mobile_setting" string="Mobile logo" company_dependent="1"
+                                 help="Logo for the mobile header. Empty = company logo.">
+                            <field name="wj_logo_mobile" widget="image" class="w-50" options="{'size': [0, 60]}"/>
+                        </setting>
+                        <setting id="wj_favicon_setting" string="Favicon" company_dependent="1"
+                                 help="Square image, at least 180×180. Empty = company logo.">
+                            <field name="wj_favicon" widget="image" options="{'size': [48, 48]}"/>
+                        </setting>
+                        <setting id="wj_login_background_setting" string="Login background" company_dependent="1"
+                                 help="Background image of the portal login page. Empty = default image.">
+                            <field name="wj_login_background" widget="image" class="w-50" options="{'size': [0, 90]}"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

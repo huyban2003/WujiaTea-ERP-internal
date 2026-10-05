@@ -1,0 +1,696 @@
+% SINH TỰ ĐỘNG bởi scripts/qa/ba_spec_proposal.py — sửa dữ liệu ở đó rồi chạy lại.
+% Build: lualatex ba-component-spec-proposal.tex (2 lần)
+\documentclass[11pt,a4paper]{report}
+\usepackage{fontspec}
+\setmainfont{Lato}
+\setsansfont{Lato}
+\setmonofont{Noto Sans Mono}[Scale=0.82]
+\usepackage[margin=2cm]{geometry}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+\usepackage{booktabs,longtable,array,tabularx,enumitem,amssymb}
+\setlist{itemsep=1pt,topsep=3pt}
+\usepackage{xcolor}
+\definecolor{wjblue}{RGB}{40,169,223}
+\renewcommand{\chaptername}{Chương}
+\renewcommand{\contentsname}{Mục lục}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!60!black,
+  pdftitle={WujiaTea Portal — Đề xuất spec component (Dev Proposed)},pdfauthor={WujiaTea Dev Team}}
+\PassOptionsToPackage{obeyspaces,spaces}{url}
+\usepackage{xurl}
+\DeclareUrlCommand\code{\urlstyle{tt}}
+\newcommand{\codesp}[1]{\texttt{\detokenize{#1}}}
+\renewcommand{\arraystretch}{1.25}
+\emergencystretch=3em
+\title{\vspace{1cm}\textbf{WujiaTea Odoo 19 --- Portal cửa hàng}\\[0.3cm]\Large Đề xuất spec component chưa có chuẩn\\[0.2cm]\large 7 dòng theo khuôn tab \textit{UI Component} --- trạng thái \textit{Dev Proposed}, chờ BA duyệt}
+\author{Dev Team}
+\date{Phiên bản 1.0 · 02/10/2026}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\chapter{Mục đích và cách dùng}
+Tab UI Component đã có spec BA cho 12 component. Rà toàn bộ source portal ngày 02/\allowbreak{}10/\allowbreak{}2026 còn 4 component đã có tên trong danh mục nhưng chưa có spec (EmptyState, DetailSummary, InfoBanner, StatCard), nhóm badge mà CMP-SB-001 yêu cầu tách riêng, và 2 nhóm chưa có trong danh mục (Modal, FormField). Mỗi nhóm đang có từ 4 đến 11 họ class khác nhau.\par
+Tài liệu này là bản Dev đề xuất, viết đúng 17 cột của khối spec (từ dòng 30) để BA đọc, sửa và duyệt. Dev không ghi lên Sheet; file \code{ba-component-spec-proposal.xlsx} đi kèm có sẵn 7 dòng cùng thứ tự cột để BA dán khi đã duyệt. Status đang là \codesp{Dev Proposed}, BA đổi sang \codesp{BA Confirmed} khi chốt.\par
+\section*{Cách lấy số liệu ``Hiện trạng}
+\begin{itemize}
+\item Đo computed-\allowbreak{}style và kích thước bằng trình duyệt tự động trên build hiện hành (cùng version UAT), user chủ cửa hàng, khổ 1440\(\times\)900 và 390\(\times\)844, ngày 02/\allowbreak{}10/\allowbreak{}2026.
+\item Số lần dùng = số lần class xuất hiện trong template portal.
+\item Khảo sát thuộc hạng mục khác, không đo và không đề xuất ở đây.
+\end{itemize}
+\section*{Nguyên tắc chọn giá trị đề xuất}
+\begin{itemize}
+\item Chỉnh ít: lấy dáng đang chiếm đa số trên UAT làm chuẩn, như cách BA đã làm ở CMP-FB-001.
+\item Chỉ dùng token đã có; màu theo bộ StatusBadge; cỡ chữ tối thiểu 13 (12 cho badge/\allowbreak{}nhãn KPI).
+\item Nhất quán với spec đã chốt: PageContainer, SurfaceCard, CardHeader, StatusBadge, FilterBar, ListCard.
+\item Chỗ có hai lựa chọn ngang nhau: Dev không tự quyết, ghi thành câu hỏi ở mục CẦN BA CHỐT (cột Out of scope / Rủi ro) và nêu phương án Dev đề xuất.
+\end{itemize}
+\section*{Tổng hợp 7 dòng}
+\begin{tabularx}{\textwidth}{@{}l l X l l@{}}\toprule
+\textbf{STT} & \textbf{ID} & \textbf{Component} & \textbf{Priority} & \textbf{Task}\\\midrule
+13 & CMP-ES-001 & EmptyState & High & UI-EMPTY-001\\
+14 & CMP-DS-001 & DetailSummary + KeyValue & Medium & UI-DETAIL-001\\
+15 & CMP-IB-001 & InfoBanner & Medium & UI-BANNER-001\\
+16 & CMP-KPI-001 & StatCard & Medium & UI-KPI-001\\
+17 & CMP-TAG-001 & RoleBadge · CategoryBadge · AlertBadge · CountBadge & Medium & UI-TAG-001\\
+18 & CMP-MD-001 & Modal / Dialog & Medium & UI-MODAL-001\\
+19 & CMP-FF-001 & FormField & Medium & UI-FORM-001\\
+\bottomrule\end{tabularx}
+\section*{Câu hỏi cần BA chốt}
+\begin{longtable}{@{}p{0.17\textwidth}p{0.79\textwidth}@{}}\toprule
+\textbf{Dòng} & \textbf{Câu hỏi (kèm phương án Dev đề xuất)}\\\midrule\endhead
+CMP-ES-001 & Q-ES-1: Icon PC 64 (đề xuất) hay giữ 76 như mobile?\\
+CMP-ES-001 & Q-ES-2: Bộ nhãn tiêu đề/\allowbreak{}mô tả theo từng màn — Dev lập bảng nhãn hiện hành, BA duyệt; nếu BA không đổi, giữ nhãn hiện hành.\\
+CMP-ES-001 & Q-ES-3: Khối rỗng ở Home dùng variant row chung, hay giữ dáng riêng của Home?\\
+CMP-DS-001 & Q-DS-1: Nhãn PC giữ 700 (hiện hành) hay giảm 600 để tách rõ với giá trị?\\
+CMP-DS-001 & Q-DS-2: StatusBadge mobile cùng hàng mã (đề xuất) hay luôn dưới mã?\\
+CMP-DS-001 & Q-DS-3: Tài khoản PC giữ ô tonal hay về lưới KeyValue thường như các màn chi tiết?\\
+CMP-IB-001 & Q-IB-1: Khung giờ “chưa cấu hình” và “đã đóng” cùng tone warning (đề xuất) hay tách danger?\\
+CMP-IB-001 & Q-IB-2: Có cần variant đóng được (dismissible) cho banner hướng dẫn không? Đề xuất: không.\\
+CMP-KPI-001 & Q-KPI-1: Giá trị PC 24 (đang hiển thị ở Báo cáo, đề xuất) hay 30 (CSS gốc)?\\
+CMP-KPI-001 & Q-KPI-2: Home mobile giữ dải nền màu (inverse, đề xuất) hay chuyển card trắng như Báo cáo?\\
+CMP-KPI-001 & Q-KPI-3: Số tiền lớn có rút gọn đơn vị (tr, tỷ) không? Đề xuất: không, giữ số đầy đủ.\\
+CMP-TAG-001 & Q-TAG-1: Ưu tiên “Khẩn” là AlertBadge (đề xuất) hay StatusBadge danger?\\
+CMP-TAG-001 & Q-TAG-2: CountBadge hiện “99+” (đề xuất) hay số thật?\\
+CMP-TAG-001 & Q-TAG-3: RoleBadge giữ pill hiện hành (trùng dáng StatusBadge info) hay đổi sang viền để tách rõ?\\
+CMP-MD-001 & Q-MD-1: Mobile dùng hộp giữa màn (hiện hành, đề xuất) hay bottom sheet full chiều ngang?\\
+CMP-MD-001 & Q-MD-2: Bấm nền có đóng modal form không (rủi ro mất dữ liệu đang nhập)? Đề xuất: confirm/\allowbreak{}info đóng, form không.\\
+CMP-MD-001 & Q-MD-3: Lớp chọn cửa hàng có đưa về Modal (form, md) hay giữ màn phủ riêng?\\
+CMP-FF-001 & Q-FF-1: Upload ảnh/\allowbreak{}video (Đổi trả 3–5 ảnh + video) là variant của FormField hay component riêng?\\
+CMP-FF-001 & Q-FF-2: Chữ trong ô mobile 16 (đề xuất, vì iPhone) hay giữ cỡ hiện hành và chấp nhận phóng to?\\
+\bottomrule\end{longtable}
+\section*{Thứ tự triển khai sau khi BA duyệt}
+\begin{itemize}[label={}]
+\item 1. EmptyState (High — FilterBar đã chuyển nút “Xóa lọc” sang đây).
+\item 2. Badge tách khỏi StatusBadge.
+\item 3. DetailSummary + KeyValue.
+\item 4. InfoBanner.
+\item 5. StatCard.
+\item 6. Modal, FormField (nếu BA đưa vào danh mục).
+\end{itemize}
+Mỗi dòng một đợt riêng, có ảnh trước/\allowbreak{}sau và số đo máy theo Acceptance của dòng đó.\par
+\chapter{Đề xuất chi tiết}
+\section{CMP-ES-001 --- EmptyState}
+\begin{tabularx}{\textwidth}{@{}l X l X@{}}\toprule
+STT & 13 & Nhóm & Feedback\\
+Priority & High & Status & Dev Proposed\\
+Task & UI-EMPTY-001 & Odoo Fit & Custom\\
+Ngày cập nhật & 02/10/2026 & & \\\bottomrule\end{tabularx}
+\subsection*{Mục tiêu}
+Một EmptyState dùng chung cho danh sách/\allowbreak{}khối không có dữ liệu; phân biệt “chưa có dữ liệu” với “lọc ra 0 kết quả” và là nơi đặt nút “Xóa lọc” theo FB-03/\allowbreak{}FB-07 đã chốt.\par
+\subsection*{Hiện trạng / Vấn đề}
+Đo build hiện hành 02/\allowbreak{}10/\allowbreak{}2026 (1440\(\times\)900, 390\(\times\)844, user chủ cửa hàng):\par
+\begin{itemize}
+\item 7 họ class, 198 lần dùng trong template: \code{.wj-empty-state} 165 · \code{.wj-pc-empty} 14 · \code{.wujia-empty-state} 7 · \code{.wj-debt-pc-emptybox} 4 · \code{.wj-debt-empty} 4 · \code{.wj-exam-pc-panel-empty} 2 · \code{.wj-rep-mempty} 2.
+\item PC có 4 dáng: Hỗ trợ/\allowbreak{}Yêu cầu cập nhật padding 48/\allowbreak{}24, icon 36 xám, không tiêu đề, cao 165; Đăng ký thi card riêng padding 40/\allowbreak{}24, icon 28, tiêu đề 20/\allowbreak{}700, cao 232; Công nợ padding 40/\allowbreak{}24, icon 30, tiêu đề 18/\allowbreak{}700, cao 216–237; Home (khối chuyến giao sắp tới) padding 12/\allowbreak{}0, icon 20, tiêu đề 16/\allowbreak{}700, cao 83.
+\item Mobile có 4 dáng: mẫu “rich” (Giỏ hàng, Giao hàng, Hỗ trợ, Đăng ký thi) card radius 14, padding 24/\allowbreak{}18, icon 76, tiêu đề 18/\allowbreak{}700, mô tả 14/\allowbreak{}400, cao 261–280; Công nợ radius 14, padding 22/\allowbreak{}18, icon 28; Home radius 16, padding 22/\allowbreak{}15, cao 108; Yêu cầu cập nhật mobile vẫn dùng dáng PC (padding 48/\allowbreak{}24, không card, cao 186).
+\item Chưa có luật chung phân biệt “chưa có dữ liệu” / “không khớp bộ lọc”; FB-07 đã chuyển nút “Xóa lọc” về EmptyState nhưng EmptyState chưa có chuẩn để nhận.
+\end{itemize}
+\subsection*{Spec chuẩn hóa}
+\par\smallskip\textbf{ES-01 — Cơ sở / boundary}\par
+Mobile lấy mẫu “rich” của Giao hàng làm chuẩn (đang chiếm đa số, chỉnh ít). PC dùng cùng cấu trúc và cùng chữ, chỉ khác padding/\allowbreak{}icon. Một template dùng chung ở tầng khung; trang chỉ truyền nội dung. EmptyState thay nội dung DataList (đúng CMP-DL-001): không render header bảng rỗng.\par
+
+\par\smallskip\textbf{ES-02 — Cấu trúc}\par
+Thứ tự: icon (tùy chọn) \(\to\) tiêu đề (bắt buộc) \(\to\) mô tả (tùy chọn, tối đa 2 dòng) \(\to\) hành động (tùy chọn: tối đa 1 primary + 1 secondary). Căn giữa. Tiêu đề là đoạn văn đậm, không phải heading (không làm lệch cấp heading của trang).\par
+
+\par\smallskip\textbf{ES-03 — Geometry}\par
+list (trong card DataList): không nền/\allowbreak{}viền riêng, dùng card cha — không lồng card trong card. PC padding 40/\allowbreak{}24, min-\allowbreak{}height 200; mobile padding 24/\allowbreak{}18.\par
+Mobile khi đứng riêng (không có card cha): card trắng radius 14, viền 1px -\kern0pt-\allowbreak{}wujia-\allowbreak{}border-\allowbreak{}soft (giữ mẫu rich).\par
+Icon: mobile 76 (giữ), PC 64; màu -\kern0pt-\allowbreak{}wujia-\allowbreak{}primary trên nền -\kern0pt-\allowbreak{}wujia-\allowbreak{}primary-\allowbreak{}soft.\par
+Chữ: tiêu đề 18/\allowbreak{}700 -\kern0pt-\allowbreak{}wujia-\allowbreak{}text-\allowbreak{}primary; mô tả 14/\allowbreak{}400 -\kern0pt-\allowbreak{}wujia-\allowbreak{}text-\allowbreak{}muted. Khoảng cách icon\(\to\)tiêu đề 12, tiêu đề\(\to\)mô tả 4, mô tả\(\to\)hành động 16.\par
+row (khối nhỏ trong Home/\allowbreak{}card phụ): icon 20 bên trái, tiêu đề 15/\allowbreak{}700, mô tả 13/\allowbreak{}400, padding 12/\allowbreak{}0, căn trái.\par
+
+\par\smallskip\textbf{ES-04 — Trạng thái}\par
+empty (chưa có dữ liệu): tiêu đề “Chưa có \textless{}đối tượng\textgreater{}”; hành động tạo mới chỉ khi màn đang có nút tạo và user có quyền.\par
+filtered (lọc ra 0): tiêu đề “Không tìm thấy \textless{}đối tượng\textgreater{} phù hợp”; mô tả nhắc đổi điều kiện; hành động secondary “Xóa lọc” \(\to\) URL mặc định của màn, giữ store/\allowbreak{}role context (đúng FB-07). Không hiện “Xóa lọc” ở trạng thái empty.\par
+error (tải lỗi / không có quyền xem): icon tone danger, không hành động tạo mới.\par
+Controller truyền trạng thái (DataList đã có tham số state); không suy trạng thái ở CSS/\allowbreak{}JS.\par
+
+\par\smallskip\textbf{ES-05 — Integration}\par
+DataList rỗng gọi EmptyState qua slot rỗng hiện có. Danh sách lọc không reload (AJAX) trả đúng cùng markup với lần render đầu.\par
+
+\par\smallskip\textbf{ES-06 — Token}\par
+Chỉ dùng token sẵn có (-\kern0pt-\allowbreak{}wujia-\allowbreak{}primary, -\kern0pt-\allowbreak{}wujia-\allowbreak{}primary-\allowbreak{}soft, -\kern0pt-\allowbreak{}wujia-\allowbreak{}text-\allowbreak{}primary, -\kern0pt-\allowbreak{}wujia-\allowbreak{}text-\allowbreak{}muted, -\kern0pt-\allowbreak{}wujia-\allowbreak{}danger-\allowbreak{}bg); không hex/\allowbreak{}px riêng trong CSS trang.\par
+\subsection*{Variants}
+Bố cục: list (mặc định, trong DataList) · row (khối nhỏ Home) · page (trang không có danh sách, vd Giỏ trống — bắt buộc hành động primary).\par
+Trạng thái: empty · filtered · error.\par
+Props đề xuất: es\_variant, es\_state, es\_icon, es\_title, es\_sub, es\_action\_url/\allowbreak{}\_label, es\_reset\_url.\par
+\subsection*{Màn hình áp dụng}
+\par\smallskip\textbf{ES-07 — Mapping}\par
+\begin{itemize}[label={}]
+\item 1. Danh sách: /portal/\allowbreak{}purchase-\allowbreak{}history, /portal/\allowbreak{}delivery, /portal/\allowbreak{}return, /portal/\allowbreak{}notification, /portal/\allowbreak{}knowledge, /portal/\allowbreak{}support, /portal/\allowbreak{}info-\allowbreak{}request, /portal/\allowbreak{}exam, /portal/\allowbreak{}debt, /portal/\allowbreak{}debt/\allowbreak{}payment-\allowbreak{}history, /portal/\allowbreak{}reports/\allowbreak{}orders — list + empty/\allowbreak{}filtered.
+\item 2. /portal (Home): các khối rỗng — row.
+\item 3. /portal/\allowbreak{}order/\allowbreak{}cart: Giỏ trống — page, hành động “Đặt hàng”.
+\end{itemize}
+Khảo sát thuộc hạng mục khác, ngoài phạm vi.\par
+\subsection*{Acceptance Criteria}
+\par\smallskip\textbf{ES-08 — Acceptance / checklist}\par
+\begin{itemize}[label=$\square$]
+\item 7 họ class rỗng \(\to\) 1; script kiểm kê trong repo báo 0 họ cũ ở các màn mapping.
+\item Danh sách rỗng PC không còn header bảng rỗng; mobile không còn card lồng card.
+\item Lọc ra 0 \(\to\) filtered + “Xóa lọc” về mặc định, giữ store; chưa có dữ liệu \(\to\) empty, không có “Xóa lọc”.
+\item Hình học đúng ES-03 trên mọi khổ; tiêu đề không cắt, mô tả tối đa 2 dòng ở 360.
+\item Icon trang trí aria-\allowbreak{}hidden; hành động có nhãn chữ.
+\item AJAX và render đầu cho cùng markup.
+\item Kiểm PC 1440\(\times\)900, 1024\(\times\)768, breakpoint 992/\allowbreak{}991; mobile 390\(\times\)844, 360\(\times\)800; chữ dài, focus/\allowbreak{}keyboard, vùng chạm mobile \(\geq\)44.
+\item Không đổi dữ liệu, điều kiện truy vấn, quyền, store context hoặc workflow.
+\item Dev bàn giao ảnh trước/\allowbreak{}sau cùng viewport/\allowbreak{}role/\allowbreak{}URL + số đo máy; FIX/\allowbreak{}IMPACT/\allowbreak{}RETEST/\allowbreak{}LIMIT + Build/\allowbreak{}Deploy hợp lệ. BA retest sau deploy.
+\end{itemize}
+\subsection*{Out of scope / Rủi ro}
+\par\smallskip\textbf{OUT OF SCOPE}\par
+\begin{itemize}
+\item Không thêm skeleton/\allowbreak{}loading, toast; không đổi nội dung nghiệp vụ hay điều kiện truy vấn.
+\item Không sửa FilterBar (CMP-FB-001); chỉ nhận trạng thái lọc từ đó.
+\end{itemize}
+
+\par\smallskip\textbf{RỦI RO}\par
+\begin{itemize}
+\item Chiều cao trang rỗng đổi ở PC (165–237 \(\to\) \textasciitilde{}200): ảnh BA cũ sẽ lệch.
+\end{itemize}
+
+\par\smallskip\textbf{CẦN BA CHỐT}\par
+\begin{itemize}
+\item Q-ES-1: Icon PC 64 (đề xuất) hay giữ 76 như mobile?
+\item Q-ES-2: Bộ nhãn tiêu đề/\allowbreak{}mô tả theo từng màn — Dev lập bảng nhãn hiện hành, BA duyệt; nếu BA không đổi, giữ nhãn hiện hành.
+\item Q-ES-3: Khối rỗng ở Home dùng variant row chung, hay giữ dáng riêng của Home?
+\end{itemize}
+
+\par\smallskip\textbf{ODOO / RỦI RO}\par
+\begin{itemize}
+\item Custom: một template QWeb + CSS dùng chung ở tầng khung portal; không thêm model/\allowbreak{}field.
+\item Trang chỉ truyền nội dung; không override dáng component trong CSS trang (cùng luật StatusBadge/\allowbreak{}ListCard).
+\end{itemize}
+\subsection*{Link tham chiếu}
+http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}delivery ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}support ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}debt\par
+Liên quan: CMP-DL-001 (EmptyState thay DataList), CMP-FB-001 FB-03/\allowbreak{}FB-07 (“Xóa lọc” nằm tại EmptyState).\par
+\clearpage
+\section{CMP-DS-001 --- DetailSummary + KeyValue}
+\begin{tabularx}{\textwidth}{@{}l X l X@{}}\toprule
+STT & 14 & Nhóm & Detail\\
+Priority & Medium & Status & Dev Proposed\\
+Task & UI-DETAIL-001 & Odoo Fit & Custom\\
+Ngày cập nhật & 02/10/2026 & & \\\bottomrule\end{tabularx}
+\subsection*{Mục tiêu}
+Chuẩn khối đầu màn chi tiết (mã chứng từ + StatusBadge + thông tin chính) và một atom nhãn–giá trị (KeyValue) dùng lại ở mọi khối thông tin record.\par
+\subsection*{Hiện trạng / Vấn đề}
+Đo build hiện hành 02/\allowbreak{}10/\allowbreak{}2026:\par
+\begin{itemize}
+\item 8 họ nhãn–giá trị, 170 lần dùng: \code{wujia-mhist-kv} 57 (Lịch sử, Đổi trả mobile) · \code{wujia-maccount-kv} 39 (Tài khoản mobile) · \code{wj-pc-kv} 24 (Lịch sử, Giao hàng, Thông báo PC) · \code{wj-pc-acct-field} 15 (Tài khoản PC) · \code{wj-exam-pc-kv} 12 · \code{wujia-mexam-kv} 12 · \code{wujia-mres-info-row} 6 (Kết quả gửi đơn) · \code{wj-exam-pc-sumkv} 5.
+\item PC \code{wj-pc-kv}: nhãn 13/\allowbreak{}700 muted, giá trị 15/\allowbreak{}700, xếp chồng, cao 46, lưới 2 cột. Tài khoản PC: ô nền tonal radius 12, padding 14/\allowbreak{}16, nhãn 12/\allowbreak{}700, giá trị 16/\allowbreak{}700, cao 80–104. Đăng ký thi: nhãn 12/\allowbreak{}700, giá trị 14–15/\allowbreak{}700.
+\item Mobile \code{wujia-mhist-kv}: một hàng nhãn trái 12.5/\allowbreak{}400 – giá trị phải 12.5/\allowbreak{}700, cao 31. \code{wujia-maccount-kv}: nhãn 13/\allowbreak{}400 – giá trị 14/\allowbreak{}600, cao 44, có kẻ dưới.
+\item Cùng loại thông tin có 4 cỡ nhãn (12/\allowbreak{}12.5/\allowbreak{}13) và 4 cỡ giá trị (12.5/\allowbreak{}14/\allowbreak{}15/\allowbreak{}16); vị trí mã chứng từ + trạng thái khác nhau giữa các màn chi tiết; chưa có luật chung cho giá trị trống.
+\end{itemize}
+\subsection*{Spec chuẩn hóa}
+\par\smallskip\textbf{DS-01 — Cơ sở / boundary}\par
+DetailSummary = SurfaceCard variant summary (CMP-SC-001), đặt ngay dưới PageHeader. Mã chứng từ ở đây, không lên PageHeader (đúng CMP-PG-001). KeyValue là atom dùng chung: trong DetailSummary và các khối thông tin record khác (Tài khoản, Thông tin cửa hàng, Kết quả gửi đơn).\par
+
+\par\smallskip\textbf{DS-02 — Hàng đầu}\par
+Mã chứng từ 18/\allowbreak{}700 (PC) · 16/\allowbreak{}700 (mobile), -\kern0pt-\allowbreak{}wujia-\allowbreak{}text-\allowbreak{}primary, chọn/\allowbreak{}copy được. StatusBadge (CMP-SB-001) bên phải mã; mobile cùng hàng nếu đủ chỗ, thiếu chỗ xuống dòng dưới mã. Meta phụ (ngày tạo, cửa hàng) 13/\allowbreak{}400 muted dưới mã.\par
+
+\par\smallskip\textbf{DS-03 — KeyValue PC (stacked)}\par
+Giữ dáng \code{wj-pc-kv} đang dùng (chỉnh ít): nhãn 13/\allowbreak{}700 -\kern0pt-\allowbreak{}wj-\allowbreak{}pc-\allowbreak{}muted, giá trị 15/\allowbreak{}700 -\kern0pt-\allowbreak{}wujia-\allowbreak{}text-\allowbreak{}primary, gap 4. Lưới: 4 cột \(\geq\)1200, 2 cột 992–1199; gap hàng 16, cột 24. Giá trị dài (địa chỉ, ghi chú) chiếm cả hàng (full); không cắt ellipsis mã/\allowbreak{}địa chỉ.\par
+
+\par\smallskip\textbf{DS-04 — KeyValue mobile (inline)}\par
+Lấy dáng \code{wujia-maccount-kv}: nhãn trái 13/\allowbreak{}400 muted (cột 40\%, tối thiểu 96px), giá trị phải 14/\allowbreak{}600 text-\allowbreak{}primary căn phải; min-\allowbreak{}height 40, padding 8/\allowbreak{}0, kẻ dưới 1px -\kern0pt-\allowbreak{}wujia-\allowbreak{}border-\allowbreak{}soft trừ hàng cuối. Bỏ cỡ 12/\allowbreak{}12.5. Giá trị nhiều dòng tự chuyển stacked (nhãn trên, giá trị dưới, căn trái).\par
+
+\par\smallskip\textbf{DS-05 — Giá trị trống / số}\par
+Trống hiển thị “—” màu muted; không để ô rỗng, không in giá trị kỹ thuật. Tiền theo định dạng portal hiện hành; “0 đ” chỉ khi giá trị thực bằng 0.\par
+
+\par\smallskip\textbf{DS-06 — Tonal field}\par
+Màn hồ sơ/\allowbreak{}tài khoản cần chia ô: ô nền -\kern0pt-\allowbreak{}wujia-\allowbreak{}surface-\allowbreak{}tonal, radius 12, padding 14/\allowbreak{}16; chữ theo DS-03 (bỏ nhãn 12).\par
+\subsection*{Variants}
+DetailSummary: record (mã + StatusBadge + meta) · info (không mã, vd Tài khoản/\allowbreak{}Thông tin cửa hàng).\par
+KeyValue: stacked (PC) · inline (mobile) · tonal-\allowbreak{}field · modifier full (chiếm cả hàng), strong (nhấn giá trị tổng).\par
+Props đề xuất: ds\_code, ds\_state\_label, ds\_state\_variant, ds\_meta; kv\_label, kv\_value, kv\_full, kv\_strong.\par
+\subsection*{Màn hình áp dụng}
+\par\smallskip\textbf{DS-07 — Mapping}\par
+\begin{itemize}[label={}]
+\item 1. Chi tiết: /portal/\allowbreak{}purchase-\allowbreak{}history/\allowbreak{}\textless{}id\textgreater{}, /portal/\allowbreak{}delivery/\allowbreak{}\textless{}id\textgreater{}, /portal/\allowbreak{}return/\allowbreak{}\textless{}id\textgreater{}, /portal/\allowbreak{}info-\allowbreak{}request/\allowbreak{}\textless{}id\textgreater{}, /portal/\allowbreak{}support/\allowbreak{}\textless{}id\textgreater{}, /portal/\allowbreak{}notification/\allowbreak{}\textless{}id\textgreater{}, /portal/\allowbreak{}exam/\allowbreak{}\textless{}id\textgreater{} — record.
+\item 2. /portal/\allowbreak{}profile, /portal/\allowbreak{}franchise-\allowbreak{}information — info + tonal-\allowbreak{}field (PC).
+\item 3. Kết quả gửi đơn (sau Đặt hàng) — info.
+\end{itemize}
+Khảo sát thuộc hạng mục khác, ngoài phạm vi.\par
+\subsection*{Acceptance Criteria}
+\par\smallskip\textbf{DS-08 — Acceptance / checklist}\par
+\begin{itemize}[label=$\square$]
+\item 8 họ nhãn–giá trị \(\to\) 1 atom KeyValue; script kiểm kê báo 0 họ cũ ở màn mapping.
+\item Mọi màn chi tiết mapping có mã chứng từ + StatusBadge tại DetailSummary; không còn mã ở PageHeader.
+\item Không còn nhãn \textless{}13px ở mọi khổ.
+\item 1440: 4 cột; 1024 và 992: 2 cột; \(\leq\)991 bố cục mobile; 390/\allowbreak{}360 nhãn–giá trị một hàng, giá trị dài tự stacked, không tràn ngang.
+\item Giá trị trống hiển thị “—”.
+\item Kiểm PC 1440\(\times\)900, 1024\(\times\)768, breakpoint 992/\allowbreak{}991; mobile 390\(\times\)844, 360\(\times\)800; chữ dài, focus/\allowbreak{}keyboard, vùng chạm mobile \(\geq\)44.
+\item Không đổi dữ liệu, điều kiện truy vấn, quyền, store context hoặc workflow.
+\item Dev bàn giao ảnh trước/\allowbreak{}sau cùng viewport/\allowbreak{}role/\allowbreak{}URL + số đo máy; FIX/\allowbreak{}IMPACT/\allowbreak{}RETEST/\allowbreak{}LIMIT + Build/\allowbreak{}Deploy hợp lệ. BA retest sau deploy.
+\end{itemize}
+\subsection*{Out of scope / Rủi ro}
+\par\smallskip\textbf{OUT OF SCOPE}\par
+\begin{itemize}
+\item Hàng thông tin trong ListCard (CMP-LC-001), bảng dòng sản phẩm, timeline, tệp đính kèm, form.
+\item Không đổi nhãn trường hoặc thứ tự trường đã BA duyệt ở từng màn.
+\end{itemize}
+
+\par\smallskip\textbf{RỦI RO}\par
+\begin{itemize}
+\item Lịch sử/\allowbreak{}Đổi trả mobile tăng cỡ chữ 12.5 \(\to\) 13/\allowbreak{}14: trang chi tiết dài thêm khoảng 10–15\%.
+\end{itemize}
+
+\par\smallskip\textbf{CẦN BA CHỐT}\par
+\begin{itemize}
+\item Q-DS-1: Nhãn PC giữ 700 (hiện hành) hay giảm 600 để tách rõ với giá trị?
+\item Q-DS-2: StatusBadge mobile cùng hàng mã (đề xuất) hay luôn dưới mã?
+\item Q-DS-3: Tài khoản PC giữ ô tonal hay về lưới KeyValue thường như các màn chi tiết?
+\end{itemize}
+
+\par\smallskip\textbf{ODOO / RỦI RO}\par
+\begin{itemize}
+\item Custom: một template QWeb + CSS dùng chung ở tầng khung portal; không thêm model/\allowbreak{}field.
+\item Trang chỉ truyền nội dung; không override dáng component trong CSS trang (cùng luật StatusBadge/\allowbreak{}ListCard).
+\end{itemize}
+\subsection*{Link tham chiếu}
+http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}purchase-\allowbreak{}history (mở một đơn) ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}return (mở một yêu cầu) ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}profile\par
+Liên quan: CMP-PG-001 (mã chứng từ không nằm ở PageHeader), CMP-SB-001.\par
+\clearpage
+\section{CMP-IB-001 --- InfoBanner}
+\begin{tabularx}{\textwidth}{@{}l X l X@{}}\toprule
+STT & 15 & Nhóm & Feedback\\
+Priority & Medium & Status & Dev Proposed\\
+Task & UI-BANNER-001 & Odoo Fit & Custom\\
+Ngày cập nhật & 02/10/2026 & & \\\bottomrule\end{tabularx}
+\subsection*{Mục tiêu}
+Một khối thông báo ngữ cảnh trong trang (khung giờ đặt hàng, quy định, hướng dẫn quy trình), cùng dáng PC/\allowbreak{}mobile, màu theo token StatusBadge thay vì Bootstrap.\par
+\subsection*{Hiện trạng / Vấn đề}
+Đo build hiện hành 02/\allowbreak{}10/\allowbreak{}2026:\par
+\begin{itemize}
+\item Bootstrap \code{alert} 50 lần trong template portal (Đặt hàng 22, Đổi trả 10, Home 8, Yêu cầu cập nhật 6, khung 4) + 10 họ riêng 53 lần: \code{wujia-mhome-window} 17 · \code{wj-exam-pc-banner} 8 · \code{wujia-morder-warnbar} 6 · \code{wujia-mticket-hint} 5 · \code{wj-pc-acct-banner} 4 · \code{wujia-maccount-alert} 4 · \code{wj-exam-pc-alert} 4 · \code{wj-debt-banner} 2 · \code{wj-debt-pc-banner} 2 · \code{wujia-mreturn-banner} 1.
+\item Cùng một thông điệp “Mỗi yêu cầu chỉ áp dụng cho 1 sản phẩm…” (Tạo đổi trả): PC là \code{alert-info} Bootstrap (radius 5.25, padding 14, nền cyan, cao 53); mobile là banner riêng (radius 10, padding 10/\allowbreak{}12, nền \#DDF6FF, chữ 13).
+\item Đặt hàng: PC \code{alert-warning} Bootstrap (nền cam 20\%, radius 5.25, cao 53); mobile thanh khung giờ radius 12, padding 11/\allowbreak{}12, nền xanh lá, chữ 13/\allowbreak{}700, cao 61.
+\item Công nợ: PC radius 12, padding 14/\allowbreak{}20, tiêu đề 14/\allowbreak{}700; mobile radius 16, padding 8/\allowbreak{}14, tiêu đề 15/\allowbreak{}700, mô tả 11.5.
+\item Đăng ký thi PC: radius 10, padding 12, có viền, nhãn 12/\allowbreak{}700. Gợi ý form mobile 11px không nền.
+\item 3 nguồn màu (Bootstrap, token Wujia, hex riêng), radius 5–16, chữ 11–15.
+\end{itemize}
+\subsection*{Spec chuẩn hóa}
+\par\smallskip\textbf{IB-01 — Cơ sở / boundary}\par
+Thông tin ngữ cảnh gắn với trang hoặc khối: khung giờ, hạn chót, quy định, hướng dẫn quy trình, cảnh báo trạng thái chứng từ. Không dùng cho: toast sau thao tác, lỗi validation từng trường (thuộc FormField), lỗi khoảng ngày của bộ lọc (FB-05), EmptyState.\par
+
+\par\smallskip\textbf{IB-02 — Tone / màu}\par
+Dùng chung bộ token StatusBadge, bỏ màu Bootstrap: info (nền \#EAF7FD / chữ \#1378A3) · success (\#EAF8EF / \#11813B) · warning (\#FFF7E6 / \#AC5E05) · danger (\#FEECEC / \#D52222).\par
+
+\par\smallskip\textbf{IB-03 — Cấu trúc}\par
+Icon theo tone (bắt buộc, 18) \(\to\) tiêu đề (tùy chọn, 14/\allowbreak{}700) + nội dung 14/\allowbreak{}400 (mobile 13/\allowbreak{}400) \(\to\) hành động (tùy chọn: link hoặc Button secondary nhỏ; PC bên phải, mobile xuống dòng).\par
+
+\par\smallskip\textbf{IB-04 — Geometry}\par
+Radius 12 (-\kern0pt-\allowbreak{}wj-\allowbreak{}pc-\allowbreak{}component-\allowbreak{}radius); padding PC 12/\allowbreak{}16, mobile 10/\allowbreak{}12; không viền; mobile min-\allowbreak{}height 44. Rộng hết cột nội dung (PageContainer/\allowbreak{}card), không tự cộng gutter. Cách khối kế tiếp 16 (PC), 12 (mobile). Chữ không nhỏ hơn 13.\par
+
+\par\smallskip\textbf{IB-05 — Hành vi}\par
+Mặc định không đóng được. Nội dung do server render; đổi trạng thái thì đổi tone (vd khung giờ mở = success, đã đóng/\allowbreak{}chưa cấu hình = warning). Mỗi vùng tối đa 1 banner cùng tone; nhiều thông điệp gộp thành danh sách trong một banner.\par
+
+\par\smallskip\textbf{IB-06 — Accessibility}\par
+info/\allowbreak{}success: role=“status”; danger cần chú ý ngay: role=“alert”. Icon aria-\allowbreak{}hidden. Không truyền nghĩa chỉ bằng màu (luôn có icon + chữ).\par
+
+\par\smallskip\textbf{IB-07 — Khung giờ đặt hàng}\par
+PC và mobile cùng component, cùng tone, cùng nội dung lấy từ một nguồn hiện có (Home, Đặt hàng, Giỏ). Không đổi điều kiện/\allowbreak{}luật khung giờ (issue khung giờ xử lý riêng).\par
+\subsection*{Variants}
+Tone: info · success · warning · danger.\par
+Mật độ: regular (có tiêu đề) · compact (một dòng, không tiêu đề).\par
+Modifier: action (có link/\allowbreak{}nút).\par
+Props đề xuất: ib\_tone, ib\_title, ib\_text, ib\_icon, ib\_action\_url/\allowbreak{}\_label, ib\_compact.\par
+\subsection*{Màn hình áp dụng}
+\par\smallskip\textbf{IB-08 — Mapping}\par
+\begin{itemize}[label={}]
+\item 1. /portal (Home), /portal/\allowbreak{}order, /portal/\allowbreak{}order/\allowbreak{}cart: banner khung giờ đặt hàng.
+\item 2. /portal/\allowbreak{}return/\allowbreak{}new, /portal/\allowbreak{}info-\allowbreak{}request/\allowbreak{}new, /portal/\allowbreak{}support/\allowbreak{}new: quy định/\allowbreak{}hướng dẫn đầu form.
+\item 3. /portal/\allowbreak{}debt, /portal/\allowbreak{}debt/\allowbreak{}payment-\allowbreak{}history: banner thông tin công nợ.
+\item 4. /portal/\allowbreak{}exam/\allowbreak{}register: banner thông tin kỳ thi.
+\item 5. /portal/\allowbreak{}profile, /portal/\allowbreak{}franchise-\allowbreak{}information: banner tài khoản.
+\end{itemize}
+Gợi ý dưới trường form (hint 11px) chuyển sang help của FormField (CMP-FF-001), không thuộc InfoBanner. Khảo sát ngoài phạm vi.\par
+\subsection*{Acceptance Criteria}
+\par\smallskip\textbf{IB-09 — Acceptance / checklist}\par
+\begin{itemize}[label=$\square$]
+\item 0 Bootstrap \code{alert} trong template portal ở màn mapping; 10 họ riêng \(\to\) 1.
+\item Cùng thông điệp ở PC và mobile dùng cùng tone/\allowbreak{}component.
+\item Radius 12, padding đúng IB-04, chữ \(\geq\)13 trên mọi khổ.
+\item Màu chỉ từ token IB-02; đạt tương phản \(\geq\)4.5:1.
+\item Banner khung giờ đổi tone đúng trạng thái mở/\allowbreak{}đóng; nội dung không đổi so với hiện hành.
+\item Kiểm PC 1440\(\times\)900, 1024\(\times\)768, breakpoint 992/\allowbreak{}991; mobile 390\(\times\)844, 360\(\times\)800; chữ dài, focus/\allowbreak{}keyboard, vùng chạm mobile \(\geq\)44.
+\item Không đổi dữ liệu, điều kiện truy vấn, quyền, store context hoặc workflow.
+\item Dev bàn giao ảnh trước/\allowbreak{}sau cùng viewport/\allowbreak{}role/\allowbreak{}URL + số đo máy; FIX/\allowbreak{}IMPACT/\allowbreak{}RETEST/\allowbreak{}LIMIT + Build/\allowbreak{}Deploy hợp lệ. BA retest sau deploy.
+\end{itemize}
+\subsection*{Out of scope / Rủi ro}
+\par\smallskip\textbf{OUT OF SCOPE}\par
+\begin{itemize}
+\item Toast/\allowbreak{}notification popup, lỗi validation từng trường, lỗi bộ lọc ngày, banner trang đăng nhập.
+\item Không đổi luật khung giờ, nội dung câu chữ do BA đã duyệt.
+\end{itemize}
+
+\par\smallskip\textbf{RỦI RO}\par
+\begin{itemize}
+\item Đặt hàng có 22 chỗ \code{alert}: cần đối chiếu từng chỗ là banner ngữ cảnh hay thông báo lỗi sau thao tác, để không gộp nhầm.
+\end{itemize}
+
+\par\smallskip\textbf{CẦN BA CHỐT}\par
+\begin{itemize}
+\item Q-IB-1: Khung giờ “chưa cấu hình” và “đã đóng” cùng tone warning (đề xuất) hay tách danger?
+\item Q-IB-2: Có cần variant đóng được (dismissible) cho banner hướng dẫn không? Đề xuất: không.
+\end{itemize}
+
+\par\smallskip\textbf{ODOO / RỦI RO}\par
+\begin{itemize}
+\item Custom: một template QWeb + CSS dùng chung ở tầng khung portal; không thêm model/\allowbreak{}field.
+\item Trang chỉ truyền nội dung; không override dáng component trong CSS trang (cùng luật StatusBadge/\allowbreak{}ListCard).
+\end{itemize}
+\subsection*{Link tham chiếu}
+http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}order ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}return/\allowbreak{}new ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}debt/\allowbreak{}payment-\allowbreak{}history\par
+Liên quan: CMP-SB-001 (bộ màu tone), CMP-FB-001 FB-05 (lỗi ngày không thuộc InfoBanner).\par
+\clearpage
+\section{CMP-KPI-001 --- StatCard}
+\begin{tabularx}{\textwidth}{@{}l X l X@{}}\toprule
+STT & 16 & Nhóm & Data Display\\
+Priority & Medium & Status & Dev Proposed\\
+Task & UI-KPI-001 & Odoo Fit & Custom\\
+Ngày cập nhật & 02/10/2026 & & \\\bottomrule\end{tabularx}
+\subsection*{Mục tiêu}
+Một StatCard cho chỉ số tổng quan (Home, Báo cáo, Công nợ): cùng thang chữ, cùng luật “—” \(\neq\) “0 đ”, cả card bấm được khi có đích.\par
+\subsection*{Hiện trạng / Vấn đề}
+Đo build hiện hành 02/\allowbreak{}10/\allowbreak{}2026:\par
+\begin{itemize}
+\item 7 họ: \code{wj-pc-metric-card} (68 class kể cả phần tử con; Báo cáo PC) · \code{wujia-mhome-kpi} 15 (Home mobile + Công nợ mobile) · \code{wj-rep-mkpi} 9 + \code{wj-rep-mcard} 4 (Báo cáo mobile) · \code{wujia-kpi-card} 8 (Home PC) · \code{wj-rep-pccard} 6 · \code{wj-debt-pc-summary} 1 / \code{wj-debt-summary} 2 (Công nợ).
+\item Home PC: card cao 108, padding 16, radius 16, viền, icon 56. Báo cáo PC: cao 96, radius 16, viền, giá trị 24/\allowbreak{}700 (CSS gốc của họ là 30/\allowbreak{}700). Công nợ PC: khối tổng hợp cao 138, padding 24/\allowbreak{}28, radius 18.
+\item Home mobile: dải nền màu, nhãn 9/\allowbreak{}700, giá trị 22/\allowbreak{}700 chữ trắng, cao 52. Báo cáo mobile: card trắng radius 16, không viền, nhãn 13/\allowbreak{}600, giá trị 20/\allowbreak{}700, cao 101–110.
+\item Giá trị có 4 cỡ (20/\allowbreak{}22/\allowbreak{}24/\allowbreak{}30), nhãn 9–15 (9px dưới ngưỡng đọc), radius 16/\allowbreak{}18, viền có/\allowbreak{}không.
+\end{itemize}
+\subsection*{Spec chuẩn hóa}
+\par\smallskip\textbf{KPI-01 — Cơ sở / boundary}\par
+StatCard = SurfaceCard variant summary (CMP-SC-001) + icon (tùy chọn) + nhãn + giá trị + mô tả/\allowbreak{}xu hướng (tùy chọn). Header theo CMP-CH-001 compact khi có. Không phải ListCard/\allowbreak{}ProductCard.\par
+
+\par\smallskip\textbf{KPI-02 — PC metric}\par
+min-\allowbreak{}height 96 (-\kern0pt-\allowbreak{}wj-\allowbreak{}pc-\allowbreak{}metric-\allowbreak{}h), padding 16/\allowbreak{}20, radius 16, viền 1px -\kern0pt-\allowbreak{}wujia-\allowbreak{}border-\allowbreak{}soft. Icon 52 (-\kern0pt-\allowbreak{}wj-\allowbreak{}pc-\allowbreak{}metric-\allowbreak{}icon), radius 12, nền tone nhạt. Nhãn 13/\allowbreak{}600 muted; giá trị 24/\allowbreak{}700 -\kern0pt-\allowbreak{}wujia-\allowbreak{}text-\allowbreak{}primary, số tabular; mô tả 13/\allowbreak{}400 muted. Lưới 4 card/\allowbreak{}hàng \(\geq\)1200, 2/\allowbreak{}hàng 992–1199, gap 16.\par
+
+\par\smallskip\textbf{KPI-03 — Mobile compact}\par
+Card trắng radius 14, padding 12; nhãn 12/\allowbreak{}600 muted; giá trị 20/\allowbreak{}700. Lưới 2 cột, gap 8; số card lẻ thì card cuối chiếm cả hàng.\par
+
+\par\smallskip\textbf{KPI-04 — Inverse (Home mobile)}\par
+Giữ dải nền màu của Home (chỉnh ít): nhãn nâng 9 \(\to\) 12/\allowbreak{}700 trắng 85\%, giá trị 22/\allowbreak{}700 trắng; ngăn cách bằng -\kern0pt-\allowbreak{}wujia-\allowbreak{}kpi-\allowbreak{}separator.\par
+
+\par\smallskip\textbf{KPI-05 — Giá trị}\par
+Tiền theo định dạng portal hiện hành. “—” khi chưa có chứng từ/\allowbreak{}không đủ dữ liệu; “0 đ” chỉ khi tổng thực bằng 0 (giữ luật đang áp ở Công nợ/\allowbreak{}Báo cáo). Giá trị không xuống dòng; quá dài thì giảm một bậc cỡ chữ (24 \(\to\) 20), không ellipsis.\par
+
+\par\smallskip\textbf{KPI-06 — Link}\par
+Khi có đích, cả card là link: hover -\kern0pt-\allowbreak{}wujia-\allowbreak{}hover-\allowbreak{}shadow, focus ring token, aria-\allowbreak{}label “\textless{}nhãn\textgreater{}: \textless{}giá trị\textgreater{}”; mobile vùng chạm \(\geq\)44.\par
+\subsection*{Variants}
+metric (PC) · compact (mobile) · inverse (dải Home mobile) · plain (không viền, nằm trong khối tổng hợp như Công nợ) · modifier link.\par
+Props đề xuất: kpi\_variant, kpi\_label, kpi\_value, kpi\_sub, kpi\_icon, kpi\_tone, kpi\_href.\par
+\subsection*{Màn hình áp dụng}
+\par\smallskip\textbf{KPI-07 — Mapping}\par
+\begin{itemize}[label={}]
+\item 1. /portal (Home): PC metric + link; mobile inverse.
+\item 2. /portal/\allowbreak{}reports/\allowbreak{}orders: PC metric; mobile compact.
+\item 3. /portal/\allowbreak{}debt, /portal/\allowbreak{}debt/\allowbreak{}payment-\allowbreak{}history: khối tổng hợp = SurfaceCard summary chứa StatCard plain; mobile compact.
+\end{itemize}
+Không đổi công thức/\allowbreak{}khoảng thời gian của chỉ số.\par
+\subsection*{Acceptance Criteria}
+\par\smallskip\textbf{KPI-08 — Acceptance / checklist}\par
+\begin{itemize}[label=$\square$]
+\item 7 họ \(\to\) 1 component; script kiểm kê báo 0 họ cũ ở màn mapping.
+\item Giá trị 24 (PC) / 20 (mobile) / 22 (inverse); không còn nhãn \textless{}12.
+\item “—” và “0 đ” đúng KPI-05 trên dữ liệu có/\allowbreak{}không chứng từ.
+\item 1440: 4 card/\allowbreak{}hàng; 1024/\allowbreak{}992: 2/\allowbreak{}hàng; 390/\allowbreak{}360: 2 cột, giá trị không xuống dòng hay tràn.
+\item Card link bấm được toàn vùng, có focus ring.
+\item Kiểm PC 1440\(\times\)900, 1024\(\times\)768, breakpoint 992/\allowbreak{}991; mobile 390\(\times\)844, 360\(\times\)800; chữ dài, focus/\allowbreak{}keyboard, vùng chạm mobile \(\geq\)44.
+\item Không đổi dữ liệu, điều kiện truy vấn, quyền, store context hoặc workflow.
+\item Dev bàn giao ảnh trước/\allowbreak{}sau cùng viewport/\allowbreak{}role/\allowbreak{}URL + số đo máy; FIX/\allowbreak{}IMPACT/\allowbreak{}RETEST/\allowbreak{}LIMIT + Build/\allowbreak{}Deploy hợp lệ. BA retest sau deploy.
+\end{itemize}
+\subsection*{Out of scope / Rủi ro}
+\par\smallskip\textbf{OUT OF SCOPE}\par
+\begin{itemize}
+\item Biểu đồ, bảng báo cáo, export; công thức và nguồn số liệu.
+\end{itemize}
+
+\par\smallskip\textbf{RỦI RO}\par
+\begin{itemize}
+\item Home PC cao 108 \(\to\) 96: khối dưới dịch lên; Báo cáo PC giữ nguyên.
+\end{itemize}
+
+\par\smallskip\textbf{CẦN BA CHỐT}\par
+\begin{itemize}
+\item Q-KPI-1: Giá trị PC 24 (đang hiển thị ở Báo cáo, đề xuất) hay 30 (CSS gốc)?
+\item Q-KPI-2: Home mobile giữ dải nền màu (inverse, đề xuất) hay chuyển card trắng như Báo cáo?
+\item Q-KPI-3: Số tiền lớn có rút gọn đơn vị (tr, tỷ) không? Đề xuất: không, giữ số đầy đủ.
+\end{itemize}
+
+\par\smallskip\textbf{ODOO / RỦI RO}\par
+\begin{itemize}
+\item Custom: một template QWeb + CSS dùng chung ở tầng khung portal; không thêm model/\allowbreak{}field.
+\item Trang chỉ truyền nội dung; không override dáng component trong CSS trang (cùng luật StatusBadge/\allowbreak{}ListCard).
+\end{itemize}
+\subsection*{Link tham chiếu}
+http://113.161.187.126:8019/\allowbreak{}portal ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}reports/\allowbreak{}orders ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}debt\par
+Liên quan: CMP-SC-001 (variant summary), CMP-CH-001 (Summary/\allowbreak{}StatCard compact).\par
+\clearpage
+\section{CMP-TAG-001 --- RoleBadge · CategoryBadge · AlertBadge · CountBadge}
+\begin{tabularx}{\textwidth}{@{}l X l X@{}}\toprule
+STT & 17 & Nhóm & Status\\
+Priority & Medium & Status & Dev Proposed\\
+Task & UI-TAG-001 & Odoo Fit & Custom\\
+Ngày cập nhật & 02/10/2026 & & \\\bottomrule\end{tabularx}
+\subsection*{Mục tiêu}
+Đặc tả 4 badge mà CMP-SB-001 đã yêu cầu tách khỏi StatusBadge, để dọn họ \code{wujia-badge} cũ và Bootstrap \code{badge} mà không lẫn với màu/\allowbreak{}dáng trạng thái.\par
+\subsection*{Hiện trạng / Vấn đề}
+Đo build hiện hành 02/\allowbreak{}10/\allowbreak{}2026:\par
+\begin{itemize}
+\item \code{wujia-badge} 38 lần (Kiến thức 12, Thông báo 8, Home 7, Đổi trả 4, Yêu cầu cập nhật 4, Hỗ trợ 3): pill cao 27, padding 4/\allowbreak{}10, viền 1px, chữ 12/\allowbreak{}600 (mobile cao 23, chữ 11/\allowbreak{}600). Một phần là trạng thái nghiệp vụ (bù hàng Đổi trả, trạng thái Yêu cầu cập nhật) — phần này thuộc StatusBadge, sẽ dọn theo CMP-SB-001.
+\item \code{wj-pc-badge} 16 lần (vai trò/\allowbreak{}khu vực, loại thông báo): pill cao 28, padding 0/\allowbreak{}14, radius 14, không viền, chữ 13/\allowbreak{}600 — trùng dáng StatusBadge (28/\allowbreak{}14).
+\item Bootstrap \code{badge} 35 lần trong template portal: số đếm (chuông, menu) cao 18, padding 0/\allowbreak{}5, nền \#EF4444, chữ 11.25/\allowbreak{}700; Kiến thức dùng badge xám radius 5.25.
+\item Cùng chức năng “phân loại” có 3 dáng; số đếm chưa có luật \textgreater{}99/\allowbreak{}0.
+\end{itemize}
+\subsection*{Spec chuẩn hóa}
+\par\smallskip\textbf{TAG-01 — Phân loại (theo CMP-SB-001)}\par
+RoleBadge: vai trò/\allowbreak{}khu vực của user tại cửa hàng. CategoryBadge: phân loại nội dung (danh mục Kiến thức, loại thông báo, danh mục hỗ trợ). AlertBadge: mức ưu tiên/\allowbreak{}cảnh báo gắn record (vd “Khẩn”). CountBadge: số đếm trên icon/\allowbreak{}menu (chưa đọc, giỏ). Trạng thái nghiệp vụ không thuộc mục này \(\to\) StatusBadge.\par
+
+\par\smallskip\textbf{TAG-02 — RoleBadge}\par
+Giữ dáng \code{wj-pc-badge} hiện hành (BA đã khóa trong SB): cao 28, padding 0/\allowbreak{}14, radius 14, chữ 13/\allowbreak{}600, nền -\kern0pt-\allowbreak{}wujia-\allowbreak{}primary-\allowbreak{}soft, chữ -\kern0pt-\allowbreak{}wujia-\allowbreak{}primary-\allowbreak{}dark; mobile cao 24, chữ 12/\allowbreak{}600.\par
+
+\par\smallskip\textbf{TAG-03 — CategoryBadge}\par
+Viền, nền trắng: cao 24, padding 0/\allowbreak{}10, radius 999, viền 1px -\kern0pt-\allowbreak{}wujia-\allowbreak{}border, chữ 12/\allowbreak{}600 -\kern0pt-\allowbreak{}wujia-\allowbreak{}text-\allowbreak{}secondary. Không dùng màu trạng thái.\par
+
+\par\smallskip\textbf{TAG-04 — AlertBadge}\par
+Cao 22, padding 0/\allowbreak{}8, radius 6 (vuông bo — khác pill trạng thái), chữ 12/\allowbreak{}700; chỉ 2 tone: danger (\#FEECEC/\allowbreak{}\#D52222), warning (\#FFF7E6/\allowbreak{}\#AC5E05); icon 12 tùy chọn.\par
+
+\par\smallskip\textbf{TAG-05 — CountBadge}\par
+min-\allowbreak{}width 18, cao 18, padding 0/\allowbreak{}5, radius 999, nền -\kern0pt-\allowbreak{}wujia-\allowbreak{}danger, chữ 11/\allowbreak{}700 trắng, số tabular. 0 \(\to\) ẩn; \textgreater{}99 \(\to\) “99+”. Đặt góc phải trên icon (lệch \(-\)4/\allowbreak{}\(-\)6). Số đếm nằm trong aria-\allowbreak{}label của nút cha (vd “Thông báo, 44 chưa đọc”); badge aria-\allowbreak{}hidden.\par
+\subsection*{Variants}
+RoleBadge: role · area. CategoryBadge: một dáng. AlertBadge: danger · warning. CountBadge: một dáng (trên icon / trong menu).\par
+Props đề xuất: tag\_kind (role/\allowbreak{}area/\allowbreak{}category/\allowbreak{}alert/\allowbreak{}count), tag\_label, tag\_tone (alert), tag\_count.\par
+\subsection*{Màn hình áp dụng}
+\par\smallskip\textbf{TAG-06 — Mapping}\par
+\begin{itemize}[label={}]
+\item 1. Header (chuông, giỏ), sidebar, bottom nav: CountBadge.
+\item 2. /portal/\allowbreak{}franchise-\allowbreak{}information, /portal/\allowbreak{}profile: RoleBadge role/\allowbreak{}area.
+\item 3. /portal/\allowbreak{}notification (+ chi tiết): CategoryBadge loại thông báo.
+\item 4. /portal/\allowbreak{}knowledge: CategoryBadge danh mục/\allowbreak{}thẻ bài.
+\item 5. /portal/\allowbreak{}support (+ chi tiết): AlertBadge ưu tiên, CategoryBadge danh mục.
+\item 6. /portal (Home): badge thông báo/\allowbreak{}ưu tiên theo loại tương ứng.
+\end{itemize}
+\subsection*{Acceptance Criteria}
+\par\smallskip\textbf{TAG-07 — Acceptance / checklist}\par
+\begin{itemize}[label=$\square$]
+\item 0 \code{wujia-badge} và Bootstrap \code{badge} trong template portal ở màn mapping; test guard StatusBadge mở ra toàn bộ module portal với danh sách loại trừ là 4 badge này.
+\item Không badge nào ngoài StatusBadge dùng bộ màu trạng thái (trừ AlertBadge 2 tone).
+\item CountBadge: 0 ẩn, 100 hiển thị “99+”, không che icon ở 360.
+\item Tương phản chữ/\allowbreak{}nền \(\geq\)4.5:1.
+\item Kiểm PC 1440\(\times\)900, 1024\(\times\)768, breakpoint 992/\allowbreak{}991; mobile 390\(\times\)844, 360\(\times\)800; chữ dài, focus/\allowbreak{}keyboard, vùng chạm mobile \(\geq\)44.
+\item Không đổi dữ liệu, điều kiện truy vấn, quyền, store context hoặc workflow.
+\item Dev bàn giao ảnh trước/\allowbreak{}sau cùng viewport/\allowbreak{}role/\allowbreak{}URL + số đo máy; FIX/\allowbreak{}IMPACT/\allowbreak{}RETEST/\allowbreak{}LIMIT + Build/\allowbreak{}Deploy hợp lệ. BA retest sau deploy.
+\end{itemize}
+\subsection*{Out of scope / Rủi ro}
+\par\smallskip\textbf{OUT OF SCOPE}\par
+\begin{itemize}
+\item StatusBadge (CMP-SB-001), FilterChip (CMP-FC-001), CodeBadge.
+\end{itemize}
+
+\par\smallskip\textbf{CẦN BA CHỐT}\par
+\begin{itemize}
+\item Q-TAG-1: Ưu tiên “Khẩn” là AlertBadge (đề xuất) hay StatusBadge danger?
+\item Q-TAG-2: CountBadge hiện “99+” (đề xuất) hay số thật?
+\item Q-TAG-3: RoleBadge giữ pill hiện hành (trùng dáng StatusBadge info) hay đổi sang viền để tách rõ?
+\end{itemize}
+
+\par\smallskip\textbf{ODOO / RỦI RO}\par
+\begin{itemize}
+\item Custom: một template QWeb + CSS dùng chung ở tầng khung portal; không thêm model/\allowbreak{}field.
+\item Trang chỉ truyền nội dung; không override dáng component trong CSS trang (cùng luật StatusBadge/\allowbreak{}ListCard).
+\end{itemize}
+\subsection*{Link tham chiếu}
+http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}knowledge ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}notification ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}franchise-\allowbreak{}information\par
+Liên quan: CMP-SB-001 (Components tách riêng: RoleBadge, CountBadge, FilterChip, CategoryBadge, AlertBadge).\par
+\clearpage
+\section{CMP-MD-001 --- Modal / Dialog}
+\begin{tabularx}{\textwidth}{@{}l X l X@{}}\toprule
+STT & 18 & Nhóm & Feedback\\
+Priority & Medium & Status & Dev Proposed\\
+Task & UI-MODAL-001 & Odoo Fit & Custom\\
+Ngày cập nhật & 02/10/2026 & & \\\bottomrule\end{tabularx}
+\subsection*{Mục tiêu}
+(Đề xuất thêm vào danh sách component.) Một Modal dùng chung cho xác nhận, thông tin, form ngắn, QR — cùng kích thước và cùng hành vi bàn phím/\allowbreak{}đóng.\par
+\subsection*{Hiện trạng / Vấn đề}
+Đo build hiện hành 02/\allowbreak{}10/\allowbreak{}2026 + đọc source:\par
+\begin{itemize}
+\item 4 nơi dùng hộp thoại, mỗi nơi tự viết JS đóng/\allowbreak{}mở riêng (Đặt hàng, Công nợ, 2 file Đăng ký thi); họ \code{wj-pc-modal} 26 class.
+\item Khung gốc: rộng 420, radius 20, padding 26/\allowbreak{}32 (mobile radius 16, padding 20); Công nợ QR 560, padding 28/\allowbreak{}32; Đăng ký thi 820 và 880, padding 22/\allowbreak{}36.
+\item Còn 3 hộp xác nhận mặc định của trình duyệt: hủy yêu cầu cập nhật, xóa sản phẩm khỏi giỏ, rời trang khi có thay đổi chưa lưu — không theo giao diện portal.
+\item Lớp chọn cửa hàng là màn phủ riêng; popup chuông là dropdown; sheet “Thêm” mobile thuộc bottom nav.
+\item Chưa có hợp đồng chung cho Esc, bấm nền, focus, khóa cuộn trang.
+\end{itemize}
+\subsection*{Spec chuẩn hóa}
+\par\smallskip\textbf{MD-01 — Cơ sở / boundary}\par
+Hộp thoại chặn cho: xác nhận, thông tin, form ngắn, xem QR/\allowbreak{}ảnh. Không gồm: popup chuông (dropdown), sheet “Thêm” (CMP-BN-001), toast.\par
+
+\par\smallskip\textbf{MD-02 — Kích thước}\par
+sm 420 (xác nhận/\allowbreak{}thông tin) · md 560 (form ngắn, QR) · lg 880 (nội dung dài). max-\allowbreak{}width calc(100vw \(-\) 32px); max-\allowbreak{}height 100vh \(-\) 64; thân cuộn bên trong, tiêu đề/\allowbreak{}hành động cố định.\par
+
+\par\smallskip\textbf{MD-03 — Geometry}\par
+Radius 20 (PC) / 16 (mobile); padding 24/\allowbreak{}32 (PC), 20 (mobile). Header: tiêu đề 18/\allowbreak{}700 + IconButton đóng 36 (aria-\allowbreak{}label “Đóng”). Footer: hành động căn phải, primary cuối, gap 12; mobile nút chiếm đều chiều ngang. Nền phủ rgba(17,24,39,.18) (giữ hiện hành).\par
+
+\par\smallskip\textbf{MD-04 — Mobile \(\leq\)991}\par
+Mặc định giữ hộp giữa màn như hiện hành (chỉnh ít) — xem câu hỏi Q-MD-1.\par
+
+\par\smallskip\textbf{MD-05 — Hành vi}\par
+Mở: focus phần tử đầu (confirm danger: focus nút “Hủy”). Tab vòng trong modal. Esc và bấm nền = Hủy, trừ khi đang gửi dữ liệu (khóa đóng tới khi xong). Đóng: trả focus về nút đã mở. Khóa cuộn trang khi mở. role=“dialog”, aria-\allowbreak{}modal=“true”, aria-\allowbreak{}labelledby = tiêu đề.\par
+
+\par\smallskip\textbf{MD-06 — Confirm}\par
+Tiêu đề là câu hỏi; nội dung nêu hậu quả; 2 nút: secondary “Hủy” + primary/\allowbreak{}danger với động từ cụ thể (“Gửi đơn”, “Xóa”, “Hủy yêu cầu”), không dùng “OK”. Nút chính khóa + hiện đang xử lý khi gửi, chống bấm 2 lần. Thay 3 hộp xác nhận trình duyệt bằng confirm của portal.\par
+\subsection*{Variants}
+confirm · confirm-\allowbreak{}danger · info · form · media (QR/\allowbreak{}ảnh) \(\times\) size sm/\allowbreak{}md/\allowbreak{}lg.\par
+Props đề xuất: md\_id, md\_size, md\_variant, md\_title, md\_body, md\_confirm\_label, md\_cancel\_label.\par
+\subsection*{Màn hình áp dụng}
+\par\smallskip\textbf{MD-07 — Mapping}\par
+\begin{itemize}[label={}]
+\item 1. /portal/\allowbreak{}order, /portal/\allowbreak{}order/\allowbreak{}cart: xác nhận gửi đơn (sm), xóa sản phẩm khỏi giỏ (confirm-\allowbreak{}danger).
+\item 2. /portal/\allowbreak{}debt: QR thanh toán (media md).
+\item 3. /portal/\allowbreak{}exam/\allowbreak{}register: các hộp thoại của luồng đăng ký (lg).
+\item 4. /portal/\allowbreak{}info-\allowbreak{}request/\allowbreak{}\textless{}id\textgreater{}: hủy yêu cầu (confirm-\allowbreak{}danger).
+\item 5. Rời trang khi form có thay đổi chưa lưu (confirm).
+\end{itemize}
+Lớp chọn cửa hàng: xem Q-MD-3.\par
+\subsection*{Acceptance Criteria}
+\par\smallskip\textbf{MD-08 — Acceptance / checklist}\par
+\begin{itemize}[label=$\square$]
+\item 0 hộp xác nhận mặc định của trình duyệt ở màn mapping.
+\item Mọi modal mapping dùng một khung; đúng 3 size; tiêu đề 18/\allowbreak{}700, có nút đóng.
+\item Bàn phím: Tab không thoát khỏi modal; Esc đóng; focus trả về nút mở; đang gửi thì không đóng được.
+\item Trang nền không cuộn khi modal mở; nội dung dài cuộn trong thân modal ở 360\(\times\)800.
+\item Gửi đơn bấm 2 lần nhanh chỉ tạo 1 yêu cầu.
+\item Kiểm PC 1440\(\times\)900, 1024\(\times\)768, breakpoint 992/\allowbreak{}991; mobile 390\(\times\)844, 360\(\times\)800; chữ dài, focus/\allowbreak{}keyboard, vùng chạm mobile \(\geq\)44.
+\item Không đổi dữ liệu, điều kiện truy vấn, quyền, store context hoặc workflow.
+\item Dev bàn giao ảnh trước/\allowbreak{}sau cùng viewport/\allowbreak{}role/\allowbreak{}URL + số đo máy; FIX/\allowbreak{}IMPACT/\allowbreak{}RETEST/\allowbreak{}LIMIT + Build/\allowbreak{}Deploy hợp lệ. BA retest sau deploy.
+\end{itemize}
+\subsection*{Out of scope / Rủi ro}
+\par\smallskip\textbf{OUT OF SCOPE}\par
+\begin{itemize}
+\item Popup chuông, sheet “Thêm” mobile, toast; nội dung/\allowbreak{}luồng nghiệp vụ trong từng modal.
+\end{itemize}
+
+\par\smallskip\textbf{RỦI RO}\par
+\begin{itemize}
+\item Hộp “rời trang khi chưa lưu” của trình duyệt (beforeunload) không thay được bằng modal khi đóng tab — chỉ thay được khi bấm link/\allowbreak{}nút trong portal.
+\end{itemize}
+
+\par\smallskip\textbf{CẦN BA CHỐT}\par
+\begin{itemize}
+\item Q-MD-1: Mobile dùng hộp giữa màn (hiện hành, đề xuất) hay bottom sheet full chiều ngang?
+\item Q-MD-2: Bấm nền có đóng modal form không (rủi ro mất dữ liệu đang nhập)? Đề xuất: confirm/\allowbreak{}info đóng, form không.
+\item Q-MD-3: Lớp chọn cửa hàng có đưa về Modal (form, md) hay giữ màn phủ riêng?
+\end{itemize}
+
+\par\smallskip\textbf{ODOO / RỦI RO}\par
+\begin{itemize}
+\item Custom: một template QWeb + CSS dùng chung ở tầng khung portal; không thêm model/\allowbreak{}field.
+\item Trang chỉ truyền nội dung; không override dáng component trong CSS trang (cùng luật StatusBadge/\allowbreak{}ListCard).
+\end{itemize}
+\subsection*{Link tham chiếu}
+http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}order/\allowbreak{}cart (bấm Gửi đơn — chỉ mở hộp, không xác nhận) ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}debt\par
+Liên quan: CMP-BTN-001 (nút trong footer), CMP-BN-001 (sheet “Thêm” ngoài phạm vi).\par
+\clearpage
+\section{CMP-FF-001 --- FormField}
+\begin{tabularx}{\textwidth}{@{}l X l X@{}}\toprule
+STT & 19 & Nhóm & Form / Filter\\
+Priority & Medium & Status & Dev Proposed\\
+Task & UI-FORM-001 & Odoo Fit & Custom\\
+Ngày cập nhật & 02/10/2026 & & \\\bottomrule\end{tabularx}
+\subsection*{Mục tiêu}
+(Đề xuất thêm vào danh sách component.) Một FormField cho form tạo/\allowbreak{}sửa: nhãn, control, gợi ý, lỗi, bắt buộc — cùng kích thước theo nền tảng.\par
+\subsection*{Hiện trạng / Vấn đề}
+Đo build hiện hành 02/\allowbreak{}10/\allowbreak{}2026:\par
+\begin{itemize}
+\item Họ riêng: \code{wj-pc-control} 18 · \code{wj-pc-field} 14 · \code{wj-exam-pc-control} 8 · \code{wj-exam-pc-field} 5 · \code{wj-auth-control} 6 (đăng nhập); Bootstrap \code{form-control} 31 + \code{form-select} 13 (Đổi trả, Yêu cầu cập nhật, Hỗ trợ).
+\item PC Tạo hỗ trợ: control cao 42, padding 0/\allowbreak{}16, radius 10, chữ 14; nhãn 14/\allowbreak{}600. PC Đăng ký thi: control cao 38, chữ 13; nhãn 13/\allowbreak{}700.
+\item Mobile Tạo đổi trả/\allowbreak{}Tạo hỗ trợ: control cao 48, radius 12 (đúng chuẩn mobile đã chốt) nhưng chữ trong ô 12.25px; textarea 96–102, chữ 14; gợi ý dưới trường 11px.
+\item Chữ trong ô \textless{}16px trên mobile làm iPhone tự phóng to trang khi chạm vào ô.
+\item Trạng thái lỗi, dấu bắt buộc và vị trí gợi ý chưa thống nhất giữa các form.
+\end{itemize}
+\subsection*{Spec chuẩn hóa}
+\par\smallskip\textbf{FF-01 — Cơ sở / boundary}\par
+Nhãn (trên control) \(\to\) control \(\to\) gợi ý (tùy chọn) \(\to\) lỗi (thay gợi ý khi lỗi). Mỗi control có id + nhãn gắn với control (đã chốt ở chuẩn form mobile). Bắt buộc: dấu * màu -\kern0pt-\allowbreak{}wujia-\allowbreak{}danger sau nhãn + aria-\allowbreak{}required. Không gồm control của bộ lọc (CMP-FB-001).\par
+
+\par\smallskip\textbf{FF-02 — PC}\par
+Control cao 42 (-\kern0pt-\allowbreak{}wj-\allowbreak{}pc-\allowbreak{}input-\allowbreak{}h), radius 10 (-\kern0pt-\allowbreak{}wj-\allowbreak{}pc-\allowbreak{}input-\allowbreak{}radius), padding 0/\allowbreak{}14, chữ 14/\allowbreak{}400, viền 1px -\kern0pt-\allowbreak{}wujia-\allowbreak{}border, nền trắng. Nhãn 14/\allowbreak{}600 -\kern0pt-\allowbreak{}wujia-\allowbreak{}text-\allowbreak{}secondary, cách control 6. Gợi ý 13/\allowbreak{}400 muted; lỗi 13/\allowbreak{}500 -\kern0pt-\allowbreak{}wujia-\allowbreak{}danger. Textarea min-\allowbreak{}height 96, chỉ kéo dọc. Khoảng cách giữa trường 16. Form \(\geq\)1200 được 2 cột cho trường ngắn; textarea/\allowbreak{}upload luôn cả hàng.\par
+
+\par\smallskip\textbf{FF-03 — Mobile \(\leq\)991}\par
+Control cao 48, radius 12 (giữ chuẩn đã chốt), padding 0/\allowbreak{}14, chữ 16/\allowbreak{}400 (tránh tự phóng to trên iPhone). Nhãn 14/\allowbreak{}600; gợi ý/\allowbreak{}lỗi 13 (bỏ 11/\allowbreak{}11.5). Khoảng cách giữa trường 14. Checkbox/\allowbreak{}radio: nhãn bên phải, vùng chạm \(\geq\)44.\par
+
+\par\smallskip\textbf{FF-04 — Trạng thái}\par
+default · focus (viền -\kern0pt-\allowbreak{}wujia-\allowbreak{}primary + focus ring token) · error (viền danger, chữ lỗi, aria-\allowbreak{}invalid + aria-\allowbreak{}describedby) · disabled (nền -\kern0pt-\allowbreak{}wujia-\allowbreak{}muted-\allowbreak{}bg, chữ muted) · readonly (giá trị dạng chữ, không viền).\par
+
+\par\smallskip\textbf{FF-05 — Lỗi khi gửi}\par
+Gửi lỗi: giữ giá trị đã nhập; lỗi từng trường hiển thị tại trường và cuộn tới trường lỗi đầu; lỗi chung của form dùng InfoBanner danger đầu form (CMP-IB-001).\par
+\subsection*{Variants}
+text · number · date · select · textarea · choice (checkbox/\allowbreak{}radio) · upload (xem Q-FF-1).\par
+Props đề xuất: ff\_id, ff\_label, ff\_required, ff\_help, ff\_error, ff\_type; control truyền qua slot.\par
+\subsection*{Màn hình áp dụng}
+\par\smallskip\textbf{FF-06 — Mapping}\par
+\begin{itemize}[label={}]
+\item 1. /portal/\allowbreak{}support/\allowbreak{}new, /portal/\allowbreak{}return/\allowbreak{}new, /portal/\allowbreak{}info-\allowbreak{}request/\allowbreak{}new: form tạo.
+\item 2. /portal/\allowbreak{}exam/\allowbreak{}register: form đăng ký (PC 38 \(\to\) 42).
+\item 3. /portal/\allowbreak{}profile: các trường sửa được (nếu có).
+\end{itemize}
+Trang đăng nhập và control bộ lọc ngoài phạm vi.\par
+\subsection*{Acceptance Criteria}
+\par\smallskip\textbf{FF-07 — Acceptance / checklist}\par
+\begin{itemize}[label=$\square$]
+\item 0 Bootstrap \code{form-control}/\code{form-select} và họ control riêng ở màn mapping.
+\item PC control 42, mobile 48; chữ trong ô mobile 16 — chạm vào ô trên iPhone không phóng to trang.
+\item Mọi control có nhãn gắn id; trường bắt buộc có * và aria-\allowbreak{}required.
+\item Gửi thiếu trường bắt buộc: lỗi tại trường, focus trường lỗi đầu, giữ giá trị đã nhập.
+\item Không còn gợi ý/\allowbreak{}lỗi \textless{}13px.
+\item Kiểm PC 1440\(\times\)900, 1024\(\times\)768, breakpoint 992/\allowbreak{}991; mobile 390\(\times\)844, 360\(\times\)800; chữ dài, focus/\allowbreak{}keyboard, vùng chạm mobile \(\geq\)44.
+\item Không đổi dữ liệu, điều kiện truy vấn, quyền, store context hoặc workflow.
+\item Dev bàn giao ảnh trước/\allowbreak{}sau cùng viewport/\allowbreak{}role/\allowbreak{}URL + số đo máy; FIX/\allowbreak{}IMPACT/\allowbreak{}RETEST/\allowbreak{}LIMIT + Build/\allowbreak{}Deploy hợp lệ. BA retest sau deploy.
+\end{itemize}
+\subsection*{Out of scope / Rủi ro}
+\par\smallskip\textbf{OUT OF SCOPE}\par
+\begin{itemize}
+\item Control bộ lọc (CMP-FB-001 giữ 42/\allowbreak{}38/\allowbreak{}32), trang đăng nhập (cao 50), trình soạn thảo rich text.
+\item Không đổi trường, thứ tự trường, điều kiện kiểm tra dữ liệu.
+\end{itemize}
+
+\par\smallskip\textbf{RỦI RO}\par
+\begin{itemize}
+\item Đăng ký thi PC tăng control 38 \(\to\) 42: form dài thêm, cần kiểm khổ 1024\(\times\)768.
+\end{itemize}
+
+\par\smallskip\textbf{CẦN BA CHỐT}\par
+\begin{itemize}
+\item Q-FF-1: Upload ảnh/\allowbreak{}video (Đổi trả 3–5 ảnh + video) là variant của FormField hay component riêng?
+\item Q-FF-2: Chữ trong ô mobile 16 (đề xuất, vì iPhone) hay giữ cỡ hiện hành và chấp nhận phóng to?
+\end{itemize}
+
+\par\smallskip\textbf{ODOO / RỦI RO}\par
+\begin{itemize}
+\item Custom: một template QWeb + CSS dùng chung ở tầng khung portal; không thêm model/\allowbreak{}field.
+\item Trang chỉ truyền nội dung; không override dáng component trong CSS trang (cùng luật StatusBadge/\allowbreak{}ListCard).
+\end{itemize}
+\subsection*{Link tham chiếu}
+http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}support/\allowbreak{}new ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}return/\allowbreak{}new ; http://113.161.187.126:8019/\allowbreak{}portal/\allowbreak{}exam/\allowbreak{}register (chỉ xem, không gửi)\par
+Liên quan: chuẩn form mobile đã chốt (control \(\geq\)48, radius 12), CMP-FB-001, CMP-IB-001.\par
+\end{document}

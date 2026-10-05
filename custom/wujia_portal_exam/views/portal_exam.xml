@@ -370,7 +370,8 @@
                                 <span class="wj-exam-pc-alert__chip"><i class="feather icon-check-circle"/></span>
                                 <div>
                                     <p class="wj-exam-pc-alert__title">Đã gửi yêu cầu đăng ký</p>
-                                    <p class="wj-exam-pc-alert__text">Vui lòng chờ Ngô Gia xác nhận.</p>
+                                    <t t-set="wj_txt">Vui lòng chờ {brand} xác nhận.</t>
+                                    <p class="wj-exam-pc-alert__text" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                                 </div>
                                 <a href="/portal/exam" class="wj-btn wj-btn--secondary wj-exam-pc-alert__btn">Xem chi tiết</a>
                             </div>
@@ -431,7 +432,8 @@
                         <aside class="wj-surface-card wj-pc-card wj-exam-pc-sumcard">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Tóm tắt đăng ký</t>
-                                <t t-set="ch_subtitle">Thông tin sẽ được gửi để Ngô Gia xác nhận.</t>
+                                <t t-set="wj_txt">Thông tin sẽ được gửi để {brand} xác nhận.</t>
+                                <t t-set="ch_subtitle" t-value="wj_txt.replace('{brand}', wj_brand['name'])"/>
                                 <t t-set="ch_level" t-value="2"/>
                                 <t t-set="ch_platform" t-value="'pc'"/>
                                 <t t-set="ch_class" t-value="'wj-exam-pc-sechead'"/>
@@ -569,7 +571,8 @@
                             <i class="feather icon-x"/>
                         </button>
                         <h2 class="wj-pc-modal__title wj-exam-pc-modal__title">Gửi yêu cầu đăng ký</h2>
-                        <p class="wj-exam-pc-modal__sub">Kiểm tra lần cuối trước khi gửi yêu cầu đến Ngô Gia xác nhận.</p>
+                        <t t-set="wj_txt">Kiểm tra lần cuối trước khi gửi yêu cầu đến {brand} xác nhận.</t>
+                        <p class="wj-exam-pc-modal__sub" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
 
                         <h3 class="wj-exam-pc-modal__sectitle">Thông tin lịch thi</h3>
                         <div class="wj-exam-pc-mkvgrid">
@@ -871,7 +874,8 @@
                         </div>
                         <div class="wujia-mexam-kv">
                             <span class="wujia-mexam-kv-k">Địa điểm</span>
-                            <span class="wujia-mexam-kv-v" data-exam-cf-loc="1">Trung tâm đào tạo Ngô Gia</span>
+                            <t t-set="wj_txt">Trung tâm đào tạo {brand}</t>
+                            <span class="wujia-mexam-kv-v" data-exam-cf-loc="1" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                         </div>
                     </t>
 

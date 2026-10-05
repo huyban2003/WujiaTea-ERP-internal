@@ -297,3 +297,19 @@
         padding: 0 12px 0 10px;
     }
 }
+
+/* ---------- Top bar 992–1199 (sidebar dạng ngăn kéo) ----------
+   Hàng trái = logo 104 + hamburger 44 + khối Cửa hàng 452 = 600, cụm phải 406 ⇒ dưới ~1034
+   `ul.nav` (Bootstrap `flex-wrap: wrap`) đẩy khối Cửa hàng xuống dòng 2, `mr-auto` của
+   hamburger nuốt chỗ trống dòng 1 (đo 423px) và header cắt khối. Tên cửa hàng càng dài càng
+   vỡ ở khổ rộng hơn (UAT `em.hcm` chỉ lộ ở đúng 992). Sửa: pill ngôn ngữ ở dải này chỉ còn cờ
+   (nhãn đã ẩn ở _components.css) nên bỏ bề rộng 118 của Figma 1920; hàng trái không xuống
+   dòng và được co — khối Cửa hàng tự co + ellipsis tên ở `store_picker.css`. */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .wujia-navbar .dropdown-language > .nav-link { width: auto !important; }
+    /* `min-width: 0` cả chuỗi collapse → wrapper → ul: thiếu một mắt thì khối Cửa hàng không co,
+       collapse phình quá khung và đẩy cụm phải ra ngoài mép màn hình (đo: 1003 > 978). */
+    .wujia-navbar .navbar-collapse { min-width: 0; }
+    .wujia-navbar .bookmark-wrapper { min-width: 0; }
+    .wujia-navbar .bookmark-wrapper > .navbar-nav { flex-wrap: nowrap; min-width: 0; }
+}

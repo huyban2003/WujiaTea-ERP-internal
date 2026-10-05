@@ -126,6 +126,15 @@
     box-sizing: border-box;
 }
 
+/* Top bar 992–1199: hàng trái không xuống dòng (`_pc_account.css`). Đủ chỗ thì khối giữ 430
+   như ≥1200; thiếu chỗ thì co (flex-shrink mặc định 1, cần `min-width: 0` ở cả <li> lẫn khối)
+   thay vì rớt dòng. Pill cửa hàng đã `flex: 0 1 318px; min-width: 0` ⇒ tên dài ellipsis,
+   chip vai trò giữ nguyên. Không dùng `width: auto`: khối sẽ ôm chữ và co cả khi còn chỗ. */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .wujia-navbar .navbar-nav > li:has(> .wujia-store-current-block) { min-width: 0; }
+    .wujia-store-current-block { min-width: 0; }
+}
+
 /* Current Store Strip (BA Wujia_Source_UI_FINAL_v1, WJ_Mobile_CurrentStoreStrip):
    1 dòng "[code]  Tên cửa hàng  ...  Role". White bg, border-bottom #EEF2F5, 48px.
    Hiển thị <992px trên MỌI trang (apply-all, Sprint 12). Inject sau
@@ -167,7 +176,7 @@
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    background: #EAF7FD;
+    background: var(--wujia-primary-soft);
     color: var(--wujia-morder-primary);
     border-radius: 999px;
     /* UI-MOB-SHELL-002: chip 24px cùng role chip (Blank Shell y=116-140 strip 48px). */

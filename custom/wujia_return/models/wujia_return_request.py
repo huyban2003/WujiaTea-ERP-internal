@@ -395,7 +395,7 @@ class WujiaReturnRequest(models.Model):
     @api.model
     def _portal_check_product_config(self, product):
         """Câu báo nếu sản phẩm chưa cấu hình bù hợp lệ (BA STT3 #6), None nếu hợp lệ."""
-        msg = _("Sản phẩm chưa được cấu hình chính sách bù hàng. Vui lòng liên hệ Ngô Gia.")
+        msg = self.env.company._wj_brand_text(_("Sản phẩm chưa được cấu hình chính sách bù hàng. Vui lòng liên hệ {brand}."))
         if not product.compensation_enabled or not product.compensation_claim_uom_id:
             return msg
         delivery_uom = product.compensation_delivery_uom_id
