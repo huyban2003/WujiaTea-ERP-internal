@@ -1,0 +1,116 @@
+// ============================================================================
+// Wujia Mobile Core — Mobile Form Standard Layout & Inputs
+// ============================================================================
+
+@include wujia-media-mobile {
+  .o_wujia_mobile_form {
+    padding-bottom: 80px;
+
+    .wujia-mobile-title {
+      margin: 4px 0 12px;
+      font-size: 18px;
+    }
+
+    .wujia-mobile-list {
+      margin: 0 -16px;
+    }
+
+    .wujia-mobile-row {
+      min-height: 50px;
+      padding: 4px 14px;
+      border-bottom: 1px solid #ededed;
+      display: flex;
+      flex-direction: column;
+
+      &.has-icon .wujia-mobile-field {
+        margin-left: 8px;
+      }
+    }
+
+    .wujia-mobile-label {
+      margin: 0 0 2px;
+      color: #6c757d;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .wujia-mobile-content {
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .wujia-mobile-icon {
+      width: 34px;
+      min-width: 34px;
+      min-height: 32px;
+      border-right: 1px solid #ededed;
+      display: flex;
+      align-items: center;
+      color: #6c757d;
+      font-size: 16px;
+    }
+
+    .wujia-mobile-field {
+      flex: 1 1 auto;
+      min-width: 0;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+
+      .o_input {
+        min-height: 32px !important;
+        height: 32px !important;
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+      }
+
+      .o_input_dropdown,
+      .o_field_many2one_selection {
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+
+      &.o_readonly_modifier,
+      &.o_readonly_modifier .o_input {
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+      }
+
+      &.o_field_invalid .o_input {
+        border-bottom: 2px solid #dc3545 !important;
+      }
+    }
+
+    .o_field_invalid .o_input {
+      border-bottom: 2px solid #dc3545 !important;
+    }
+  }
+
+  .o_form_editable .o_wujia_mobile_form {
+    .wujia-mobile-field:not(.o_readonly_modifier) .o_input {
+      border: 0 !important;
+      border-bottom: 1px solid #8aa0ad !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+
+      &:focus {
+        border-bottom: 2px solid #002b60 !important;
+        box-shadow: none !important;
+      }
+    }
+  }
+
+  .o_form_readonly .o_wujia_mobile_form {
+    .wujia-mobile-field .o_input {
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+    }
+  }
+}

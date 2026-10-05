@@ -90,6 +90,99 @@
                         invisible="state not in ['draft', 'sent', 'sale']" />
                 </div>
             </xpath>
+
+            <!-- Hide desktop sale_header on mobile devices -->
+            <xpath expr="//group[@name='sale_header']" position="attributes">
+                <attribute name="class" add="d-mb-none" separator=" " />
+            </xpath>
+
+            <!-- Insert mobile form section right after sale_header -->
+            <xpath expr="//group[@name='sale_header']" position="after">
+                <div class="d-none d-mb-block w-100 o_wujia_mobile_form">
+                    <h3 class="text-center fw-bold wujia-mobile-title">Order Information</h3>
+                    <div class="wujia-mobile-list">
+                        <div class="wujia-mobile-row">
+                            <label for="partner_id" string="Customer" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <field name="partner_id" readonly="state in ['cancel','sale']" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row">
+                            <label for="is_portal_order" string="Portal Order" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <field name="is_portal_order" readonly="1" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row">
+                            <label for="is_return_order" string="Compensation Orders" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <field name="is_return_order" readonly="1" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row">
+                            <label for="franchise_id" string="Franchise Store" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <field name="franchise_id" options="{'no_create': True}" required="is_portal_order" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row">
+                            <label for="franchise_partner_id" string="Store Partner" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <field name="franchise_partner_id" options="{'no_create': True}" required="is_portal_order" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row has-icon">
+                            <label for="area_id" string="Area" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <span class="wujia-mobile-icon"><i class="fa fa-map-marker" /></span>
+                                <field name="area_id" readonly="1" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row has-icon">
+                            <label for="partner_invoice_id" string="Invoice Address" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <span class="wujia-mobile-icon"><i class="fa fa-file-text-o" /></span>
+                                <field name="partner_invoice_id" options="{'no_quick_create': True}" readonly="state == 'cancel' or locked" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row has-icon">
+                            <label for="partner_shipping_id" string="Delivery Address" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <span class="wujia-mobile-icon"><i class="fa fa-truck" /></span>
+                                <field name="partner_shipping_id" options="{'no_quick_create': True}" readonly="state == 'cancel' or locked" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row has-icon" invisible="state == 'sale'">
+                            <label for="validity_date" string="Expiration" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <span class="wujia-mobile-icon"><i class="fa fa-calendar" /></span>
+                                <field name="validity_date" readonly="state in ['cancel','sale']" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row has-icon" invisible="state in ['sale','cancel']">
+                            <label for="date_order" string="Quotation Date" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <span class="wujia-mobile-icon"><i class="fa fa-calendar-o" /></span>
+                                <field name="date_order" nolabel="1" readonly="state in ['cancel','sale']" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row has-icon">
+                            <label for="pricelist_id" string="Pricelist" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <span class="wujia-mobile-icon"><i class="fa fa-tags" /></span>
+                                <field name="pricelist_id" options="{'no_open': True, 'no_create': True}" readonly="state in ['cancel','sale']" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                        <div class="wujia-mobile-row has-icon">
+                            <label for="payment_term_id" string="Payment Terms" class="o_form_label wujia-mobile-label" />
+                            <div class="wujia-mobile-content">
+                                <span class="wujia-mobile-icon"><i class="fa fa-credit-card" /></span>
+                                <field name="payment_term_id" placeholder="Immediate" options="{'no_open': True, 'no_create': True}" class="wujia-mobile-field" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
         </field>
     </record>
 

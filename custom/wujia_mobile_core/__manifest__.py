@@ -4,6 +4,7 @@
     'version': '19.0.1.0.0',
     'category': 'Wujia/Mobile',
     'summary': 'Core Mobile UI Framework & Standards for WujiaTea ERP Backend Web Client',
+    'description': """Core Mobile UI Framework & Standards for WujiaTea ERP Backend Web Client""",
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': [
@@ -24,6 +25,7 @@
             'wujia_mobile_core/static/src/scss/_empty_state.scss',
             'wujia_mobile_core/static/src/scss/_loading.scss',
             'wujia_mobile_core/static/src/scss/_utilities.scss',
+            'wujia_mobile_core/static/src/scss/_form.scss',
             'wujia_mobile_core/static/src/xml/wujia_mobile_templates.xml',
             'wujia_mobile_core/static/src/components/empty_state/wujia_mobile_empty_state.js',
             'wujia_mobile_core/static/src/components/empty_state/wujia_mobile_empty_state.xml',

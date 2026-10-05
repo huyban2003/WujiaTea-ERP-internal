@@ -81,13 +81,11 @@ Bất kỳ view Kanban nào hiển thị trên di động chỉ cần thêm `cla
 
 ### 3.2. Bộ Class Thẻ Card & Text Standards (`.wj_mobile_card`)
 
-| Class SCSS | Ý Nghĩa / Mục Đích |
-|---|---|
-| `.wj_mobile_card` | Khung padding thẻ card di động |
-| `.wj_mobile_card__code` | Mã chứng từ (SO, PO, WH/OUT...) — chữ đậm, màu thương hiệu |
-| `.wj_mobile_card__title` | Nội dung chính (Tên khách hàng, nhà cung cấp) — chữ vừa, đậm vừa |
-| `.wj_mobile_card__meta` | Thông tin phụ (Ngày tạo, kho, người phụ trách) — chữ mờ, nhỏ |
-| `.wj_mobile_card__value` | Giá trị nổi bật (Tổng tiền, tổng khối lượng kg) — chữ đậm, nổi bật |
+- **`.wj_mobile_card`**: Khung padding thẻ card di động
+- **`.wj_mobile_card__code`**: Mã chứng từ (SO, PO, WH/OUT...) — chữ đậm, màu thương hiệu
+- **`.wj_mobile_card__title`**: Nội dung chính (Tên khách hàng, nhà cung cấp) — chữ vừa, đậm vừa
+- **`.wj_mobile_card__meta`**: Thông tin phụ (Ngày tạo, kho, người phụ trách) — chữ mờ, nhỏ
+- **`.wj_mobile_card__value`**: Giá trị nổi bật (Tổng tiền, tổng khối lượng kg) — chữ đậm, nổi bật
 
 ### 3.3. Bộ Class Badge Trạng Thái Chuẩn (`.wj_mobile_badge`)
 
@@ -144,3 +142,21 @@ Module core cung cấp các mẫu QWeb dùng chung:
     </group>
 </t>
 ```
+
+---
+
+## 6. Quy Chuẩn Form View Di Động (`.o_wujia_mobile_form`)
+
+Module `wujia_mobile_core` cung cấp bộ khung CSS tiêu chuẩn cho Form View trên màn hình điện thoại (breakpoint max-width 767px):
+
+- Container chính: `.o_wujia_mobile_form` (kèm class responsive `.d-none .d-mb-block .w-100`).
+- Tiêu đề khối: `.wujia-mobile-title`
+- Danh sách các trường: `.wujia-mobile-list`
+- Mỗi dòng trường: `.wujia-mobile-row` (thêm `.has-icon` nếu có icon).
+- Nhãn trường: `.wujia-mobile-label`
+- Vùng nội dung nhập liệu: `.wujia-mobile-content`
+- Icon định danh: `.wujia-mobile-icon`
+- Trường nhập liệu: `.wujia-mobile-field` (tự động xử lý underline, focus, readonly, dropdown và trạng thái invalid).
+
+Mọi module con chỉ cần định nghĩa cấu trúc XML và không cần viết thêm bất kỳ CSS nào.
+
