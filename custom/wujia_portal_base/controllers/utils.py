@@ -15,10 +15,12 @@ from werkzeug.exceptions import Forbidden, TooManyRequests
 from werkzeug.utils import secure_filename
 
 from odoo import _
+from odoo.tools.translate import LazyGettext, LazyTranslate, code_translations
 from odoo.exceptions import ValidationError
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
+_lt = LazyTranslate(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -83,7 +85,7 @@ def local_day_range_utc(date_from, date_to, tz):
 
 
 # Nguồn DUY NHẤT của thông điệp khoảng ngày ngược — mọi màn dùng chung câu chữ và chỗ hiển thị.
-ERR_DATE_RANGE = 'Từ ngày không được lớn hơn Đến ngày'
+ERR_DATE_RANGE = _lt('From date cannot be later than To date')
 
 
 def parse_portal_date(value):
@@ -104,7 +106,7 @@ def date_range_error(date_from, date_to):
     """
     df = date_from if isinstance(date_from, date) else parse_portal_date(date_from)
     dt = date_to if isinstance(date_to, date) else parse_portal_date(date_to)
-    return ERR_DATE_RANGE if (df and dt and df > dt) else ''
+    return str(ERR_DATE_RANGE) if (df and dt and df > dt) else ''
 
 
 # ---------------------------------------------------------------------------
@@ -170,7 +172,7 @@ def rate_limit(max_calls, window_sec, key_fn=None):
                     ip, endpoint, count, max_calls,
                 )
                 raise TooManyRequests(
-                    description=_('Quá nhiều yêu cầu. Vui lòng thử lại sau.')
+                    description=_('Too many requests. Please try again later.')
                 )
             return fn(self, *args, **kwargs)
         return wrapper
@@ -215,7 +217,7 @@ def attach_files_to_record(
         return request.env['ir.attachment'].browse()
     if len(files) > max_count:
         raise ValidationError(
-            _('Tối đa %s file. Bạn gửi %s file.') % (max_count, len(files))
+            _('At most %s files allowed. You sent %s files.') % (max_count, len(files))
         )
     max_bytes = max_size_mb * 1024 * 1024
     Attachment = request.env['ir.attachment'].sudo()
@@ -224,11 +226,11 @@ def attach_files_to_record(
         data = f.read()
         if len(data) > max_bytes:
             raise ValidationError(
-                _('File "%s" vượt quá %sMB.') % (f.filename, max_size_mb)
+                _('File "%s" exceeds %sMB.') % (f.filename, max_size_mb)
             )
         if f.mimetype not in allowed_mime:
             raise ValidationError(
-                _('File "%s" có định dạng không hỗ trợ (%s).') % (
+                _('File "%s" has an unsupported format (%s).') % (
                     f.filename, f.mimetype,
                 )
             )
@@ -261,7 +263,7 @@ def parse_page_size(value, default, options=PAGE_SIZE_OPTIONS):
     return size if size in options else default
 
 
-def build_pager(total, page, page_size, *, path=None, item_label='bản ghi',
+def build_pager(total, page, page_size, *, path=None, item_label=_lt('records'),
                 page_size_options=(), size_param='page_size', extra_drop=()):
     """Nguồn DUY NHẤT của mọi pager portal (CMP-PGNT-001).
 
@@ -301,7 +303,7 @@ def build_pager(total, page, page_size, *, path=None, item_label='bản ghi',
         'from_': offset + 1 if total else 0,
         'to': min(offset + page_size, total),
         'numbers': numbers,
-        'item_label': item_label,
+        'item_label': str(item_label),
         'urls': {n: url(n) for n in numbers if n != ELLIPSIS},
         'prev_url': url(max(1, page - 1)),
         'next_url': url(min(total_pages, page + 1)),
@@ -440,36 +442,75 @@ STATUS_BADGE_BASE = 'wj-status-badge'
 STATUS_BADGE_VARIANTS = ('neutral', 'info', 'pending', 'processing',
                          'success', 'danger', 'feedback')
 
-# Nhãn hiển thị (đúng chữ trên màn) → variant.
-STATUS_VARIANT_BY_LABEL = {
+# Nhãn hiển thị → variant (J-V2). Khoá map = câu gốc TIẾNG ANH ⇒ màu không đổi theo ngôn ngữ người xem;
+# câu tiếng Việt nằm ở i18n/vi_VN.po. Viết `_lt('...')` literal (không sinh từ biến) để nhãn vào .pot.
+_STATUS_TERMS_BY_VARIANT = {
     # neutral — chưa bắt đầu / đã khép, không cần chú ý
-    'Nháp': 'neutral', 'Chưa bắt đầu': 'neutral', 'Đã đóng': 'neutral',
-    'Đã đọc': 'neutral', 'Đã hết hiệu lực': 'neutral', 'Chưa công bố': 'neutral',
-    'Chưa có': 'neutral', 'Không áp dụng': 'neutral',
+    'neutral': [
+        _lt('Draft'), _lt('Not started'), _lt('Closed'), _lt('Read'), _lt('No longer valid'),
+        _lt('Unpublished'), _lt('None yet'), _lt('Not applicable'),
+    ],
     # info — mới / đã xác nhận (BA khoá: "Đã xác nhận" phải info)
-    'Mới': 'info', 'Đã xác nhận': 'info', 'Đã đăng ký': 'info', 'Chưa đọc': 'info',
-    'Còn lịch': 'info', 'Dư có': 'info', 'Giấy báo có': 'info',
+    'info': [
+        _lt('New'), _lt('Confirmed'), _lt('Registered'), _lt('Unread'), _lt('Slots available'),
+        _lt('Credit balance'), _lt('Credit note'),
+    ],
     # pending — đang chờ một bên khác
-    'Chờ xác nhận': 'pending', 'Chờ xử lý': 'pending', 'Chưa xử lý': 'pending',
-    'Đã gửi': 'pending', 'Chờ duyệt': 'pending', 'Chờ kết quả': 'pending',
-    'Chưa có kết quả': 'pending', 'Hết chỗ': 'pending', 'Chưa thanh toán': 'pending',
+    'pending': [
+        _lt('Awaiting confirmation'), _lt('Pending'), _lt('Not processed'), _lt('Submitted'),
+        _lt('Awaiting approval'), _lt('Awaiting result'), _lt('No result yet'), _lt('Fully booked'),
+        _lt('Unpaid'),
+    ],
     # processing — đang chạy ("Chuẩn bị giao" là ví dụ BA ghi thẳng ở bậc này)
-    'Chuẩn bị giao': 'processing', 'Sắp giao': 'processing',
-    'Đang xử lý': 'processing', 'Đang giao': 'processing', 'Đang xét': 'processing',
-    'Đã lên đơn bù': 'processing', 'Đang bù một phần': 'processing',
-    'Đang xem': 'processing', 'Thanh toán một phần': 'processing', 'Một phần': 'processing',
+    'processing': [
+        _lt('Preparing delivery'), _lt('Delivering soon'), _lt('Processing'), _lt('Delivering'),
+        _lt('Under review'), _lt('Replacement ordered'), _lt('Partially compensated'), _lt('Viewing'),
+        _lt('Partially paid'), _lt('Partial'),
+    ],
     # success — xong
-    'Đã duyệt': 'success', 'Đã giao': 'success', 'Đã giao xong': 'success',
-    'Hoàn tất': 'success', 'Hoàn thành': 'success', 'Đã bù đủ': 'success',
-    'Đã giải quyết': 'success', 'Đạt': 'success', 'Đang hoạt động': 'success',
-    'Đã công bố': 'success', 'Có kết quả': 'success', 'Đã thanh toán': 'success',
+    'success': [
+        _lt('Approved'), _lt('Delivered'), _lt('Delivery completed'), _lt('Finished'), _lt('Done'),
+        _lt('Fully compensated'), _lt('Resolved'), _lt('Pass'), _lt('Enabled'), _lt('Published'),
+        _lt('Result available'), _lt('Paid'),
+    ],
     # danger — hỏng / dừng
-    'Từ chối': 'danger', 'Đã hủy': 'danger', 'Đã huỷ': 'danger',
-    'Hủy chuyến': 'danger', 'Quá hạn': 'danger', 'Không đạt': 'danger',
-    'Có quá hạn': 'danger',
+    'danger': [
+        _lt('Rejected'), _lt('Cancelled'), _lt('Trip cancelled'), _lt('Overdue'), _lt('Failed'),
+        _lt('Has overdue'),
+    ],
     # feedback — cần người dùng làm gì đó
-    'Có phản hồi': 'feedback', 'Cần bổ sung': 'feedback', 'Chờ phản hồi': 'feedback',
+    'feedback': [
+        _lt('Replied'), _lt('Needs more info'), _lt('Awaiting reply'),
+    ],
 }
+STATUS_VARIANT_BY_LABEL = {
+    term._source: variant
+    for variant, terms in _STATUS_TERMS_BY_VARIANT.items() for term in terms
+}
+
+
+_UY_OLD, _UY_NEW = 'u' + chr(0x1EF7), chr(0x1EE7) + 'y'
+
+
+@functools.cache
+def _legacy_vn_status_labels():
+    """Câu tiếng Việt → câu gốc EN, dựng ngược từ i18n/vi_VN.po (không viết lại chữ VN trong code).
+
+    TẠM cho module portal_* chưa qua Phần V (V3–V8) còn truyền nhãn tiếng Việt viết cứng;
+    ★J-VR xoá khi mọi nhãn đã là `_lt()`.
+    """
+    vi = code_translations.get_python_translations('wujia_portal_base', 'vi_VN')
+    return {vi[k]: k for k in STATUS_VARIANT_BY_LABEL if vi.get(k)}
+
+
+def _status_label_key(label):
+    """Khoá EN của một nhãn: `_lt()` ⇒ câu gốc; chuỗi EN giữ nguyên; chuỗi VN cũ ⇒ tra ngược .po."""
+    if isinstance(label, LazyGettext):
+        return label._source
+    if label in STATUS_VARIANT_BY_LABEL:
+        return label
+    # "huỷ" và "hủy" là một chữ (hai cách bỏ dấu, portal_support còn dùng cách cũ) — .po chỉ giữ "hủy".
+    return _legacy_vn_status_labels().get((label or '').replace(_UY_OLD, _UY_NEW), label)
 
 
 def status_badge(variant):
@@ -480,8 +521,11 @@ def status_badge(variant):
 
 
 def status_badge_for(label, default='neutral'):
-    """Class modifier theo NHÃN hiển thị — dùng khi màn chưa có key ngữ nghĩa."""
-    return status_badge(STATUS_VARIANT_BY_LABEL.get(label, default))
+    """Class modifier theo NHÃN hiển thị — dùng khi màn chưa có key ngữ nghĩa.
+
+    Nhận `_lt()`, câu gốc EN, hoặc câu tiếng Việt cũ của module chưa Việt hoá source.
+    """
+    return status_badge(STATUS_VARIANT_BY_LABEL.get(_status_label_key(label), default))
 
 
 # ---------------------------------------------------------------------------
@@ -491,22 +535,22 @@ def status_badge_for(label, default='neutral'):
 # portal_base không được import ngược lên module phụ thuộc nó.
 # ---------------------------------------------------------------------------
 
-# state → (label VN, status_type). status_type = key ngữ nghĩa, template map sang badge CSS
+# state → (label `_lt`, status_type). status_type = key ngữ nghĩa, template map sang badge CSS
 # riêng (PC/mobile). 'cancel' KHÔNG có ở đây — đơn huỷ bị loại khỏi lịch sử và Home (BA).
 # State custom thêm về sau rơi về DEFAULT_STATE_META (BA: nhãn an toàn "Đang xử lý").
 SALE_STATE_META = {
-    'draft': ('Chờ xác nhận', 'pending'),
-    'sent': ('Đã gửi', 'sent'),
-    'sale': ('Đã xác nhận', 'confirmed'),
+    'draft': (_lt('Awaiting confirmation'), 'pending'),
+    'sent': (_lt('Submitted'), 'sent'),
+    'sale': (_lt('Confirmed'), 'confirmed'),
 }
-DEFAULT_STATE_META = ('Đang xử lý', 'pending')
+DEFAULT_STATE_META = (_lt('Processing'), 'pending')
 
 # WJ-PH-003 — phương án (a) chủ dự án chốt 03/08: cửa hàng chỉ nhìn MỘT cột trạng thái.
 # sale.order.state của Odoo 19 chỉ có draft/sent/sale/cancel; "Đang giao"/"Hoàn tất" suy từ
 # batch_id.delivery_batch_status và ĐÈ trạng thái đơn khi đơn đã xác nhận.
 DELIVERY_OVERRIDE_META = {
-    'delivering': ('Đang giao', 'transit'),
-    'done': ('Hoàn tất', 'done'),
+    'delivering': (_lt('Delivering'), 'transit'),
+    'done': (_lt('Finished'), 'done'),
 }
 # Trạng thái chuyến KHÔNG đè nhãn đơn (chuyến huỷ/chưa đi không làm đơn đổi trạng thái).
 # False = batch cũ chưa có delivery_batch_status — vẫn phải nằm trong nhóm "Đã xác nhận".
@@ -514,11 +558,13 @@ DELIVERY_NEUTRAL_STATUSES = ['draft', 'assigned', 'loading', 'cancelled', False]
 
 
 def portal_order_state_meta(state):
-    return SALE_STATE_META.get(state, DEFAULT_STATE_META)
+    """(label, status_type) — label đã dịch theo ngôn ngữ request."""
+    label, status_type = SALE_STATE_META.get(state, DEFAULT_STATE_META)
+    return str(label), status_type
 
 
-def portal_order_status(order):
-    """(label, status_type) hiển thị — trạng thái giao đè trạng thái đơn khi đơn đã xác nhận.
+def _portal_order_meta(order):
+    """(label `_lt`, status_type) — trạng thái giao đè trạng thái đơn khi đơn đã xác nhận.
 
     delivery_batch_status thuộc wujia_delivery (portal_base không depend) → guard _fields.
     """
@@ -528,46 +574,66 @@ def portal_order_status(order):
             override = DELIVERY_OVERRIDE_META.get(batch.delivery_batch_status)
             if override:
                 return override
-    return portal_order_state_meta(order.state)
+    return SALE_STATE_META.get(order.state, DEFAULT_STATE_META)
+
+
+def _tr(env, label):
+    """Nhãn `_lt` → chuỗi theo ngôn ngữ của env (record của request mang ngôn ngữ user); chuỗi thường giữ nguyên."""
+    return env._(label) if isinstance(label, LazyGettext) else label
+
+
+def portal_order_status(order):
+    """(label đã dịch, status_type) hiển thị."""
+    label, status_type = _portal_order_meta(order)
+    return _tr(order.env, label), status_type
 
 
 def portal_order_badge(order):
     """(label, class badge) cho template — màu theo NHÃN, cùng cách Lịch sử tô badge."""
-    label = portal_order_status(order)[0]
-    return label, status_badge_for(label)
+    label = _portal_order_meta(order)[0]
+    return _tr(order.env, label), status_badge_for(label)
 
 # CMP-SB-001: cả hai bậc giao hàng đều là processing theo ví dụ BA.
 MOBILE_BATCH_BADGES = {
-    'draft':      ('Chuẩn bị giao', status_badge('processing')),
-    'assigned':   ('Chuẩn bị giao', status_badge('processing')),
-    'loading':    ('Chuẩn bị giao', status_badge('processing')),
-    'delivering': ('Đang giao', status_badge('processing')),
-    'done':       ('Đã giao xong', status_badge('success')),
-    'cancelled':  ('Hủy chuyến', status_badge('danger')),
+    'draft':      (_lt('Preparing delivery'), status_badge('processing')),
+    'assigned':   (_lt('Preparing delivery'), status_badge('processing')),
+    'loading':    (_lt('Preparing delivery'), status_badge('processing')),
+    'delivering': (_lt('Delivering'), status_badge('processing')),
+    'done':       (_lt('Delivery completed'), status_badge('success')),
+    'cancelled':  (_lt('Trip cancelled'), status_badge('danger')),
 }
+
+
+def mobile_batch_badge(status):
+    """(nhãn đã dịch, class badge) của chuyến giao; trạng thái lạ ⇒ "Chuẩn bị giao"."""
+    label, cls = MOBILE_BATCH_BADGES.get(status, MOBILE_BATCH_BADGES['draft'])
+    return str(label), cls
 
 # Nhãn trạng thái đổi trả — MỘT nguồn cho Home (PC + mobile) và /portal/return (badge + bộ lọc).
 # Khoá = `wujia.return.request._portal_status_key()`; một bảng cho cả PC và mobile.
-RETURN_STATUS_LABELS = {k: (v, status_badge_for(v)) for k, v in (
-    ('draft', 'Nháp'),
-    ('submitted', 'Đã gửi'),
-    ('processing', 'Đang xử lý'),
-    ('approved', 'Đã duyệt'),
-    ('partial', 'Đang bù một phần'),
-    ('done', 'Hoàn tất'),
-    ('rejected', 'Từ chối'),
-    ('cancelled', 'Đã huỷ'),
-)}
+# Dict literal, không dùng tuple ('key', _lt(...)): extractor .pot lấy nhầm khoá thành msgid.
+_RETURN_STATUS_TERMS = {
+    'draft': _lt('Draft'),
+    'submitted': _lt('Submitted'),
+    'processing': _lt('Processing'),
+    'approved': _lt('Approved'),
+    'partial': _lt('Partially compensated'),
+    'done': _lt('Finished'),
+    'rejected': _lt('Rejected'),
+    'cancelled': _lt('Cancelled'),
+}
+RETURN_STATUS_LABELS = {k: (v, status_badge_for(v)) for k, v in _RETURN_STATUS_TERMS.items()}
 
 
 def return_status_label(rr):
     """(nhãn, class badge) của một yêu cầu đổi trả."""
     key = rr._portal_status_key() if hasattr(rr, '_portal_status_key') else rr.state
-    return RETURN_STATUS_LABELS.get(key, (key, status_badge('neutral')))
+    label, cls = RETURN_STATUS_LABELS.get(key, (key, status_badge('neutral')))
+    return _tr(rr.env, label), cls
 
 
-VI_WEEKDAYS = {0: 'Thứ 2', 1: 'Thứ 3', 2: 'Thứ 4', 3: 'Thứ 5',
-               4: 'Thứ 6', 5: 'Thứ 7', 6: 'CN'}
+VI_WEEKDAYS = {0: _lt('Mon'), 1: _lt('Tue'), 2: _lt('Wed'), 3: _lt('Thu'),
+               4: _lt('Fri'), 5: _lt('Sat'), 6: _lt('Sun')}
 
 
 def format_batch_departure(dt, tz=None):
@@ -576,7 +642,7 @@ def format_batch_departure(dt, tz=None):
     if not dt:
         return '—'
     return '%s (%s) · %s' % (
-        dt.strftime('%d/%m/%Y'), VI_WEEKDAYS[dt.weekday()], dt.strftime('%H:%M'),
+        dt.strftime('%d/%m/%Y'), str(VI_WEEKDAYS[dt.weekday()]), dt.strftime('%H:%M'),
     )
 
 
@@ -587,8 +653,8 @@ def format_batch_departure(dt, tz=None):
 UNFINISHED_BATCH_STATUS = ('draft', 'assigned', 'loading', 'delivering')
 UNDELIVERED_PICKING_STATE = ('draft', 'waiting', 'confirmed', 'assigned')
 
-DEPARTURE_LABEL_ACTUAL = 'Xuất phát (thực tế)'
-DEPARTURE_LABEL_PLANNED = 'Xuất phát (dự kiến)'
+DEPARTURE_LABEL_ACTUAL = _lt('Departure (actual)')
+DEPARTURE_LABEL_PLANNED = _lt('Departure (planned)')
 
 
 def batch_franchise_domain(franchise_ids):
@@ -617,7 +683,7 @@ def departure_value(batch):
 
 
 def departure_label(is_actual):
-    return DEPARTURE_LABEL_ACTUAL if is_actual else DEPARTURE_LABEL_PLANNED
+    return str(DEPARTURE_LABEL_ACTUAL if is_actual else DEPARTURE_LABEL_PLANNED)
 
 
 def format_order_names(names, keep=2):
@@ -666,9 +732,7 @@ def get_upcoming_batches(franchise_ids, limit=2):
             'order_count': len(orders),
             'order_names': format_order_names(orders.mapped('name')),
             'total': sum(orders.mapped('amount_total')),
-            'badge': MOBILE_BATCH_BADGES.get(
-                batch.delivery_batch_status, ('Chuẩn bị giao', status_badge('processing')),
-            ),
+            'badge': mobile_batch_badge(batch.delivery_batch_status),
         })
     return {'items': items, 'undelivered_count': count_undelivered_orders(franchise_ids)}
 

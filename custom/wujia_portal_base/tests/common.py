@@ -24,3 +24,16 @@ def need_suite(case):
 def find_view(case, key):
     need(case, key)
     return case.env['ir.ui.view'].search([('key', '=', key)], limit=1)
+
+
+def load_vi(env):
+    """J-V2 — bật vi_VN + nạp .po của khung và `portal_base`; trả env `lang=vi_VN`.
+
+    Câu gốc portal_base là tiếng Anh, tiếng Việt nằm ở `i18n/vi_VN.po` (Phần V §6 #5: test assert
+    nhãn tiếng Việt chạy ở vi_VN, không xoá assert). `_activate_lang` không nạp .po ⇒ `_update_translations`.
+    """
+    env['res.lang']._activate_lang('vi_VN')
+    env['ir.module.module'].search([
+        ('name', 'in', ('wujia_portal_layout', 'wujia_portal_base')),
+    ])._update_translations(['vi_VN'])
+    return env(context=dict(env.context, lang='vi_VN'))

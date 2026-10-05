@@ -53,8 +53,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | ~~J-T3~~ | ~~Lớp phủ chuỗi Python/JS không restart~~ — **bỏ** (chủ dự án 05/10: chuỗi code đổi ⇒ xuất `.po` + restart) | — | ✗ |
 | J-V0 | Chốt quy ước + công cụ Việt hoá source (xem §6) + khách portal mặc định vi_VN + bật zh_CN | docs, scripts, i18n, portal_layout | ✅ 05/10 — chưa commit |
 | J-V1 | `wujia_portal_layout` (259) + helper `wjMsg` + khối `#wj-msgs` + xoá `lang.js` chết | portal_layout | ✅ 05/10 — chưa commit |
-| **J-V2** | **Phiên kế.** `wujia_portal_base` (382) | portal_base | ☐ |
-| J-V3 | `wujia_portal_exam` (345) + `wujia_exam` (63) | exam ×2 | ☐ |
+| J-V2 | `wujia_portal_base` (382) + màu badge theo EN/lazy/VN cũ + nhãn theo `record.env` | portal_base | ✅ 05/10 — đã push, chờ deploy |
+| **J-V3** | **Phiên kế.** `wujia_portal_exam` (345) + `wujia_exam` (63) | exam ×2 | ☐ |
 | J-V4 | `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) | sale ×3 | ☐ |
 | J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) | debt | ☐ |
 | J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) | return ×2 | ☐ |
@@ -236,6 +236,19 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
   (đúng chốt b "VN thấy VN"); `_()` của module KHÔNG dùng bản dịch của Odoo core.
 - Test assert nhãn VN: `tests/common.py::load_vi(env)` (bật vi_VN + nạp `.po` của khung, trả env `lang=vi_VN`); user HttpCase
   tạo với `'lang': 'vi_VN'`. V2+ chép mẫu này cho module mình (nạp `.po` của chính module).
+
+**J-V2 — ✅ 05/10: bài học cho V3–V8**
+- **Màu badge**: `portal_base.controllers.utils.STATUS_VARIANT_BY_LABEL` khoá theo câu **EN**. Module V3–V8 đổi nhãn sang `_lt('EN')`
+  rồi gọi `status_badge_for(lazy)` (tra `_source`); câu EN mới phải **thêm vào** `_STATUS_TERMS_BY_VARIANT` (đúng nhóm màu) + glossary.
+  Nhánh nhãn VN cũ (`_legacy_vn_status_labels`, đọc ngược `vi_VN.po`) chỉ để module chưa đổi vẫn đúng màu ⇒ ★VR xoá.
+- `.pot`: `('key', _lt('X'))` trong tuple ⇒ trình trích lấy `'key'` làm msgid (sai) ⇒ dùng dict `{'key': _lt('X')}`.
+  `_lt(biến)` không được trích ⇒ chỉ `_lt('literal')`.
+- Hàm nhận bản ghi ⇒ `record.env._(lazy)` (không `str(lazy)`: không có request ⇒ ra EN — cron, test, mail).
+- Test module phụ thuộc so câu thông báo: `self.env(context=dict(lang=user.lang))._(ERR_X)` thay vì so lazy (`in` với lazy ⇒ TypeError);
+  test chạy không request mà assert nhãn VN ⇒ `setUpClass` bật vi_VN + `cls.env = cls.env(context=dict(cls.env.context, lang='vi_VN'))`.
+- Dữ liệu mẫu (`data/*sample*.xml`, `noupdate`) giữ tiếng Việt ⇒ thêm vào `DATA_FILES` của `vn_hardcode_scan.py`.
+- Đo: DB copy phải thuộc user `odoo19` (`ALTER DATABASE … OWNER TO odoo19`) và chép filestore (`rsync -a --ignore-existing`), nếu không
+  `/portal` 404 / mất logo ⇒ lệch giả. Mốc vi_VN hiện tại = sau V2.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

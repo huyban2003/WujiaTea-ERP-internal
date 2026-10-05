@@ -105,6 +105,9 @@ class TestStateLabels(TransactionCase, ReturnFixture):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # J-V2: nhãn trạng thái của portal_base là `_lt` (câu gốc EN) ⇒ chạy ở vi_VN để giữ assert tiếng Việt.
+        cls.env['res.lang']._activate_lang('vi_VN')
+        cls.env = cls.env(context=dict(cls.env.context, lang='vi_VN'))
         cls._setup_return_data()
 
     def test_basic_labels(self):

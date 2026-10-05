@@ -19,6 +19,8 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
+from .common import load_vi
+
 CUSTOM = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 
@@ -66,7 +68,10 @@ class TestStatusBadgeMapsAndCallSites(TransactionCase):
     # --- 3. lỗi gốc BA nêu -------------------------------------------------
     def test_confirmed_label_is_info_not_success(self):
         # WJ-HOME-010: Home dùng chung SALE_STATE_META với Lịch sử, màu theo nhãn.
-        self.assertEqual(SALE_STATE_META['sale'][0], 'Đã xác nhận')
+        # J-V2: nhãn là `_lt` ⇒ so bản dịch vi_VN; màu theo câu gốc nên đúng ở mọi ngôn ngữ.
+        label = SALE_STATE_META['sale'][0]
+        self.assertEqual(load_vi(self.env)._(label), 'Đã xác nhận')
+        self.assertEqual(status_badge_for(label), 'wj-status-badge--info')
         self.assertEqual(status_badge_for('Đã xác nhận'), 'wj-status-badge--info')
 
     def test_every_shared_map_emits_a_component_class(self):

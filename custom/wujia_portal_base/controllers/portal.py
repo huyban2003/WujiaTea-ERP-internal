@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from odoo import _, fields, http
 from odoo.http import request
+from odoo.tools.translate import LazyTranslate
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.wujia_portal_layout.controllers.utils import safe_local_path
 from odoo.addons.wujia_portal_base.controllers.utils import (
@@ -19,15 +20,17 @@ from odoo.addons.wujia_portal_base.models.wujia_franchise_member import ROLE_LAB
 
 ROLE_RANK = {'staff': 1, 'manager': 2, 'owner': 3}
 
-# Nhãn VN của wujia.franchise.management.status. Pin cứng tại đây vì source đã chuyển
-# sang tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
-# Key phải khớp Selection `status` trong wujia_franchise/models/wujia_franchise_management.py.
+_lt = LazyTranslate(__name__)
+
+# Nhãn portal của wujia.franchise.management.status — câu gốc EN, tiếng Việt ở i18n/vi_VN.po
+# (J-V2; trước đó pin cứng tiếng Việt). Key phải khớp Selection `status` trong
+# wujia_franchise/models/wujia_franchise_management.py.
 FRANCHISE_STATUS_LABELS = {
-    'draft': 'Nháp',
-    'active': 'Đang hoạt động',
-    'locked': 'Khóa',
-    'closed': 'Đã đóng',
-    'expired': 'Hết hạn',
+    'draft': _lt('Draft'),
+    'active': _lt('Enabled'),
+    'locked': _lt('Locked'),
+    'closed': _lt('Closed'),
+    'expired': _lt('Expired'),
 }
 
 ACTIVE_FRANCHISE_COOKIE = 'wujia_active_franchise_id'
@@ -171,7 +174,7 @@ class WujiaPortal(CustomerPortal):
             'wj_return_status': return_status_label,
             'articles': articles,
             'm_hotline': request.env.company.sudo().phone or '',
-            'title': _('Trang chủ - Portal'),
+            'title': _('Home - Portal'),
             'lang': request.env.lang or 'en',
             'role_labels': ROLE_LABELS,
             # Cho modal store-picker render điều kiện
@@ -378,7 +381,7 @@ class WujiaPortal(CustomerPortal):
         membership_sudo = membership.sudo()
         return request.render(
             'wujia_portal_base.portal_franchise_profile_full', {
-                'title': _('Hồ sơ cửa hàng'),
+                'title': _('Store profile'),
                 'franchise': membership_sudo.franchise_id,
                 'membership': membership_sudo,
                 'role_labels': ROLE_LABELS,
@@ -462,7 +465,7 @@ class WujiaPortal(CustomerPortal):
                 'id': m.id,
                 'user_name': m.user_id.name,
                 'role': m.role,
-                'role_label': ROLE_LABELS.get(m.role, m.role),
+                'role_label': m._portal_role_label(),
                 'is_primary_owner': m.is_primary_owner,
                 'date_from': m.date_from.isoformat() if m.date_from else None,
                 'date_to': m.date_to.isoformat() if m.date_to else None,
@@ -489,7 +492,7 @@ class WujiaPortal(CustomerPortal):
         # Hard gate per BA: portal_locked or status != 'active' → block
         if franchise.portal_locked or franchise.status != 'active':
             return request.render('wujia_portal_base.portal_franchise_information_locked', {
-                'title': _('Hồ sơ cửa hàng'),
+                'title': _('Store profile'),
                 'franchise': franchise,
             })
         Member = request.env['wujia.franchise.member'].sudo()
@@ -497,12 +500,12 @@ class WujiaPortal(CustomerPortal):
         pgn = build_pager(Member.search_count(mdomain), kw.get('page', 1),
                           parse_page_size(kw.get('page_size'), MEMBER_PAGE_SIZE),
                           path='/portal/franchise-information',
-                          item_label='thành viên',
+                          item_label=_lt('members'),
                           page_size_options=PAGE_SIZE_OPTIONS)
         members = Member.search(mdomain, limit=pgn['page_size'],
                                 offset=pgn['offset'], order='role, id')
         return request.render('wujia_portal_base.portal_franchise_information', {
-            'title': _('Hồ sơ cửa hàng'),
+            'title': _('Store profile'),
             'page_name': 'franchise_information',
             'franchise': franchise,
             'membership': membership_sudo,

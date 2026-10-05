@@ -178,6 +178,12 @@ VENDOR_FILES = {
     'static/assets/js/scripts/pickers/dateTime/pick-a-datetime.js',
 }
 
+# Dữ liệu mẫu `noupdate` là tên riêng (cửa hàng, người, địa chỉ) — dữ liệu chứ không phải chữ giao diện,
+# không dịch (J-V2). Đường dẫn tính từ custom/.
+DATA_FILES = {
+    'wujia_portal_base/data/sample_data.xml',
+}
+
 SCANNERS = {'.py': scan_python, '.js': scan_js, '.xml': scan_xml, '.css': scan_css, '.scss': scan_css}
 
 
@@ -197,6 +203,8 @@ def scan(only=None, raw=False):
                     continue
                 path = os.path.join(dirpath, f)
                 if os.path.relpath(path, root).replace(os.sep, '/') in VENDOR_FILES:
+                    continue
+                if os.path.relpath(path, CUSTOM).replace(os.sep, '/') in DATA_FILES:
                     continue
                 for cat, line, text in SCANNERS[ext](path, is_test):
                     yield mod, owner(mod), cat, os.path.relpath(path, BASE), line, (text if raw else clip(text))

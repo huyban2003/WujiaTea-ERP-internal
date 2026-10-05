@@ -6,8 +6,8 @@
               name="Portal My Home — Franchises Card">
         <xpath expr="//div[@id='portal_common_category']" position="inside">
             <t t-call="portal.portal_docs_entry">
-                <t t-set="title">Cửa hàng nhượng quyền</t>
-                <t t-set="text">Quản lý cửa hàng nhượng quyền của bạn</t>
+                <t t-set="title">Franchise store</t>
+                <t t-set="text">Manage your franchise stores</t>
                 <t t-set="url" t-value="'/my/franchises'"/>
                 <t t-set="placeholder_count" t-value="'franchise_count'"/>
             </t>
@@ -18,9 +18,9 @@
               inherit_id="portal.portal_breadcrumbs" priority="20"
               name="Portal Breadcrumbs — Franchises">
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-            <li t-if="page_name == 'franchises'" class="breadcrumb-item active">Cửa hàng</li>
+            <li t-if="page_name == 'franchises'" class="breadcrumb-item active">Store</li>
             <li t-if="page_name == 'franchise_detail'" class="breadcrumb-item">
-                <a href="/my/franchises">Cửa hàng</a>
+                <a href="/my/franchises">Store</a>
             </li>
             <li t-if="page_name == 'franchise_detail'" class="breadcrumb-item active">
                 <t t-out="franchise.display_name"/>
@@ -32,20 +32,20 @@
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
             <t t-call="portal.portal_searchbar">
-                <t t-set="title">Cửa hàng nhượng quyền của tôi</t>
+                <t t-set="title">My franchise stores</t>
             </t>
 
             <div t-if="not memberships" class="alert alert-info mt-3">
-                Bạn chưa được gán vào cửa hàng nào. Liên hệ admin để được gán quyền.
+                You are not assigned to any store yet. Contact an admin to get access.
             </div>
 
             <table t-if="memberships" class="table table-hover o_portal_my_doc_table mt-3">
                 <thead>
                     <tr class="active">
-                        <th>Cửa hàng</th>
-                        <th>Mã</th>
-                        <th>Vai trò</th>
-                        <th>Hiệu lực</th>
+                        <th>Store</th>
+                        <th>Code</th>
+                        <th>Role</th>
+                        <th>Validity</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -64,19 +64,19 @@
                                 <t t-out="role_labels.get(m.role, m.role)"/>
                             </span>
                             <span t-if="m.is_primary_owner"
-                                  class="badge text-bg-warning ms-1">Chủ chính</span>
+                                  class="badge text-bg-warning ms-1">Main owner</span>
                         </td>
                         <td>
                             <t t-out="m.date_from"/>
                             —
-                            <t t-out="m.date_to or 'Không giới hạn'"/>
+                            <t t-if="m.date_to" t-out="m.date_to"/><t t-else="">Unlimited</t>
                         </td>
                         <td class="text-end">
                             <!-- BOUNDARY E6b1: trang này dựng bằng `portal.portal_layout` (khung
                                  Odoo gốc) nên CSS design system không nạp — atom ở đây sẽ trần.
                                  Bản Vuexy của cùng danh sách là /portal/franchises. -->
                             <a t-attf-href="/my/franchises/#{m.franchise_id.id}"
-                               class="btn btn-sm btn-primary">Vào cửa hàng</a>
+                               class="btn btn-sm btn-primary">Open store</a>
                         </td>
                     </tr>
                 </tbody>
@@ -97,30 +97,32 @@
                         </small>
                     </h3>
                     <p>
-                        Bạn đang là
+                        You are
                         <strong>
                             <t t-out="role_labels.get(membership.role, membership.role)"/>
                         </strong>
-                        tại cửa hàng này.
+                        at this store.
                     </p>
                 </div>
             </div>
 
             <div class="card mt-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0">Thành viên cửa hàng</h5>
+                    <h5 class="mb-0">Store members</h5>
                     <span id="o_wujia_realtime_indicator"
-                          class="badge text-bg-success d-none">Đã cập nhật</span>
+                          class="badge text-bg-success d-none">Updated</span>
                 </div>
                 <div class="card-body p-0">
+                    <t t-set="_pt_msg_main_owner">Main owner</t>
                     <table id="o_wujia_franchise_members"
                            t-att-data-franchise-id="franchise.id"
+                           t-att-data-wj-msg-main-owner="_pt_msg_main_owner"
                            class="table mb-0">
                         <thead>
                             <tr>
                                 <th>User</th>
-                                <th>Vai trò</th>
-                                <th>Hiệu lực</th>
+                                <th>Role</th>
+                                <th>Validity</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -130,7 +132,7 @@
                                 <td>
                                     <t t-out="member.user_id.name"/>
                                     <span t-if="member.is_primary_owner"
-                                          class="badge text-bg-warning ms-1">Chủ chính</span>
+                                          class="badge text-bg-warning ms-1">Main owner</span>
                                 </td>
                                 <td>
                                     <span t-attf-class="badge text-bg-#{role_color}">

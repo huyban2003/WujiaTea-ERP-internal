@@ -15,6 +15,7 @@ from odoo.tests import tagged
 from odoo.tests.common import HttpCase, TransactionCase
 
 from odoo.addons.wujia_portal_base.controllers.utils import (
+    DEPARTURE_LABEL_ACTUAL, DEPARTURE_LABEL_PLANNED,
     departure_label, departure_value, format_order_names, to_local_dt,
 )
 
@@ -101,14 +102,21 @@ class TestDepartureMapping(TransactionCase, DeliveryFixture):
         dt, is_actual = departure_value(self.batch_soon)
         self.assertEqual(dt, self.batch_soon.planned_departure)
         self.assertFalse(is_actual)
-        self.assertEqual(departure_label(is_actual), 'Xuất phát (dự kiến)')
+        # J-V2: nhãn `_lt`, không có request ⇒ tiếng Anh; tiếng Việt kiểm qua .po.
+        self.assertEqual(departure_label(is_actual), 'Departure (planned)')
+        self.assertEqual(self._vi()._(DEPARTURE_LABEL_PLANNED), 'Xuất phát (dự kiến)')
 
     def test_actual_wins_after_departure(self):
         dt, is_actual = departure_value(self.batch_going)
         self.assertEqual(dt, self.batch_going.actual_departure)
         self.assertNotEqual(dt, self.batch_going.planned_departure)
         self.assertTrue(is_actual)
-        self.assertEqual(departure_label(is_actual), 'Xuất phát (thực tế)')
+        self.assertEqual(departure_label(is_actual), 'Departure (actual)')
+        self.assertEqual(self._vi()._(DEPARTURE_LABEL_ACTUAL), 'Xuất phát (thực tế)')
+
+    def _vi(self):
+        self.env['res.lang']._activate_lang('vi_VN')
+        return self.env(context=dict(self.env.context, lang='vi_VN'))
 
     def test_order_names_shortened(self):
         self.assertEqual(format_order_names([]), '—')

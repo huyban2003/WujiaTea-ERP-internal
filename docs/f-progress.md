@@ -2204,3 +2204,55 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   Phần V) · ★VR: xoá template `signup*`/`forgot_pass_back` chết · I0 treo.
 - Phiên kế: **J-V2** — `wujia_portal_base` (382 chuỗi): `draft` → điền EN → `check` → `apply` → sửa tay (`ROLE_LABELS`, nav item, home KPI,
   chip vai trò topbar) → `.po` + liệt kê msgid chưa dịch → test `load_vi` → probe so mốc mới.
+
+## J-V2 Việt hoá source `wujia_portal_base` · 05/10/2026 · Mac
+- Kết quả: ✅ code + test, **đã push `main`** (commit `feat(i18n): J-V2 …`), deploy do chủ dự án; 0 ghi sheet (không có ID Issue List).
+- Đầu phiên: `git pull` (up to date, HEAD `7b03b680` J-V1). `issue_queue --dev` = 15 Ready for Dev (không đổi, chờ sau cụm J).
+- Đã làm (`wujia_portal_base` 19.0.7.36.0):
+  - Câu gốc → tiếng Anh: `docs/i18n-pairs/wujia_portal_base.csv` 382 dòng (auto 253 · sửa tay 129), `check` 0 lỗi; glossary +190 dòng.
+    EN đổi vì đụng câu đã chốt: "Hoàn tất"=Finished, "Đang xử lý"=Processing, "Đang hoạt động"=Enabled, "· còn"="· time left".
+  - **Màu badge trạng thái** (`controllers/utils.py`): `STATUS_VARIANT_BY_LABEL` nay khoá theo câu EN, dựng từ `_lt()` nhóm theo màu.
+    `status_badge_for(label)` nhận nhãn lazy (`_source`), EN, hoặc **nhãn VN cũ** (bảng ngược sinh từ `vi_VN.po`, gộp 2 cách viết
+    "huỷ/hủy") ⇒ 7 module chưa qua V3–V8 gọi bằng chữ VN vẫn đúng màu. Nhánh VN cũ đánh dấu ★J-VR xoá.
+  - Hằng nhãn → `_lt()`: `ROLE_LABELS`, `FRANCHISE_STATUS_LABELS`, `SALE_STATE_META`, `DEFAULT_STATE_META`, `DELIVERY_OVERRIDE_META`,
+    `MOBILE_BATCH_BADGES`, `RETURN_STATUS_LABELS`, `VI_WEEKDAYS`, `DEPARTURE_LABEL_*`, `ERR_DATE_RANGE`, `build_pager(item_label)`.
+    Hàm theo bản ghi (`portal_order_status/badge`, `return_status_label`, `_portal_role_label`) dịch bằng `record.env` (đúng ngôn
+    ngữ user cả khi không có request: cron, test); hàm còn lại `str()` theo request.
+  - `t-*`: "Không giới hạn", "Hồ sơ cửa hàng — tên", "Khu vực …", "Cửa hàng tạm khóa", "%s đơn chưa giao" → `<t t-set>` dịch được.
+  - JS `franchise_realtime.js`: nhãn vai trò lấy `role_label` server trả (đã dịch), "Chủ chính" qua `data-wj-msg-main-owner` + `wjMsg`.
+  - Chuỗi tiếng Anh có sẵn mà user VN vẫn thấy (`Inactive`, `User`, `Owner / Manager`) ⇒ nay ra tiếng Việt.
+  - `i18n/vi_VN.po` + `.pot` mới (251 msgid, 244 dịch). `data/sample_data.xml` (17 chuỗi: tên cửa hàng/người/địa chỉ mẫu, `noupdate`)
+    **giữ nguyên** — dữ liệu, không phải chữ giao diện; `vn_hardcode_scan.py` loại trừ file này (`DATA_FILES`).
+  - Test: `tests/common.py::load_vi` (nạp `.po` của `portal_layout` + `portal_base`); test mới `test_jv2_i18n` (badge EN/lazy/VN cũ,
+    nhãn theo ngôn ngữ, Home user vi vs en). Test module phụ thuộc chỉ sửa file test: `e4c_filter_dates` ×6 so với bản dịch
+    `ERR_DATE_RANGE` theo ngôn ngữ user; `delivery_c5`, `purchase_history` (2 file), `return_controller` chạy `lang=vi_VN`.
+- Số đo:
+  - `vn_hardcode_scan --module wujia_portal_base --fail-on-any` = **0** (trước 382).
+  - DB copy `wujia_v2b` (từ `wujia_t1`): suite `/wujia_portal_base` **324/0** (316 cũ + 8 mới). 11 module phụ thuộc (return, debt,
+    info_request, exam, sale, support, purchase_history, delivery, layout, notification, report): **311 test, 3 đỏ — có sẵn**
+    (`test_f5_legacy_redirect` exam/purchase_history/return 404≠301, đỏ y hệt trên worktree HEAD chưa sửa).
+  - Mutation: bỏ nhánh nhãn VN cũ trong `status_badge_for` ⇒ 7 subtest đỏ đúng; đã khôi phục.
+  - `wj_text_probe` vi_VN 52 trang so mốc V1: lệch **chỉ 2 trang** (`/portal/return` 1440/390: "Đã huỷ"→"Đã hủy" — chủ ý, thống
+    nhất cách viết) ⇒ **mốc mới** `docs/i18n-baseline/vi_VN.json` cho V3.
+  - Ảnh en_US/th_TH × 1440/390 (home, danh sách cửa hàng, thông tin nhượng quyền, chi tiết cửa hàng, hồ sơ cửa hàng) + store picker
+    (user đa cửa hàng `dung.multi`, cả vi/en/th): **0 tràn ngang**, không vỡ bố cục. Chữ VN còn trên màn: dữ liệu (tên, địa chỉ,
+    tiêu đề thông báo) + nav/ô của module V3–V8 (debt, return, support, knowledge, exam, report, inspection của Thái).
+  - App "Bản dịch" độ phủ vi_VN `wujia_portal_base` **96,6%** (287/297); 10 còn lại không cần dịch: `ID` metadata ×3, tên khu vực
+    mẫu ×5, `Email` ×2 (giống nhau 2 ngôn ngữ).
+- Lệch / LIMIT:
+  - EN không có số nhiều: "1 orders in 30 days", "0 undelivered orders" (câu `%s` dùng chung mọi số) — gom vào danh sách ★VR.
+  - Mobile 390 EN: nhãn KPI "NOTIFICATIONS" bẻ giữa chữ (CSS `portal_layout` `overflow-wrap: anywhere`, BA cấm "…") — không tràn,
+    nhưng xấu; chờ chủ dự án chọn: rút câu EN ("Alerts") hay sửa CSS.
+  - EN "· time left 02:30": thứ tự chữ buộc theo cách Odoo tách đoạn quanh `t-out`.
+  - Đo trên DB copy: copy DB bằng `createdb -T` dưới user Mac ⇒ DB không thuộc `odoo19` ⇒ Odoo không liệt kê (404 `/portal`), và
+    filestore phải chép tay (thiếu ⇒ mất logo ⇒ lệch `alt` giả 52/52 trang). Đã sửa bằng `ALTER DATABASE … OWNER TO odoo19` + `rsync`.
+- Bài học:
+  - Trình trích `.pot` của Odoo lấy **phần tử đầu tuple** làm msgid với `('key', _lt('X'))` ⇒ dùng dict `{'key': _lt('X')}`.
+  - `_lt(biến)` không vào `.pot` ⇒ mọi `_lt` phải là literal (bảng màu badge viết thẳng từng `_lt('…')`).
+  - Hàm nhận bản ghi ⇒ dịch bằng `record.env._(lazy)`, không `str(lazy)` (không có request thì ra EN).
+  - `wujia_core` chuyển log về `<thư mục logfile>/<năm>/<tháng>/<ngày>.log` (giờ UTC) ⇒ đọc kết quả test ở đó, `--logfile` trống.
+- Lệnh deploy: thêm `wujia_portal_base` vào lệnh `-u` gộp (J-B2/J-T/J-V0/V1); **restart sau `-u`**.
+- Nợ để lại: deploy J-B2 + J-T + J-V0 + V1 + V2 (chủ dự án deploy để test) · xoá DB nháp `wujia_v2b/d/h/p` (giữ `wujia_t1` tới hết
+  Phần V) · ★VR: xoá nhánh nhãn VN cũ `_legacy_vn_status_labels` + danh sách câu EN số nhiều · 3 test `f5_legacy_redirect` đỏ sẵn · I0 treo.
+- Phiên kế: **J-V3** — `wujia_portal_exam` (345) + `wujia_exam` (63): `draft` → điền EN → `check` → `apply` → sửa tay → `.po` →
+  `load_vi` → probe so mốc V2. Nhãn trạng thái gọi `status_badge_for` ⇒ chuyển sang `_lt()` EN (nhánh VN cũ không cần nữa cho exam).

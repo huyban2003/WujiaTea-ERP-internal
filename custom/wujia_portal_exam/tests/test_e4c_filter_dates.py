@@ -65,6 +65,11 @@ class TestExamFilterDatesE4c(HttpCase):
         reg.request_date = when
         return reg
 
+    @property
+    def err_date_range(self):
+        """J-V2: ERR_DATE_RANGE là `_lt` ⇒ so đúng câu user thấy theo ngôn ngữ của user."""
+        return self.env(context=dict(self.env.context, lang=self.user.lang))._(ERR_DATE_RANGE)
+
     def _get(self, url):
         self.authenticate('e4c_exam', 'e4c_exam')
         res = self.url_open(url, timeout=30)
@@ -83,7 +88,7 @@ class TestExamFilterDatesE4c(HttpCase):
 
     def test_ngay_nguoc_bao_loi_va_khong_chay_query(self):
         html = self._get('/portal/exam?date_from=2026-09-30&date_to=2026-09-01')
-        self.assertIn(ERR_DATE_RANGE, html)
+        self.assertIn(self.err_date_range, html)
         self.assertNotIn(self.old.name, html)
         self.assertNotIn(self.recent.name, html)
         # Giữ nguyên chữ đã gõ, đừng bắt người dùng nhập lại.

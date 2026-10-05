@@ -38,6 +38,9 @@ class HomeOrderCommon(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # J-V2: nhãn trạng thái của portal_base là `_lt` (câu gốc EN) ⇒ chạy ở vi_VN để giữ assert tiếng Việt.
+        cls.env['res.lang']._activate_lang('vi_VN')
+        cls.env = cls.env(context=dict(cls.env.context, lang='vi_VN'))
         env = cls.env
         cls.partner = env['res.partner'].create({'name': '%s partner' % cls.LOGIN})
         cls.franchise = env['wujia.franchise.management'].create({

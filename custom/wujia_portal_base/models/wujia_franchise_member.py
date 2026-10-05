@@ -1,11 +1,14 @@
 from odoo import api, models
+from odoo.tools.translate import LazyTranslate
+
+_lt = LazyTranslate(__name__)
 
 # Nhãn vai trò portal — một nguồn cho Home, trang Cửa hàng, dải cửa hàng mobile,
-# khối Cửa hàng hiện tại PC và menu avatar. Portal giữ tiếng Việt.
+# khối Cửa hàng hiện tại PC và menu avatar. Câu gốc EN, tiếng Việt ở i18n/vi_VN.po (J-V2).
 ROLE_LABELS = {
-    'owner': 'Chủ tiệm',
-    'manager': 'Quản lý',
-    'staff': 'Nhân viên',
+    'owner': _lt('Store owner'),
+    'manager': _lt('Manager'),
+    'staff': _lt('Staff'),
 }
 
 
@@ -14,7 +17,8 @@ class WujiaFranchiseMember(models.Model):
 
     def _portal_role_label(self):
         self.ensure_one()
-        return ROLE_LABELS.get(self.role, self.role or '')
+        label = ROLE_LABELS.get(self.role)
+        return self.env._(label) if label else (self.role or '')
 
     def _notify_franchise_realtime(self, action):
         bus = self.env['bus.bus'].sudo()

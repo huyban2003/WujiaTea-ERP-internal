@@ -33,6 +33,11 @@ class TestReportFilterDatesE4c(HttpCase):
             'role': 'owner',
         })
 
+    @property
+    def err_date_range(self):
+        """J-V2: ERR_DATE_RANGE là `_lt` ⇒ so đúng câu user thấy theo ngôn ngữ của user."""
+        return self.env(context=dict(self.env.context, lang=self.user.lang))._(ERR_DATE_RANGE)
+
     def _get(self, url):
         self.authenticate('e4c_rep', 'e4c_rep')
         res = self.url_open(url, timeout=30)
@@ -46,7 +51,7 @@ class TestReportFilterDatesE4c(HttpCase):
     def test_ngay_nguoc_bao_ngay_tai_thanh_loc(self):
         """Không chặn thì domain vô nghiệm ⇒ empty state, người dùng tưởng hết dữ liệu."""
         html = self._get('/portal/reports/orders' + REVERSED)
-        self.assertIn(ERR_DATE_RANGE, html)
+        self.assertIn(self.err_date_range, html)
         tag = self._tag(html, 'wj-rep-pcerr')
         self.assertTrue(tag, 'thiếu ô báo lỗi wj-rep-pcerr')
         self.assertNotIn('hidden', tag.group(0))
@@ -59,7 +64,7 @@ class TestReportFilterDatesE4c(HttpCase):
     def test_khong_loi_thi_o_bao_van_ton_tai_nhung_an(self):
         """Mất phần tử là JS thay khối hụt id ⇒ cả màn rơi về tải lại trang."""
         html = self._get('/portal/reports/orders')
-        self.assertNotIn(ERR_DATE_RANGE, html)
+        self.assertNotIn(self.err_date_range, html)
         for eid in ('wj-rep-pcerr', 'wj-rep-merr'):
             tag = self._tag(html, eid)
             self.assertTrue(tag, 'thiếu ô báo lỗi %s' % eid)

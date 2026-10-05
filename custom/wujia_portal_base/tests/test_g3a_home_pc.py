@@ -19,6 +19,7 @@ from odoo.tests.common import HttpCase
 
 from odoo.addons.wujia_portal_base.controllers.portal import WujiaPortal
 from odoo.addons.wujia_portal_base.tests.css_probe import _mod_css, _strip_comments
+from odoo.addons.wujia_portal_base.tests.common import load_vi
 
 PC = "//div[contains(concat(' ', @class, ' '), ' wujia-home-pc ')]"
 KPI_ORDER = ['Đơn hàng', 'Thông báo', 'Đổi trả', 'Công nợ']
@@ -47,7 +48,8 @@ class TestHomePcFrameArch(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        view = self.env.ref('wujia_portal_base.portal_home_page')
+        # J-V2: arch đọc ở vi_VN (câu gốc đã là tiếng Anh, nhãn VN nằm ở .po).
+        view = load_vi(self.env).ref('wujia_portal_base.portal_home_page')
         self.root = etree.fromstring(view.arch_db.encode())
         self.pc = self.root.xpath(PC)
         self.assertEqual(len(self.pc), 1, 'khối PC phải có đúng một vỏ .wujia-home-pc')

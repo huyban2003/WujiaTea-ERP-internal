@@ -5,7 +5,7 @@
     <template id="mobile_bottomnav_home"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="10"
-              name="Wujia Mobile — tab Trang chủ">
+              name="Wujia Mobile — Home tab">
         <xpath expr="//button[@data-wujia-more='toggle']" position="before">
             <t t-set="_bn_on" t-value="_bnav_path == '/portal'"/>
             <t t-set="_bnav_hit" t-value="_bnav_hit or bool(_bn_on)"/>
@@ -13,7 +13,7 @@
                 <t t-set="bn_active" t-value="_bn_on"/>
                 <t t-set="bn_href" t-value="'/portal'"/>
                 <t t-set="bn_icon" t-value="'feather icon-home'"/>
-                <t t-set="bn_label">Trang chủ</t>
+                <t t-set="bn_label">Home</t>
             </t>
         </xpath>
     </template>

@@ -18,6 +18,7 @@ from odoo.tests.common import HttpCase
 
 from odoo.addons.wujia_portal_base.controllers.utils import portal_money
 from odoo.addons.wujia_portal_base.tests.css_probe import _mod_css, _strip_comments
+from odoo.addons.wujia_portal_base.tests.common import load_vi
 from odoo.addons.wujia_portal_base.tests.test_g3a_home_pc import PC, _cls, _src, _text
 
 BLOCKS = [
@@ -46,7 +47,9 @@ class TestHomePcBlocksArch(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.root = etree.fromstring(self.env.ref('wujia_portal_base.portal_home_page').arch_db.encode())
+        # J-V2: arch đọc ở vi_VN (câu gốc đã là tiếng Anh, nhãn VN nằm ở .po).
+        view = load_vi(self.env).ref('wujia_portal_base.portal_home_page')
+        self.root = etree.fromstring(view.arch_db.encode())
         self.pc = self.root.xpath(PC)[0]
         grid = self.pc.xpath(f".//div[{_cls('wujia-home-blocks')}]")
         self.assertEqual(len(grid), 1)
@@ -78,7 +81,9 @@ class TestHomePcBlocksArch(TransactionCase):
     def test_delivery_header_has_undelivered_subtitle(self):
         header = self.cards[2].xpath(".//t[@t-call='wujia_portal_layout.wj_card_header']")[0]
         self.assertIn('m_undelivered_count', _tval(header, 'ch_subtitle'))
-        self.assertIn('đơn chưa giao', _tval(header, 'ch_subtitle'))
+        # J-V2: câu nằm ở <t t-set> (dịch được), biểu thức chỉ ghép số vào.
+        self.assertIn('_hm_t_undelivered', _tval(header, 'ch_subtitle'))
+        self.assertEqual(header.xpath(".//t[@t-set='_hm_t_undelivered']")[0].text, '%s đơn chưa giao')
 
     def test_row_icons_match_record_type(self):
         for card in self.cards:

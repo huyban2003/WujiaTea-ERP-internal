@@ -61,7 +61,7 @@
                 </t>
                 <a t-if="_wujia_strip_clickable" href="#" data-action="open-store-picker"
                    class="wujia-store-mobile-strip wujia-store-mobile-strip--clickable wj-state-surface"
-                   aria-label="Đổi cửa hàng đang thao tác">
+                   aria-label="Switch the store you work on">
                     <t t-out="_wujia_strip_body"/>
                     <i class="feather icon-chevron-down wujia-store-strip-chevron" aria-hidden="true"/>
                 </a>
@@ -96,7 +96,7 @@
                        class="wujia-active-store-badge"
                        t-att-title="_wujia_active_franchise.display_name">
                         <span class="wujia-store-badge-text">
-                            <span class="wujia-store-badge-label">Cửa hàng hiện tại</span>
+                            <span class="wujia-store-badge-label">Current store</span>
                             <strong class="wujia-store-badge-name" t-out="_wujia_active_franchise.display_name"/>
                         </span>
                     </a>

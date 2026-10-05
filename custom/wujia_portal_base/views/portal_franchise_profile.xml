@@ -12,14 +12,15 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Thông tin cửa hàng / Hồ sơ cửa hàng</t>
-                    <t t-set="ph_title" t-value="'Hồ sơ cửa hàng — ' + franchise.name"/>
+                    <t t-set="ph_crumb">Store information / Store profile</t>
+                    <t t-set="_fp_t_title">Store profile</t>
+                    <t t-set="ph_title" t-value="_fp_t_title + ' — ' + franchise.name"/>
                     <t t-set="ph_back_url" t-value="'/portal/franchises/%s' % franchise.id"/>
                 </t>
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Hồ sơ cửa hàng</t>
+                    <t t-set="ph_title">Store profile</t>
                     <t t-set="ph_back_url" t-value="'/portal/franchises/%s' % franchise.id"/>
                 </t>
 
@@ -30,33 +31,33 @@
                             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
                                 <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title">Thông tin định danh</t>
+                                        <t t-set="ch_title">Identification</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                                     </t>
                                 </div>
                                 <div class="wj-surface-card__body">
                                     <dl class="row mb-0 profile-dl">
-                                        <dt class="col-sm-4">Mã</dt>
+                                        <dt class="col-sm-4">Code</dt>
                                         <dd class="col-sm-8" t-out="franchise.code or '—'"/>
-                                        <dt class="col-sm-4">Tên</dt>
+                                        <dt class="col-sm-4">Name</dt>
                                         <dd class="col-sm-8" t-out="franchise.name or '—'"/>
-                                        <dt class="col-sm-4">Trạng thái</dt>
+                                        <dt class="col-sm-4">Status</dt>
                                         <dd class="col-sm-8">
                                             <span t-attf-class="wj-status-badge #{franchise.status == 'active' and 'wj-status-badge--success' or (franchise.status == 'draft' and 'wj-status-badge--neutral' or 'wj-status-badge--danger')}"
                                                   t-out="status_labels.get(franchise.status, franchise.status)"/>
                                             <span t-if="franchise.portal_locked" class="badge bg-danger ms-1">
-                                                <i class="fa fa-lock me-1"/>Đã khóa portal
+                                                <i class="fa fa-lock me-1"/>Portal access locked
                                             </span>
                                         </dd>
-                                        <dt class="col-sm-4">Ngày khai trương</dt>
+                                        <dt class="col-sm-4">Opening date</dt>
                                         <dd class="col-sm-8" t-out="franchise.opening_date and franchise.opening_date.strftime('%d/%m/%Y') or '—'"/>
-                                        <dt class="col-sm-4">Khu vực</dt>
+                                        <dt class="col-sm-4">Area</dt>
                                         <dd class="col-sm-8" t-out="franchise.area_id.name or '—'"/>
-                                        <dt class="col-sm-4">Vai trò của tôi</dt>
+                                        <dt class="col-sm-4">My role</dt>
                                         <dd class="col-sm-8">
                                             <strong t-out="role_labels.get(membership.role, membership.role)"/>
-                                            <span t-if="membership.is_primary_owner" class="badge bg-warning text-dark ms-1">Chủ chính</span>
+                                            <span t-if="membership.is_primary_owner" class="badge bg-warning text-dark ms-1">Main owner</span>
                                         </dd>
                                     </dl>
                                 </div>
@@ -68,22 +69,22 @@
                             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
                                 <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title">Liên hệ</t>
+                                        <t t-set="ch_title">Contact</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                                     </t>
                                 </div>
                                 <div class="wj-surface-card__body">
                                     <dl class="row mb-0 profile-dl">
-                                        <dt class="col-sm-4">Địa chỉ</dt>
+                                        <dt class="col-sm-4">Address</dt>
                                         <dd class="col-sm-8" t-out="franchise.address or '—'"/>
-                                        <dt class="col-sm-4">Tỉnh/Thành</dt>
+                                        <dt class="col-sm-4">Province/City</dt>
                                         <dd class="col-sm-8" t-out="franchise.state_id.name or '—'"/>
-                                        <dt class="col-sm-4">Điện thoại</dt>
+                                        <dt class="col-sm-4">Telephone</dt>
                                         <dd class="col-sm-8" t-out="franchise.phone or '—'"/>
                                         <dt class="col-sm-4">Email</dt>
                                         <dd class="col-sm-8" t-out="franchise.email or '—'"/>
-                                        <dt class="col-sm-4">Đại diện</dt>
+                                        <dt class="col-sm-4">Representative</dt>
                                         <dd class="col-sm-8">
                                             <t t-if="franchise.main_owner_member_id">
                                                 <t t-out="franchise.main_owner_member_id.user_id.name"/>
@@ -100,27 +101,27 @@
                             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
                                 <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title">Hợp đồng nhượng quyền</t>
+                                        <t t-set="ch_title">Franchise contract</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                                     </t>
                                 </div>
                                 <div class="wj-surface-card__body">
                                     <dl class="row mb-0 profile-dl">
-                                        <dt class="col-sm-5">Bắt đầu</dt>
+                                        <dt class="col-sm-5">Starts</dt>
                                         <dd class="col-sm-7" t-out="franchise.franchise_start_date and franchise.franchise_start_date.strftime('%d/%m/%Y') or '—'"/>
-                                        <dt class="col-sm-5">Kết thúc</dt>
+                                        <dt class="col-sm-5">Ends</dt>
                                         <dd class="col-sm-7" t-out="franchise.franchise_end_date and franchise.franchise_end_date.strftime('%d/%m/%Y') or '—'"/>
-                                        <dt class="col-sm-5">Còn lại</dt>
+                                        <dt class="col-sm-5">Remaining</dt>
                                         <dd class="col-sm-7">
                                             <t t-if="franchise.is_expired">
-                                                <span class="badge bg-danger">Đã hết hạn</span>
+                                                <span class="badge bg-danger">Has expired</span>
                                             </t>
                                             <t t-elif="franchise.remaining_days &lt;= 30 and franchise.remaining_days &gt; 0">
-                                                <span class="badge bg-warning text-dark"><t t-out="franchise.remaining_days"/> ngày (sắp hết hạn)</span>
+                                                <span class="badge bg-warning text-dark"><t t-out="franchise.remaining_days"/> days (expiring soon)</span>
                                             </t>
                                             <t t-else="">
-                                                <span class="text-muted"><t t-out="franchise.remaining_days or 0"/> ngày</span>
+                                                <span class="text-muted"><t t-out="franchise.remaining_days or 0"/> days</span>
                                             </t>
                                         </dd>
                                     </dl>
@@ -133,19 +134,18 @@
                             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
                                 <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title">Yêu cầu cập nhật thông tin</t>
+                                        <t t-set="ch_title">Request an information update</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                                     </t>
                                 </div>
                                 <div class="wj-surface-card__body">
                                     <p class="text-muted">
-                                        Để cập nhật thông tin cửa hàng (địa chỉ, SĐT, giấy tờ...), vui lòng
-                                        <a href="/portal/support/new">gửi yêu cầu hỗ trợ</a> kèm thông tin cần đổi.
-                                        Quản trị viên sẽ phê duyệt trước khi áp dụng.
+                                        To update store information (address, phone, documents...), please
+                                        <a href="/portal/support/new">submit a support request</a> with the details to change. An administrator will approve it before it takes effect.
                                     </p>
                                     <a href="/portal/support/new" class="wj-btn wj-btn--primary">
-                                        <i class="fa fa-paper-plane me-1"/>Gửi yêu cầu
+                                        <i class="fa fa-paper-plane me-1"/>Submit request
                                     </a>
                                 </div>
                             </div>

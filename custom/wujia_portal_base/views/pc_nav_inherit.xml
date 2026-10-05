@@ -8,7 +8,7 @@
     <template id="acct_menu_store"
               inherit_id="wujia_portal_layout.wj_acct_menu_items"
               priority="20"
-              name="Wujia Avatar — nhóm cửa hàng">
+              name="Wujia Avatar — store group">
         <xpath expr="//div[@data-wj-anchor='acct_store_end']" position="before">
             <!-- info-request là màn con của Hồ sơ cửa hàng (BA: active đúng module cha). -->
             <t t-set="_am_store_on"
@@ -16,8 +16,8 @@
             <t t-set="_am_multi" t-value="_wujia_accessible_ids and len(_wujia_accessible_ids) &gt; 1"/>
             <!-- Không cửa hàng nào ⇒ nhóm rỗng: không để hai divider liền nhau. -->
             <div t-if="_wujia_active_fid or _am_multi" class="dropdown-divider"/>
-            <div t-if="_wujia_active_franchise" class="wj-acct-menu__store" role="group" aria-label="Cửa hàng hiện tại">
-                <span class="wj-acct-menu__label" aria-hidden="true">Cửa hàng hiện tại</span>
+            <div t-if="_wujia_active_franchise" class="wj-acct-menu__store" role="group" aria-label="Current store">
+                <span class="wj-acct-menu__label" aria-hidden="true">Current store</span>
                 <span class="wj-acct-menu__store-row">
                     <span class="wj-acct-menu__store-name">
                         <span t-if="_wujia_active_franchise.code" class="wj-acct-menu__store-code"
@@ -33,7 +33,7 @@
             <a t-if="_am_multi"
                href="#" role="button" data-action="open-store-picker" class="dropdown-item">
                 <i class="feather icon-repeat" aria-hidden="true"/>
-                Đổi cửa hàng
+                Switch store
             </a>
             <a t-if="_wujia_active_fid"
                t-attf-class="dropdown-item #{_am_store_on and 'is-active' or ''}"
@@ -47,7 +47,7 @@
                     <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
                     <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
                 </svg>
-                Hồ sơ cửa hàng
+                Store profile
             </a>
         </xpath>
     </template>
@@ -55,7 +55,7 @@
     <template id="pc_account_nav_franchise_information"
               inherit_id="wujia_portal_layout.pc_account_layout"
               priority="20"
-              name="Wujia PC Tài khoản — mục Hồ sơ cửa hàng">
+              name="Wujia PC Account — Store profile item">
         <xpath expr="//nav[hasclass('wj-pc-acct-nav__list')]/a[@href='/portal/change-password']"
                position="before">
             <a href="/portal/franchise-information"
@@ -69,7 +69,7 @@
                     <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
                     <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
                 </svg>
-                <span>Hồ sơ cửa hàng</span>
+                <span>Store profile</span>
             </a>
         </xpath>
     </template>

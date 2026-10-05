@@ -6,16 +6,16 @@
     <template id="portal_franchises_list" name="Wujia Portal — Franchises">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_width" t-value="'standard'"/>
-            <t t-set="title">Cửa hàng</t>
+            <t t-set="title">Store</t>
             <div class="content-wrapper">
                 <div class="content-header row mt-3">
                     <div class="content-header-left col-12 mb-1">
-                        <h2 class="content-header-title float-left mb-0">Cửa hàng của tôi</h2>
+                        <h2 class="content-header-title float-left mb-0">My stores</h2>
                     </div>
                 </div>
                 <div class="content-body">
                     <div t-if="not memberships" class="alert alert-info">
-                        Bạn chưa được gán vào cửa hàng nào. Liên hệ quản trị viên.
+                        You are not assigned to any store yet. Contact an administrator.
                     </div>
                     <div t-if="memberships" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
                         <div class="card-content">
@@ -23,10 +23,10 @@
                                 <table class="table table-hover mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Cửa hàng</th>
-                                            <th>Mã</th>
-                                            <th>Vai trò</th>
-                                            <th>Hiệu lực</th>
+                                            <th>Store</th>
+                                            <th>Code</th>
+                                            <th>Role</th>
+                                            <th>Validity</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -45,15 +45,15 @@
                                                     <t t-out="role_labels.get(m.role, m.role)"/>
                                                 </span>
                                                 <span t-if="m.is_primary_owner"
-                                                      class="badge badge-warning ml-1">Chủ chính</span>
+                                                      class="badge badge-warning ml-1">Main owner</span>
                                             </td>
                                             <td>
                                                 <t t-out="m.date_from"/> —
-                                                <t t-out="m.date_to or 'Không giới hạn'"/>
+                                                <t t-if="m.date_to" t-out="m.date_to"/><t t-else="">Unlimited</t>
                                             </td>
                                             <td class="text-right">
                                                 <a t-attf-href="/portal/franchises/#{m.franchise_id.id}"
-                                                   class="wj-btn wj-btn--primary wj-btn--sm">Vào cửa hàng</a>
+                                                   class="wj-btn wj-btn--primary wj-btn--sm">Open store</a>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -81,31 +81,33 @@
                             </small>
                         </h2>
                         <p class="mt-2">
-                            Bạn đang là
+                            You are
                             <strong>
                                 <t t-out="role_labels.get(membership.role, membership.role)"/>
                             </strong>
-                            tại cửa hàng này.
+                            at this store.
                         </p>
                     </div>
                 </div>
                 <div class="content-body">
                     <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
                         <div class="wj-surface-card__head d-flex align-items-center justify-content-between">
-                            <h4 class="card-title mb-0">Thành viên cửa hàng</h4>
+                            <h4 class="card-title mb-0">Store members</h4>
                             <span id="o_wujia_realtime_indicator"
-                                  class="badge badge-success d-none">Đã cập nhật</span>
+                                  class="badge badge-success d-none">Updated</span>
                         </div>
                         <div class="card-content">
                             <div class="wj-surface-card__body wj-surface-card__body--flush">
+                                <t t-set="_fl_msg_main_owner">Main owner</t>
                                 <table id="o_wujia_franchise_members"
                                        t-att-data-franchise-id="franchise.id"
+                                       t-att-data-wj-msg-main-owner="_fl_msg_main_owner"
                                        class="table mb-0">
                                     <thead>
                                         <tr>
                                             <th>User</th>
-                                            <th>Vai trò</th>
-                                            <th>Hiệu lực</th>
+                                            <th>Role</th>
+                                            <th>Validity</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -115,7 +117,7 @@
                                             <td>
                                                 <t t-out="member.user_id.name"/>
                                                 <span t-if="member.is_primary_owner"
-                                                      class="badge badge-warning ml-1">Chủ chính</span>
+                                                      class="badge badge-warning ml-1">Main owner</span>
                                             </td>
                                             <td>
                                                 <span t-attf-class="badge badge-#{role_color}">

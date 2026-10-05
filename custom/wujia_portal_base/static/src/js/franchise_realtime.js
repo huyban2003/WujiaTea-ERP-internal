@@ -2,11 +2,8 @@ import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
 
-const ROLE_BADGE = {
-    owner: { cls: "primary", label: "Chủ tiệm" },
-    manager: { cls: "info", label: "Quản lý" },
-    staff: { cls: "secondary", label: "Nhân viên" },
-};
+// Màu badge theo vai trò; nhãn lấy `role_label` server đã dịch (ROLE_LABELS, J-V2).
+const ROLE_BADGE_CLS = { owner: "primary", manager: "info", staff: "secondary" };
 
 export class FranchiseMembersRealtime extends Interaction {
     static selector = "#o_wujia_franchise_members";
@@ -49,9 +46,13 @@ export class FranchiseMembersRealtime extends Interaction {
     }
 
     renderRow(m) {
-        const badge = ROLE_BADGE[m.role] || { cls: "secondary", label: m.role || "" };
+        const badge = {
+            cls: ROLE_BADGE_CLS[m.role] || "secondary",
+            label: m.role_label || m.role || "",
+        };
+        const mainOwner = window.wjMsg ? window.wjMsg(this.el, "main-owner", "Main owner") : "Main owner";
         const primaryBadge = m.is_primary_owner
-            ? '<span class="badge text-bg-warning ms-1">Chủ chính</span>'
+            ? `<span class="badge text-bg-warning ms-1">${escapeHtml(mainOwner)}</span>`
             : "";
         const dateRange = `${m.date_from || ""} — ${m.date_to || "—"}`;
         return `<tr>
