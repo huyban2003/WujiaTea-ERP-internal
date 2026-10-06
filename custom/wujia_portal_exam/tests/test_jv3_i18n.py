@@ -12,7 +12,7 @@ from odoo.addons.wujia_exam.tests.common import load_vi
 from odoo.addons.wujia_portal_base.controllers.utils import status_badge_for
 from odoo.addons.wujia_portal_base.tests.css_probe import CUSTOM
 from odoo.addons.wujia_portal_exam.controllers.portal import (
-    M_REG_BADGE, PC_PUBLISH_STATES, PC_REG_STATES, SLOT_STATUS_LABELS, _WEEKDAYS,
+    M_REG_BADGE, PC_PUBLISH_STATES, PC_REG_STATES, SLOT_STATUS_LABELS, _WEEKDAYS, _course_meta,
 )
 
 VI_MODULES = ('wujia_portal_layout', 'wujia_portal_base', 'wujia_exam', 'wujia_portal_exam')
@@ -83,3 +83,19 @@ class TestExamI18nJV3(TransactionCase):
         # Câu của khối được dịch: t-set thân chữ ⇒ arch vi_VN chứa tiếng Việt.
         arch_vi = self.env_vi.ref('wujia_portal_exam.portal_exam_register').arch
         self.assertIn('Không tải được khung giờ', arch_vi)
+
+    def test_course_meta_singular_plural(self):
+        """EN "1 sessions" sai ngữ pháp ⇒ msgid số ít riêng; vi_VN cả hai về cùng câu cũ."""
+        class _Course:
+            registration_horizon_days = 60
+
+            def __init__(self, env, n):
+                self.env, self._n = env, n
+
+            def _portal_booking_meta(self):
+                return {'upcoming_count': self._n, 'closed': False, 'full': False}
+
+        self.assertEqual(_course_meta(_Course(self.env_en, 1))['meta'], '1 session • In the next 60 days')
+        self.assertEqual(_course_meta(_Course(self.env_en, 3))['meta'], '3 sessions • In the next 60 days')
+        self.assertEqual(_course_meta(_Course(self.env_vi, 1))['meta'], '1 kỳ thi • Trong 60 ngày tới')
+        self.assertEqual(_course_meta(_Course(self.env_vi, 3))['meta'], '3 kỳ thi • Trong 60 ngày tới')

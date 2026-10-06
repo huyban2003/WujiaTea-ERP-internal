@@ -389,7 +389,7 @@
                                 <!-- Khung giờ -->
                                 <div class="wj-surface-card wj-surface-card--flush wj-surface-card--tonal wj-exam-pc-slots" data-wj-exam-slots="1">
                                     <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title">Time slots on <t t-out="pc_summary['exam_date']"/></t>
+                                        <t t-set="ch_title"><t t-if="pc_summary['exam_date'] != '—'">Time slots on <t t-out="pc_summary['exam_date']"/></t><t t-else="">Time slot</t></t>
                                         <t t-set="ch_subtitle"><t t-out="pc_summary['course_name']"/> · local time</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_platform" t-value="'pc'"/>

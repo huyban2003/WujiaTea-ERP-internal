@@ -128,3 +128,15 @@ class TestHomeFollowsUserLang(HttpCase):
         for text in ('Store overview', 'Ordering window', 'Upcoming deliveries', 'Store owner'):
             self.assertIn(text, html)
         self.assertNotIn('Tổng quan cửa hàng', html)
+
+    def test_home_counts_singular_plural(self):
+        """EN "1 orders"/"1 undelivered orders" sai ngữ pháp ⇒ msgid số ít riêng, vi_VN giữ y câu cũ."""
+        view = self.env.ref('wujia_portal_base.portal_home_page')
+        arch_en = view.with_context(lang='en_US').arch_db
+        for text in ('order in 30 days', '%s undelivered order<', 'undelivered order<'):
+            self.assertIn(text, arch_en)
+        arch_vi = view.with_context(lang='vi_VN').arch_db
+        self.assertNotIn(' order in 30 days', arch_vi)
+        self.assertNotIn('undelivered order', arch_vi)
+        self.assertGreaterEqual(arch_vi.count('đơn trong 30 ngày'), 2)
+        self.assertGreaterEqual(arch_vi.count('đơn chưa giao'), 4)

@@ -4,7 +4,6 @@
         <template id="asset_vendor">
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/vendors/css/vendors.min.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/vendors/css/charts/apexcharts.css"/>
-            <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/vendors/css/tables/datatable/datatables.min.css"/>
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/vendors/css/pickers/pickadate/pickadate.css"/>
         </template>
         <template id="asset_theme">
@@ -47,9 +46,8 @@
 
             <t t-call="wujia_portal_layout.asset_style_js"/>
 
-            <t t-call="wujia_portal_layout.tables_js"/>
-            <script src="/wujia_portal_layout/static/assets/js/orgchart/jquery.orgchart.js"></script>
-            
+            <!-- J-V4: bỏ tables_js (DataTables + pdfmake/vfs_fonts ~2 MB, không trang nào dùng; $.fn.DataTable không
+                 gắn được dưới loader AMD của Odoo — xem Sprint 4.2) + bản nạp trùng jquery.orgchart.js (đã có ở asset_style_js). -->
         </template>
 
         <template id="asset_page_css">
@@ -92,24 +90,6 @@
             <link rel="stylesheet" type="text/css" href="/wujia_portal_layout/static/assets/css/_sidebar.css?v=1322"/>
         </template>
 
-        <template id="tables_js">
-            <!-- Sprint 4.2: removed scripts/datatables/datatable.js — it calls
-                 $('.zero-configuration').DataTable() on classes that don't exist
-                 in portal pages, and Odoo's AMD loader makes datatables.min.js
-                 register as AMD module instead of attaching $.fn.DataTable,
-                 so .DataTable() is undefined → uncaught TypeError that aborts
-                 every $(document).ready callback registered after it (including
-                 our _wujiaForceMenuExpanded sidebar fix). -->
-            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/pdfmake.min.js"></script>
-            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/vfs_fonts.js"></script>
-            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/datatables.min.js"></script>
-            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/datatables.buttons.min.js"></script>
-            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/buttons.html5.min.js"></script>
-            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/buttons.print.min.js"></script>
-            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/buttons.bootstrap.min.js"></script>
-            <script src="/wujia_portal_layout/static/assets/js/scripts/tables/datatable/datatables.bootstrap4.min.js"></script>
-     
-        </template>
 
          <template id="asset_style_js">
 
@@ -134,7 +114,8 @@
 
              <script src="/wujia_portal_layout/static/assets/js/scripts/sweetalert2@11.js"/>
              
-             <script src="https://cdnjs.com/libraries/orgchart"></script>
+             <!-- J-V4: bỏ <script src="https://cdnjs.com/libraries/orgchart"> — URL là trang HTML, không phải JS
+                  (mỗi trang tốn 1 request ra ngoài, trình duyệt từ chối chạy). -->
             
         </template>
 

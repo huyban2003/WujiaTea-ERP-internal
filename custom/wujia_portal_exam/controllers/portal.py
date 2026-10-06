@@ -207,8 +207,11 @@ def _course_meta(course):
     """Meta ngắn cho card khóa thi (mobile) + cờ 'closed'/'full' (luật ở model)."""
     meta = course._portal_booking_meta()
     return {
-        'meta': course.env._('%(count)d sessions • In the next %(days)d days',
-                             count=meta['upcoming_count'], days=course.registration_horizon_days),
+        'meta': (course.env._('%(count)d session • In the next %(days)d days',
+                              count=meta['upcoming_count'], days=course.registration_horizon_days)
+                 if meta['upcoming_count'] == 1 else
+                 course.env._('%(count)d sessions • In the next %(days)d days',
+                              count=meta['upcoming_count'], days=course.registration_horizon_days)),
         'closed': meta['closed'],
         'full': meta['full'],
     }

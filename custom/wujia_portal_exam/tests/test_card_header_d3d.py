@@ -41,3 +41,24 @@ class TestCardHeaderExamJsContract(TransactionCase):
         arch = self.env.ref('wujia_portal_exam.portal_exam_register').arch_db
         self.assertIn('wujia-mexam-person-name', arch)
         self.assertIn("querySelector('.wujia-mexam-person-name')", self._js())
+
+
+@tagged('post_install', '-at_install', 'wujia_card_header_d3')
+class TestCardHeaderExamPcJsContract(TransactionCase):
+    """PC "Đăng ký mới": D3d chuyển khung giờ sang `wj_card_header` nhưng `portal_exam_pc.js` vẫn tìm
+    `.wj-exam-pc-slots__title` ⇒ selector ra null, tiêu đề kẹt "Khung giờ ngày —" dù đã chọn ngày (UAT 06/10)."""
+
+    def test_pc_slot_title_selector_matches_card_header(self):
+        path = os.path.join(os.path.dirname(__file__), '..', 'static', 'src', 'js', 'portal_exam_pc.js')
+        with open(path, encoding='utf-8') as fh:
+            js = fh.read()
+        self.assertIn('qs(root, ".wj-exam-pc-slots__head .wj-card-header__title")', js)
+        self.assertNotIn('".wj-exam-pc-slots__title"', js)
+        arch = self.env.ref('wujia_portal_exam.portal_exam_register').arch_db
+        self.assertIn("'wj-exam-pc-slots__head'", arch, 'ch_class của header khung giờ đổi ⇒ sửa selector JS')
+
+    def test_pc_slot_title_without_day_has_no_dash(self):
+        # Chưa chọn ngày: "Time slot" (giống JS khi đổi khoá), không phải "Time slots on —".
+        arch = self.env.ref('wujia_portal_exam.portal_exam_register').arch_db
+        self.assertIn("""<t t-if="pc_summary['exam_date'] != '—'">Time slots on""", arch)
+        self.assertIn('<t t-else="">Time slot</t>', arch)

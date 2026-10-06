@@ -82,7 +82,8 @@
         var slotEmpty    = qs(root, "[data-wj-exam-slot-empty]");
         var slotEmptyTtl = qs(root, "[data-wj-exam-slot-empty-title]");
         var slotEmptyBtn = qs(root, "[data-wj-exam-pick-other-day]");
-        var slotTitle    = qs(root, ".wj-exam-pc-slots__title");
+        /* D3 (wj_card_header) bỏ class .wj-exam-pc-slots__title ⇒ selector cũ ra null, tiêu đề kẹt "—" (sửa J-V4). */
+        var slotTitle    = qs(root, ".wj-exam-pc-slots__head .wj-card-header__title");
         var conflict     = qs(root, "[data-wj-exam-conflict]");
         var sendHint     = qs(root, "[data-wj-exam-send-hint]");
         var partBody     = qs(root, "[data-wj-exam-part-body]");

@@ -98,7 +98,8 @@
                                         <p class="wujia-kpi-label">Orders</p>
                                         <div class="wujia-kpi-value" t-out="recent_orders_count or 0"/>
                                         <small class="wujia-kpi-desc">
-                                            <t t-if="recent_orders_count"><t t-out="recent_orders_count"/> orders in 30 days</t>
+                                            <t t-if="recent_orders_count == 1"><t t-out="recent_orders_count"/> order in 30 days</t>
+                                            <t t-elif="recent_orders_count"><t t-out="recent_orders_count"/> orders in 30 days</t>
                                             <t t-else="">No new orders</t>
                                         </small>
                                     </div>
@@ -252,7 +253,8 @@
                                 <t t-set="ch_platform" t-value="'pc'"/>
                                 <t t-set="ch_icon" t-value="'truck'"/>
                                 <t t-set="_hm_t_undelivered">%s undelivered orders</t>
-                                <t t-set="ch_subtitle" t-value="_hm_t_undelivered % (m_undelivered_count or 0)"/>
+                                <t t-set="_hm_t_undelivered_one">%s undelivered order</t>
+                                <t t-set="ch_subtitle" t-value="(_hm_t_undelivered_one if m_undelivered_count == 1 else _hm_t_undelivered) % (m_undelivered_count or 0)"/>
                                 <t t-set="ch_action_url" t-value="'/portal/delivery'"/>
                             </t>
                             <div t-if="not m_upcoming_batches" class="wj-empty-state wj-empty-state--row">
@@ -596,7 +598,7 @@
                                 <t t-set="sh_action_label">View all ›</t>
                             </t>
                             <!-- div, không <p>: section là flex gap 10, margin của <p> sẽ cộng thêm 16px -->
-                            <div class="wj-count-meta"><t t-out="m_undelivered_count"/> undelivered orders</div>
+                            <div class="wj-count-meta"><t t-if="m_undelivered_count == 1"><t t-out="m_undelivered_count"/> undelivered order</t><t t-else=""><t t-out="m_undelivered_count"/> undelivered orders</t></div>
                             <div t-if="not m_upcoming_batches" class="wj-empty-state wj-empty-state--row">
                                 <span class="wj-empty-state-icon"><i class="feather icon-truck"/></span>
                                 <div class="wj-empty-state-body">

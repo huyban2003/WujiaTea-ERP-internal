@@ -2313,7 +2313,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: **J-V4** — `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8), so mốc vi_VN sau V3.
 
 ## J-V4 Việt hoá source `wujia_portal_sale` + `wujia_sale` + `wujia_order_window` · 06/10/2026 · Mac
-- Kết quả: ✅ code + test, **chưa commit** (chờ lệnh chủ dự án); 0 ghi sheet (không có ID Issue List).
+- Kết quả: ✅ code + test, **đã push `main` `359fe36c`**, chủ dự án deploy; 0 ghi sheet (không có ID Issue List).
 - Đầu phiên: HEAD `baa5b547` (J-V3). Không module Thái nào phụ thuộc 3 module này (`wujia_mobile_sale` đã standalone) ⇒ không đụng code Thái.
 - Đã làm (`wujia_portal_sale` 19.0.5.0.0 · `wujia_sale` 19.0.4.7.0 · `wujia_order_window` 19.0.1.1.0):
   - Câu gốc → tiếng Anh: `docs/i18n-pairs/wujia_portal_sale.csv` 201 dòng (auto 118 · tay 83), `wujia_sale.csv` 16 (12 · 4),
@@ -2374,5 +2374,29 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V4".
 - Lệnh deploy: thêm `wujia_portal_layout,wujia_sale,wujia_order_window,wujia_portal_sale` vào lệnh `-u` gộp; **restart sau `-u`**. Kiểm deploy kế có thật sự
   chạy tới tầng `portal_*` (V3 dừng trước tầng này 2 lần).
+- UAT (06/10, chủ dự án deploy `359fe36c`): 4 module đúng bản (`portal_layout` 19.0.60.3.0 · `sale` 19.0.4.7.0 · `order_window` 19.0.1.1.0 ·
+  `portal_sale` 19.0.5.0.0, upgrade 09:06 UTC — lần này deploy chạy tới tầng `portal_*`). Kiểm chỉ-đọc `anh.owner` (Playwright chặn mọi
+  POST trừ đăng nhập ⇒ 0 ghi): vi/en/th × 1440/390 × catalog, giỏ, chi tiết SP, ngoài khung giờ — **0 tràn, 0 lỗi JS, 0 request lỗi
+  (hết 404 locale)**, `<html lang>` đúng, 13 key `data-wj-msg-*`; câu client chi tiết SP + confirm xoá + modal xác nhận (`{brand}`) +
+  khung qua đêm "10:00 today – 04:00 tomorrow (UTC+7)" ra EN ở en/th, y chữ cũ ở vi. Ngôn ngữ user trả về vi_VN.
+  Phát hiện (có sẵn, không do V4): (1) trang chi tiết SP khổ 390 hàng nút không `flex-wrap` ⇒ nút "Xem giỏ"/"View cart" bị cắt ở mép thẻ
+  (vi cũng vậy); (2) mọi trang portal nạp `pdfmake` + `vfs_fonts` (~1,8 MB) của datatable ⇒ `load` ~2 s; bấm nút trước `load` thì
+  lazyloader Odoo giữ cú bấm (spinner) rồi phát lại — đúng thiết kế, không kẹt.
+- Sửa sau UAT (06/10, **chưa commit** — chờ lệnh): `portal_layout` 19.0.60.4.0 · `portal_sale` 19.0.5.1.0 · `portal_exam` 19.0.7.1.0 ·
+  `portal_base` 19.0.7.37.0.
+  - Chi tiết SP: hàng "Số lượng · Thêm vào giỏ · Xem giỏ" thêm `flex-wrap` + nhãn `text-nowrap` ⇒ 390 nút "Xem giỏ" xuống dòng, hết cắt.
+  - `assets.xml`: bỏ `tables_js` (DataTables + `pdfmake`/`vfs_fonts`, ~2 MB/trang, không trang nào dùng — `$.fn.DataTable` vốn không gắn
+    được dưới AMD Odoo) + CSS datatables + bản nạp trùng `jquery.orgchart.js` + `<script src="https://cdnjs.com/libraries/orgchart">`
+    (URL là trang HTML ⇒ mỗi trang 1 request ra ngoài vô ích).
+  - Thi PC "Đăng ký mới": tiêu đề khung giờ kẹt "Khung giờ ngày —" kể cả sau khi chọn ngày — D3d chuyển sang `wj_card_header` nhưng
+    `portal_exam_pc.js` vẫn tìm `.wj-exam-pc-slots__title` (null, im lặng). Sửa selector `.wj-exam-pc-slots__head .wj-card-header__title`;
+    chưa chọn ngày hiện "Khung giờ" (giống JS khi đổi khoá). Guard mới `TestCardHeaderExamPcJsContract`.
+  - Số ít EN: "1 order in 30 days", "1 undelivered order" (home PC + mobile), "1 session • In the next 60 days" (khoá thi) — msgid số ít
+    riêng, vi_VN trỏ cùng câu cũ (glossary +4 dòng). Test `test_home_counts_singular_plural`, `test_course_meta_singular_plural`.
+  - Nghiệm thu: `-u` 4 module, suite `/wujia_portal_layout,/wujia_portal_base,/wujia_portal_exam,/wujia_portal_sale,/wujia_exam` **686/0**;
+    scan 6 module = 0; Playwright local vi/en × 1440/390: 0 tràn, 0 lỗi JS, 0 HTTP lỗi, **0 request pdfmake/datatable/cdnjs**, nút "Xem giỏ"
+    trọn trong thẻ, tiêu đề thi "Khung giờ" → "Khung giờ ngày 11/10/2026"; probe vi_VN 52 trang: lệch chữ duy nhất có chủ đích là
+    "Khung giờ ngày —" → "Khung giờ" (còn lại do dữ liệu DB đo: giỏ có hàng, khoá thi có lịch mở).
+  - Lệnh deploy: `-u wujia_portal_layout,wujia_portal_base,wujia_portal_exam,wujia_portal_sale` + restart.
 - Nợ để lại: xoá DB nháp `wujia_v3b`, `wujia_v4b`, `wujia_v4h` + worktree nháp trong scratchpad (giữ `wujia_t1` tới hết Phần V); ★VR như trên.
 - Phiên kế: **J-V5** — `wujia_portal_debt` (196) + `wujia_account` (4), so mốc vi_VN sau V4.
