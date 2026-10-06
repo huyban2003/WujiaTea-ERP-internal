@@ -1,0 +1,134 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* wujia_account
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-06 10:02+0000\n"
+"PO-Revision-Date: 2026-10-06 10:02+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: wujia_account
+#: model:ir.model,name:wujia_account.model_account_move_reversal
+msgid "Account Move Reversal"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model,name:wujia_account.model_res_partner_bank
+msgid "Bank Accounts"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,field_description:wujia_account.field_account_move__display_name
+#: model:ir.model.fields,field_description:wujia_account.field_account_move_reversal__display_name
+#: model:ir.model.fields,field_description:wujia_account.field_account_payment__display_name
+#: model:ir.model.fields,field_description:wujia_account.field_res_partner_bank__display_name
+#: model:ir.model.fields,field_description:wujia_account.field_sale_order__display_name
+#: model:ir.model.fields,field_description:wujia_account.field_wujia_franchise_management__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,help:wujia_account.field_account_setup_bank_manual_config__portal_payment_enabled
+#: model:ir.model.fields,help:wujia_account.field_res_partner_bank__portal_payment_enabled
+msgid ""
+"Expose this receiving account (and its QR/transfer info) to the franchise "
+"portal. Only accounts of the current company are used; the one with the "
+"smallest sequence wins (BA Model/Field N)."
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,field_description:wujia_account.field_account_bank_statement_line__franchise_id
+#: model:ir.model.fields,field_description:wujia_account.field_account_move__franchise_id
+#: model:ir.model.fields,field_description:wujia_account.field_account_payment__franchise_id
+#: model_terms:ir.ui.view,arch_db:wujia_account.view_account_move_filter_wujia_franchise
+msgid "Franchise store"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,field_description:wujia_account.field_account_move__id
+#: model:ir.model.fields,field_description:wujia_account.field_account_move_reversal__id
+#: model:ir.model.fields,field_description:wujia_account.field_account_payment__id
+#: model:ir.model.fields,field_description:wujia_account.field_res_partner_bank__id
+#: model:ir.model.fields,field_description:wujia_account.field_sale_order__id
+#: model:ir.model.fields,field_description:wujia_account.field_wujia_franchise_management__id
+msgid "ID"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model,name:wujia_account.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,help:wujia_account.field_wujia_franchise_management__portal_debt_remaining
+msgid ""
+"Net outstanding balance in company currency (invoices minus credit notes). "
+"Refreshed by daily cron + on invoice/payment changes."
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,help:wujia_account.field_wujia_franchise_management__portal_overdue_invoice_count
+msgid ""
+"Number of posted customer invoices past their due date with a remaining "
+"balance. Refreshed by daily cron + on invoice/payment changes."
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model,name:wujia_account.model_account_payment
+msgid "Payments"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,field_description:wujia_account.field_wujia_franchise_management__portal_debt_remaining
+msgid "Portal debt remaining"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,field_description:wujia_account.field_wujia_franchise_management__portal_overdue_invoice_count
+msgid "Portal overdue invoices"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model,name:wujia_account.model_sale_order
+msgid "Sales Order"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,help:wujia_account.field_account_bank_statement_line__franchise_id
+#: model:ir.model.fields,help:wujia_account.field_account_move__franchise_id
+msgid ""
+"Store scope of this invoice / credit note — used for portal debt filtering "
+"(BA Model/Field N). Derived from the partner when it maps to exactly one "
+"store; the originating sale order and invoice reversals also propagate it."
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,help:wujia_account.field_account_payment__franchise_id
+msgid ""
+"Store scope of this payment — derived from the reconciled invoices (one "
+"payment belongs to one store). Accountant can override."
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model.fields,field_description:wujia_account.field_account_setup_bank_manual_config__portal_payment_enabled
+#: model:ir.model.fields,field_description:wujia_account.field_res_partner_bank__portal_payment_enabled
+msgid "Use for Portal Payment"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.model,name:wujia_account.model_wujia_franchise_management
+msgid "Wujia Franchise Management"
+msgstr ""
+
+#. module: wujia_account
+#: model:ir.actions.server,name:wujia_account.ir_cron_recompute_portal_debt_ir_actions_server
+msgid "Wujia: Recompute portal debt aggregates"
+msgstr ""

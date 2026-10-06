@@ -32,6 +32,12 @@
         }
     });
 
+    /* J-V5: câu hiển thị lấy từ `data-wj-msg-*` trên khối ngân hàng (dịch bằng .po);
+       fallback tiếng Anh khi helper chưa nạp. */
+    function copyMsg(el, key, fallback) {
+        return window.wjMsg ? window.wjMsg(el, key, fallback) : fallback;
+    }
+
     /* ---- Modal QR (PC): mở/đóng thuần bằng thuộc tính [hidden] ---- */
     function payModal() {
         return document.querySelector('[data-wj-debt-modal="pay"]');
@@ -74,12 +80,12 @@
         ev.preventDefault();
         var value = btn.getAttribute('data-wj-debt-value') || '';
         if (!value) {
-            flash(btn, false, 'Chưa có giá trị để sao chép.');
+            flash(btn, false, copyMsg(btn, 'copy-empty', 'Nothing to copy yet.'));
             return;
         }
         copyText(value).then(function (ok) {
-            flash(btn, ok, ok ? 'Đã sao chép' :
-                'Không sao chép được — chạm giữ vào giá trị để copy thủ công.');
+            flash(btn, ok, ok ? copyMsg(btn, 'copied', 'Copied') :
+                copyMsg(btn, 'copy-failed', "Couldn't copy — press and hold the value to copy it manually."));
         });
     });
 

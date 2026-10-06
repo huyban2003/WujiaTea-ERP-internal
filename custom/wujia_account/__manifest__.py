@@ -1,25 +1,25 @@
 {
     'name': 'Wujia — Accounting franchise link',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Wujia',
     'summary': 'Franchise scope for invoices/payments + portal debt aggregates',
     'description': """
 Wujia — Accounting franchise link
 =================================
-Backend seam cho công nợ portal (BA task Tasks!STT9, Doc "Controller Công nợ & Thanh
-toán Portal", tab 1. Model/ Field mục N, Controller CT-050..CT-055).
+Backend seam for the portal debts screens (BA task Tasks!STT9, BA doc "Portal debts &
+payments controller", tab 1. Model/ Field section N, Controller CT-050..CT-055).
 
-Thêm 3 field custom đã chốt với BA:
+Adds the 3 custom fields agreed with BA:
 
-- ``account.move.franchise_id`` — phạm vi cửa hàng của hoá đơn / credit note.
-- ``account.payment.franchise_id`` — phạm vi cửa hàng của khoản thanh toán (stored
-  compute từ hoá đơn được đối soát).
-- ``res.partner.bank.portal_payment_enabled`` — bật tài khoản nhận tiền lên portal.
+- ``account.move.franchise_id`` — store scope of the invoice / credit note.
+- ``account.payment.franchise_id`` — store scope of the payment (stored compute from the
+  reconciled invoice).
+- ``res.partner.bank.portal_payment_enabled`` — shows the receiving account on the portal.
 
-Kèm 2 aggregate perf trên ``wujia.franchise.management`` (badge "n quá hạn" gọi trên
-mọi trang portal — store + cron daily, KHÔNG query on-the-fly).
+Plus 2 perf aggregates on ``wujia.franchise.management`` (the "n overdue" badge is read on
+every portal page — stored + daily cron, NO on-the-fly query).
 
-Không tạo model mới, không sequence mới, không đổi quy tắc hạch toán chuẩn.
+No new model, no new sequence, no change to the standard accounting rules.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

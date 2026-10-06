@@ -15,7 +15,7 @@
          search_count mỗi request (1500 portal user, §7 perf-first). -->
     <!-- CMP-SN-001: priority thấp nhất trong các dòng sheet ⇒ chèn trước neo sớm nhất ⇒ đứng đầu.
          Hiện theo đúng điều kiện controller (_debt_access), như mục sidebar PC. -->
-    <template id="mobile_bottomnav_debt" name="Wujia Mobile — Sheet Thêm: dòng Công nợ"
+    <template id="mobile_bottomnav_debt" name="Wujia Mobile — More sheet: Debts row"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="15">
         <xpath expr="//span[@id='msheet_end']" position="before">
@@ -30,12 +30,12 @@
                 <span class="wujia-msheet-item-icon"><i class="feather icon-credit-card"/></span>
                 <span class="wujia-msheet-item-text">
                     <span class="wujia-msheet-item-title">
-                        <span>Công nợ &amp; thanh toán</span>
+                        <span>Debts &amp; payments</span>
                         <span t-if="_debt_badge['overdue_count']" class="wujia-msheet-item-badge">
-                            <t t-out="_debt_badge['overdue_count']"/> quá hạn
+                            <t t-out="_debt_badge['overdue_count']"/> overdue
                         </span>
                     </span>
-                    <span class="wujia-msheet-item-sub">Hóa đơn, công nợ và thanh toán</span>
+                    <span class="wujia-msheet-item-sub">Invoices, debts and payments</span>
                 </span>
                 <i class="feather icon-chevron-right wujia-msheet-item-chevron"/>
             </a>

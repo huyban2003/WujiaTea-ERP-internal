@@ -6,6 +6,8 @@ việc đó; sổ đăng ký chung chỉ biết "đã gọi component".
 """
 import re
 
+from lxml import etree
+
 from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.wujia_portal_base.tests.css_probe import _css, _mod_css, _rule, _view
@@ -34,13 +36,15 @@ class TestDebtListCardE5b2(TransactionCase):
     def test_nhan_tien_doi_theo_trang_thai(self):
         """Ba nhãn phải cùng nằm trên MỘT biểu thức — tách thành ba hàng là ba
         chỗ phải sửa khi BA đổi chữ."""
-        nhan = self._hang_tien(self._item('wj-debt-inv')).xpath(
-            './t[@t-set="lcr_label"]/@t-value')
+        # J-V5: nhãn là text node trong MỘT <t t-set> (dịch được qua .po), không còn
+        # biểu thức chuỗi tiếng Việt — vẫn một chỗ duy nhất.
+        nhan = self._hang_tien(self._item('wj-debt-inv')).xpath('./t[@t-set="lcr_label"]')
         self.assertEqual(len(nhan), 1, 'hàng tiền thiếu nhãn')
-        for chu in ('Còn lại', 'Đã trả', 'Được trừ'):
-            self.assertIn(chu, nhan[0], 'mất nhãn %s' % chu)
-        self.assertIn("'paid'", nhan[0])
-        self.assertIn("'credit'", nhan[0])
+        body = etree.tostring(nhan[0], encoding='unicode')
+        for chu in ('Remaining', 'Amount paid', 'Deducted'):
+            self.assertIn(chu, body, 'mất nhãn %s' % chu)
+        self.assertIn("'paid'", body)
+        self.assertIn("'credit'", body)
 
     def test_giay_bao_co_ra_so_am(self):
         """LC-09 cấm mất dữ liệu: giấy báo có TRỪ vào nợ ⇒ giá trị mang dấu âm,

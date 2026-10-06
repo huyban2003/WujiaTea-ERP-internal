@@ -53,7 +53,8 @@ class TestCardHeaderDebtD3f(TransactionCase):
         with open(path, encoding='utf-8') as fh:
             xml = fh.read()
         self.assertIn("'wj-card-header--flush wj-card-header--eyebrow wj-debt-summary__hb'", xml)
-        bank = xml[xml.index('<section class="wj-debt-bank">'):]
+        # J-V5: thẻ mang thêm `t-att` (câu JS) ⇒ chỉ khớp phần mở thẻ.
+        bank = xml[xml.index('<section class="wj-debt-bank"'):]
         bank = bank[:bank.index('</section>')]
         self.assertIn('wujia_portal_layout.wj_card_header', bank)
         self.assertNotIn('wj_section_header', bank)

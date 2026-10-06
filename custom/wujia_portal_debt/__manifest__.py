@@ -1,24 +1,25 @@
 {
-    'name': 'Wujia Portal — Công nợ & thanh toán',
-    'version': '19.0.4.17.0',
+    'name': 'Wujia Portal — Debts & payments',
+    'version': '19.0.5.0.0',
     'category': 'Wujia',
-    'summary': 'Công nợ theo tuần, lịch sử thanh toán và màn chuyển khoản (portal mobile + PC)',
+    'summary': 'Weekly debts, payment history and bank transfer screen (portal mobile + PC)',
     'description': """
-Wujia Portal — Công nợ & thanh toán
-===================================
-Dựng 7 màn Figma ``WJ_Debt_..._MVP_v31`` (page Dashboard, node 5013).
+Wujia Portal — Debts & payments
+===============================
+Builds the 7 Figma screens ``WJ_Debt_..._MVP_v31`` (page Dashboard, node 5013).
 
-**Sprint 43** — UI-only (seam ``wujia.portal.debt`` trả dict thuần, 0 query).
-**Sprint 48** — wire backend thật (BA task Tasks!STT9, Controller CT-050..CT-055):
-seam đọc ``account.move``/``account.payment`` scope theo ``franchise_id`` (3 field custom
-ở module ``wujia_account``), badge công nợ dùng field store perf, controller chặn Staff.
-Template/CSS/JS KHÔNG đổi — chỉ ruột seam + controller guard.
-**Sprint 49** — giao diện PC 1920×1080 (BA task Tasks!STT10, Figma ``WJ_Debt_PC_MVP_v1_1``
-node 5077): khối desktop ``.wj-debt-pc`` (d-none d-lg-block) bám hệ ``wj-pc-*``/shell
-``pc_source_ui_v1_5`` — tab Công nợ/Lịch sử, filter, summary 3 cột (5 biến thể state),
-bảng hoá đơn phân trang, empty box, modal QR. Mobile giữ nguyên (bọc ``d-lg-none``).
-Seam mở rộng **additive** (mỗi hoá đơn thêm ``total/paid/remaining``; ``get_payments``
-thêm ``keyword``) + controller thêm context PC — KHÔNG đổi field/rule/migration.
+**Sprint 43** — UI only (seam ``wujia.portal.debt`` returns plain dicts, 0 query).
+**Sprint 48** — real backend (BA task Tasks!STT9, Controller CT-050..CT-055): the seam
+reads ``account.move``/``account.payment`` scoped by ``franchise_id`` (3 custom fields in
+module ``wujia_account``), the debt badge uses stored perf fields, the controller blocks Staff.
+Templates/CSS/JS unchanged — only the seam internals + controller guard.
+**Sprint 49** — PC layout 1920×1080 (BA task Tasks!STT10, Figma ``WJ_Debt_PC_MVP_v1_1``
+node 5077): desktop block ``.wj-debt-pc`` (d-none d-lg-block) on the ``wj-pc-*`` system /
+``pc_source_ui_v1_5`` shell — Debts/History tabs, filter, 3-column summary (5 state variants),
+paginated invoice table, empty box, QR modal. Mobile unchanged (wrapped in ``d-lg-none``).
+The seam grows **additively** (each invoice adds ``total/paid/remaining``; ``get_payments``
+adds ``keyword``) + the controller adds PC context — NO field/rule/migration change.
+**J-V5** — source strings in English, Vietnamese via ``i18n/vi_VN.po``.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

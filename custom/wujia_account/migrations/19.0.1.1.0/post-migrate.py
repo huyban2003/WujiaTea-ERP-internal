@@ -20,7 +20,7 @@ def migrate(cr, version):
            AND cn.franchise_id IS NULL
            AND src.franchise_id IS NOT NULL
     """)
-    _logger.info('C1: điền franchise từ hoá đơn gốc cho %s giấy báo có cũ', cr.rowcount)
+    _logger.info('C1: set franchise from the origin invoice on %s old credit notes', cr.rowcount)
 
     cr.execute("""
         UPDATE account_move m
@@ -30,7 +30,7 @@ def migrate(cr, version):
            AND m.franchise_id IS NULL
            AND s.franchise_id IS NOT NULL
     """)
-    _logger.info('C1: điền franchise từ đơn bán cho %s hoá đơn cũ', cr.rowcount)
+    _logger.info('C1: set franchise from the sale order on %s old invoices', cr.rowcount)
 
     cr.execute("""
         WITH m AS (
@@ -47,7 +47,7 @@ def migrate(cr, version):
            AND am.franchise_id IS NULL
            AND am.move_type IN ('out_invoice', 'out_refund')
     """)
-    _logger.info('C1: điền franchise từ partner cho %s hoá đơn cũ', cr.rowcount)
+    _logger.info('C1: set franchise from the partner on %s old invoices', cr.rowcount)
 
     # Badge công nợ portal đọc 2 field store → tính lại sau khi dữ liệu đổi.
     env = api.Environment(cr, SUPERUSER_ID, {})

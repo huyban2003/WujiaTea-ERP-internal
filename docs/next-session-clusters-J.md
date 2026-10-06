@@ -56,8 +56,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V2 | `wujia_portal_base` (382) + màu badge theo EN/lazy/VN cũ + nhãn theo `record.env` | portal_base | ✅ 05/10 — đã push, chờ deploy |
 | J-V3 | `wujia_portal_exam` (345) + `wujia_exam` (63) + khối `_ex_msgs` câu JS | exam ×2 | ✅ 06/10 — `baa5b547`, đã lên UAT |
 | J-V4 | `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) + template `cart_sync_root` câu JS | sale ×3 | ✅ 06/10 — `359fe36c` đã lên UAT; sửa sau UAT `6129ca59` đã push, chờ deploy |
-| **J-V5** | **Phiên kế.** `wujia_portal_debt` (196) + `wujia_account` (4) | debt | ☐ |
-| J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) | return ×2 | ☐ |
+| J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) + khối `_debt_copy_msgs` câu JS + đơn vị số rút gọn theo ngôn ngữ | debt | ✅ 06/10 — chưa commit |
+| **J-V6** | **Phiên kế.** `wujia_portal_return` (168) + `wujia_return` (69) | return ×2 | ☐ |
 | J-V7 | support (112+2) + knowledge (46+2) + notification (86+27) | 6 module | ☐ |
 | J-V8 | purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21) | 9 module | ☐ |
 | ★J-VR | Review Phần V: quét lại = 0 (code team), vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi danh sách 284 chuỗi cho Thái | — | ☐ |
@@ -284,6 +284,21 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
 - Stub chặn thư viện vendor (Vuexy `i18next`) phải chạy TRƯỚC lời gọi; `core/app.js` gọi ngay lúc nạp ⇒ sửa tại nguồn (stub nạp sau = vô
   tác dụng, 404 locale tồn tại từ Sprint 4.2). Đo `response.status >= 400` trong Playwright, không chỉ `pageerror`.
 - Model báo cáo SQL view (`_auto = False`) không khai `_depends` ⇒ test tạo dữ liệu rồi search phải `env.flush_all()` trước.
+
+**J-V5 — ✅ 06/10: bài học cho V6–V8**
+- `env._(lazy)` dịch theo module CỦA lazy (`_lt` khai ở file nào thì msgid thuộc module đó) + `env.lang` ⇒ hằng nhãn module-level là `_lt`,
+  dịch lúc render bằng env người xem (`translated_badges(env, X)`), không `str(lazy)`.
+- `LazyGettext.__eq__`/`__hash__` ném `NotImplementedError` ⇒ test so `lazy._source`, không `==` thẳng.
+- Đơn vị số rút gọn (`tỷ`/`tr`/`k`, chữ không dấu máy quét sót) ⇒ msgid có placeholder `%sB`/`%sM`/`%sK` + dấu thập phân lấy từ
+  `res.lang._get_data(code=env.lang).decimal_point`; hàm nhận `env` (Home KPI gọi cùng hàm).
+- Số ít/số nhiều EN: `<t t-if="n == 1">invoice</t><t t-else="">invoices</t>` — 2 term, vi_VN cùng trỏ chữ cũ; HttpCase dữ liệu đúng 1
+  bản ghi để bắt "1 invoices".
+- Glossary phải khớp đúng msgid sau khi Odoo gom term, gồm cả `&amp;` (`Debts &amp; payments`, `<span>Debts &amp; payments</span>`).
+- `sync_translations.py` không ghi msgstr == msgid ⇒ `PDF`, `ID`, chip `i` luôn "chưa dịch" — không phải lùi.
+- Test so arch theo ngôn ngữ: bỏ comment XML trước khi `assertNotIn` (comment dev tiếng Việt không dịch); test tìm thẻ theo chuỗi mở
+  nguyên (`<section class="x">`) gãy khi thêm `t-att` ⇒ khớp phần `<section class="x"`.
+- Trang chỉ có nội dung khi có dữ liệu (công nợ) mà user đo không có ⇒ probe/Playwright chỉ thấy trạng thái rỗng; phủ bằng HttpCase tạo
+  dữ liệu riêng, ghi LIMIT.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

@@ -11,6 +11,7 @@ from datetime import datetime
 
 from odoo import http
 from odoo.http import request
+from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
@@ -20,7 +21,11 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     build_pager, parse_page_size, portal_money,
 )
 
-from ..models.wujia_portal_debt import INVOICE_BADGE, INVOICE_PREVIEW, STATE_BADGE
+from ..models.wujia_portal_debt import (
+    INVOICE_BADGE, INVOICE_PREVIEW, STATE_BADGE, translated_badges,
+)
+
+_lt = LazyTranslate(__name__)
 
 # BA §3/§8: chỉ Owner/Manager của cửa hàng hiện tại được xem công nợ. Staff bị chặn.
 _DEBT_ROLES = ('owner', 'manager')
@@ -101,7 +106,7 @@ class WujiaPortalDebt(http.Controller):
         if pc_state == 'empty':
             pc_state = debt._empty_substate(franchise_id)
         pc_invoices, pgn = _pc_paginate(summary['invoices'], page, page_size,
-                                        path='/portal/debt', item_label='hóa đơn')
+                                        path='/portal/debt', item_label=_lt('invoices'))
         # Modal QR: chỉ dựng dữ liệu chuyển khoản khi còn số phải trả (CTA hiện).
         bank = (debt.get_bank_info(franchise_id, summary['remaining'], summary['week_number'])
                 if summary['remaining'] > 0 else None)
@@ -111,8 +116,8 @@ class WujiaPortalDebt(http.Controller):
             'show_all': show_all,
             'hidden_count': max(0, summary['invoice_count'] - len(invoices)),
             'no_store': not franchise_id,
-            'STATE_BADGE': STATE_BADGE,
-            'INVOICE_BADGE': INVOICE_BADGE,
+            'STATE_BADGE': translated_badges(request.env, STATE_BADGE),
+            'INVOICE_BADGE': translated_badges(request.env, INVOICE_BADGE),
             'vnd': _money_fn(summary['currency_symbol'], summary['currency_decimals']),
             # PC extras — khối desktop mới, mobile block không tham chiếu:
             'pc_state': pc_state,
@@ -140,7 +145,7 @@ class WujiaPortalDebt(http.Controller):
             keyword=q)
         payments, pgn = _pc_paginate(history['payments'], page, page_size,
                                      path='/portal/debt/payment-history',
-                                     item_label='giao dịch')
+                                     item_label=_lt('transactions'))
         return request.render('wujia_portal_debt.portal_debt_payment_history', {
             'history': history,
             'no_store': not franchise_id,

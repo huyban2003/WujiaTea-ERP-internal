@@ -11,7 +11,7 @@
          `home_debt_kpi` (không depend module này); ô mobile vẫn thay bằng xpath như cũ.
          Cả hai dùng CHUNG một lần gọi — get_home_debt_kpi có 1 search_count, gọi hai lần
          là thêm query cho mọi lượt vào Home. -->
-    <template id="portal_home_debt_kpi" name="Wujia Home — KPI Công nợ trỏ /portal/debt"
+    <template id="portal_home_debt_kpi" name="Wujia Home — Debts KPI links to /portal/debt"
               inherit_id="wujia_portal_base.portal_home_page">
         <!-- Đặt biến TRƯỚC khối PC — khối mobile nằm sau cùng cấp nên cũng thấy. -->
         <xpath expr="//div[hasclass('wujia-home-wrapper')]/div[hasclass('wujia-home-pc')]" position="before">
@@ -22,7 +22,7 @@
         <xpath expr="//div[hasclass('wujia-mhome-hero-kpis')]/div[hasclass('wujia-mhome-kpi')]"
                position="replace">
             <a href="/portal/debt" class="wujia-mhome-kpi wj-state-surface">
-                <span class="wujia-mhome-kpi-label">Công nợ</span>
+                <span class="wujia-mhome-kpi-label">Debts</span>
                 <span class="wujia-mhome-kpi-value" t-out="home_debt_kpi['remaining_label']"/>
             </a>
         </xpath>

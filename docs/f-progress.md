@@ -2400,3 +2400,48 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Lệnh deploy: `-u wujia_portal_layout,wujia_portal_base,wujia_portal_exam,wujia_portal_sale` + restart.
 - Nợ để lại: xoá DB nháp `wujia_v3b`, `wujia_v4b`, `wujia_v4h` + worktree nháp trong scratchpad (giữ `wujia_t1` tới hết Phần V); ★VR như trên.
 - Phiên kế: **J-V5** — `wujia_portal_debt` (196) + `wujia_account` (4), so mốc vi_VN sau V4.
+
+## J-V5 Việt hoá source `wujia_portal_debt` + `wujia_account` · 06/10/2026 · Mac
+- Kết quả: ✅ code + test local, **chưa commit/push** (chờ lệnh); 0 ghi sheet (không có ID Issue List).
+- Đầu phiên: HEAD `a6f97309` (J-V4, khớp `origin/main`). Không module Thái nào phụ thuộc 2 module này; phụ thuộc ngược chỉ
+  `wujia_portal_base` (Home KPI qua `hasattr`) + test `wujia_portal_layout` ⇒ không đụng code Thái.
+- Đã làm (`wujia_portal_debt` 19.0.5.0.0 · `wujia_account` 19.0.1.2.0):
+  - Câu gốc → tiếng Anh: `docs/i18n-pairs/wujia_portal_debt.csv` 196 dòng (auto 161 · tay 35), `wujia_account.csv` 4 (tay);
+    glossary +122 dòng (chỉ thêm, CRLF, 0 dòng cũ đổi).
+  - `models/wujia_portal_debt.py`: `STATE_BADGE` / `INVOICE_BADGE` → `_lt` đúng câu EN đã có trong `_STATUS_TERMS_BY_VARIANT`
+    (Has overdue · Partially paid · Unpaid · Credit balance · Paid · Overdue · Partial · Credit note) ⇒ màu badge giữ nguyên, 0 term mới;
+    helper `translated_badges(env, badges)` cho controller. Số rút gọn `_short_amount(amount, symbol, env)`: đơn vị `_lt('%sB'|'%sM'|'%sK')`
+    (vi = `%stỷ`/`%str`/`%sk`) + dấu thập phân theo `res.lang` người xem (en `12.7M`, vi `12,7tr`). Fallback `self.env._('Bank')` /
+    `_('Bank transfer')`.
+  - `controllers/portal.py`: `build_pager(item_label=_lt('invoices'|'transactions'))`; badge dịch theo `request.env`.
+  - QWeb: 6 biểu thức `t-*` → `<t t-set>` (nhãn filter "Invoice week"/"Payment period", tiêu đề thẻ, "Amount paid/Deducted/Remaining",
+    badge PC "No activity"/"No debt", trạng thái rỗng lịch sử); số ít/số nhiều EN qua `t-if n == 1` ("1 invoice", "1 transaction"…),
+    vi_VN cả 2 nhánh trỏ cùng câu cũ; `name=` 7 template + nav/Home KPI → EN ("Debts & payments").
+  - JS `portal_debt.js` 3 câu nút sao chép → `data-wj-msg-copy-empty|copied|copy-failed` (`<t t-set>` + dict `t-att` trên khối ngân hàng PC
+    + mobile) + `copyMsg(el, key, 'EN')` qua `wjMsg`.
+  - `wujia_account`: manifest + 3 log migration → EN.
+  - `.po` + `.pot`: `wujia_portal_debt` 149 msgid / 145 dịch (HEAD 52; còn `PDF`, 2 chip `i`, `ID` — giống source);
+    `wujia_account` **mới** 18 / 17 (13 nhãn field/help backend vốn EN nay có bản vi, thuật ngữ Odoo core).
+  - Test: `tests/common.py::load_vi`; `test_portal_debt` (HttpCase user vi_VN, badge so `._source`, `TestShortAmountSigned` chạy env vi +
+    case en mới), `test_list_card_e5b2`, `test_f5_nav_item`, `test_card_header_d3f` (thẻ bank có thêm `t-att`). Mới `test_jv5_i18n`: bảng
+    nhãn VN TRƯỚC V5 (badge + màu, fallback bank, pager, arch vi/en 4 template), mọi key JS có attr trên 2 root, HttpCase vi/en
+    (tổng quan + "1 invoice", trang pay `data-wj-msg-*` ×2, lịch sử rỗng + "0 transactions"). Không xoá assert nào.
+- Số đo:
+  - `vn_hardcode_scan --fail-on-any`: 2 module **0** (trước 200).
+  - `-u wujia_account,wujia_portal_debt,wujia_portal_base,wujia_portal_layout --test-enable` (DB copy `wujia_v5b`): **666 test, 0 đỏ**;
+    HEAD (worktree + `wujia_v5h`) 656 / 0 / 0. Lần đầu 2 đỏ do test (d3f tìm `<section class="wj-debt-bank">` nguyên thẻ; arch en còn
+    comment XML tiếng Việt) ⇒ sửa test.
+  - Mutation (đã khôi phục): bỏ key `copied` 1 root ⇒ đỏ 2 test; đổi câu EN badge `Unpaid` không thêm glossary ⇒ đỏ (nhãn + màu); bỏ dịch
+    đơn vị ở `_unit` ⇒ đỏ 9 test số rút gọn.
+  - So giá trị vi_VN DB HEAD ↔ mới (field/help/selection/model/menu/action/arch): **0 chỗ VN → EN**; 17 chỗ EN → VN (backend `wujia_account`).
+  - `wj_text_probe` vi_VN 52 trang HEAD ↔ mới: **0/52 lệch** ⇒ mốc `docs/i18n-baseline/vi_VN.json` giữ nguyên.
+  - Playwright `anh.owner` en_US/th_TH × 1440/390 (`/portal/debt`, `?all=1`, `/pay`, `/payment-history`, Home): **20/20 OK** — 0 tràn,
+    0 lỗi JS, 0 HTTP ≥400, `<html lang>` đúng; chữ VN còn là dữ liệu (cửa hàng, địa chỉ, "Ngô Gia") + nội dung module V6–V8 trên Home.
+- Lệch / LIMIT:
+  - `anh.owner` (DB đo) không có công nợ ⇒ probe/Playwright chỉ thấy trạng thái rỗng; trạng thái có hoá đơn (badge, số rút gọn, khối ngân
+    hàng + câu JS, modal QR PC) chỉ đo bằng HttpCase `TestJv5PortalByLang` (1 hoá đơn, tài khoản JV5-ACC) — chưa đo tràn chữ EN bằng mắt.
+  - ★VR: tiêu đề trang EN "Debts"; nhãn "Debts & payments"; "No activity"/"No debt"; 13 nhãn backend `wujia_account` mới dịch cho BA rà.
+- Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V5".
+- Lệnh deploy (sau khi được lệnh push): `-u wujia_account,wujia_portal_debt` + **restart sau `-u`**.
+- Nợ để lại: xoá DB nháp `wujia_v5b`, `wujia_v5h` + worktree `wt_head` (scratchpad) — giữ `wujia_t1` tới hết Phần V.
+- Phiên kế: **J-V6** — `wujia_portal_return` (168) + `wujia_return` (69).

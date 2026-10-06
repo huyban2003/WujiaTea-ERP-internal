@@ -20,6 +20,8 @@ from datetime import date, timedelta
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase, TransactionCase
 
+from .common import load_vi
+
 SUMMARY_KEYS = {
     'franchise_id', 'franchise_code', 'week_key', 'week_label', 'week_number',
     'week_short', 'weeks', 'state', 'total', 'paid', 'remaining', 'invoice_count',
@@ -336,7 +338,8 @@ class TestPortalDebtRules(TransactionCase):
         from odoo.addons.wujia_portal_debt.models.wujia_portal_debt import (
             INVOICE_BADGE, STATE_BADGE,
         )
-        self.assertEqual(STATE_BADGE[s['state']][0], INVOICE_BADGE['unpaid'][0])
+        # Nhãn là `_lt` (J-V5) — so câu gốc, `==` trên lazy bị Odoo cấm.
+        self.assertEqual(STATE_BADGE[s['state']][0]._source, INVOICE_BADGE['unpaid'][0]._source)
 
     def test_partial_only_when_something_paid(self):
         pay = self._payment(30_000, date(2026, 7, 15), self.f_unpaid)
@@ -437,6 +440,8 @@ class TestPortalDebtAccess(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Assert chữ tiếng Việt ⇒ user vi_VN + .po đã nạp (J-V5).
+        load_vi(cls.env)
         cls.franchise = cls.env['wujia.franchise.management'].create({
             'code': 'HACC1', 'name': 'Access store', 'franchise_end_date': '2030-01-01',
             'partner_id': cls.env['res.partner'].create({'name': 'HACC1 partner'}).id})
@@ -468,7 +473,7 @@ class TestPortalDebtAccess(HttpCase):
     @classmethod
     def _portal_user(cls, login, role):
         user = cls.env['res.users'].create({
-            'name': login, 'login': login, 'password': login,
+            'name': login, 'login': login, 'password': login, 'lang': 'vi_VN',
             'group_ids': [(6, 0, [cls.env.ref('base.group_portal').id])],
         })
         cls.env['wujia.franchise.member'].create({
@@ -610,9 +615,15 @@ class TestShortAmountSigned(TransactionCase):
     tiền, dấu nào, độ lớn nào, đều ra chuỗi ≤ 7 ký tự.
     """
 
-    def _f(self, amount):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Hậu tố tỷ/tr/k là bản dịch vi_VN của câu gốc EN (J-V5).
+        cls.env_vi = load_vi(cls.env)
+
+    def _f(self, amount, env=None):
         from odoo.addons.wujia_portal_debt.models.wujia_portal_debt import _short_amount
-        return _short_amount(amount, '$')
+        return _short_amount(amount, '$', self.env_vi if env is None else env)
 
     def test_negative_amounts_are_shortened_like_positive_ones(self):
         for value, expected in ((-72449, '-72k'), (-1000, '-1k'),
@@ -641,3 +652,12 @@ class TestShortAmountSigned(TransactionCase):
         self.assertEqual(self._f(999950000), '1tỷ')
         self.assertEqual(self._f(999999), '999k')
         self.assertEqual(self._f(10 ** 6), '1tr')
+
+    def test_english_suffixes_and_decimal_point(self):
+        """J-V5: en_US dùng hậu tố + dấu thập phân của tiếng Anh; vi_VN giữ y chữ cũ."""
+        env_en = self.env(context=dict(self.env.context, lang='en_US'))
+        for value, en, vi in ((12650000, '12.7M', '12,7tr'), (-2500000000, '-2.5B', '-2,5tỷ'),
+                              (999950000, '1B', '1tỷ'), (72449, '72K', '72k'), (999, '999 $', '999 $')):
+            with self.subTest(value=value):
+                self.assertEqual(self._f(value, env_en), en)
+                self.assertEqual(self._f(value), vi)

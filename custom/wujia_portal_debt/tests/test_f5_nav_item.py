@@ -9,6 +9,8 @@ from lxml import etree
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
+from .common import load_vi
+
 
 @tagged('post_install', '-at_install', 'wujia_f5')
 class TestNavItemDebt(TransactionCase):
@@ -20,7 +22,10 @@ class TestNavItemDebt(TransactionCase):
         self.assertIn('<li', arch)
         self.assertIn('id="nav_item_debt"', arch)
         self.assertIn('t-value="\'/portal/debt\'"', arch)
-        self.assertIn('<t t-set="ni_label">Công nợ &amp; thanh toán</t>', arch)
+        # J-V5: câu gốc tiếng Anh, user vi_VN vẫn thấy nhãn cũ.
+        self.assertIn('<t t-set="ni_label">Debts &amp; payments</t>', arch)
+        self.assertIn('<t t-set="ni_label">Công nợ &amp; thanh toán</t>',
+                      view.with_env(load_vi(self.env)).arch)
         # Nhóm theo BA: chèn trước neo của nhóm kế tiếp.
         self.assertIn("//li[@id='nav_header_ops']", arch)
         # Cùng điều kiện sáng truyền vào wj_nav_item để có aria-current.

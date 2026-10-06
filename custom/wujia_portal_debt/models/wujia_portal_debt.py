@@ -24,8 +24,11 @@ from datetime import date, timedelta
 
 from odoo import api, fields, models
 from odoo.tools import float_compare, float_is_zero
+from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.wujia_portal_base.controllers.utils import portal_money, status_badge_for
+
+_lt = LazyTranslate(__name__)
 
 # Số tuần / kỳ đổ vào dropdown bộ lọc (kỳ hiện tại + 5 kỳ trước).
 WEEK_CHOICES = 6
@@ -35,22 +38,33 @@ MONTH_CHOICES = 6
 INVOICE_PREVIEW = 2
 
 # Nhãn + variant badge cho state tổng (Figma 02/03/04); variant từ nguồn chung CMP-SB-001.
+# Nhãn là `_lt` (J-V5): câu EN phải có trong `_STATUS_TERMS_BY_VARIANT` của portal_base
+# để giữ màu; controller dịch theo người xem qua `translated_badges()`.
 STATE_BADGE = {k: (v, status_badge_for(v)) for k, v in {
-    'outstanding': 'Có quá hạn',
-    'partial': 'Thanh toán một phần',
-    'unpaid': 'Chưa thanh toán',
-    'credit': 'Dư có',
-    'paid': 'Đã thanh toán',
+    'outstanding': _lt('Has overdue'),
+    'partial': _lt('Partially paid'),
+    'unpaid': _lt('Unpaid'),
+    'credit': _lt('Credit balance'),
+    'paid': _lt('Paid'),
 }.items()}
 
 # Nhãn + variant badge cho từng hoá đơn.
 INVOICE_BADGE = {k: (v, status_badge_for(v)) for k, v in {
-    'overdue': 'Quá hạn',
-    'unpaid': 'Chưa thanh toán',
-    'partial': 'Một phần',
-    'credit': 'Giấy báo có',
-    'paid': 'Đã thanh toán',
+    'overdue': _lt('Overdue'),
+    'unpaid': _lt('Unpaid'),
+    'partial': _lt('Partial'),
+    'credit': _lt('Credit note'),
+    'paid': _lt('Paid'),
 }.items()}
+
+
+def translated_badges(env, badges):
+    """`{key: (nhãn đã dịch theo env.lang, class)}` cho template — QWeb không tự dịch `_lt`
+    ngoài request, và gán biến trước khi `env._` để trình trích `.pot` không đẻ msgid rác."""
+    result = {}
+    for key, (label, css) in badges.items():
+        result[key] = (env._(label), css)
+    return result
 
 # Chứng từ công nợ khách hàng của cửa hàng: hoá đơn + credit note đã ghi sổ.
 _DEBT_MOVE_TYPES = ('out_invoice', 'out_refund')
@@ -81,30 +95,48 @@ def _end_of_month(day):
     return first_next_month - timedelta(days=1)
 
 
-def _one_decimal(value):
+# Hậu tố bậc tiền rút gọn (J-V5) — vi_VN: tỷ / tr / k.
+_UNIT_BILLION = _lt('%sB')
+_UNIT_MILLION = _lt('%sM')
+_UNIT_THOUSAND = _lt('%sK')
+
+
+def _unit(env, unit):
+    """Hậu tố đã dịch theo `env.lang`; không có env ⇒ câu gốc EN."""
+    return env._(unit) if env is not None else unit._source
+
+
+def _one_decimal(value, point=','):
     """12.65 → '12,7'; 1.0 → '1' — cắt đuôi '.0' trước khi đổi dấu thập phân."""
     text = '%.1f' % value
-    return (text[:-2] if text.endswith('.0') else text).replace('.', ',')
+    return (text[:-2] if text.endswith('.0') else text).replace('.', point)
 
 
-def _short_amount(amount, symbol=''):
+def _short_amount(amount, symbol='', env=None):
     """Tiền rút gọn cho tile KPI Home (ô hẹp, 4 tile/hàng): 12.650.000 → '12,7tr'.
 
     Bậc tính theo TRỊ TUYỆT ĐỐI rồi gắn lại dấu: số âm (trả thừa / credit note) trước
     đây rớt qua cả hai bậc nên in nguyên '-72449 $' và bị bẻ xuống 2 dòng ở ô hẹp
     (UI-MOB-HOME-004). Ký hiệu truyền từ ngoài (currency của công ty), không hardcode
-    '₫' — cùng luật với cụm D: portal không được tự quyết đơn vị tiền."""
+    '₫' — cùng luật với cụm D: portal không được tự quyết đơn vị tiền.
+
+    J-V5: hậu tố bậc + dấu thập phân theo ngôn ngữ của `env` (vi_VN: '12,7tr', '1tỷ';
+    en_US: '12.7M', '1B'). Không có `env` ⇒ câu gốc EN, dấu '.'."""
+    point = '.'
+    if env is not None and env.lang:
+        point = env['res.lang']._get_data(code=env.lang).decimal_point or '.'
     amount = amount or 0
     sign = '-' if amount < 0 else ''
     value = abs(amount)
     if value >= 10 ** 9:
-        return sign + _one_decimal(value / 1000000000.0) + 'tỷ'
+        return sign + _unit(env, _UNIT_BILLION) % _one_decimal(value / 1000000000.0, point)
     if value >= 1000000:
-        text = _one_decimal(value / 1000000.0)
-        # 999.999.999 làm tròn một chữ số thành '1000' ⇒ lên bậc, khỏi in '1000tr'.
-        return sign + ('1tỷ' if text == '1000' else text + 'tr')
+        text = _one_decimal(value / 1000000.0, point)
+        # 999.999.999 làm tròn một chữ số thành '1000' ⇒ lên bậc, khỏi in '1000M'.
+        return sign + (_unit(env, _UNIT_BILLION) % '1' if text == '1000'
+                       else _unit(env, _UNIT_MILLION) % text)
     if value >= 1000:
-        return '%s%dk' % (sign, value // 1000)
+        return sign + _unit(env, _UNIT_THOUSAND) % (value // 1000)
     return ('%s%d %s' % (sign, value, symbol)).strip()
 
 
@@ -253,7 +285,7 @@ class WujiaPortalDebt(models.AbstractModel):
         symbol = self.env.company.currency_id.symbol or ''
         if not franchise_id:
             return {'overdue_count': 0, 'remaining': 0,
-                    'remaining_label': _short_amount(0, symbol),
+                    'remaining_label': _short_amount(0, symbol, self.env),
                     'currency_symbol': symbol,
                     'currency_decimals': self.env.company.currency_id.decimal_places or 0}
         franchise = self.env['wujia.franchise.management'].sudo().browse(franchise_id).exists()
@@ -268,7 +300,7 @@ class WujiaPortalDebt(models.AbstractModel):
         return {
             'overdue_count': franchise.portal_overdue_invoice_count or 0,
             'remaining': remaining,
-            'remaining_label': _short_amount(remaining, symbol),
+            'remaining_label': _short_amount(remaining, symbol, self.env),
             'currency_symbol': symbol,
             'currency_decimals': store_currency.decimal_places or 0,
         }
@@ -402,7 +434,7 @@ class WujiaPortalDebt(models.AbstractModel):
             }
         return {
             'configured': True,
-            'name': bank.bank_id.name or bank.bank_name or 'Ngân hàng',
+            'name': bank.bank_id.name or bank.bank_name or self.env._('Bank'),
             'holder': bank.acc_holder_name or bank.partner_id.name or '',
             'account': bank.acc_number or '',
             # Số âm (tuần dư có) không bao giờ được lọt vào nội dung CK — WJ-DEBT-007.
@@ -605,7 +637,7 @@ class WujiaPortalDebt(models.AbstractModel):
                 'ref': payment.name or '—',
                 'date': payment.date,
                 'time': self._payment_time(payment),
-                'method': payment.journal_id.name or 'Chuyển khoản',
+                'method': payment.journal_id.name or self.env._('Bank transfer'),
                 'trace': payment.memo or payment.name or '',
                 'amount': amount,
                 'currency_symbol': symbol,
