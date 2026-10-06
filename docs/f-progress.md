@@ -2517,7 +2517,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 ## J-V7 Việt hoá source support + knowledge + notification (+ WJ-SUPPORT-003) · 07/10/2026 · Mac
 - Phạm vi: `wujia_portal_support` (112) + `wujia_support` (2) · `wujia_portal_knowledge` (46) + `wujia_knowledge` (2) ·
   `wujia_portal_notification` (86) + `wujia_notification` (27). Gộp **WJ-SUPPORT-003** (chủ dự án chốt 06/10): PC "Normal" ≠ mobile
-  "Bình thường". KHÔNG làm WJ-SUPPORT-002. Không đụng module Thái. **Chưa commit** (chờ lệnh).
+  "Bình thường". KHÔNG làm WJ-SUPPORT-002. Không đụng module Thái. Commit `351932a8` (đã push, chờ deploy).
 - Đã làm:
   - `vn_to_en_pairs` draft → check → apply cho 6 module (`docs/i18n-pairs/*.csv` CRLF); glossary +48 dòng (chỉ nối thêm; dòng
     "General" của phiên này đổi thành "General notice" — key chung chung dễ đụng).
@@ -2551,7 +2551,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     sách/chi tiết + chuông, home): **0 tràn, 0 lỗi JS, 0 HTTP ≥400**. Chữ VN còn lại = dữ liệu người dùng + menu module khác (V8).
     Ticket đo `WJ-TK/26/00328` (DB nháp): vi PC "Mức độ: Khẩn" = mobile "Ưu tiên: Khẩn"; en/th cả hai "Urgent".
 - WJ-SUPPORT-003: ledger + `qa_sync.py --only WJ-SUPPORT-003 --apply` ⇒ **Ready for Retest** (6 ô + 1 dòng History), build ghi
-  "CHƯA lên UAT | chưa commit".
+  "CHƯA lên UAT | commit 351932a8".
 - Lệch / LIMIT: zh/th chưa có bản dịch câu mới ⇒ thấy EN (chờ J-T5). `wujia.notification.priority_label` nay dịch theo ngôn ngữ (HEAD
   trả EN thô; không view nào dùng). msgid chưa dịch còn lại là field mixin mail/activity + vài câu EN có sẵn từ trước (không phải lùi).
 - Sự cố trong phiên: backup mutation chép 2 file cùng tên `portal.py` vào một thư mục ⇒ lúc khôi phục controller support bị đè bằng

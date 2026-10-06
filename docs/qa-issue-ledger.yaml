@@ -2587,8 +2587,8 @@ WJ-ORD-029:
 #   PC đọc nhãn mức độ thô của hệ thống ("Normal"), mobile đọc bảng nhãn đã dịch ⇒ nay chung một nguồn.
 WJ-SUPPORT-003:
   sprint: "2026-10-07-J-V7"
-  commit: "chưa commit"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-07-J-V7 | commit: chưa commit (chờ lệnh) | Deploy: -u wujia_support,wujia_portal_support,wujia_knowledge,wujia_portal_knowledge,wujia_notification,wujia_portal_notification rồi khởi động lại (có bước cập nhật tên loại thông báo mẫu) | URL: /portal/support/<id>"
+  commit: "351932a8"
+  build_override: "CHƯA lên UAT | Sprint 2026-10-07-J-V7 | commit: 351932a8 | Deploy: -u wujia_support,wujia_portal_support,wujia_knowledge,wujia_portal_knowledge,wujia_notification,wujia_portal_notification rồi khởi động lại (có bước cập nhật tên loại thông báo mẫu) | URL: /portal/support/<id>"
   url: "/portal/support/<id> — trang chi tiết phiếu hỗ trợ, ô Mức độ trên máy tính và ô Ưu tiên trên điện thoại (vd WJ-TK/26/00006)"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: trên máy tính ô Mức độ in thẳng nhãn gốc của hệ thống (tiếng Anh, chưa dịch) nên hiện Normal, còn điện thoại đọc bảng nhãn riêng nên hiện Bình thường. Nay máy tính và điện thoại, trang danh sách và trang chi tiết dùng chung một bảng nhãn mức độ, dịch theo ngôn ngữ người đang xem: tiếng Việt là Bình thường và Khẩn (y chữ điện thoại trước đây), tiếng Anh, Trung, Thái hiện chữ của ngôn ngữ đó. Làm cùng đợt Việt hoá phân hệ Hỗ trợ, Kiến thức, Thông báo: câu gốc trong mã chuyển sang tiếng Anh, tiếng Việt giữ nguyên chữ cũ qua tệp dịch, nên đổi ngôn ngữ thì toàn bộ nhãn ba phân hệ đổi theo"
