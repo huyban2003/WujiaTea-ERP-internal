@@ -53,17 +53,17 @@ class ProductProduct(models.Model):
                 continue
             if not product.compensation_claim_uom_id:
                 raise ValidationError(_(
-                    "Sản phẩm '%s' bật bù hàng phải có ĐVT quyền lợi.",
+                    "Product '%s' has compensation enabled and must have an entitlement UoM.",
                     product.display_name,
                 ))
             if product.compensation_policy == 'accumulate':
                 if not product.compensation_delivery_uom_id:
                     raise ValidationError(_(
-                        "Sản phẩm '%s' theo chính sách cộng dồn phải có ĐVT giao bù.",
+                        "Product '%s' uses the accumulation policy and must have a compensation delivery UoM.",
                         product.display_name,
                     ))
                 if product.compensation_unit_qty <= 0:
                     raise ValidationError(_(
-                        "Sản phẩm '%s' theo chính sách cộng dồn phải có SL quyền lợi / đơn vị giao > 0.",
+                        "Product '%s' uses the accumulation policy and must have an entitlement qty per delivery unit > 0.",
                         product.display_name,
                     ))

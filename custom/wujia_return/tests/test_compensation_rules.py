@@ -6,7 +6,7 @@ from odoo import fields
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
-from .common import ReturnFixture
+from .common import ReturnFixture, load_vi
 
 
 @tagged('post_install', '-at_install', 'wujia_return_ct')
@@ -42,6 +42,8 @@ class TestCompensationConfig(TransactionCase, ReturnFixture):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # J-V6: câu gốc là tiếng Anh ⇒ assert câu tiếng Việt chạy ở vi_VN.
+        cls.env = load_vi(cls.env)
         cls._setup_return_data()
         cls.Req = cls.env['wujia.return.request']
 

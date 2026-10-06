@@ -1,509 +1,599 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* wujia_portal_return
+# * wujia_portal_return
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-01 19:33+0000\n"
-"PO-Revision-Date: 2026-08-01 19:33+0000\n"
+"POT-Creation-Date: 2026-10-06 15:35+0000\n"
+"PO-Revision-Date: 2026-10-06 15:35+0000\n"
 "Last-Translator: \n"
+"Language: vi_VN\n"
 "Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<i class=\"fa fa-arrow-left me-1\"/>Quay lại"
-msgstr ""
+msgid "<i class=\"fa fa-paper-plane\"/>Submit request"
+msgstr "<i class=\"fa fa-paper-plane\"/>Gửi yêu cầu"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "<i class=\"fa fa-paper-plane me-1\"/>Gửi yêu cầu"
-msgstr ""
-
-#. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "<i class=\"fa fa-search\"/> Lọc"
-msgstr ""
-
-#. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.layout_sidenav_return
-msgid ""
-"<i class=\"feather icon-corner-up-left\" aria-hidden=\"true\"/>\n"
-"                    <span class=\"menu-title\">Đổi trả</span>"
-msgstr ""
-
-#. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
 msgid ""
 "<i class=\"feather icon-info me-1\"/>\n"
-"                            Mỗi yêu cầu chỉ áp dụng cho <b>1 sản phẩm</b> trong đơn đặt."
+"                            Each request covers only <b>1 product</b> from "
+"the order."
 msgstr ""
+"<i class=\"feather icon-info me-1\"/>\n"
+"                            Mỗi yêu cầu chỉ áp dụng cho <b>1 sản phẩm</b> "
+"trong đơn đặt."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
 msgid ""
 "<i class=\"feather icon-info\"/>\n"
-"                    <span>Mỗi yêu cầu chỉ áp dụng cho 1 sản phẩm trong đơn đặt.</span>"
+"                    <span>Each request covers only 1 product from the "
+"order.</span>"
 msgstr ""
+"<i class=\"feather icon-info\"/>\n"
+"                    <span>Mỗi yêu cầu chỉ áp dụng cho 1 sản phẩm trong đơn "
+"đặt.</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "<i class=\"feather icon-plus\"/> Tạo yêu cầu mới"
-msgstr ""
+msgid "<i class=\"feather icon-plus\"/> Create new request"
+msgstr "<i class=\"feather icon-plus\"/> Tạo yêu cầu mới"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "<option value=\"\">— Chọn loại lỗi —</option>"
-msgstr ""
+msgid "<option value=\"\">— Select an issue type —</option>"
+msgstr "<option value=\"\">— Chọn loại lỗi —</option>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "<option value=\"\">— Chọn đơn —</option>"
-msgstr ""
+msgid "<option value=\"\">— Select an order —</option>"
+msgstr "<option value=\"\">— Chọn đơn —</option>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "<option value=\"\">— Tất cả —</option>"
-msgstr ""
-
-#. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
 msgid ""
-"<select name=\"sale_order_line_id\" class=\"form-select wj-return-line\" required=\"required\">\n"
-"                                        <option value=\"\">— Chọn đơn trước —</option>\n"
-"                                    </select>"
-msgstr ""
-
-#. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid ""
-"<select name=\"sale_order_line_id\" class=\"form-select wj-return-line\" required=\"required\">\n"
-"                            <option value=\"\">— Chọn đơn trước —</option>\n"
+"<select id=\"wj-ret-m-line\" name=\"sale_order_line_id\" class=\"form-select"
+" wj-return-line\" aria-describedby=\"wj-ret-m-line-full\" "
+"required=\"required\">\n"
+"                            <option value=\"\">— Select an order first "
+"—</option>\n"
 "                        </select>"
 msgstr ""
+"<select id=\"wj-ret-m-line\" name=\"sale_order_line_id\" class=\"form-select"
+" wj-return-line\" aria-describedby=\"wj-ret-m-line-full\" "
+"required=\"required\">\n"
+"                            <option value=\"\">— Chọn đơn trước —</option>\n"
+"                        </select>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "<small class=\"text-muted\">JPG/PNG, dung lượng &lt; 5MB/ảnh.</small>"
+msgid ""
+"<select id=\"wj-ret-pc-line\" name=\"sale_order_line_id\" class=\"form-"
+"select wj-return-line\" aria-describedby=\"wj-ret-pc-line-full\" "
+"required=\"required\">\n"
+"                                        <option value=\"\">— Select an order"
+" first —</option>\n"
+"                                    </select>"
 msgstr ""
+"<select id=\"wj-ret-pc-line\" name=\"sale_order_line_id\" class=\"form-"
+"select wj-return-line\" aria-describedby=\"wj-ret-pc-line-full\" "
+"required=\"required\">\n"
+"                                        <option value=\"\">— Chọn đơn trước "
+"—</option>\n"
+"                                    </select>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "<span class=\"lbl\">Ngày YC</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Added to compensation orders</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">Đã đưa vào đơn bù</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "<span class=\"lbl\">Đơn gốc</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Approved compensation qty</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">SL duyệt bù</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "<span class=\"wj-filter-date-sep\">–</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Compensation product</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">Sản phẩm bù</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">Loại lỗi</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Compensation status</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">Tình trạng bù</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">Ngày yêu cầu</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Issue type</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">Loại lỗi</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">Phương án</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Original order</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">Đơn gốc</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">SL duyệt bù</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Outcome</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">Phương án</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">SL yêu cầu</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Product</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">Sản phẩm</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">Sản phẩm bù</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Request date</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">Ngày yêu cầu</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">Sản phẩm</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Requested qty</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">SL yêu cầu</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">Thời gian mở hàng</span>"
-msgstr ""
+msgid "<span class=\"wujia-mhist-kv-label\">Unboxing time</span>"
+msgstr "<span class=\"wujia-mhist-kv-label\">Thời gian mở hàng</span>"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">Tình trạng bù</span>"
-msgstr ""
+msgid "Added to compensation orders"
+msgstr "Đã đưa vào đơn bù"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "<span class=\"wujia-mhist-kv-label\">Đơn gốc</span>"
-msgstr ""
+msgid "Approved compensation qty"
+msgstr "SL duyệt bù"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "<span class=\"wujia-mhist-listhead-title\">Lịch sử yêu cầu</span>"
-msgstr ""
+msgid "Attached photos"
+msgstr "Hình ảnh đính kèm"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Bạn chưa được gán vào cửa hàng nào."
-msgstr ""
+msgid "Cancel"
+msgstr "Hủy"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Chi tiết yêu cầu"
-msgstr ""
+msgid "Clear filters"
+msgstr "Xóa lọc"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Chưa có phản hồi từ Ngô Gia."
-msgstr ""
+msgid "Code"
+msgstr "Mã"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Chưa có yêu cầu nào."
-msgstr ""
+msgid "Compensated"
+msgstr "Đã bù"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Còn thiếu"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Compensation"
+msgstr "Bù hàng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Cửa hàng"
-msgstr ""
+msgid "Compensation / Compensation request detail"
+msgstr "Bù hàng / Chi tiết yêu cầu bù hàng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Cửa hàng chưa gửi yêu cầu đổi trả nào."
-msgstr ""
+msgid "Compensation / Create compensation request"
+msgstr "Bù hàng / Tạo yêu cầu bù hàng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Danh sách yêu cầu đổi trả"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Compensation order cancelled"
+msgstr "Đơn bù đã bị hủy"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Ghi chú"
-msgstr ""
+msgid "Compensation orders"
+msgstr "Đơn bù hàng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Ghi chú &amp; Phản hồi"
-msgstr ""
+msgid "Compensation product"
+msgstr "Sản phẩm bù"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Ghi chú từ cửa hàng"
-msgstr ""
+msgid "Compensation progress"
+msgstr "Tiến độ bù"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Gửi yêu cầu"
-msgstr ""
+msgid "Compensation request detail"
+msgstr "Chi tiết yêu cầu bù hàng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Hình ảnh đính kèm"
-msgstr ""
+msgid "Compensation status"
+msgstr "Tình trạng bù"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Hủy"
-msgstr ""
+msgid "Could not determine the current store. Please select a store again."
+msgstr "Không xác định được cửa hàng hiện tại. Vui lòng chọn lại cửa hàng."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Không có ghi chú."
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Could not submit the request. Please check the information and try again."
+msgstr "Không thể gửi yêu cầu. Vui lòng kiểm tra lại thông tin và thử lại."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Không có yêu cầu"
-msgstr ""
+msgid "Create compensation request"
+msgstr "Tạo yêu cầu bù hàng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Không có yêu cầu khớp bộ lọc hiện tại."
-msgstr ""
+msgid "Create the first request"
+msgstr "Tạo yêu cầu đầu tiên"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Không tìm thấy kết quả"
-msgstr ""
+msgid "Created by"
+msgstr "Người tạo"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Loại lỗi"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+#, python-format
+msgid "Delivered %d/%d slips"
+msgstr "Đã giao %d/%d phiếu"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Lý do từ chối"
-msgstr ""
+msgid "Describe the condition of the goods to compensate/exchange..."
+msgstr "Mô tả chi tiết tình trạng hàng cần bù/đổi..."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Lưu nháp"
-msgstr ""
+msgid "Describe the condition of the goods…"
+msgstr "Mô tả chi tiết tình trạng hàng…"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Mã"
-msgstr ""
+msgid "Evidence photos"
+msgstr "Ảnh minh chứng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Mô tả chi tiết tình trạng hàng cần bù/đổi..."
-msgstr ""
+msgid "Evidence photos ("
+msgstr "Ảnh minh chứng ("
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Mô tả chi tiết tình trạng hàng…"
-msgstr ""
+msgid "Evidence video"
+msgstr "Video minh chứng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Ngày sản xuất"
-msgstr ""
+msgid "Evidence video (optional)"
+msgstr "Video minh chứng (không bắt buộc)"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Ngày yêu cầu"
-msgstr ""
+msgid "Evidence video (optional) — up to 1 MP4/MOV file ≤"
+msgstr "Video minh chứng (không bắt buộc) — tối đa 1 file MP4/MOV ≤"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Người tạo"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Exchange"
+msgstr "Đổi hàng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Nội dung lỗi"
-msgstr ""
+msgid "Feedback from {brand}"
+msgstr "Phản hồi từ {brand}"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Phương án xử lý"
-msgstr ""
+msgid "Filter by status"
+msgstr "Lọc theo trạng thái"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Phương án xử lý &amp; Tiến độ bù"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Fully compensated"
+msgstr "Đã bù đủ"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Phản hồi của Ngô Gia"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Fully delivered"
+msgstr "Đã giao đủ"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Phản hồi từ Ngô Gia"
-msgstr ""
+msgid "Invalid filter. Please check again."
+msgstr "Bộ lọc không hợp lệ. Vui lòng kiểm tra lại."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "SL duyệt bù"
-msgstr ""
+msgid "Issue details"
+msgstr "Nội dung lỗi"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "SL yêu cầu"
-msgstr ""
+msgid "Issue type"
+msgstr "Loại lỗi"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Sản phẩm"
-msgstr ""
+msgid ""
+"JPG/PNG photos (≤5MB each), clearly showing the packaging &amp; product "
+"defect."
+msgstr "ảnh JPG/PNG (≤5MB mỗi ảnh), chụp rõ bao bì &amp; lỗi sản phẩm."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Sản phẩm (trong đơn)"
-msgstr ""
+msgid "JPG/PNG, up to 5MB per photo · total evidence ≤"
+msgstr "JPG/PNG, tối đa 5MB mỗi ảnh · tổng minh chứng ≤"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Sản phẩm bù"
-msgstr ""
+msgid "Keyword"
+msgstr "Từ khoá"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Sản phẩm yêu cầu"
-msgstr ""
+msgid "MB, total evidence ≤"
+msgstr "MB, tổng minh chứng ≤"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Số lượng &amp; lô"
+msgid "MB."
 msgstr ""
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Số lượng yêu cầu"
-msgstr ""
+msgid "New requests will show up here once created."
+msgstr "Yêu cầu mới sẽ xuất hiện tại đây khi được tạo."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Thông tin yêu cầu"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "No delivery slip yet"
+msgstr "Chưa tạo phiếu giao"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Thông tin đơn hàng"
-msgstr ""
+msgid "No eligible orders found in the last"
+msgstr "Không tìm thấy đơn hàng đủ điều kiện trong"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Thời gian mở hàng"
-msgstr ""
+msgid "No feedback from {brand} yet."
+msgstr "Chưa có phản hồi từ {brand}."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Thử đổi từ khóa hoặc xóa điều kiện tìm kiếm."
-msgstr ""
+msgid "No notes."
+msgstr "Không có ghi chú."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Trang"
-msgstr ""
+msgid "No requests match the current filters."
+msgstr "Không có yêu cầu khớp bộ lọc hiện tại."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Trạng thái"
-msgstr ""
+msgid "No requests yet."
+msgstr "Chưa có yêu cầu nào."
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Tìm mã YC / mã đơn"
-msgstr ""
+msgid "No results found"
+msgstr "Không tìm thấy kết quả"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Tình trạng bù"
-msgstr ""
+msgid "No return requests"
+msgstr "Không có yêu cầu"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Tạo yêu cầu bù hàng"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Not delivered"
+msgstr "Chưa giao"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Tạo yêu cầu đầu tiên"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Not processed"
+msgstr "Chưa xử lý"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Tối thiểu 3 ảnh, chụp rõ bao bì &amp; lỗi sản phẩm."
-msgstr ""
+msgid "Note"
+msgstr "Ghi chú"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Từ ngày"
-msgstr ""
+msgid "Note from the store"
+msgstr "Ghi chú từ cửa hàng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Xóa lọc"
-msgstr ""
+msgid "Notes &amp; feedback"
+msgstr "Ghi chú &amp; Phản hồi"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Yêu cầu mới sẽ xuất hiện tại đây khi được tạo."
-msgstr ""
+msgid "Order information"
+msgstr "Thông tin đơn hàng"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Yêu cầu đổi trả"
-msgstr ""
+msgid "Original order"
+msgstr "Đơn gốc"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "kết quả"
-msgstr ""
+msgid "Original sales order"
+msgstr "Đơn hàng gốc"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "yêu cầu"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Partially compensated"
+msgstr "Đang bù một phần"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "ĐVT"
-msgstr ""
+msgid "Product"
+msgstr "Sản phẩm"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Đã bù"
-msgstr ""
+msgid "Product (in the order)"
+msgstr "Sản phẩm (trong đơn)"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Đơn bù hàng"
-msgstr ""
+msgid "Production date"
+msgstr "Ngày sản xuất"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Đơn gốc"
-msgstr ""
+msgid "Quantity &amp; batch"
+msgstr "Số lượng &amp; lô"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Đơn hàng gốc"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Rejected"
+msgstr "Từ chối"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Đến ngày"
-msgstr ""
+msgid "Rejection reason"
+msgstr "Lý do từ chối"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_list
-msgid "Đổi trả hàng"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Replacement ordered"
+msgstr "Đã lên đơn bù"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "Ảnh minh chứng"
-msgstr ""
+msgid "Request code"
+msgstr "Mã yêu cầu"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_form
-msgid "Ảnh minh chứng (tối thiểu 3 ảnh)"
-msgstr ""
+msgid "Request date"
+msgstr "Ngày yêu cầu"
 
 #. module: wujia_portal_return
-#: model_terms:ir.ui.view,arch_db:wujia_portal_return.portal_return_detail
-msgid "ảnh đính kèm"
-msgstr ""
+msgid "Request history"
+msgstr "Lịch sử yêu cầu"
+
+#. module: wujia_portal_return
+msgid "Request information"
+msgstr "Thông tin yêu cầu"
+
+#. module: wujia_portal_return
+msgid "Request no. / order no. / product"
+msgstr "Mã YC / mã đơn / sản phẩm"
+
+#. module: wujia_portal_return
+msgid "Request not found or you do not have access to it."
+msgstr "Không tìm thấy yêu cầu hoặc bạn không có quyền truy cập."
+
+#. module: wujia_portal_return
+msgid "Requested product"
+msgstr "Sản phẩm yêu cầu"
+
+#. module: wujia_portal_return
+msgid "Requested qty"
+msgstr "SL yêu cầu"
+
+#. module: wujia_portal_return
+msgid "Requested quantity"
+msgstr "Số lượng yêu cầu"
+
+#. module: wujia_portal_return
+msgid "Resolution"
+msgstr "Phương án xử lý"
+
+#. module: wujia_portal_return
+msgid "Resolution &amp; compensation progress"
+msgstr "Phương án xử lý &amp; Tiến độ bù"
+
+#. module: wujia_portal_return
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "Return"
+msgstr "Trả hàng"
+
+#. module: wujia_portal_return
+msgid "Return request list"
+msgstr "Danh sách yêu cầu đổi trả"
+
+#. module: wujia_portal_return
+msgid "Return requests"
+msgstr "Yêu cầu đổi trả"
+
+#. module: wujia_portal_return
+msgid "Returns / Compensation"
+msgstr "Đổi trả / Bù hàng"
+
+#. module: wujia_portal_return
+msgid "Save draft"
+msgstr "Lưu nháp"
+
+#. module: wujia_portal_return
+msgid "Status"
+msgstr "Trạng thái"
+
+#. module: wujia_portal_return
+msgid "Still short"
+msgstr "Còn thiếu"
+
+#. module: wujia_portal_return
+msgid "Store"
+msgstr "Cửa hàng"
+
+#. module: wujia_portal_return
+msgid "Submit and track product claims"
+msgstr "Gửi và theo dõi yêu cầu xử lý sản phẩm"
+
+#. module: wujia_portal_return
+msgid "Submit request"
+msgstr "Gửi yêu cầu"
+
+#. module: wujia_portal_return
+msgid ""
+"The compensation order was cancelled. If you still need compensation, please"
+" create a new request."
+msgstr "Đơn bù đã bị hủy. Nếu vẫn cần bù hàng, vui lòng tạo yêu cầu mới."
+
+#. module: wujia_portal_return
+msgid "This store has not submitted any return requests."
+msgstr "Cửa hàng chưa gửi yêu cầu đổi trả nào."
+
+#. module: wujia_portal_return
+msgid "Try another keyword or clear the search filters."
+msgstr "Thử đổi từ khóa hoặc xóa điều kiện tìm kiếm."
+
+#. module: wujia_portal_return
+msgid "Unboxing time"
+msgstr "Thời gian mở hàng"
+
+#. module: wujia_portal_return
+msgid "UoM"
+msgstr "ĐVT"
+
+#. module: wujia_portal_return
+msgid "Up to 1 MP4/MOV video, ≤"
+msgstr "Tối đa 1 video MP4/MOV, ≤"
+
+#. module: wujia_portal_return
+msgid "View request"
+msgstr "Xem yêu cầu"
+
+#. module: wujia_portal_return
+msgid "You have not been assigned to any store."
+msgstr "Bạn chưa được gán vào cửa hàng nào."
+
+#. module: wujia_portal_return
+msgid "attached photo"
+msgstr "ảnh đính kèm"
+
+#. module: wujia_portal_return
+msgid "attached photos"
+msgstr "ảnh đính kèm"
+
+#. module: wujia_portal_return
+msgid "days."
+msgstr "ngày gần nhất."
+
+#. module: wujia_portal_return
+msgid "photos)"
+msgstr "ảnh)"
+
+#. module: wujia_portal_return
+msgid "request"
+msgstr "yêu cầu"
+
+#. module: wujia_portal_return
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "requests"
+msgstr "yêu cầu"
+
+#. module: wujia_portal_return
+msgid "result"
+msgstr "kết quả"
+
+#. module: wujia_portal_return
+msgid "results"
+msgstr "kết quả"
+
+#. module: wujia_portal_return
+msgid "{brand} feedback"
+msgstr "Phản hồi của {brand}"
+
+#. module: wujia_portal_return
+#. odoo-python
+#: code:addons/wujia_portal_return/controllers/portal.py
+msgid "— All statuses —"
+msgstr "— Tất cả trạng thái —"
+
+#. module: wujia_portal_return
+msgid "— Order has no products —"
+msgstr "— Đơn không có sản phẩm —"
+
+#. module: wujia_portal_return
+msgid "— Select a product —"
+msgstr "— Chọn sản phẩm —"
+

@@ -8,6 +8,20 @@ from odoo import fields
 
 from odoo.addons.wujia_return.models.wujia_return_request import ORDER_WINDOW_DAYS
 
+
+def load_vi(env, modules=('wujia_return',)):
+    """Bật vi_VN + nạp .po của `modules`; trả env `lang=vi_VN`.
+
+    J-V6: câu gốc của module là tiếng Anh ⇒ test assert câu tiếng Việt chạy ở vi_VN, không xoá assert
+    (Phần V §6 #5). `_activate_lang` không nạp .po ⇒ `_update_translations`.
+    """
+    env['res.lang']._activate_lang('vi_VN')
+    env['ir.module.module'].search([
+        ('name', 'in', modules), ('state', '=', 'installed'),
+    ])._update_translations(['vi_VN'])
+    return env(context=dict(env.context, lang='vi_VN'))
+
+
 JPEG = b'\xff\xd8\xff\xe0' + b'\x00' * 60
 PNG = b'\x89PNG\r\n\x1a\n' + b'\x00' * 60
 MP4 = b'\x00\x00\x00\x18ftypmp42' + b'\x00' * 60

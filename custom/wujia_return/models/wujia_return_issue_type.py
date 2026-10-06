@@ -25,7 +25,7 @@ class WujiaReturnIssueType(models.Model):
                 ('code', '=', rec.code), ('id', '!=', rec.id),
             ])
             if dup:
-                raise ValidationError(_("Mã loại lỗi '%s' đã tồn tại.", rec.code))
+                raise ValidationError(_("Issue type code '%s' already exists.", rec.code))
 
     def write(self, vals):
         res = super().write(vals)

@@ -66,19 +66,19 @@ class WujiaCompensationAllocation(models.Model):
 
     _check_allocated_positive = models.Constraint(
         'CHECK(allocated_qty > 0)',
-        'SL phân bổ phải lớn hơn 0.',
+        'Allocated qty must be greater than 0.',
     )
     _check_delivered_nonneg = models.Constraint(
         'CHECK(delivered_qty >= 0)',
-        'SL đã giao không được âm.',
+        'Delivered qty cannot be negative.',
     )
     _check_released_nonneg = models.Constraint(
         'CHECK(released_qty >= 0)',
-        'SL hoàn lại không được âm.',
+        'Returned qty cannot be negative.',
     )
     _check_delivered_released_le_allocated = models.Constraint(
         'CHECK(delivered_qty + released_qty <= allocated_qty)',
-        'Tổng đã giao + hoàn lại không được vượt SL phân bổ.',
+        'Delivered + returned cannot exceed the allocated qty.',
     )
 
     @api.depends('allocated_qty', 'delivered_qty', 'released_qty')
@@ -94,7 +94,7 @@ class WujiaCompensationAllocation(models.Model):
             total = sum(a.allocated_qty - a.released_qty for a in siblings)
             if total > rec.request_id.approved_qty + 1e-6:
                 raise ValidationError(_(
-                    "Tổng phân bổ của yêu cầu '%s' vượt số lượng đã duyệt.",
+                    "Total allocation of request '%s' exceeds the approved quantity.",
                     rec.request_id.name))
 
     @api.model_create_multi

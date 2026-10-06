@@ -101,7 +101,7 @@ class StockPicking(models.Model):
                 lambda a: a.state != 'cancel' and a.open_qty > EPS):
             alloc.write({
                 'released_qty': alloc.released_qty + alloc.open_qty,
-                'release_reason': _("Kho giao thiếu, hoàn lại để bù kỳ sau."),
+                'release_reason': _("Warehouse delivered short; returned for the next compensation round."),
                 'state': 'done',
                 'delivered_date': alloc.delivered_date or now,
             })

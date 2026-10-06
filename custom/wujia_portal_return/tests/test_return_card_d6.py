@@ -17,6 +17,8 @@ from lxml import etree
 
 from odoo.tests import TransactionCase, tagged
 
+from .common import load_vi
+
 HERE = os.path.dirname(__file__)
 MOD = os.path.abspath(os.path.join(HERE, '..'))
 VIEW = os.path.join(MOD, 'views', 'portal_return_list.xml')
@@ -24,6 +26,12 @@ CSS = os.path.join(MOD, 'static', 'src', 'css', 'portal_return.css')
 # E5b1: ruột card về CMP-LC-001 ⇒ clamp 2 dòng và lưới metadata nay khai ở khung.
 LC_CSS = os.path.join(os.path.dirname(MOD), 'wujia_portal_layout', 'static', 'assets',
                       'css', '_components.css')
+
+
+# J-V6: câu gốc nhãn là tiếng Anh (file nguồn); vi_VN dịch về đúng chữ BA ("Tiến độ bù", "Ngày yêu cầu")
+# — kiểm ở `test_nhan_vi_giu_nguyen`.
+LBL_PROGRESS = 'Compensation progress'
+LBL_REQUEST_DATE = 'Request date'
 
 
 def _view():
@@ -85,7 +93,7 @@ class TestReturnCardD6(TransactionCase):
     def test_co_dong_tien_do_bu_rieng_co_nhan(self):
         """BA đòi rõ: dòng riêng, **nhãn "Tiến độ bù"**. Sau E5b1 dòng phụ đi qua
         khuôn `wj_list_card_row`, nhãn nằm ở `lcr_label`."""
-        prog = self._hang_co_nhan('Tiến độ bù')
+        prog = self._hang_co_nhan(LBL_PROGRESS)
         self.assertIsNotNone(prog, 'thiếu dòng riêng có nhãn cho tiến độ bù')
         # dòng này nằm trong thân card (`lc_rows`), không lồng vào slot trạng thái
         to = [a.get('t-set') for a in prog.iterancestors()]
@@ -104,7 +112,7 @@ class TestReturnCardD6(TransactionCase):
         """Không hardcode 4 nhãn: nguồn phải là `comp_status_labels`, vốn chính là
         `COMPENSATION_STATUS_LABELS` truyền qua qcontext. Hardcode thì đổi nhãn ở
         controller mà card vẫn in nhãn cũ."""
-        prog = self._hang_co_nhan('Tiến độ bù')
+        prog = self._hang_co_nhan(LBL_PROGRESS)
         badge = prog.xpath('.//span[contains(@t-attf-class, "wj-status-badge")]')
         self.assertEqual(len(badge), 1)
         self.assertIn('clbl', badge[0].get('t-out') or '',
@@ -115,13 +123,19 @@ class TestReturnCardD6(TransactionCase):
         from ..controllers.portal import COMPENSATION_STATUS_LABELS
         for nhan, _lop in COMPENSATION_STATUS_LABELS.values():
             self.assertNotIn(
-                nhan, etree.tostring(self.row, encoding='unicode'),
+                nhan._source, etree.tostring(self.row, encoding='unicode'),
                 'nhãn %r bị chép cứng vào template' % nhan)
+
+    def test_nhan_vi_giu_nguyen(self):
+        """J-V6: user vi_VN vẫn thấy đúng hai nhãn BA trên card mobile."""
+        arch = self.env.ref('wujia_portal_return.portal_return_list').with_env(load_vi(self.env)).arch
+        for vi in ('Tiến độ bù', 'Ngày yêu cầu'):
+            self.assertIn('<t t-set="lcr_label">%s</t>' % vi, arch)
 
     def test_nhan_ngay_yeu_cau_du_nam(self):
         """LC-15: nhãn đầy đủ "Ngày yêu cầu" (không viết tắt) và ngày ĐỦ NĂM —
         `%d/%m` khiến phiếu cuối năm và đầu năm sau trông như cùng một kỳ."""
-        row = self._hang_co_nhan('Ngày yêu cầu')
+        row = self._hang_co_nhan(LBL_REQUEST_DATE)
         self.assertIsNotNone(row, 'mất nhãn "Ngày yêu cầu" (LC-15)')
         gia_tri = row.xpath('./t[@t-set="lcr_value"]/@t-value')
         self.assertTrue(gia_tri, 'hàng ngày yêu cầu không còn giá trị')

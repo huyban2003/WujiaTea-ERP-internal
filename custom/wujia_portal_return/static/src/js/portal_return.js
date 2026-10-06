@@ -33,6 +33,10 @@
             if (!lineSel) return;
 
             const full = form.querySelector(".wj-return-line-full");
+            // Câu dịch theo ngôn ngữ người xem: data-wj-msg-* trên select đơn (QWeb), fallback EN.
+            function msg(key, fallback) {
+                return window.wjMsg ? window.wjMsg(orderSel, key, fallback) : fallback;
+            }
 
             // `<select>` cắt tên theo bề rộng ô ⇒ in lại tên đầy đủ ở vùng dưới.
             function showFull() {
@@ -48,7 +52,9 @@
                 lineSel.innerHTML = "";
                 const ph = document.createElement("option");
                 ph.value = "";
-                ph.textContent = lines.length ? "— Chọn sản phẩm —" : "— Đơn không có sản phẩm —";
+                ph.textContent = lines.length
+                    ? msg("select-product", "— Select a product —")
+                    : msg("no-products", "— Order has no products —");
                 lineSel.appendChild(ph);
                 lines.forEach(function (l) {
                     const opt = document.createElement("option");

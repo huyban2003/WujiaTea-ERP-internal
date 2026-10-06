@@ -245,7 +245,7 @@ class WujiaReturnRequest(models.Model):
             if rec.sale_order_line_id and rec.sale_order_id and \
                     rec.sale_order_line_id.order_id != rec.sale_order_id:
                 raise ValidationError(_(
-                    "Dòng sản phẩm phải thuộc đơn hàng gốc đã chọn."))
+                    "The product line must belong to the selected original order."))
 
     @api.onchange('resolution_type', 'product_id')
     def _onchange_prefill_compensation(self):
@@ -280,10 +280,10 @@ class WujiaReturnRequest(models.Model):
                 continue
             if len(rec.image_attachment_ids) < MIN_IMAGES_BEFORE_SEND:
                 raise ValidationError(_(
-                    "Cần ít nhất %s ảnh minh chứng trước khi gửi.",
+                    "At least %s evidence photos are required before submitting.",
                     MIN_IMAGES_BEFORE_SEND))
             rec.state = 'submitted'
-            rec.message_post(body=_("Yêu cầu đã được gửi."))
+            rec.message_post(body=_("Request submitted."))
 
     def action_start_review(self):
         for rec in self:
@@ -293,41 +293,41 @@ class WujiaReturnRequest(models.Model):
     def action_approve(self):
         for rec in self:
             if rec.state not in ('submitted', 'reviewing'):
-                raise ValidationError(_("Chỉ duyệt được yêu cầu đã gửi/đang xét."))
+                raise ValidationError(_("Only submitted or in-review requests can be approved."))
             if rec.approved_qty <= 0:
-                raise ValidationError(_("Nhập SL duyệt bù (> 0) trước khi duyệt."))
+                raise ValidationError(_("Enter the approved compensation qty (> 0) before approving."))
             if not rec.resolution_type:
-                raise ValidationError(_("Chọn phương án xử lý trước khi duyệt."))
+                raise ValidationError(_("Select a resolution before approving."))
             rec.write({
                 'state': 'approved',
                 'approved_by_id': self.env.uid,
                 'approved_date': fields.Datetime.now(),
             })
-            rec.message_post(body=_("Yêu cầu đã được phê duyệt."))
+            rec.message_post(body=_("Request approved."))
 
     def action_reject(self):
         for rec in self:
             if rec.state in ('done', 'cancelled', 'rejected'):
-                raise ValidationError(_("Yêu cầu này không thể từ chối."))
+                raise ValidationError(_("This request cannot be rejected."))
             if not rec.reject_reason:
-                raise ValidationError(_("Nhập lý do từ chối trước khi từ chối."))
+                raise ValidationError(_("Enter a rejection reason before rejecting."))
             rec.write({'state': 'rejected', 'resolved_date': fields.Datetime.now()})
-            rec.message_post(body=_("Yêu cầu bị từ chối: %s", rec.reject_reason))
+            rec.message_post(body=_("Request rejected: %s", rec.reject_reason))
 
     def action_cancel(self):
         for rec in self:
             if rec.state in ('done', 'cancelled'):
-                raise ValidationError(_("Yêu cầu này không thể huỷ."))
+                raise ValidationError(_("This request cannot be cancelled."))
             rec.state = 'cancelled'
-            rec.message_post(body=_("Yêu cầu đã bị huỷ."))
+            rec.message_post(body=_("Request cancelled."))
 
     def action_mark_done(self):
         for rec in self:
             if rec.state != 'approved' or rec.resolution_type == 'compensation':
                 raise ValidationError(_(
-                    "Chỉ đánh dấu hoàn thành cho yêu cầu đã duyệt không phải bù hàng."))
+                    "Only approved non-compensation requests can be marked as done."))
             rec.write({'state': 'done', 'resolved_date': fields.Datetime.now()})
-            rec.message_post(body=_("Yêu cầu đã hoàn tất."))
+            rec.message_post(body=_("Request completed."))
 
     def _apply_compensation_delivery(self):
         """Chuyển processing→done khi đã bù đủ (gọi từ hook stock.picking).
@@ -340,13 +340,13 @@ class WujiaReturnRequest(models.Model):
                 continue
             if rec.approved_qty > 0 and rec.remaining_qty <= 1e-6:
                 rec.write({'state': 'done', 'resolved_date': fields.Datetime.now()})
-                rec.message_post(body=_("Đã bù đủ số lượng — yêu cầu hoàn tất."))
+                rec.message_post(body=_("Fully compensated — request completed."))
 
     def action_view_compensation_sos(self):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('SO bù hàng'),
+            'name': _('Compensation sales order'),
             'res_model': 'sale.order',
             'view_mode': 'list,form',
             'domain': [('id', 'in', self.compensation_so_ids.ids)],
@@ -395,7 +395,7 @@ class WujiaReturnRequest(models.Model):
     @api.model
     def _portal_check_product_config(self, product):
         """Câu báo nếu sản phẩm chưa cấu hình bù hợp lệ (BA STT3 #6), None nếu hợp lệ."""
-        msg = self.env.company._wj_brand_text(_("Sản phẩm chưa được cấu hình chính sách bù hàng. Vui lòng liên hệ {brand}."))
+        msg = self.env.company._wj_brand_text(_("This product has no compensation policy configured. Please contact {brand}."))
         if not product.compensation_enabled or not product.compensation_claim_uom_id:
             return msg
         delivery_uom = product.compensation_delivery_uom_id
@@ -414,18 +414,18 @@ class WujiaReturnRequest(models.Model):
     def _portal_check_evidence(self, images, videos, require_min=True):
         """``images``/``videos``: list ``(size_bytes, mime_thật)``; kênh tự đọc MIME từ nội dung."""
         if len(images) > MAX_IMAGES or (require_min and len(images) < MIN_IMAGES_BEFORE_SEND):
-            raise ValidationError(_("Cần tải từ %(min)s đến %(max)s ảnh minh chứng.",
+            raise ValidationError(_("Please upload %(min)s to %(max)s evidence photos.",
                                     min=MIN_IMAGES_BEFORE_SEND, max=MAX_IMAGES))
         if len(videos) > MAX_VIDEOS:
-            raise ValidationError(_("Chỉ được tải tối đa %s video minh chứng.", MAX_VIDEOS))
-        bad = _("Tệp không đúng định dạng hoặc vượt quá dung lượng cho phép.")
+            raise ValidationError(_("You can upload at most %s evidence video(s).", MAX_VIDEOS))
+        bad = _("The file has an invalid format or exceeds the allowed size.")
         for files, allowed, max_mb in ((images, IMAGE_MIME, MAX_IMAGE_MB),
                                        (videos, VIDEO_MIME, MAX_VIDEO_MB)):
             for size, mime in files:
                 if size > max_mb * 1024 * 1024 or mime not in allowed:
                     raise ValidationError(bad)
         if sum(size for size, _mime in images + videos) > MAX_TOTAL_MB * 1024 * 1024:
-            raise ValidationError(_("Tổng dung lượng minh chứng không được vượt quá %s MB.", MAX_TOTAL_MB))
+            raise ValidationError(_("Total evidence size cannot exceed %s MB.", MAX_TOTAL_MB))
 
     @api.model
     def _portal_prepare_vals(self, post, franchise_ids):
@@ -433,23 +433,23 @@ class WujiaReturnRequest(models.Model):
         try:
             franchise_id = int(post.get('franchise_id') or 0)
         except (TypeError, ValueError):
-            raise ValidationError(_("Cửa hàng không hợp lệ."))
+            raise ValidationError(_("Invalid store."))
         if franchise_id not in set(franchise_ids):
-            raise ValidationError(_("Cửa hàng không truy cập được."))
+            raise ValidationError(_("You cannot access this store."))
         try:
             order_id = int(post.get('sale_order_id') or 0)
             line_id = int(post.get('sale_order_line_id') or 0)
         except (TypeError, ValueError):
-            raise ValidationError(_("Đơn hàng / sản phẩm không hợp lệ."))
+            raise ValidationError(_("Invalid order / product."))
         if not order_id or not line_id:
-            raise ValidationError(_("Vui lòng chọn đơn hàng gốc và sản phẩm."))
+            raise ValidationError(_("Please select the original order and product."))
         order = self.env['sale.order'].sudo().search(
             self._portal_eligible_order_domain([franchise_id]) + [('id', '=', order_id)], limit=1)
         if not order:
-            raise ValidationError(_("Đơn hàng không hợp lệ hoặc đã quá thời hạn %s ngày.", ORDER_WINDOW_DAYS))
+            raise ValidationError(_("The order is invalid or older than %s days.", ORDER_WINDOW_DAYS))
         line = order.order_line.filtered(lambda l: l.id == line_id)
         if not line or not line.product_id:
-            raise ValidationError(_("Sản phẩm phải thuộc đơn hàng gốc của cửa hàng."))
+            raise ValidationError(_("The product must belong to the store's original order."))
         config_error = self._portal_check_product_config(line.product_id)
         if config_error:
             raise ValidationError(config_error)
@@ -460,13 +460,13 @@ class WujiaReturnRequest(models.Model):
         issue_type = self.env['wujia.return.issue.type'].sudo().search(
             [('id', '=', issue_type_id), ('active', '=', True)], limit=1)
         if not issue_type:
-            raise ValidationError(_("Vui lòng chọn loại lỗi."))
+            raise ValidationError(_("Please select an issue type."))
         try:
             request_qty = float(post.get('request_qty') or 0)
         except (TypeError, ValueError):
             request_qty = 0.0
         if request_qty <= 0:
-            raise ValidationError(_("Số lượng yêu cầu phải lớn hơn 0."))
+            raise ValidationError(_("The requested quantity must be greater than 0."))
         opening, opening_dt = post.get('opening_datetime') or '', False
         for fmt in ('%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M'):
             try:
@@ -475,7 +475,7 @@ class WujiaReturnRequest(models.Model):
             except ValueError:
                 continue
         if not opening_dt:
-            raise ValidationError(_("Vui lòng nhập thời gian mở hàng hợp lệ."))
+            raise ValidationError(_("Please enter a valid unboxing time."))
         action = (post.get('action') or 'draft').strip()
         return {
             'franchise_id': franchise_id,

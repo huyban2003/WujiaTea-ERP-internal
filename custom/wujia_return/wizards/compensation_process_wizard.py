@@ -48,7 +48,7 @@ class CompensationProcessWizard(models.TransientModel):
         _root = CompensationProcessWizard._uom_root
         if _root(from_uom) != _root(to_uom):
             raise UserError(_(
-                "Không thể quy đổi '%s' ↔ '%s' (khác nhóm đơn vị).",
+                "Cannot convert '%s' ↔ '%s' (different UoM categories).",
                 from_uom.display_name, to_uom.display_name))
         return from_uom._compute_quantity(qty, to_uom, rounding_method=rounding_method)
 
@@ -110,9 +110,9 @@ class CompensationProcessWizard(models.TransientModel):
         eligible = requests.filtered(self._is_eligible)
         if not eligible:
             raise UserError(_(
-                "Không có yêu cầu hợp lệ để xử lý bù hàng.\n"
-                "Chỉ xử lý yêu cầu đã duyệt, phương án 'Bù hàng', còn số lượng "
-                "chưa phân bổ (và có cấu hình bù đầy đủ)."))
+                "No eligible requests to compensate.\n"
+                "Only approved requests with the 'Compensation' resolution, unallocated "
+                "quantity left (and a complete compensation setup) are processed."))
         res['request_ids'] = [(6, 0, eligible.ids)]
         res['group_ids'] = self._build_group_commands(eligible)
         res['skipped_count'] = len(requests) - len(eligible)
@@ -226,7 +226,7 @@ class CompensationProcessWizard(models.TransientModel):
                     (tuple(requests.ids),))
         except pg_errors.LockNotAvailable:
             raise UserError(_(
-                "Yêu cầu đang được người khác xử lý. Vui lòng thử lại sau."))
+                "The request is being processed by someone else. Please try again later."))
         requests.invalidate_recordset(
             ['unallocated_qty', 'allocated_qty', 'compensated_qty', 'remaining_qty'])
 
@@ -236,15 +236,15 @@ class CompensationProcessWizard(models.TransientModel):
                     and g.claim_uom_id and g.delivery_uom_id):
                 # Bất biến kỹ thuật: view PHẢI có force_save trên field chỉ-đọc.
                 raise UserError(_(
-                    "Wizard bị mất dữ liệu nhóm khi lưu (thiếu force_save trong "
-                    "giao diện). Vui lòng báo bộ phận kỹ thuật."))
+                    "The wizard lost its group data on save (missing force_save in "
+                    "the view). Please report it to the technical team."))
             reqs = buckets.get(self._group_key(g))
             # Nhóm biến mất = request bị huỷ/từ chối/đã bù đủ sau khi mở wizard.
             if not reqs or abs(self._total_claim(reqs, g.claim_uom_id)
                                - (g.total_claim_qty or 0.0)) > EPS:
                 raise UserError(_(
-                    "Dữ liệu đã thay đổi (nhóm '%s' của cửa hàng '%s'). Vui lòng "
-                    "đóng và mở lại wizard.",
+                    "Data has changed (group '%s' of store '%s'). Please close "
+                    "and reopen the wizard.",
                     g.compensation_product_id.display_name or '?',
                     g.franchise_id.display_name or '?'))
         return buckets
@@ -252,7 +252,7 @@ class CompensationProcessWizard(models.TransientModel):
     def action_confirm(self):
         self.ensure_one()
         if not self.group_ids or not self.request_ids:
-            raise UserError(_("Không có nhóm nào để xử lý."))
+            raise UserError(_("No groups to process."))
         buckets = self._lock_and_revalidate()
 
         SaleOrder = self.env['sale.order'].sudo()
@@ -277,7 +277,7 @@ class CompensationProcessWizard(models.TransientModel):
                     g.delivery_uom_id)
                 if covered > g.total_claim_qty + EPS:
                     raise UserError(_(
-                        "Nhóm '%s': SL giao vượt quyền lợi còn lại.",
+                        "Group '%s': delivery qty exceeds the remaining entitlement.",
                         g.compensation_product_id.display_name))
                 active.append((g, covered, buckets[self._group_key(g)]))
             if not active:
@@ -285,14 +285,14 @@ class CompensationProcessWizard(models.TransientModel):
             partner = franchise.partner_id
             if not partner:
                 raise UserError(_(
-                    "Cửa hàng '%s' chưa cấu hình partner để tạo SO bù.",
+                    "Store '%s' has no partner configured for the compensation SO.",
                     franchise.display_name))
             order = SaleOrder.create({
                 'partner_id': partner.id,
                 'franchise_id': franchise.id,
                 'franchise_partner_id': partner.id,
                 'is_return_order': True,
-                'origin': _('Bù hàng'),
+                'origin': _('Compensation'),
                 'state': 'sent',  # BA STT3 #11: tạo ở 'sent', HQ tự confirm
             })
             created |= order
@@ -323,15 +323,15 @@ class CompensationProcessWizard(models.TransientModel):
                     touched |= req
 
         if not created:
-            raise UserError(_("Không tạo được SO bù (số lượng giao = 0)."))
+            raise UserError(_("Could not create the compensation SO (delivery qty = 0)."))
         to_process = touched.filtered(lambda r: r.state == 'approved')
         to_process.write({'state': 'processing'})
         for req in to_process:
-            req.message_post(body=_("Đã tạo SO bù, đang chờ giao hàng."))
+            req.message_post(body=_("Compensation SO created, awaiting delivery."))
 
         return {
             'type': 'ir.actions.act_window',
-            'name': _('SO bù hàng'),
+            'name': _('Compensation sales order'),
             'res_model': 'sale.order',
             'view_mode': 'form' if len(created) == 1 else 'list,form',
             'res_id': created.id if len(created) == 1 else False,

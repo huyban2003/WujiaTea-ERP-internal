@@ -5,13 +5,13 @@
     <template id="mobile_bottomnav_return"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="20"
-              name="Wujia Mobile — sheet Thêm: Đổi trả / Bù hàng">
+              name="Wujia Mobile — More sheet: Returns / Compensation">
         <xpath expr="//span[@id='msheet_end']" position="before">
             <t t-call="wujia_portal_layout.wj_msheet_item">
                 <t t-set="mi_href" t-value="'/portal/return'"/>
                 <t t-set="mi_icon" t-value="'feather icon-corner-up-left'"/>
-                <t t-set="mi_title">Đổi trả / Bù hàng</t>
-                <t t-set="mi_sub">Gửi và theo dõi yêu cầu xử lý sản phẩm</t>
+                <t t-set="mi_title">Returns / Compensation</t>
+                <t t-set="mi_sub">Submit and track product claims</t>
             </t>
         </xpath>
     </template>

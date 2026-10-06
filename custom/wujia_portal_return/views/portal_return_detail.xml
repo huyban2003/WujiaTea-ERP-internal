@@ -11,8 +11,8 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Bù hàng / Chi tiết yêu cầu bù hàng</t>
-                    <t t-set="ph_title">Chi tiết yêu cầu bù hàng</t>
+                    <t t-set="ph_crumb">Compensation / Compensation request detail</t>
+                    <t t-set="ph_title">Compensation request detail</t>
                     <t t-set="ph_back_url" t-value="'/portal/return'"/>
                 </t>
                 <t t-set="lbl" t-value="wj_state_label(rr)"/>
@@ -24,7 +24,7 @@
                             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
                                 <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title">Thông tin yêu cầu</t>
+                                        <t t-set="ch_title">Request information</t>
                                         <t t-set="ch_level" t-value="3"/>
                                         <t t-set="ch_platform" t-value="'pc'"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
@@ -34,26 +34,26 @@
                                     <dl class="row mb-0 profile-dl">
                                         <!-- S53-B3b: mã yêu cầu gỡ khỏi PageHeader (CMP-PG-001
                                              CONTENT RULES) → hiển thị tại card thông tin. -->
-                                        <dt class="col-sm-5">Mã yêu cầu</dt>
+                                        <dt class="col-sm-5">Request code</dt>
                                         <dd class="col-sm-7" t-out="rr.name"/>
-                                        <dt class="col-sm-5">Cửa hàng</dt>
+                                        <dt class="col-sm-5">Store</dt>
                                         <dd class="col-sm-7" t-out="rr.franchise_id.name or '—'"/>
-                                        <dt class="col-sm-5">Ngày yêu cầu</dt>
+                                        <dt class="col-sm-5">Request date</dt>
                                         <dd class="col-sm-7" t-out="wj_dt(rr.request_date, '%d/%m/%Y %H:%M')"/>
-                                        <dt class="col-sm-5">Đơn gốc</dt>
+                                        <dt class="col-sm-5">Original order</dt>
                                         <dd class="col-sm-7">
                                             <t t-if="rr.sale_order_id">
                                                 <a t-attf-href="/portal/purchase-history/#{rr.sale_order_id.id}" t-out="rr.sale_order_id.name"/>
                                             </t>
                                             <t t-else="">—</t>
                                         </dd>
-                                        <dt class="col-sm-5">Loại lỗi</dt>
+                                        <dt class="col-sm-5">Issue type</dt>
                                         <dd class="col-sm-7" t-out="rr.issue_type_id.name or '—'"/>
-                                        <dt class="col-sm-5">Thời gian mở hàng</dt>
+                                        <dt class="col-sm-5">Unboxing time</dt>
                                         <dd class="col-sm-7" t-out="wj_dt(rr.opening_datetime, '%d/%m/%Y %H:%M') or '—'"/>
-                                        <dt class="col-sm-5">Ngày sản xuất</dt>
+                                        <dt class="col-sm-5">Production date</dt>
                                         <dd class="col-sm-7" t-out="wj_dt(rr.production_date, '%d/%m/%Y') or '—'"/>
-                                        <dt class="col-sm-5">Người tạo</dt>
+                                        <dt class="col-sm-5">Created by</dt>
                                         <dd class="col-sm-7" t-out="rr.requester_user_id.name or '—'"/>
                                     </dl>
                                 </div>
@@ -64,7 +64,7 @@
                             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush h-100">
                                 <div class="wj-surface-card__head">
                                     <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title">Ghi chú &amp; Phản hồi</t>
+                                        <t t-set="ch_title">Notes &amp; feedback</t>
                                         <t t-set="ch_level" t-value="3"/>
                                         <t t-set="ch_platform" t-value="'pc'"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
@@ -72,17 +72,17 @@
                                 </div>
                                 <div class="wj-surface-card__body">
                                     <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title">Ghi chú từ cửa hàng</t>
+                                        <t t-set="ch_title">Note from the store</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_platform" t-value="'pc'"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--sublabel wj-return-sublabel'"/>
                                     </t>
                                     <p t-if="rr.note" t-out="rr.note"/>
-                                    <p t-else="" class="text-muted fst-italic">Không có ghi chú.</p>
+                                    <p t-else="" class="text-muted fst-italic">No notes.</p>
                                     <t t-if="rr.reject_reason">
                                         <hr/>
                                         <t t-call="wujia_portal_layout.wj_card_header">
-                                            <t t-set="ch_title">Lý do từ chối</t>
+                                            <t t-set="ch_title">Rejection reason</t>
                                             <t t-set="ch_level" t-value="4"/>
                                             <t t-set="ch_platform" t-value="'pc'"/>
                                             <t t-set="ch_class" t-value="'wj-card-header--sublabel wj-return-sublabel wj-return-sublabel--danger'"/>
@@ -92,7 +92,7 @@
                                     <t t-if="comp and comp.get('approval_note')">
                                         <hr/>
                                         <t t-call="wujia_portal_layout.wj_card_header">
-                                            <t t-set="wj_txt">Phản hồi từ {brand}</t>
+                                            <t t-set="wj_txt">Feedback from {brand}</t>
                                             <t t-set="ch_title" t-value="wj_txt.replace('{brand}', wj_brand['name'])"/>
                                             <t t-set="ch_level" t-value="4"/>
                                             <t t-set="ch_platform" t-value="'pc'"/>
@@ -108,7 +108,7 @@
                     <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
                         <div class="wj-surface-card__head">
                             <t t-call="wujia_portal_layout.wj_card_header">
-                                <t t-set="ch_title">Sản phẩm yêu cầu</t>
+                                <t t-set="ch_title">Requested product</t>
                                 <t t-set="ch_level" t-value="3"/>
                                 <t t-set="ch_platform" t-value="'pc'"/>
                                 <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
@@ -116,7 +116,7 @@
                         </div>
                         <div class="wj-surface-card__body wj-surface-card__body--flush">
                             <table class="table mb-0 wj-return-ptable">
-                                <thead><tr><th>Sản phẩm</th><th class="text-end">SL yêu cầu</th><th>ĐVT</th></tr></thead>
+                                <thead><tr><th>Product</th><th class="text-end">Requested qty</th><th>UoM</th></tr></thead>
                                 <tbody>
                                     <tr>
                                         <td t-out="rr.product_id.display_name or '—'"/>
@@ -131,7 +131,7 @@
                     <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2" t-if="comp">
                         <div class="wj-surface-card__head">
                             <t t-call="wujia_portal_layout.wj_card_header">
-                                <t t-set="ch_title">Phương án xử lý &amp; Tiến độ bù</t>
+                                <t t-set="ch_title">Resolution &amp; compensation progress</t>
                                 <t t-set="ch_level" t-value="3"/>
                                 <t t-set="ch_platform" t-value="'pc'"/>
                                 <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
@@ -139,7 +139,7 @@
                         </div>
                         <div class="wj-surface-card__body">
                             <dl class="row mb-0 profile-dl">
-                                <dt class="col-sm-4">Phương án xử lý</dt>
+                                <dt class="col-sm-4">Resolution</dt>
                                 <dd class="col-sm-8">
                                     <span class="wujia-badge wujia-badge-info" t-out="comp['resolution_label']"/>
                                 </dd>
@@ -147,28 +147,28 @@
                             <t t-if="comp['is_compensation']">
                                 <hr/>
                                 <dl class="row mb-0 profile-dl">
-                                    <dt class="col-sm-4">Sản phẩm bù</dt>
+                                    <dt class="col-sm-4">Compensation product</dt>
                                     <dd class="col-sm-8" t-out="comp['product_label']"/>
-                                    <dt class="col-sm-4">SL duyệt bù</dt>
+                                    <dt class="col-sm-4">Approved compensation qty</dt>
                                     <dd class="col-sm-8">
                                         <t t-out="'{:,.2f}'.format(comp['approved_qty'])"/> <t t-out="comp['approved_uom']"/>
                                     </dd>
-                                    <dt class="col-sm-4">Đã đưa vào đơn bù</dt>
+                                    <dt class="col-sm-4">Added to compensation orders</dt>
                                     <dd class="col-sm-8">
                                         <t t-out="'{:,.2f}'.format(comp['allocated_qty'])"/> <t t-out="comp['approved_uom']"/>
                                     </dd>
-                                    <dt class="col-sm-4">Tình trạng bù</dt>
+                                    <dt class="col-sm-4">Compensation status</dt>
                                     <dd class="col-sm-8">
                                         <span t-attf-class="wj-status-badge #{comp['status'][1]}" t-out="comp['status'][0]"/>
                                     </dd>
                                 </dl>
                                 <div t-if="comp['all_cancelled']" class="alert alert-warning mt-3 mb-0">
-                                    Đơn bù đã bị hủy. Nếu vẫn cần bù hàng, vui lòng tạo yêu cầu mới.
+                                    The compensation order was cancelled. If you still need compensation, please create a new request.
                                 </div>
                                 <div class="mt-3">
                                     <div class="d-flex justify-content-between small text-muted mb-1">
-                                        <span>Đã bù <strong t-out="'{:,.2f}'.format(comp['compensated_qty'])"/> <t t-out="comp['approved_uom']"/></span>
-                                        <span>Còn thiếu <strong t-out="'{:,.2f}'.format(comp['remaining_qty'])"/> <t t-out="comp['approved_uom']"/></span>
+                                        <span>Compensated <strong t-out="'{:,.2f}'.format(comp['compensated_qty'])"/> <t t-out="comp['approved_uom']"/></span>
+                                        <span>Still short <strong t-out="'{:,.2f}'.format(comp['remaining_qty'])"/> <t t-out="comp['approved_uom']"/></span>
                                     </div>
                                     <div class="progress wujia-return-progress">
                                         <div class="progress-bar" role="progressbar"
@@ -180,7 +180,7 @@
                                 <t t-if="comp['orders']">
                                     <hr/>
                                     <t t-call="wujia_portal_layout.wj_card_header">
-                                        <t t-set="ch_title">Đơn bù hàng</t>
+                                        <t t-set="ch_title">Compensation orders</t>
                                         <t t-set="ch_level" t-value="4"/>
                                         <t t-set="ch_platform" t-value="'pc'"/>
                                         <t t-set="ch_class" t-value="'wj-card-header--sublabel wj-return-sublabel'"/>
@@ -202,7 +202,7 @@
                     <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush" t-if="rr.image_attachment_ids">
                         <div class="wj-surface-card__head">
                             <t t-call="wujia_portal_layout.wj_card_header">
-                                <t t-set="ch_title">Ảnh minh chứng</t>
+                                <t t-set="ch_title">Evidence photos</t>
                                 <t t-set="ch_level" t-value="3"/>
                                 <t t-set="ch_platform" t-value="'pc'"/>
                                 <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
@@ -234,7 +234,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Chi tiết yêu cầu bù hàng</t>
+                    <t t-set="ph_title">Compensation request detail</t>
                     <t t-set="ph_back_url" t-value="'/portal/return'"/>
                 </t>
 
@@ -256,21 +256,21 @@
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
-                        <t t-set="ch_title">Thông tin đơn hàng</t>
+                        <t t-set="ch_title">Order information</t>
                         <t t-set="ch_platform" t-value="'m'"/>
                     </t>
                     <div class="wujia-mhist-kv">
-                        <span class="wujia-mhist-kv-label">Ngày yêu cầu</span>
+                        <span class="wujia-mhist-kv-label">Request date</span>
                         <span class="wujia-mhist-kv-value"
                               t-out="wj_dt(rr.request_date, '%d/%m/%Y') or '—'"/>
                     </div>
                     <div class="wujia-mhist-kv">
-                        <span class="wujia-mhist-kv-label">Thời gian mở hàng</span>
+                        <span class="wujia-mhist-kv-label">Unboxing time</span>
                         <span class="wujia-mhist-kv-value"
                               t-out="wj_dt(rr.opening_datetime, '%d/%m/%Y %H:%M') or '—'"/>
                     </div>
                     <div class="wujia-mhist-kv">
-                        <span class="wujia-mhist-kv-label">Đơn gốc</span>
+                        <span class="wujia-mhist-kv-label">Original order</span>
                         <span class="wujia-mhist-kv-value" t-out="rr.sale_order_id.name or '—'"/>
                     </div>
                 </t>
@@ -279,15 +279,15 @@
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
-                        <t t-set="ch_title">Sản phẩm yêu cầu</t>
+                        <t t-set="ch_title">Requested product</t>
                         <t t-set="ch_platform" t-value="'m'"/>
                     </t>
                     <div class="wujia-mhist-kv">
-                        <span class="wujia-mhist-kv-label">Sản phẩm</span>
+                        <span class="wujia-mhist-kv-label">Product</span>
                         <span class="wujia-mhist-kv-value" t-out="rr.product_id.display_name or '—'"/>
                     </div>
                     <div class="wujia-mhist-kv">
-                        <span class="wujia-mhist-kv-label">SL yêu cầu</span>
+                        <span class="wujia-mhist-kv-label">Requested qty</span>
                         <span class="wujia-mhist-kv-value">
                             <t t-out="'{:,.2f}'.format(rr.request_qty or 0)"/> <t t-out="rr.request_uom_id.name or ''"/>
                         </span>
@@ -298,45 +298,45 @@
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
-                        <t t-set="ch_title">Phương án xử lý &amp; Tiến độ bù</t>
+                        <t t-set="ch_title">Resolution &amp; compensation progress</t>
                         <t t-set="ch_platform" t-value="'m'"/>
                     </t>
                     <div class="wujia-mhist-kv">
-                        <span class="wujia-mhist-kv-label">Phương án</span>
+                        <span class="wujia-mhist-kv-label">Outcome</span>
                         <span class="wujia-mhist-kv-value">
                             <span class="wujia-badge wujia-badge-info" t-out="comp['resolution_label']"/>
                         </span>
                     </div>
                     <t t-if="comp['is_compensation']">
                         <div class="wujia-mhist-kv">
-                            <span class="wujia-mhist-kv-label">Sản phẩm bù</span>
+                            <span class="wujia-mhist-kv-label">Compensation product</span>
                             <span class="wujia-mhist-kv-value" t-out="comp['product_label']"/>
                         </div>
                         <div class="wujia-mhist-kv">
-                            <span class="wujia-mhist-kv-label">SL duyệt bù</span>
+                            <span class="wujia-mhist-kv-label">Approved compensation qty</span>
                             <span class="wujia-mhist-kv-value">
                                 <t t-out="'{:,.2f}'.format(comp['approved_qty'])"/> <t t-out="comp['approved_uom']"/>
                             </span>
                         </div>
                         <div class="wujia-mhist-kv">
-                            <span class="wujia-mhist-kv-label">Đã đưa vào đơn bù</span>
+                            <span class="wujia-mhist-kv-label">Added to compensation orders</span>
                             <span class="wujia-mhist-kv-value">
                                 <t t-out="'{:,.2f}'.format(comp['allocated_qty'])"/> <t t-out="comp['approved_uom']"/>
                             </span>
                         </div>
                         <div class="wujia-mhist-kv">
-                            <span class="wujia-mhist-kv-label">Tình trạng bù</span>
+                            <span class="wujia-mhist-kv-label">Compensation status</span>
                             <span class="wujia-mhist-kv-value">
                                 <span t-attf-class="wj-status-badge #{comp['status'][1]}" t-out="comp['status'][0]"/>
                             </span>
                         </div>
                         <p t-if="comp['all_cancelled']" class="wujia-mticket-hint">
-                            Đơn bù đã bị hủy. Nếu vẫn cần bù hàng, vui lòng tạo yêu cầu mới.
+                            The compensation order was cancelled. If you still need compensation, please create a new request.
                         </p>
                         <div class="wujia-mreturn-progress-wrap">
                             <div class="wujia-mreturn-progress-meta">
-                                <span>Đã bù <t t-out="'{:,.2f}'.format(comp['compensated_qty'])"/></span>
-                                <span>Còn thiếu <t t-out="'{:,.2f}'.format(comp['remaining_qty'])"/></span>
+                                <span>Compensated <t t-out="'{:,.2f}'.format(comp['compensated_qty'])"/></span>
+                                <span>Still short <t t-out="'{:,.2f}'.format(comp['remaining_qty'])"/></span>
                             </div>
                             <div class="progress wujia-return-progress">
                                 <div class="progress-bar" t-attf-style="width: #{comp['progress_pct']}%;"/>
@@ -355,21 +355,22 @@
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
-                        <t t-set="ch_title">Nội dung lỗi</t>
+                        <t t-set="ch_title">Issue details</t>
                         <t t-set="ch_platform" t-value="'m'"/>
                     </t>
                     <div class="wujia-mhist-kv">
-                        <span class="wujia-mhist-kv-label">Loại lỗi</span>
+                        <span class="wujia-mhist-kv-label">Issue type</span>
                         <span class="wujia-mhist-kv-value" t-out="rr.issue_type_id.name or '—'"/>
                     </div>
-                    <p class="wujia-mhist-note" t-out="rr.note or 'Không có ghi chú.'"/>
+                    <t t-set="_ret_t_no_note">No notes.</t>
+                    <p class="wujia-mhist-note" t-out="rr.note or _ret_t_no_note"/>
                 </t>
 
                 <t t-call="wujia_portal_layout.wj_surface_card" t-if="rr.image_attachment_ids">
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
-                        <t t-set="ch_title"><t t-out="len(rr.image_attachment_ids)"/> ảnh đính kèm</t>
+                        <t t-set="ch_title"><t t-out="len(rr.image_attachment_ids)"/> <t t-if="len(rr.image_attachment_ids) == 1">attached photo</t><t t-else="">attached photos</t></t>
                         <t t-set="ch_platform" t-value="'m'"/>
                     </t>
                     <div class="wujia-mreturn-thumbs">
@@ -385,13 +386,13 @@
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card wujia-mreturn-response'"/>
                     <t t-call="wujia_portal_layout.wj_card_header">
-                        <t t-set="wj_txt">Phản hồi của {brand}</t>
+                        <t t-set="wj_txt">{brand} feedback</t>
                         <t t-set="ch_title" t-value="wj_txt.replace('{brand}', wj_brand['name'])"/>
                         <t t-set="ch_platform" t-value="'m'"/>
                     </t>
                     <p t-if="rr.reject_reason" class="wujia-mreturn-resp-body" t-out="rr.reject_reason"/>
                     <p t-elif="comp and comp.get('approval_note')" class="wujia-mreturn-resp-body" t-out="comp['approval_note']"/>
-                    <p t-else="" class="wujia-mhist-note"><t t-set="wj_txt">Chưa có phản hồi từ {brand}.</t><t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/></p>
+                    <p t-else="" class="wujia-mhist-note"><t t-set="wj_txt">No feedback from {brand} yet.</t><t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/></p>
                 </t>
             </div>
         </t>

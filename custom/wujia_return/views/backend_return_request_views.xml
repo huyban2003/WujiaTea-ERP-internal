@@ -33,9 +33,9 @@
                            statusbar_visible="submitted,reviewing,approved,processing,done"/>
                 </header>
                 <sheet>
-                    <widget name="web_ribbon" title="Từ chối"
+                    <widget name="web_ribbon" title="Rejected"
                             invisible="state != 'rejected'" bg_color="text-bg-danger"/>
-                    <widget name="web_ribbon" title="Đã huỷ"
+                    <widget name="web_ribbon" title="Canceled"
                             invisible="state != 'cancelled'" bg_color="text-bg-secondary"/>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_compensation_sos" type="object"
@@ -163,7 +163,7 @@
                 <field name="request_date"/>
                 <field name="franchise_id"/>
                 <field name="product_id"/>
-                <field name="request_qty" sum="Tổng SL"/>
+                <field name="request_qty" sum="Total qty"/>
                 <field name="request_uom_id"/>
                 <field name="issue_type_id"/>
                 <field name="resolution_type" optional="show"/>

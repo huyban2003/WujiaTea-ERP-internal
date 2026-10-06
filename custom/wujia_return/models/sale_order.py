@@ -31,11 +31,11 @@ class SaleOrder(models.Model):
         # về hàng đợi phân bổ.
         allocations.write({
             'state': 'cancel',
-            'release_reason': _("Đơn bù bị huỷ — quyền lợi đóng theo yêu cầu."),
+            'release_reason': _("Compensation order cancelled — entitlement closed per request."),
         })
         to_close = requests.filtered(
             lambda r: r.state not in ('done', 'cancelled', 'rejected'))
         to_close.write({'state': 'done', 'resolved_date': fields.Datetime.now()})
         for req in to_close:
             req.message_post(body=_(
-                "Đơn bù đã bị huỷ. Nếu vẫn cần bù hàng, vui lòng tạo yêu cầu mới."))
+                "This compensation order was cancelled. If you still need compensation, please create a new request."))

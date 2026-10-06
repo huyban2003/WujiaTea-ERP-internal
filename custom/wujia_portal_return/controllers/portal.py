@@ -12,7 +12,7 @@ from datetime import datetime
 
 from werkzeug.exceptions import Forbidden, NotFound
 
-from odoo import http
+from odoo import _lt, http
 from odoo.exceptions import ValidationError
 from odoo.http import request
 from odoo.tools.mimetypes import guess_mimetype
@@ -45,18 +45,18 @@ PAGE_SIZE = 20
 
 # Phương án xử lý HQ chốt khi duyệt.
 RESOLUTION_LABELS = {
-    'exchange': 'Đổi hàng',
-    'return': 'Trả hàng',
-    'compensation': 'Bù hàng',
-    'refuse': 'Từ chối',
+    'exchange': _lt('Exchange'),
+    'return': _lt('Return'),
+    'compensation': _lt('Compensation'),
+    'refuse': _lt('Rejected'),
 }
 
 # Tình trạng bù hàng (label + badge class) — hiển thị tiến độ bù cho cửa hàng.
 COMPENSATION_STATUS_LABELS = {k: (v, status_badge_for(v)) for k, v in {
-    'none': 'Chưa xử lý',
-    'allocated': 'Đã lên đơn bù',
-    'partial': 'Đang bù một phần',
-    'done': 'Đã bù đủ',
+    'none': _lt('Not processed'),
+    'allocated': _lt('Replacement ordered'),
+    'partial': _lt('Partially compensated'),
+    'done': _lt('Fully compensated'),
 }.items()}
 
 
@@ -64,7 +64,12 @@ COMPENSATION_STATUS_LABELS = {k: (v, status_badge_for(v)) for k, v in {
 FILTER_OPTIONS = [(key, label) for key, (label, _cls) in RETURN_STATUS_LABELS.items()]
 
 # Option rỗng của dropdown lọc — một nguồn cho PC + mobile (mobile chỉ có aria-label).
-FILTER_ALL_LABEL = '— Tất cả trạng thái —'
+FILTER_ALL_LABEL = _lt('— All statuses —')
+
+
+def _translated(labels):
+    """{key: (nhãn, badge)} với nhãn `_lt` dịch theo ngôn ngữ người xem (không `str(lazy)`)."""
+    return {k: (request.env._(label), cls) for k, (label, cls) in labels.items()}
 
 
 class WujiaPortalReturn(http.Controller):
@@ -113,7 +118,7 @@ class WujiaPortalReturn(http.Controller):
         size = parse_page_size(page_size, PAGE_SIZE)
         total = Model.search_count(domain)
         pgn = build_pager(total, page, size, path='/portal/return',
-                          item_label='yêu cầu',
+                          item_label=_lt('requests'),
                           page_size_options=PAGE_SIZE_OPTIONS)
         page = pgn['page']
         returns = Model.search(domain, limit=size, offset=(page - 1) * size,
@@ -145,7 +150,7 @@ class WujiaPortalReturn(http.Controller):
         except Exception:                          # noqa: BLE001 — không lộ traceback ra portal
             _logger.exception('Return request create failed')
             return self._render_form(
-                error="Không thể gửi yêu cầu. Vui lòng kiểm tra lại thông tin và thử lại.",
+                error=request.env._("Could not submit the request. Please check the information and try again."),
                 prefill=post)
         return request.redirect(f'/portal/return/{rr.id}?message=created')
 
@@ -162,7 +167,6 @@ class WujiaPortalReturn(http.Controller):
         return request.render('wujia_portal_return.portal_return_detail', {
             'rr': rr,
             'wj_state_label': state_label,
-            'resolution_labels': RESOLUTION_LABELS,
             'comp': self._build_compensation_ctx(rr),
             'wj_dt': fmt_local_dt,
             'message': kw.get('message'),
@@ -212,9 +216,9 @@ class WujiaPortalReturn(http.Controller):
         ctx = {
             'no_franchise': False, 'returns': [], 'pgn': None, 'total': 0,
             'wj_state_label': state_label,
-            'comp_status_labels': COMPENSATION_STATUS_LABELS,
-            'filter_options': FILTER_OPTIONS,
-            'filter_all_label': FILTER_ALL_LABEL,
+            'comp_status_labels': _translated(COMPENSATION_STATUS_LABELS),
+            'filter_options': [(key, request.env._(label)) for key, label in FILTER_OPTIONS],
+            'filter_all_label': request.env._(FILTER_ALL_LABEL),
             'state': '', 'date_from': '', 'date_to': '', 'q': '', 'notice': '',
             'filter_error': '',
             'wj_dt': fmt_local_dt,
@@ -285,13 +289,14 @@ class WujiaPortalReturn(http.Controller):
         view = rr._portal_compensation_view()
         if view is None:
             return None
-        ctx = dict(view, resolution_label=RESOLUTION_LABELS.get(rr.resolution_type, rr.resolution_type))
+        resolution = RESOLUTION_LABELS.get(rr.resolution_type)
+        ctx = dict(view, resolution_label=request.env._(resolution) if resolution else rr.resolution_type)
         if not ctx['is_compensation']:
             return ctx
         ctx.update({
             'approved_uom': rr.approved_uom_id.name or '',
             'product_label': rr.compensation_product_id.display_name or '—',
-            'status': COMPENSATION_STATUS_LABELS.get(
+            'status': _translated(COMPENSATION_STATUS_LABELS).get(
                 rr.compensation_status,
                 (rr.compensation_status or '—', status_badge('neutral'))),
             'approval_note': rr.approval_note or '',
@@ -310,19 +315,19 @@ class WujiaPortalReturn(http.Controller):
     def _so_delivery_label(self, so):
         """Nhãn tiến độ giao của 1 đơn bù (đếm phiếu giao done/tổng)."""
         if so.state == 'cancel':
-            return 'Đơn bù đã bị hủy'
+            return request.env._('Compensation order cancelled')
         if 'picking_ids' not in so._fields:
             return ''
         pickings = so.picking_ids
         total = len(pickings)
         if not total:
-            return 'Chưa tạo phiếu giao'
+            return request.env._('No delivery slip yet')
         done = len(pickings.filtered(lambda p: p.state == 'done'))
         if done == 0:
-            return 'Chưa giao'
+            return request.env._('Not delivered')
         if done >= total:
-            return 'Đã giao đủ'
-        return 'Đã giao %d/%d phiếu' % (done, total)
+            return request.env._('Fully delivered')
+        return request.env._('Delivered %d/%d slips') % (done, total)
 
     def _render_form(self, error=None, prefill=None):
         franchise_ids = get_active_franchise_ids_filter()

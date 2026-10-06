@@ -57,8 +57,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V3 | `wujia_portal_exam` (345) + `wujia_exam` (63) + khối `_ex_msgs` câu JS | exam ×2 | ✅ 06/10 — `baa5b547`, đã lên UAT |
 | J-V4 | `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) + template `cart_sync_root` câu JS | sale ×3 | ✅ 06/10 — `359fe36c` đã lên UAT; sửa sau UAT `6129ca59` đã push, chờ deploy |
 | J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) + khối `_debt_copy_msgs` câu JS + đơn vị số rút gọn theo ngôn ngữ | debt | ✅ 06/10 — `2f9f5695` đã push, chờ deploy |
-| **J-V6** | **Phiên kế.** `wujia_portal_return` (168) + `wujia_return` (69) | return ×2 | ☐ |
-| J-V7 | support (112+2) + knowledge (46+2) + notification (86+27) | 6 module | ☐ |
+| J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) + `_ret_line_msgs` câu JS + migration seed loại lỗi | return ×2 | ✅ 06/10 — chưa commit |
+| **J-V7** | **Phiên kế.** support (112+2) + knowledge (46+2) + notification (86+27) | 6 module | ☐ |
 | J-V8 | purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21) | 9 module | ☐ |
 | ★J-VR | Review Phần V: quét lại = 0 (code team), vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi danh sách 284 chuỗi cho Thái | — | ☐ |
 | J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; script CLI gọi lại module | wujia_i18n, scripts | ☐ |
@@ -299,6 +299,21 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
   nguyên (`<section class="x">`) gãy khi thêm `t-att` ⇒ khớp phần `<section class="x"`.
 - Trang chỉ có nội dung khi có dữ liệu (công nợ) mà user đo không có ⇒ probe/Playwright chỉ thấy trạng thái rỗng; phủ bằng HttpCase tạo
   dữ liệu riêng, ghi LIMIT.
+
+**J-V6 — ✅ 06/10: bài học cho V7–V8**
+- `sync_translations.py` giữ msgstr cũ NHƯNG glossary chung thắng ⇒ msgid trùng câu glossary (Active, Complete, In progress…) bị đổi chữ
+  vi. So `.po` cũ/mới bằng babel (chỉ đọc), khôi phục bằng sửa text `.po` + `odoo-bin i18n import -l vi_VN -w` — không `write_po`.
+- Nhãn mới trùng nhãn field có sẵn mà bản vi khác (`_('SO bù hàng')` vs field "Compensation SO" = "SO bù") ⇒ đổi câu EN cho khác
+  ("Compensation sales order"); `vn_to_en_pairs check` không bắt vì so trong glossary, không so `.po` hiện có.
+- `models.Constraint(def, 'msg')` dịch qua `ir.model.constraint.message` (`model:` term trong `.pot`), không qua `_()`; test đọc
+  `cons.with_env(env_vi).message`.
+- Seed `noupdate` có field dịch: XML → EN + migration chỉ đụng bản ghi `en_US` còn ĐÚNG câu VN cũ (HQ sửa tay giữ), `vi_VN` chỉ thêm khi
+  chưa có; bảng VN cũ để ở file riêng (`legacy_seed.py`) khai `DATA_FILES` của máy quét; test tạo trạng thái cũ bằng SQL jsonb.
+- Test cũ cấm tên recordset trong `t-if` (d3 "count not hidden when zero") ⇒ số ít/số nhiều dùng biến đếm `<t t-set="_n" t-value="len(x)"/>`.
+- Khối chỉ hiện khi có dữ liệu (ảnh đính kèm) ⇒ HttpCase phải tạo đúng 1 bản ghi con để thấy cả khối lẫn số ít.
+- Code translations của module KHÁC: `odoo.tools.translate.code_translations.get_python_translations(module, lang)` (`env._` lấy module
+  của file gọi).
+- Probe vi_VN thêm `data-wj-msg-*` mới là lệch có chủ đích (chữ JS cũ nay thành attr) — ghi rõ, không cập nhật mốc.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

@@ -1,8 +1,8 @@
 {
     'name': 'Wujia Portal — Return Request',
-    'version': '19.0.4.1.0',
+    'version': '19.0.5.0.0',
     'category': 'Wujia',
-    'summary': 'Portal đổi trả / bù hàng — danh sách, tạo yêu cầu, chi tiết (nghiệp vụ ở wujia_return).',
+    'summary': 'Return / compensation portal — list, create request, detail (business logic in wujia_return).',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': ['wujia_portal_base', 'wujia_return'],

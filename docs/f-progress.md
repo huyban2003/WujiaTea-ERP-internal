@@ -2444,4 +2444,63 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V5".
 - Lệnh deploy (sau khi được lệnh push): `-u wujia_account,wujia_portal_debt` + **restart sau `-u`**.
 - Nợ để lại: xoá DB nháp `wujia_v5b`, `wujia_v5h` + worktree `wt_head` (scratchpad) — giữ `wujia_t1` tới hết Phần V.
+- UAT (06/10, deploy `0d6464be`): deploy lại **dừng trước tầng `portal_*`** (lần 3) — chỉ `portal_layout` lên bản; code đã pull
+  (`installed_version` đĩa mới). Upgrade tay qua admin (`button_immediate_upgrade`) 5 module: `wujia_account` 19.0.1.2.0 ·
+  `portal_debt` 19.0.5.0.0 · `portal_base` 19.0.7.37.0 · `portal_exam` 19.0.7.1.0 · `portal_sale` 19.0.5.1.0 (2 module cuối là sửa sau UAT
+  V4 `6129ca59` chưa từng lên). Arch vi/en 3 view debt đúng (RPC chỉ-đọc). Playwright `anh.owner` chỉ-đọc (chặn POST trừ đăng nhập)
+  vi/en/th × 1440/390 × 5 trang: **30/30 0 tràn, 0 lỗi JS, 0 HTTP ≥400**, `<html lang>` đúng; 3 "BAD" chỉ là kiểm chữ tiêu đề của
+  script (trang lịch sử khổ 390 không có chữ "Công nợ"/"Debts") — không lỗi. Chữ VN còn ở en/th = dữ liệu + brand + nội dung V6–V8.
+  Mạng tới UAT nghẽn ngắt quãng (bundle `web.assets_frontend` lúc treo) ⇒ script cần retry + 1 lần đăng nhập. Ngôn ngữ user trả vi_VN.
+  Đã xoá DB nháp `wujia_v5b`/`wujia_v5h` + worktree; local chỉ còn `wujia_t1`.
 - Phiên kế: **J-V6** — `wujia_portal_return` (168) + `wujia_return` (69).
+
+## J-V6 Việt hoá source `wujia_portal_return` + `wujia_return` · 06/10/2026 · Mac
+- Kết quả: ✅ code + test, **chưa commit/push** (chờ lệnh); 0 ghi sheet (không có ID Issue List).
+- Đầu phiên: HEAD `0d6464be` = `origin/main`. Không module Thái nào phụ thuộc; phụ thuộc ngược `wujia_portal_base` (Home KPI +
+  `RETURN_STATUS_LABELS` đã `_lt` từ V2) + `wujia_portal_layout` ⇒ `-u` cả 4. Issue List 10 Ready for Dev (157–168) để sau ★JR.
+- Đã làm (`wujia_portal_return` 19.0.5.0.0 · `wujia_return` 19.0.2.0.0):
+  - Câu gốc → tiếng Anh: `docs/i18n-pairs/wujia_portal_return.csv` 168 dòng (auto 141 · tay 27), `wujia_return.csv` 69 (auto 63 · tay 6);
+    glossary +170 dòng (chỉ thêm, CRLF, byte cũ giữ nguyên).
+  - `controllers/portal.py`: `RESOLUTION_LABELS`, `COMPENSATION_STATUS_LABELS`, `FILTER_ALL_LABEL` → `_lt`, dịch lúc render bằng
+    `request.env._` (helper `_translated`); badge bù hàng dùng đúng câu EN đã có trong `_STATUS_TERMS_BY_VARIANT` (Not processed ·
+    Replacement ordered · Partially compensated · Fully compensated) ⇒ màu giữ nguyên, 0 term mới. `item_label=_lt('requests')`, lỗi chung
+    + 5 nhãn tiến độ giao (`Delivered %d/%d slips`) qua `request.env._`. Bỏ `resolution_labels` thừa trong ctx chi tiết.
+  - QWeb: biểu thức `t-*` → `<t t-set>` (dict notice 3 câu, placeholder/nhãn filter, "No notes."); số ít/số nhiều EN qua biến đếm
+    (`_ret_n`) — "1 result"/"1 request"/"1 attached photo"; `name=` nav/sheet → EN ("Returns / Compensation").
+  - JS `portal_return.js` 2 placeholder select sản phẩm → `data-wj-msg-select-product|no-products` (`<t t-set>` + dict `t-att` trên
+    `#wj-ret-pc-order` + `#wj-ret-m-order`) + `msg(key, 'EN')` qua `wjMsg`.
+  - `wujia_return`: 50 `_()` model/wizard + 4 `models.Constraint` + 3 attr view backend + manifest → EN. `_('SO bù hàng')` đổi thành
+    "Compensation sales order" (không trùng nhãn field "Compensation SO" = "SO bù").
+  - **Seed loại lỗi** (`noupdate`): XML → EN; `legacy_seed.py` (bảng VN cũ ↔ EN, miễn quét) + `migrations/19.0.2.0.0/post-migrate.py`
+    chỉ đổi bản ghi mà `en_US` còn ĐÚNG câu VN seed (đặt `en_US`=EN, thêm `vi_VN`=VN nếu chưa có) — HQ sửa tay giữ nguyên. DB copy:
+    "10 issue-type field(s) moved to EN source". DB cài mới lấy vi_VN từ `.po` (`model:wujia.return.issue.type`).
+  - `.po` + `.pot` (mới cả 2): `wujia_portal_return` 127 msgid (HEAD 94), còn `MB.` (giống source); `wujia_return` 255 (HEAD 239),
+    42 chưa dịch đều là field mail/activity của mixin core (có từ trước). Khôi phục 6 msgstr cũ bị glossary chung ghi đè (Active, Compensation
+    SO, Complete, In progress, Original order, Partially compensated) bằng sửa text `.po` + `i18n import -w`.
+  - Test: `load_vi` cho 2 module (`wujia_portal_return/tests/common.py` mới); `test_portal_rules` + `TestCompensationConfig` chạy env vi;
+    `test_f5_nav_item` + `test_return_card_d6` (assert EN + vi). Mới `wujia_portal_return/tests/test_jv6_i18n.py` (bảng VN TRƯỚC V6:
+    phương án, tình trạng bù + màu, filter-all, nhãn giao, lỗi chung, arch vi/en 3 màn; key JS có attr trên 2 select; HttpCase vi/en list
+    "1 result/1 request", form `data-wj-msg-*` ×2, chi tiết bù hàng + "1 attached photo") + `wujia_return/tests/test_jv6_i18n.py`
+    (12 thông báo + 3 constraint vi; bảng seed khớp XML; migration: bản cũ đổi, bản HQ sửa giữ, vi_VN có sẵn giữ, chạy lại = 0).
+    Không xoá assert nào.
+- Số đo:
+  - `vn_hardcode_scan --fail-on-any`: 2 module **0** (trước 237).
+  - `-u wujia_return,wujia_portal_return,wujia_portal_base,wujia_portal_layout --test-enable` (DB copy `wujia_v6b`): **679 test, 0 đỏ**;
+    HEAD (worktree + `wujia_v6h`) 663 / 0 / 0. Lần đầu 8 đỏ + 1 lỗi đều do test (assert VN ở env en; test d3 cấm `returns` trong `t-if`;
+    nav/d6 đọc arch gốc) ⇒ sửa test/biến đếm.
+  - Mutation (đã khôi phục): bỏ key `no-products` ⇒ đỏ 2 test; đổi câu EN badge `Not processed` không thêm glossary ⇒ đỏ 2 test (nhãn +
+    màu, chi tiết HttpCase); bỏ `_lt` ở `Exchange` ⇒ đỏ.
+  - So giá trị vi_VN DB HEAD ↔ mới (field/help/selection/menu/action/arch/constraint/issue type, 254 bản ghi): **0 chỗ VN → EN**; chữ hiển
+    thị 3 màn portal chỉ THÊM (t-set notice/JS, nhánh số nhiều).
+  - `wj_text_probe` vi_VN 52 trang HEAD ↔ mới: **2/52 lệch, đều có chủ đích** — `/portal/return/new` @1440/@390 thêm 4 attr
+    `data-wj-msg-*` (chữ VN cũ của JS); chữ hiển thị 0 lệch.
+  - Playwright `anh.owner` en_US/th_TH × 1440/390 (`/portal/return`, `/new`, chi tiết `/464`): **12/12 OK** — 0 tràn, 0 lỗi JS, 0 HTTP ≥400.
+    Placeholder JS (kích bằng option giả): vi "— Đơn không có sản phẩm —", en/th "— Order has no products —".
+- Lệch / LIMIT:
+  - DB đo không có đơn trong 10 ngày ⇒ nhánh "— Select a product —" chỉ kiểm bằng test arch/HttpCase, chưa nhìn bằng trình duyệt.
+  - th_TH chưa có bản dịch module ⇒ thấy EN (đúng thiết kế, chờ J-T5).
+  - ★VR: "Replacement ordered" (badge EN cũ từ V2), "Still short", "Compensation sales order", "Canceled" (ribbon backend) cho BA rà.
+- Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V6".
+- Lệnh deploy (sau khi được lệnh push): `-u wujia_return,wujia_portal_return` + **restart sau `-u`** (migration seed chạy trong `-u`).
+- Nợ để lại: xoá DB nháp `wujia_v6b`, `wujia_v6h` + worktree `v6/head` (scratchpad) — giữ `wujia_t1` tới hết Phần V.
+- Phiên kế: **J-V7** — support (112+2) + knowledge (46+2) + notification (86+27).

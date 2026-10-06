@@ -9,6 +9,8 @@ from lxml import etree
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
+from .common import load_vi
+
 
 @tagged('post_install', '-at_install', 'wujia_f5')
 class TestNavItemReturn(TransactionCase):
@@ -20,7 +22,9 @@ class TestNavItemReturn(TransactionCase):
         self.assertIn('<li', arch)
         self.assertIn('id="nav_item_return"', arch)
         self.assertIn('t-value="\'/portal/return\'"', arch)
-        self.assertIn('<t t-set="ni_label">Đổi trả / Bù hàng</t>', arch)
+        # J-V6: câu gốc EN, vi_VN thấy y nhãn cũ.
+        self.assertIn('<t t-set="ni_label">Returns / Compensation</t>', arch)
+        self.assertIn('<t t-set="ni_label">Đổi trả / Bù hàng</t>', view.with_env(load_vi(self.env)).arch)
         # Nhóm theo BA: chèn trước neo của nhóm kế tiếp.
         self.assertIn("//li[@id='nav_header_ops']", arch)
         # Cùng điều kiện sáng truyền vào wj_nav_item để có aria-current.

@@ -4,15 +4,19 @@
     <template id="portal_return_form" name="Wujia Portal — Return Form">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_width" t-value="'narrow'"/>
-            <t t-set="title">Tạo yêu cầu bù hàng</t>
+            <t t-set="title">Create compensation request</t>
+            <!-- Câu JS (portal_return.js) — dịch bằng .po như QWeb, gắn lên select đơn qua data-wj-msg-* (J-V6). -->
+            <t t-set="_ret_msg_select_product">— Select a product —</t>
+            <t t-set="_ret_msg_no_products">— Order has no products —</t>
+            <t t-set="_ret_line_msgs" t-value="{'data-wj-msg-select-product': _ret_msg_select_product, 'data-wj-msg-no-products': _ret_msg_no_products}"/>
 
             <!-- Desktop ≥992px -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Bù hàng / Tạo yêu cầu bù hàng</t>
-                    <t t-set="ph_title">Tạo yêu cầu bù hàng</t>
+                    <t t-set="ph_crumb">Compensation / Create compensation request</t>
+                    <t t-set="ph_title">Create compensation request</t>
                     <t t-set="ph_back_url" t-value="'/portal/return'"/>
                 </t>
 
@@ -23,12 +27,12 @@
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="alert alert-info mb-0 rounded-0">
                             <i class="feather icon-info me-1"/>
-                            Mỗi yêu cầu chỉ áp dụng cho <b>1 sản phẩm</b> trong đơn đặt.
+                            Each request covers only <b>1 product</b> from the order.
                         </div>
                         <div class="wj-surface-card__body">
                             <div class="row g-2">
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="wj-ret-pc-franchise">Cửa hàng</label>
+                                    <label class="form-label" for="wj-ret-pc-franchise">Store</label>
                                     <select id="wj-ret-pc-franchise" name="franchise_id" class="form-select" required="required">
                                         <t t-foreach="franchises" t-as="f">
                                             <option t-att-value="f.id" t-out="f.name"/>
@@ -36,19 +40,19 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="wj-ret-pc-issue">Loại lỗi</label>
+                                    <label class="form-label" for="wj-ret-pc-issue">Issue type</label>
                                     <select id="wj-ret-pc-issue" name="issue_type_id" class="form-select" required="required">
-                                        <option value="">— Chọn loại lỗi —</option>
+                                        <option value="">— Select an issue type —</option>
                                         <t t-foreach="issue_types" t-as="it">
                                             <option t-att-value="it.id" t-out="it.name"/>
                                         </t>
                                     </select>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="wj-ret-pc-order">Đơn hàng gốc</label>
-                                    <select id="wj-ret-pc-order" name="sale_order_id" class="form-select wj-return-order"
+                                    <label class="form-label" for="wj-ret-pc-order">Original sales order</label>
+                                    <select id="wj-ret-pc-order" name="sale_order_id" t-att="_ret_line_msgs" class="form-select wj-return-order"
                                             t-att-data-lines="order_lines_json" required="required">
-                                        <option value="">— Chọn đơn —</option>
+                                        <option value="">— Select an order —</option>
                                         <t t-foreach="orders" t-as="o">
                                             <option t-att-value="o.id">
                                                 <t t-out="o.name"/> — <t t-out="wj_dt(o.date_order, '%d/%m/%Y')"/>
@@ -56,63 +60,63 @@
                                         </t>
                                     </select>
                                     <small t-if="not orders" class="text-danger">
-                                        Không tìm thấy đơn hàng đủ điều kiện trong
-                                        <t t-out="window_days"/> ngày gần nhất.
+                                        No eligible orders found in the last
+                                        <t t-out="window_days"/> days.
                                     </small>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="wj-ret-pc-line">Sản phẩm (trong đơn)</label>
+                                    <label class="form-label" for="wj-ret-pc-line">Product (in the order)</label>
                                     <select id="wj-ret-pc-line" name="sale_order_line_id" class="form-select wj-return-line"
                                             aria-describedby="wj-ret-pc-line-full" required="required">
-                                        <option value="">— Chọn đơn trước —</option>
+                                        <option value="">— Select an order first —</option>
                                     </select>
                                     <p class="wj-return-line-full" id="wj-ret-pc-line-full" hidden="hidden"/>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="wj-ret-pc-qty">Số lượng yêu cầu</label>
+                                    <label class="form-label" for="wj-ret-pc-qty">Requested quantity</label>
                                     <input type="number" id="wj-ret-pc-qty" name="request_qty" class="form-control"
                                            min="0.01" step="0.01" value="1" required="required"/>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="wj-ret-pc-opening">Thời gian mở hàng</label>
+                                    <label class="form-label" for="wj-ret-pc-opening">Unboxing time</label>
                                     <input type="datetime-local" id="wj-ret-pc-opening" name="opening_datetime"
                                            class="form-control" required="required"/>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="wj-ret-pc-proddate">Ngày sản xuất</label>
+                                    <label class="form-label" for="wj-ret-pc-proddate">Production date</label>
                                     <input type="date" id="wj-ret-pc-proddate" name="production_date" class="form-control"/>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label" for="wj-ret-pc-note">Ghi chú</label>
+                                    <label class="form-label" for="wj-ret-pc-note">Note</label>
                                     <textarea id="wj-ret-pc-note" name="note" rows="3" class="form-control"
-                                              placeholder="Mô tả chi tiết tình trạng hàng cần bù/đổi..."/>
+                                              placeholder="Describe the condition of the goods to compensate/exchange..."/>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label" for="wj-ret-pc-images">
-                                        Ảnh minh chứng (<t t-out="min_images"/>–<t t-out="max_images"/> ảnh)
+                                        Evidence photos (<t t-out="min_images"/>–<t t-out="max_images"/> photos)
                                     </label>
                                     <input type="file" id="wj-ret-pc-images" name="images" class="form-control"
                                            accept="image/jpeg,image/png" multiple="multiple"/>
                                     <small class="text-muted">
-                                        JPG/PNG, tối đa 5MB mỗi ảnh · tổng minh chứng ≤ <t t-out="max_total_mb"/>MB.
+                                        JPG/PNG, up to 5MB per photo · total evidence ≤ <t t-out="max_total_mb"/>MB.
                                     </small>
                                     <div id="image-preview-grid" class="row g-2 mt-2"></div>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label" for="wj-ret-pc-video">Video minh chứng (không bắt buộc)</label>
+                                    <label class="form-label" for="wj-ret-pc-video">Evidence video (optional)</label>
                                     <input type="file" id="wj-ret-pc-video" name="video" class="form-control"
                                            accept="video/mp4,video/quicktime"/>
                                     <small class="text-muted">
-                                        Tối đa 1 video MP4/MOV, ≤ <t t-out="max_video_mb"/>MB.
+                                        Up to 1 MP4/MOV video, ≤ <t t-out="max_video_mb"/>MB.
                                     </small>
                                 </div>
                             </div>
                         </div>
                         <div class="wj-surface-card__foot text-end">
-                            <a href="/portal/return" class="wj-btn wj-btn--secondary me-2">Hủy</a>
-                            <button type="submit" name="action" value="draft" class="wj-btn wj-btn--outline me-2">Lưu nháp</button>
+                            <a href="/portal/return" class="wj-btn wj-btn--secondary me-2">Cancel</a>
+                            <button type="submit" name="action" value="draft" class="wj-btn wj-btn--outline me-2">Save draft</button>
                             <button type="submit" name="action" value="send" class="wj-btn wj-btn--primary">
-                                <i class="fa fa-paper-plane"/>Gửi yêu cầu
+                                <i class="fa fa-paper-plane"/>Submit request
                             </button>
                         </div>
                     </form>
@@ -124,13 +128,13 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Tạo yêu cầu bù hàng</t>
+                    <t t-set="ph_title">Create compensation request</t>
                     <t t-set="ph_back_url" t-value="'/portal/return'"/>
                 </t>
 
                 <div class="wujia-mreturn-banner">
                     <i class="feather icon-info"/>
-                    <span>Mỗi yêu cầu chỉ áp dụng cho 1 sản phẩm trong đơn đặt.</span>
+                    <span>Each request covers only 1 product from the order.</span>
                 </div>
 
                 <p t-if="error" class="text-danger small mb-2" t-out="error"/>
@@ -148,19 +152,19 @@
                         <!-- CMP-CH-001: `<p>` giả heading → heading THẬT; `mb-3` gỡ hẳn để
                              không cộng chồng margin của header với margin body (spec). -->
                         <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Thông tin đơn hàng</t>
+                            <t t-set="ch_title">Order information</t>
                             <t t-set="ch_platform" t-value="'m'"/>
                         </t>
                         <t t-if="franchises and len(franchises) &gt; 1">
-                            <label class="wujia-mticket-label" for="wj-ret-m-franchise">Cửa hàng</label>
+                            <label class="wujia-mticket-label" for="wj-ret-m-franchise">Store</label>
                             <select id="wj-ret-m-franchise" name="franchise_id" class="form-select mb-3" required="required">
                                 <t t-foreach="franchises" t-as="f"><option t-att-value="f.id" t-out="f.name"/></t>
                             </select>
                         </t>
-                        <label class="wujia-mticket-label" for="wj-ret-m-order">Đơn hàng gốc</label>
-                        <select id="wj-ret-m-order" name="sale_order_id" class="form-select mb-3 wj-return-order"
+                        <label class="wujia-mticket-label" for="wj-ret-m-order">Original sales order</label>
+                        <select id="wj-ret-m-order" name="sale_order_id" t-att="_ret_line_msgs" class="form-select mb-3 wj-return-order"
                                 t-att-data-lines="order_lines_json" required="required">
-                            <option value="">— Chọn đơn —</option>
+                            <option value="">— Select an order —</option>
                             <t t-foreach="orders" t-as="o">
                                 <option t-att-value="o.id">
                                     <t t-out="o.name"/> — <t t-out="wj_dt(o.date_order, '%d/%m/%Y')"/>
@@ -168,13 +172,13 @@
                             </t>
                         </select>
                         <p t-if="not orders" class="wujia-mticket-hint text-danger">
-                            Không tìm thấy đơn hàng đủ điều kiện trong
-                            <t t-out="window_days"/> ngày gần nhất.
+                            No eligible orders found in the last
+                            <t t-out="window_days"/> days.
                         </p>
-                        <label class="wujia-mticket-label" for="wj-ret-m-line">Sản phẩm (trong đơn)</label>
+                        <label class="wujia-mticket-label" for="wj-ret-m-line">Product (in the order)</label>
                         <select id="wj-ret-m-line" name="sale_order_line_id" class="form-select wj-return-line"
                                 aria-describedby="wj-ret-m-line-full" required="required">
-                            <option value="">— Chọn đơn trước —</option>
+                            <option value="">— Select an order first —</option>
                         </select>
                         <p class="wj-return-line-full" id="wj-ret-m-line-full" hidden="hidden"/>
                     </t>
@@ -183,21 +187,21 @@
                         <t t-set="sc_variant" t-value="'section'"/>
                         <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Số lượng &amp; lô</t>
+                            <t t-set="ch_title">Quantity &amp; batch</t>
                             <t t-set="ch_platform" t-value="'m'"/>
                         </t>
                         <div class="wujia-mreturn-grid2">
                             <div>
-                                <label class="wujia-mticket-label" for="wj-ret-m-qty">SL yêu cầu</label>
+                                <label class="wujia-mticket-label" for="wj-ret-m-qty">Requested qty</label>
                                 <input type="number" id="wj-ret-m-qty" name="request_qty" class="form-control"
                                        min="0.01" step="0.01" value="1" required="required"/>
                             </div>
                             <div>
-                                <label class="wujia-mticket-label" for="wj-ret-m-proddate">Ngày sản xuất</label>
+                                <label class="wujia-mticket-label" for="wj-ret-m-proddate">Production date</label>
                                 <input type="date" id="wj-ret-m-proddate" name="production_date" class="form-control"/>
                             </div>
                         </div>
-                        <label class="wujia-mticket-label" for="wj-ret-m-opening">Thời gian mở hàng</label>
+                        <label class="wujia-mticket-label" for="wj-ret-m-opening">Unboxing time</label>
                         <input type="datetime-local" id="wj-ret-m-opening" name="opening_datetime" class="form-control" required="required"/>
                     </t>
 
@@ -205,17 +209,17 @@
                         <t t-set="sc_variant" t-value="'section'"/>
                         <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Nội dung lỗi</t>
+                            <t t-set="ch_title">Issue details</t>
                             <t t-set="ch_platform" t-value="'m'"/>
                         </t>
-                        <label class="wujia-mticket-label" for="wj-ret-m-issue">Loại lỗi</label>
+                        <label class="wujia-mticket-label" for="wj-ret-m-issue">Issue type</label>
                         <select id="wj-ret-m-issue" name="issue_type_id" class="form-select mb-3" required="required">
-                            <option value="">— Chọn loại lỗi —</option>
+                            <option value="">— Select an issue type —</option>
                             <t t-foreach="issue_types" t-as="it"><option t-att-value="it.id" t-out="it.name"/></t>
                         </select>
-                        <label class="wujia-mticket-label" for="wj-ret-m-note">Ghi chú</label>
+                        <label class="wujia-mticket-label" for="wj-ret-m-note">Note</label>
                         <textarea id="wj-ret-m-note" name="note" rows="3" class="form-control"
-                                  placeholder="Mô tả chi tiết tình trạng hàng…"/>
+                                  placeholder="Describe the condition of the goods…"/>
                     </t>
 
                     <t t-call="wujia_portal_layout.wj_surface_card">
@@ -225,27 +229,25 @@
                              ch_subtitle: subtitle của spec là 13/18, to hơn hint hiện tại
                              ⇒ đưa vào sẽ làm thẻ THƯA ra, trái acceptance BA. -->
                         <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Hình ảnh đính kèm</t>
+                            <t t-set="ch_title">Attached photos</t>
                             <t t-set="ch_platform" t-value="'m'"/>
                         </t>
                         <p class="wujia-mticket-hint">
-                            <t t-out="min_images"/>–<t t-out="max_images"/> ảnh JPG/PNG (≤5MB mỗi ảnh),
-                            chụp rõ bao bì &amp; lỗi sản phẩm.
+                            <t t-out="min_images"/>–<t t-out="max_images"/> JPG/PNG photos (≤5MB each), clearly showing the packaging &amp; product defect.
                         </p>
-                        <input type="file" id="wj-ret-m-images" name="images" aria-label="Ảnh minh chứng" class="form-control"
+                        <input type="file" id="wj-ret-m-images" name="images" aria-label="Evidence photos" class="form-control"
                                accept="image/jpeg,image/png" multiple="multiple"/>
                         <p class="wujia-mticket-hint mt-3 mb-1">
-                            Video minh chứng (không bắt buộc) — tối đa 1 file MP4/MOV
-                            ≤ <t t-out="max_video_mb"/>MB, tổng minh chứng ≤ <t t-out="max_total_mb"/>MB.
+                            Evidence video (optional) — up to 1 MP4/MOV file ≤ <t t-out="max_video_mb"/>MB, total evidence ≤ <t t-out="max_total_mb"/>MB.
                         </p>
-                        <input type="file" id="wj-ret-m-video" name="video" aria-label="Video minh chứng" class="form-control"
+                        <input type="file" id="wj-ret-m-video" name="video" aria-label="Evidence video" class="form-control"
                                accept="video/mp4,video/quicktime"/>
                     </t>
 
                     <div class="wujia-mreturn-cta">
-                        <a href="/portal/return" class="wj-btn wj-btn--lg wj-btn--secondary">Hủy</a>
+                        <a href="/portal/return" class="wj-btn wj-btn--lg wj-btn--secondary">Cancel</a>
                         <button type="submit" name="action" value="send" class="wj-btn wj-btn--lg wj-btn--primary">
-                            Gửi yêu cầu
+                            Submit request
                         </button>
                     </div>
                 </form>
