@@ -2,6 +2,7 @@ from werkzeug.exceptions import Forbidden, NotFound
 
 from odoo import http
 from odoo.http import request
+from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_ids_filter,
@@ -14,34 +15,54 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     status_badge_for,
 )
 
+_lt = LazyTranslate(__name__)
 
 PAGE_SIZE = 20
 
-# Display labels for portal templates — keys map to ticket.state values.
-STATE_LABELS = {k: (v, status_badge_for(v)) for k, v in {
-    'new': 'Mới',
-    'in_progress': 'Đang xử lý',
-    'waiting_customer': 'Chờ phản hồi',
-    'resolved': 'Đã giải quyết',
-    'closed': 'Đã đóng',
-    'cancelled': 'Đã huỷ',
-}.items()}
+# Display labels for portal templates — keys map to ticket.state values. `_lt` ⇒ dịch lúc render
+# bằng `_translated` (ngôn ngữ người xem). Màu theo bảng chung `status_badge_for`; "Canceled" (vi "Đã huỷ")
+# không có trong bảng nên ghim danger như trước J-V7.
+STATE_LABELS = {
+    'new': (_lt('New'), status_badge_for(_lt('New'))),
+    'in_progress': (_lt('Processing'), status_badge_for(_lt('Processing'))),
+    'waiting_customer': (_lt('Awaiting reply'), status_badge_for(_lt('Awaiting reply'))),
+    'resolved': (_lt('Resolved'), status_badge_for(_lt('Resolved'))),
+    'closed': (_lt('Closed'), status_badge_for(_lt('Closed'))),
+    'cancelled': (_lt('Canceled'), status_badge('danger')),
+}
 
 # Nhãn MOBILE (Figma Mobile_Ticket), tách khỏi STATE_LABELS desktop. LƯU Ý
-# 'waiting_customer'="Có phản hồi" (mobile/Figma) ≠ desktop "Chờ phản hồi" — drift chủ đích, đối chiếu BA.
+# 'waiting_customer'="Replied" (mobile/Figma) ≠ desktop "Awaiting reply" — drift chủ đích, đối chiếu BA.
 MOBILE_TICKET_BADGES = {
-    'new':              ('Mới', status_badge('info')),
-    'in_progress':      ('Đang xử lý', status_badge('processing')),
-    'waiting_customer': ('Có phản hồi', status_badge('feedback')),
-    'resolved':         ('Đã giải quyết', status_badge('success')),
-    'closed':           ('Đã đóng', status_badge('neutral')),
-    'cancelled':        ('Đã huỷ', status_badge('danger')),
+    'new':              (_lt('New'), status_badge('info')),
+    'in_progress':      (_lt('Processing'), status_badge('processing')),
+    'waiting_customer': (_lt('Replied'), status_badge('feedback')),
+    'resolved':         (_lt('Resolved'), status_badge('success')),
+    'closed':           (_lt('Closed'), status_badge('neutral')),
+    'cancelled':        (_lt('Canceled'), status_badge('danger')),
 }
 
+# Một nguồn nhãn mức độ cho PC + mobile, danh sách + chi tiết (WJ-SUPPORT-003).
 PRIORITY_LABELS = {
-    'normal': ('Bình thường', 'wujia-badge-muted'),
-    'urgent': ('Khẩn', 'wujia-badge-danger'),
+    'normal': (_lt('Normal'), 'wujia-badge-muted'),
+    'urgent': (_lt('Urgent'), 'wujia-badge-danger'),
 }
+
+
+def _translated(labels):
+    """{key: (nhãn, class)} với nhãn `_lt` dịch theo ngôn ngữ người xem (không `str(lazy)`)."""
+    result = {}
+    for key, (label, css) in labels.items():
+        result[key] = (request.env._(label), css)
+    return result
+
+
+def _label_ctx():
+    return {
+        'state_labels': _translated(STATE_LABELS),
+        'priority_labels': _translated(PRIORITY_LABELS),
+        'm_ticket_badges': _translated(MOBILE_TICKET_BADGES),
+    }
 
 
 def _categories():
@@ -79,12 +100,10 @@ class WujiaPortalSupport(http.Controller):
             domain, limit=PAGE_SIZE, offset=offset, order='create_date desc',
         )
         pgn = build_pager(total, page, PAGE_SIZE, path='/portal/support',
-                          item_label='yêu cầu')
+                          item_label=_lt('requests'))
         return request.render('wujia_portal_support.portal_support_list', {
             'tickets': tickets, 'pgn': pgn,
-            'state_labels': STATE_LABELS,
-            'priority_labels': PRIORITY_LABELS,
-            'm_ticket_badges': MOBILE_TICKET_BADGES,
+            **_label_ctx(),
             'state': state,
             'q': q,
         })
@@ -135,9 +154,7 @@ class WujiaPortalSupport(http.Controller):
             return request.redirect('/portal/support')
         return request.render('wujia_portal_support.portal_support_detail', {
             'ticket': ticket,
-            'state_labels': STATE_LABELS,
-            'priority_labels': PRIORITY_LABELS,
-            'm_ticket_badges': MOBILE_TICKET_BADGES,
+            **_label_ctx(),
         })
 
     @http.route(['/portal/support/<int:ticket_id>/reply'],

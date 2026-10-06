@@ -183,6 +183,7 @@ VENDOR_FILES = {
 DATA_FILES = {
     'wujia_portal_base/data/sample_data.xml',
     'wujia_return/legacy_seed.py',  # J-V6: câu VN cũ của seed loại lỗi để migration đối chiếu
+    'wujia_notification/legacy_seed.py',  # J-V7: câu VN cũ của seed loại thông báo
 }
 
 SCANNERS = {'.py': scan_python, '.js': scan_js, '.xml': scan_xml, '.css': scan_css, '.scss': scan_css}

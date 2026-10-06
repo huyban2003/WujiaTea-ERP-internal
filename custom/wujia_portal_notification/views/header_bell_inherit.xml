@@ -9,28 +9,36 @@
             <li class="nav-item wujia-header-icon-item" style="position: relative;">
                 <!-- Desktop: click → toggle popup (JS preventDefault); mobile: link điều hướng -->
                 <a class="nav-link wujia-header-icon-btn" href="/portal/notification"
-                   aria-label="Thông báo" title="Thông báo" data-wj-noti-bell="1"
+                   aria-label="Notifications" title="Notifications" data-wj-noti-bell="1"
                    aria-haspopup="true" aria-controls="wj-noti-popup" aria-expanded="false">
                     <i class="ficon feather icon-bell text-white"/>
                     <!-- WJ-ORD-020: `hidden` thay cho việc render sẵn "0" rồi trông chờ CSS ẩn. -->
                     <span class="badge badge-pill wujia-header-badge wujia-header-noti-count"
                           hidden="hidden"/>
                 </a>
+                <!-- Câu JS (header_bell_badge.js) — text node dịch bằng .po, gắn ra data-wj-msg-* của popup (J-V7). -->
+                <t t-set="_nt_m_total_one">%s notification</t>
+                <t t-set="_nt_m_total_n">%s notifications</t>
+                <t t-set="_nt_m_unread_n">%s unread</t>
+                <t t-set="_nt_m_empty">No notifications.</t>
+                <t t-set="_nt_m_has_file">Has file</t>
+                <t t-set="_nt_m_load_failed">Could not load notifications.</t>
+                <t t-set="_nt_popup_msgs" t-value="{'data-wj-msg-total-one': _nt_m_total_one, 'data-wj-msg-total-n': _nt_m_total_n, 'data-wj-msg-unread-n': _nt_m_unread_n, 'data-wj-msg-empty': _nt_m_empty, 'data-wj-msg-has-file': _nt_m_has_file, 'data-wj-msg-load-failed': _nt_m_load_failed}"/>
                 <!-- PC popup (desktop ≥992px) — lazy-load /portal/notification/recent (Sprint PC-3, Figma 4683:285) -->
-                <div class="wj-pc-noti-popup" id="wj-noti-popup" aria-hidden="true">
+                <div class="wj-pc-noti-popup" id="wj-noti-popup" aria-hidden="true" t-att="_nt_popup_msgs">
                     <div class="wj-pc-noti-popup__header">
                         <div>
-                            <h4 class="wj-pc-noti-popup__title">Thông báo</h4>
-                            <p class="wj-pc-noti-popup__sub" id="wj-noti-popup-sub">Đang tải…</p>
+                            <h4 class="wj-pc-noti-popup__title">Notifications</h4>
+                            <p class="wj-pc-noti-popup__sub" id="wj-noti-popup-sub">Loading…</p>
                         </div>
                         <span class="wj-pc-badge wj-pc-badge--cancel" id="wj-noti-popup-unread-badge"
                               style="display:none;"/>
                     </div>
                     <div class="wj-pc-noti-popup__list" id="wj-noti-popup-list">
-                        <div class="wj-pc-noti-popup__loading">Đang tải thông báo…</div>
+                        <div class="wj-pc-noti-popup__loading">Loading notifications…</div>
                     </div>
                     <a href="/portal/notification" class="wj-btn wj-btn--primary wj-btn--block wj-pc-noti-popup__all">
-                        Xem tất cả thông báo
+                        View all notifications
                     </a>
                 </div>
             </li>

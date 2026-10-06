@@ -1,15 +1,15 @@
 {
     'name': 'Wujia Support Tickets',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.1.0',
     'category': 'Wujia',
-    'summary': 'Yêu cầu hỗ trợ từ cửa hàng nhượng quyền — HQ tiếp nhận, phân công, trả lời, đóng.',
+    'summary': 'Support requests from franchise stores — HQ receives, assigns, replies, closes.',
     'description': """
-Nghiệp vụ yêu cầu hỗ trợ. Tách từ wujia_portal_support (F10, ADR-027).
+Support request business logic. Split from wujia_portal_support (F10, ADR-027).
 
-- Model wujia.support.ticket (mã WJ-TK/, chatter, mốc ngày theo trạng thái, phân tích phản hồi
-  cửa hàng/HQ), wujia.support.category (danh mục + người/đội nhận mặc định).
-- _portal_scope_domain / create_from_portal / _portal_reply / _portal_get_attachment: luật dùng chung
-  cho mọi kênh.
+- Models wujia.support.ticket (WJ-TK/ code, chatter, per-state dates, store/HQ reply
+  analysis), wujia.support.category (category + default assignee/team).
+- _portal_scope_domain / create_from_portal / _portal_reply / _portal_get_attachment: rules shared
+  by every channel.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

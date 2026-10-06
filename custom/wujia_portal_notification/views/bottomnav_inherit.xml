@@ -5,7 +5,7 @@
     <template id="mobile_bottomnav_notification"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="40"
-              name="Wujia Mobile — tab Thông báo">
+              name="Wujia Mobile — Notifications tab">
         <xpath expr="//button[@data-wujia-more='toggle']" position="before">
             <t t-set="_bn_on" t-value="_bnav_path.startswith('/portal/notification')"/>
             <t t-set="_bnav_hit" t-value="_bnav_hit or bool(_bn_on)"/>
@@ -13,7 +13,7 @@
                 <t t-set="bn_active" t-value="_bn_on"/>
                 <t t-set="bn_href" t-value="'/portal/notification'"/>
                 <t t-set="bn_icon" t-value="'feather icon-bell'"/>
-                <t t-set="bn_label">Thông báo</t>
+                <t t-set="bn_label">Notifications</t>
                 <span class="wujia-mhome-nav-badge wujia-bnav-noti-badge" style="display:none;">0</span>
             </t>
         </xpath>

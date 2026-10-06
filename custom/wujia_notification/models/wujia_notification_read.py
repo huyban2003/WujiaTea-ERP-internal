@@ -35,13 +35,13 @@ class WujiaNotificationRead(models.Model):
 
     _uniq_noti_user_store = models.Constraint(
         'unique(notification_id, user_id, franchise_id)',
-        'Mỗi user chỉ ghi nhận đọc 1 lần / thông báo / cửa hàng.',
+        'Each user can record a read only once per notification and store.',
     )
     # unique() coi mọi NULL là khác nhau → session chưa chọn cửa hàng vẫn tạo được row trùng.
     # Partial index bịt nốt nhánh đó (spec F §8.9 — mark-read phải idempotent).
     _uniq_noti_user_no_store = models.UniqueIndex(
         '(notification_id, user_id) WHERE franchise_id IS NULL',
-        'Mỗi user chỉ ghi nhận đọc 1 lần / thông báo khi chưa chọn cửa hàng.',
+        'Each user can record a read only once per notification when no store is selected.',
     )
 
     @api.model

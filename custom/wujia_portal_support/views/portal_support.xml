@@ -5,7 +5,7 @@
     <template id="portal_support_list" name="Wujia Portal — Support List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_gutter" t-value="'list'"/>
-            <t t-set="title">Yêu cầu hỗ trợ</t>
+            <t t-set="title">Support requests</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/support'"/>
                 <t t-set="wjl_slots" t-value="'wj-sup-pc,wj-sup-mchips,wj-sup-mbody'"/>
@@ -15,18 +15,21 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'create'"/>
-                    <t t-set="ph_title">Hỗ trợ</t>
+                    <t t-set="ph_title">Support</t>
                     <t t-set="ph_create_url" t-value="'/portal/support/new'"/>
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
                 <div class="content-body">
+                    <!-- Nhãn bộ lọc (dịch được, J-V7). -->
+                    <t t-set="_sup_t_status">Status</t>
+                    <t t-set="_sup_t_all_status">All statuses</t>
                     <t t-call="wujia_portal_layout.wj_filter_bar">
                         <t t-set="fb_platform" t-value="'pc'"/>
                         <t t-set="fb_action" t-value="'/portal/support'"/>
                         <t t-set="fb_selects"
                            t-value="[{'name': 'state', 'value': state,
-                                      'label': 'Trạng thái',
-                                      'all_label': 'Tất cả trạng thái',
+                                      'label': _sup_t_status,
+                                      'all_label': _sup_t_all_status,
                                       'options': [(kv[0], kv[1][0]) for kv in state_labels.items()]}]"/>
                     </t>
 
@@ -38,12 +41,13 @@
                         <t t-set="sc_class" t-value="'wujia-content-card'"/>
                     <!-- CMP-CH-001: count cố ý BỎ `t-if` — spec ghi rõ "Count 0 vẫn hiển thị". -->
                     <t t-call="wujia_portal_layout.wj_card_header">
-                        <t t-set="ch_title">Yêu cầu hỗ trợ đang mở</t>
+                        <t t-set="ch_title">Open support requests</t>
                         <t t-set="ch_level" t-value="4"/>
                         <t t-set="ch_platform" t-value="'pc'"/>
                         <t t-set="ch_icon" t-value="'life-buoy'"/>
                         <t t-set="ch_meta">
-                            <span class="wj-card-header__meta"><t t-out="len(tickets)"/> ticket</span>
+                            <t t-set="_n" t-value="len(tickets)"/>
+                            <span class="wj-card-header__meta"><t t-out="_n"/> <t t-if="_n == 1">ticket</t><t t-else="">tickets</t></span>
                         </t>
                     </t>
                     <t t-call="wujia_portal_layout.wj_data_list">
@@ -53,18 +57,18 @@
                         <t t-set="dl_state">
                             <div class="wujia-empty-state">
                                 <i class="feather icon-life-buoy"/>
-                                <p>Bạn chưa có ticket nào. <a href="/portal/support/new">Gửi yêu cầu hỗ trợ</a>.</p>
+                                <p>You have no tickets yet. <a href="/portal/support/new">Submit a support request</a>.</p>
                             </div>
                         </t>
                         <thead>
                             <tr>
-                                <th scope="col">Mã yêu cầu</th>
-                                <th scope="col">Tiêu đề</th>
-                                <th scope="col">Phân loại</th>
-                                <th scope="col">Cửa hàng</th>
-                                <th scope="col">Ngày tạo</th>
-                                <th scope="col" class="text-center">Ưu tiên</th>
-                                <th scope="col" class="text-center">Trạng thái</th>
+                                <th scope="col">Request code</th>
+                                <th scope="col">Title</th>
+                                <th scope="col">Classification</th>
+                                <th scope="col">Store</th>
+                                <th scope="col">Created on</th>
+                                <th scope="col" class="text-center">Priority</th>
+                                <th scope="col" class="text-center">Status</th>
                                 <th scope="col" class="text-end"></th>
                             </tr>
                         </thead>
@@ -85,7 +89,7 @@
                                 </td>
                                 <td class="text-end">
                                     <a t-attf-href="/portal/support/#{t.id}" class="wj-iconbtn wj-iconbtn--sm wj-iconbtn--secondary"
-                                       aria-label="Xem ticket" title="Xem ticket">
+                                       aria-label="View ticket" title="View ticket">
                                         <i class="fa fa-eye"/>
                                     </a>
                                 </td>
@@ -107,7 +111,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'create'"/>
-                    <t t-set="ph_title">Hỗ trợ</t>
+                    <t t-set="ph_title">Support</t>
                     <t t-set="ph_create_url" t-value="'/portal/support/new'"/>
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
@@ -116,34 +120,35 @@
                 <t t-if="not tickets and not q and not state">
                     <div class="wj-empty-state wj-empty-state--rich">
                         <span class="wj-empty-state-icon"/>
-                        <p class="wj-empty-state-title">Chưa có yêu cầu hỗ trợ</p>
-                        <p class="wj-empty-state-sub">Hiện chưa có ticket nào để hiển thị.</p>
-                        <p class="wj-empty-state-sub">Tạo ticket đầu tiên để Wujia tiếp nhận xử lý.</p>
+                        <p class="wj-empty-state-title">No support requests yet</p>
+                        <p class="wj-empty-state-sub">There are no tickets to show yet.</p>
+                        <p class="wj-empty-state-sub">Create your first ticket and Wujia will handle it.</p>
                         <a href="/portal/support/new" class="wj-btn wj-btn--primary">
-                            <i class="feather icon-plus"/> Tạo ticket
+                            <i class="feather icon-plus"/> Create ticket
                         </a>
                     </div>
                 </t>
                 <t t-else="">
                     <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — search q + hidden state -->
+                    <t t-set="_sup_t_search_ph">Search ticket code / title</t>
                     <t t-call="wujia_portal_layout.wj_filter_bar">
                         <t t-set="fb_platform" t-value="'m'"/>
                         <t t-set="fb_action" t-value="'/portal/support'"/>
                         <t t-set="fb_search"
-                           t-value="{'name': 'q', 'value': q or '', 'placeholder': 'Tìm mã / tiêu đề ticket'}"/>
+                           t-value="{'name': 'q', 'value': q or '', 'placeholder': _sup_t_search_ph}"/>
                         <t t-set="fb_hidden">
                             <input type="hidden" name="state" t-att-value="state or ''"/>
                         </t>
                         <t t-set="fb_chips">
                             <div class="wj-filter-chips" id="wj-sup-mchips">
                                 <a href="/portal/support"
-                                   t-attf-class="wj-filter-chip #{'is-active' if not state else ''}">Tất cả</a>
+                                   t-attf-class="wj-filter-chip #{'is-active' if not state else ''}">All</a>
                                 <a href="/portal/support?state=new"
-                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'new' else ''}">Mới</a>
+                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'new' else ''}">New</a>
                                 <a href="/portal/support?state=in_progress"
-                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'in_progress' else ''}">Đang xử lý</a>
+                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'in_progress' else ''}">Processing</a>
                                 <a href="/portal/support?state=waiting_customer"
-                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'waiting_customer' else ''}">Có phản hồi</a>
+                                   t-attf-class="wj-filter-chip #{'is-active' if state == 'waiting_customer' else ''}">Replied</a>
                             </div>
                         </t>
                     </t>
@@ -152,10 +157,10 @@
                     <!-- Không tìm thấy — no-data card (lọc rỗng → Xóa lọc) -->
                     <div t-if="not tickets" class="wj-empty-state wj-empty-state--rich">
                         <span class="wj-empty-state-icon"/>
-                        <p class="wj-empty-state-title">Không tìm thấy ticket</p>
-                        <p class="wj-empty-state-sub">Không có ticket khớp bộ lọc hiện tại.</p>
-                        <p class="wj-empty-state-sub">Thử đổi từ khóa hoặc bỏ bộ lọc.</p>
-                        <a href="/portal/support" class="wj-btn wj-btn--secondary">Xóa lọc</a>
+                        <p class="wj-empty-state-title">No tickets found</p>
+                        <p class="wj-empty-state-sub">No tickets match the current filters.</p>
+                        <p class="wj-empty-state-sub">Try another keyword or clear the filters.</p>
+                        <a href="/portal/support" class="wj-btn wj-btn--secondary">Clear filters</a>
                     </div>
                     <t t-call="wujia_portal_layout.wj_surface_card" t-else="">
                         <t t-set="sc_variant" t-value="'section'"/>
@@ -201,14 +206,14 @@
     <template id="portal_support_form" name="Wujia Portal — Support Form">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_width" t-value="'narrow'"/>
-            <t t-set="title">Tạo yêu cầu hỗ trợ</t>
+            <t t-set="title">Create a support request</t>
             <!-- ===== Desktop (>=992px) — GIỮ NGUYÊN, bọc d-none d-lg-block (Sprint 17) ===== -->
             <div class="content-wrapper d-none d-lg-block">
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Hỗ trợ / Tạo yêu cầu</t>
-                    <t t-set="ph_title">Tạo yêu cầu hỗ trợ</t>
+                    <t t-set="ph_crumb">Support / Create request</t>
+                    <t t-set="ph_title">Create a support request</t>
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
                 <div class="content-body">
@@ -220,7 +225,7 @@
                         <div class="row g-3">
                             <div class="col-md-6 col-12">
                                 <div class="wj-pc-field">
-                                    <label class="wj-pc-field__label">Cửa hàng</label>
+                                    <label class="wj-pc-field__label">Store</label>
                                     <select name="franchise_id" class="wj-pc-control" required="required">
                                         <t t-foreach="franchises" t-as="f">
                                             <option t-att-value="f.id" t-out="f.name"/>
@@ -230,7 +235,7 @@
                             </div>
                             <div class="col-md-3 col-12">
                                 <div class="wj-pc-field">
-                                    <label class="wj-pc-field__label">Phân loại</label>
+                                    <label class="wj-pc-field__label">Classification</label>
                                     <select name="category_id" class="wj-pc-control" required="required">
                                         <t t-foreach="categories" t-as="c">
                                             <option t-att-value="c.id" t-out="c.name"/>
@@ -240,38 +245,38 @@
                             </div>
                             <div class="col-md-3 col-12">
                                 <div class="wj-pc-field">
-                                    <label class="wj-pc-field__label">Mức độ</label>
+                                    <label class="wj-pc-field__label">Severity</label>
                                     <select name="priority" class="wj-pc-control">
-                                        <option value="normal" selected="selected">Bình thường</option>
-                                        <option value="urgent">Khẩn</option>
+                                        <option value="normal" selected="selected">Normal</option>
+                                        <option value="urgent">Urgent</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="wj-pc-field">
-                                    <label class="wj-pc-field__label">Tiêu đề</label>
+                                    <label class="wj-pc-field__label">Title</label>
                                     <input type="text" name="title" class="wj-pc-control" required="required"
-                                           placeholder="VD: Không đặt được đơn hàng số ..."/>
+                                           placeholder="E.g. Cannot place order no. ..."/>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="wj-pc-field">
-                                    <label class="wj-pc-field__label">Mô tả chi tiết</label>
+                                    <label class="wj-pc-field__label">Detailed description</label>
                                     <textarea name="description" rows="6" class="wj-pc-control"
-                                              placeholder="Mô tả chi tiết tình huống, các bước đã thử, screenshot..."/>
+                                              placeholder="Describe the situation, the steps you tried, screenshots..."/>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="wj-pc-field">
-                                    <label class="wj-pc-field__label">File đính kèm (tùy chọn)</label>
+                                    <label class="wj-pc-field__label">Attached files (optional)</label>
                                     <input type="file" name="attachments" class="wj-pc-control" multiple="multiple"/>
                                 </div>
                             </div>
                         </div>
                         <div class="wj-pc-form-actions">
-                            <a href="/portal/support" class="wj-btn wj-btn--secondary">Hủy</a>
+                            <a href="/portal/support" class="wj-btn wj-btn--secondary">Cancel</a>
                             <button type="submit" class="wj-btn wj-btn--primary">
-                                <i class="fa fa-paper-plane" title="Send"/>Gửi yêu cầu
+                                <i class="fa fa-paper-plane" title="Send"/>Submit request
                             </button>
                         </div>
                     </form>
@@ -285,7 +290,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Tạo yêu cầu hỗ trợ</t>
+                    <t t-set="ph_title">Create a support request</t>
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
 
@@ -296,46 +301,46 @@
                         <t t-set="sc_variant" t-value="'section'"/>
                         <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Thông tin ticket</t>
+                            <t t-set="ch_title">Ticket information</t>
                             <t t-set="ch_level" t-value="2"/>
                             <t t-set="ch_platform" t-value="'m'"/>
                         </t>
 
-                        <label class="wujia-mticket-label" for="wj-sup-m-category">Loại yêu cầu</label>
+                        <label class="wujia-mticket-label" for="wj-sup-m-category">Request type</label>
                         <select id="wj-sup-m-category" name="category_id" class="form-select mb-3" required="required">
-                            <option value="">Chọn loại yêu cầu</option>
+                            <option value="">Select a request type</option>
                             <t t-foreach="categories" t-as="c">
                                 <option t-att-value="c.id" t-out="c.name"/>
                             </t>
                         </select>
 
-                        <label class="wujia-mticket-label" for="wj-sup-m-title">Tiêu đề</label>
+                        <label class="wujia-mticket-label" for="wj-sup-m-title">Title</label>
                         <input type="text" id="wj-sup-m-title" name="title" class="form-control mb-3" required="required"
-                               placeholder="Nhập tiêu đề ngắn gọn"/>
+                               placeholder="Enter a short title"/>
 
-                        <label class="wujia-mticket-label" for="wj-sup-m-description">Nội dung chi tiết</label>
+                        <label class="wujia-mticket-label" for="wj-sup-m-description">Detailed content</label>
                         <textarea id="wj-sup-m-description" name="description" rows="4" class="form-control mb-3"
-                                  placeholder="Mô tả vấn đề cần hỗ trợ, thời điểm phát sinh và mã chứng từ liên quan nếu có."/>
+                                  placeholder="Describe the issue, when it happened and any related document numbers."/>
 
-                        <label class="wujia-mticket-label">Mức độ ưu tiên</label>
+                        <label class="wujia-mticket-label">Priority level</label>
                         <!-- BA: 'Gấp' và 'Khẩn cấp' đều map 'urgent' — model chưa có giá trị riêng cho 'Gấp' -->
                         <div class="wj-filter-chips mb-3">
                             <label class="wj-filter-chip">
                                 <input type="radio" name="priority" value="normal" checked="checked"
-                                       class="d-none"/> Bình thường
+                                       class="d-none"/> Normal
                             </label>
                             <label class="wj-filter-chip">
-                                <input type="radio" name="priority" value="urgent" class="d-none"/> Gấp
+                                <input type="radio" name="priority" value="urgent" class="d-none"/> Rush
                             </label>
                             <label class="wj-filter-chip">
-                                <input type="radio" name="priority" value="urgent" class="d-none"/> Khẩn cấp
+                                <input type="radio" name="priority" value="urgent" class="d-none"/> Critical
                             </label>
                         </div>
 
-                        <label class="wujia-mticket-label">Tệp đính kèm</label>
-                        <p class="wujia-mticket-hint">Thêm ảnh / file lỗi — PNG, JPG, PDF — tối đa 5 tệp</p>
+                        <label class="wujia-mticket-label">Attachments</label>
+                        <p class="wujia-mticket-hint">Add screenshots / error files — PNG, JPG, PDF — up to 5 files</p>
                         <input type="file" id="wj-sup-m-attachments" name="attachments" class="form-control mb-1"
-                               aria-label="Tệp đính kèm"
+                               aria-label="Attachments"
                                multiple="multiple" accept=".png,.jpg,.jpeg,.pdf"/>
 
                         <!-- Cửa hàng: 1 franchise → hidden; nhiều → select -->
@@ -343,7 +348,7 @@
                             <input type="hidden" name="franchise_id" t-att-value="franchises[0].id"/>
                         </t>
                         <t t-elif="franchises">
-                            <label class="wujia-mticket-label mt-3" for="wj-sup-m-franchise">Cửa hàng</label>
+                            <label class="wujia-mticket-label mt-3" for="wj-sup-m-franchise">Store</label>
                             <select id="wj-sup-m-franchise" name="franchise_id" class="form-select" required="required">
                                 <t t-foreach="franchises" t-as="f">
                                     <option t-att-value="f.id" t-out="f.name"/>
@@ -353,19 +358,19 @@
                     </t>
 
                     <p t-if="error == 'missing_fields'" class="text-danger small mt-2 mb-0">
-                        Vui lòng điền đầy đủ thông tin bắt buộc.
+                        Please fill in all required fields.
                     </p>
                     <p t-if="error == 'invalid_franchise'" class="text-danger small mt-2 mb-0">
-                        Cửa hàng không hợp lệ.
+                        Invalid store.
                     </p>
                     <p t-if="error == 'invalid_input'" class="text-danger small mt-2 mb-0">
-                        Dữ liệu gửi lên không hợp lệ.
+                        The submitted data is invalid.
                     </p>
                     <p t-if="error == 'invalid_attachment'" class="text-danger small mt-2 mb-0">
-                        Tệp đính kèm chỉ nhận ảnh hoặc PDF, tối đa 6 tệp, mỗi tệp ≤ 5MB.
+                        Attachments must be images or PDF files, up to 6 files, each ≤ 5MB.
                     </p>
 
-                    <button type="submit" class="wj-btn wj-btn--primary wj-btn--block mt-3">Gửi yêu cầu hỗ trợ</button>
+                    <button type="submit" class="wj-btn wj-btn--primary wj-btn--block mt-3">Submit a support request</button>
                 </form>
             </div>
             <!-- /mobile -->
@@ -382,8 +387,8 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Hỗ trợ / Chi tiết yêu cầu hỗ trợ</t>
-                    <t t-set="ph_title">Chi tiết yêu cầu hỗ trợ</t>
+                    <t t-set="ph_crumb">Support / Support request details</t>
+                    <t t-set="ph_title">Support request details</t>
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
                 <!-- Status badge dời khỏi header (spec title-only) → block riêng dưới header -->
@@ -394,7 +399,7 @@
                         <div class="col-md-8 col-12">
                             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
                                 <t t-call="wujia_portal_layout.wj_card_header">
-                                    <t t-set="ch_title">Nội dung yêu cầu</t>
+                                    <t t-set="ch_title">Request content</t>
                                     <t t-set="ch_platform" t-value="'pc'"/>
                                     <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
                                 </t>
@@ -405,7 +410,7 @@
                             <t t-set="portal_files" t-value="ticket._portal_attachments()"/>
                             <div t-if="portal_files" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush mb-2">
                                 <t t-call="wujia_portal_layout.wj_card_header">
-                                    <t t-set="ch_title">File đính kèm</t>
+                                    <t t-set="ch_title">Attached files</t>
                                     <t t-set="ch_platform" t-value="'pc'"/>
                                     <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
                                 </t>
@@ -421,7 +426,7 @@
                             <!-- Chatter — show comment messages, oldest first -->
                             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush support-chatter mb-2">
                                 <t t-call="wujia_portal_layout.wj_card_header">
-                                    <t t-set="ch_title">Trao đổi</t>
+                                    <t t-set="ch_title">Conversation</t>
                                     <t t-set="ch_platform" t-value="'pc'"/>
                                     <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
                                 </t>
@@ -429,7 +434,7 @@
                                     <t t-set="comments" t-value="ticket._portal_messages()"/>
                                     <div t-if="not comments" class="wujia-empty-state">
                                         <i class="feather icon-message-square"/>
-                                        <p>Chưa có trao đổi.</p>
+                                        <p>No messages yet.</p>
                                     </div>
                                     <div t-else="">
                                         <div t-foreach="comments" t-as="msg" class="mb-2 pb-2 border-bottom">
@@ -445,9 +450,9 @@
                                     <form method="post" t-attf-action="/portal/support/#{ticket.id}/reply">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <textarea name="body" rows="3" class="form-control mb-2"
-                                                  placeholder="Trả lời cho HQ..." required="required"/>
+                                                  placeholder="Reply to HQ..." required="required"/>
                                         <button type="submit" class="wj-btn wj-btn--primary wj-btn--sm">
-                                            <i class="fa fa-paper-plane"/>Gửi
+                                            <i class="fa fa-paper-plane"/>Send
                                         </button>
                                     </form>
                                 </div>
@@ -457,7 +462,7 @@
                         <div class="col-md-4 col-12">
                             <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
                                 <t t-call="wujia_portal_layout.wj_card_header">
-                                    <t t-set="ch_title">Thông tin</t>
+                                    <t t-set="ch_title">Info</t>
                                     <t t-set="ch_platform" t-value="'pc'"/>
                                     <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
                                 </t>
@@ -465,21 +470,22 @@
                                     <dl class="row mb-0 profile-dl">
                                         <!-- S53-B3b: mã ticket + tiêu đề gỡ khỏi PageHeader
                                              (CMP-PG-001 CONTENT RULES) → về card thông tin. -->
-                                        <dt class="col-5">Mã yêu cầu</dt>
+                                        <dt class="col-5">Request code</dt>
                                         <dd class="col-7" t-out="ticket.name"/>
-                                        <dt class="col-5">Tiêu đề</dt>
+                                        <dt class="col-5">Title</dt>
                                         <dd class="col-7" t-out="ticket.title or '—'"/>
-                                        <dt class="col-5">Cửa hàng</dt>
+                                        <dt class="col-5">Store</dt>
                                         <dd class="col-7" t-out="ticket.franchise_id.name or '—'"/>
-                                        <dt class="col-5">Phân loại</dt>
+                                        <dt class="col-5">Classification</dt>
                                         <dd class="col-7" t-out="ticket.category_id.name or '—'"/>
-                                        <dt class="col-5">Mức độ</dt>
-                                        <dd class="col-7" t-out="dict(ticket._fields['priority'].selection).get(ticket.priority, ticket.priority)"/>
-                                        <dt class="col-5">Ngày gửi</dt>
+                                        <dt class="col-5">Severity</dt>
+                                        <!-- WJ-SUPPORT-003: cùng nguồn nhãn đã dịch với mobile (priority_labels). -->
+                                        <dd class="col-7" t-out="priority_labels.get(ticket.priority, (ticket.priority, ''))[0]"/>
+                                        <dt class="col-5">Sent on</dt>
                                         <dd class="col-7" t-out="ticket.create_date and ticket.create_date.strftime('%d/%m/%Y %H:%M') or ''"/>
-                                        <dt class="col-5">Người xử lý</dt>
+                                        <dt class="col-5">Assignee</dt>
                                         <dd class="col-7" t-out="ticket.assigned_user_id.name or '—'"/>
-                                        <dt class="col-5">Ngày giải quyết</dt>
+                                        <dt class="col-5">Resolved on</dt>
                                         <dd class="col-7" t-out="ticket.resolved_date and ticket.resolved_date.strftime('%d/%m/%Y') or '—'"/>
                                     </dl>
                                 </div>
@@ -499,7 +505,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Chi tiết yêu cầu hỗ trợ</t>
+                    <t t-set="ph_title">Support request details</t>
                     <t t-set="ph_back_url" t-value="'/portal/support'"/>
                 </t>
 
@@ -523,14 +529,14 @@
                     <div class="wujia-mdash-row">
                         <span class="wujia-mdash-ico"><i class="feather icon-tag"/></span>
                         <span class="wujia-mdash-row-main">
-                            <span class="wujia-mdash-row-sub">Nhóm</span>
+                            <span class="wujia-mdash-row-sub">Group</span>
                             <span class="wujia-mdash-row-sub is-strong" t-out="ticket.category_id.name or '—'"/>
                         </span>
                     </div>
                     <div class="wujia-mdash-row">
                         <span class="wujia-mdash-ico"><i class="feather icon-flag"/></span>
                         <span class="wujia-mdash-row-main">
-                            <span class="wujia-mdash-row-sub">Ưu tiên</span>
+                            <span class="wujia-mdash-row-sub">Priority</span>
                             <t t-set="prio" t-value="priority_labels.get(ticket.priority, (ticket.priority, ''))"/>
                             <span class="wujia-mdash-row-sub is-strong" t-out="prio[0]"/>
                         </span>
@@ -538,14 +544,14 @@
                     <div class="wujia-mdash-row">
                         <span class="wujia-mdash-ico"><i class="feather icon-user"/></span>
                         <span class="wujia-mdash-row-main">
-                            <span class="wujia-mdash-row-sub">Người gửi</span>
+                            <span class="wujia-mdash-row-sub">Sender</span>
                             <span class="wujia-mdash-row-sub is-strong" t-out="ticket.created_by_id.name or '—'"/>
                         </span>
                     </div>
                     <div class="wujia-mdash-row">
                         <span class="wujia-mdash-ico"><i class="feather icon-calendar"/></span>
                         <span class="wujia-mdash-row-main">
-                            <span class="wujia-mdash-row-sub">Ngày tạo</span>
+                            <span class="wujia-mdash-row-sub">Created on</span>
                             <span class="wujia-mdash-row-sub is-strong"
                                   t-out="ticket.create_date and ticket.create_date.strftime('%d/%m/%Y') or '—'"/>
                         </span>
@@ -560,7 +566,7 @@
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wj-surface-headpad">
                         <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">File đính kèm</t>
+                            <t t-set="ch_title">Attached files</t>
                             <t t-set="ch_level" t-value="2"/>
                             <t t-set="ch_platform" t-value="'m'"/>
                             <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
@@ -587,17 +593,18 @@
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wj-surface-headpad">
                         <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Lịch sử trao đổi</t>
+                            <t t-set="ch_title">Conversation history</t>
                             <t t-set="ch_level" t-value="2"/>
                             <t t-set="ch_platform" t-value="'m'"/>
                             <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
                             <t t-set="ch_meta">
-                                <span class="wj-card-header__meta"><t t-out="len(comments)"/> phản hồi</span>
+                                <t t-set="_n" t-value="len(comments)"/>
+                                <span class="wj-card-header__meta"><t t-out="_n"/> <t t-if="_n == 1">reply</t><t t-else="">replies</t></span>
                             </t>
                         </t>
                     </div>
                     <div class="wujia-mticket-thread">
-                        <div t-if="not comments" class="wj-empty-state--compact">Chưa có trao đổi nào.</div>
+                        <div t-if="not comments" class="wj-empty-state--compact">No conversation yet.</div>
                         <t t-foreach="comments" t-as="msg">
                             <t t-set="is_customer" t-value="msg.author_id.id == ticket.created_by_id.partner_id.id"/>
                             <div t-attf-class="wujia-mticket-bubble wj-richtext #{'is-customer' if is_customer else 'is-hq'}"
@@ -615,9 +622,9 @@
                       t-attf-action="/portal/support/#{ticket.id}/reply" class="wujia-mticket-reply">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <textarea name="body" class="wujia-mticket-reply-input mb-2"
-                              placeholder="Nhập phản hồi thêm..." required="required"/>
+                              placeholder="Add a reply..." required="required"/>
                     <button type="submit" class="wj-btn wj-btn--primary wj-btn--block">
-                        <i class="feather icon-send"/>Gửi
+                        <i class="feather icon-send"/>Send
                     </button>
                 </form>
             </div>

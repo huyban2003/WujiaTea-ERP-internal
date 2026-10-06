@@ -55,6 +55,13 @@
         }
     }
 
+    // Câu hiển thị: data-wj-msg-* trên #wj-noti-popup (dịch bằng .po, J-V7); fallback tiếng Anh.
+    function m(key, fallback, arg) {
+        var popup = document.getElementById("wj-noti-popup");
+        var text = window.wjMsg ? window.wjMsg(popup, key, fallback) : fallback;
+        return arg === undefined ? text : text.replace("%s", arg);
+    }
+
     function renderPopup(data) {
         var list = document.getElementById("wj-noti-popup-list");
         var sub = document.getElementById("wj-noti-popup-sub");
@@ -63,13 +70,17 @@
         var total = data.total || 0;
         var unread = data.total_unread || 0;
         var items = data.notifications || [];
-        if (sub) sub.textContent = total + " thông báo • " + unread + " chưa đọc";
+        if (sub) {
+            sub.textContent = (total === 1 ? m("total-one", "%s notification", total)
+                                           : m("total-n", "%s notifications", total)) +
+                " • " + m("unread-n", "%s unread", unread);
+        }
         if (badge) {
-            badge.textContent = unread + " chưa đọc";
+            badge.textContent = m("unread-n", "%s unread", unread);
             badge.style.display = unread > 0 ? "inline-flex" : "none";
         }
         if (!items.length) {
-            list.innerHTML = '<div class="wj-pc-noti-popup__empty">Không có thông báo nào.</div>';
+            list.innerHTML = '<div class="wj-pc-noti-popup__empty">' + escHtml(m("empty", "No notifications.")) + "</div>";
             return;
         }
         list.innerHTML = items.map(function (n) {
@@ -80,7 +91,7 @@
                 : "";
             var meta = escHtml(n.type_name) + (n.dispatch_number ? " • " + escHtml(n.dispatch_number) : "");
             var fileChip = n.has_file
-                ? '<span class="wj-pc-badge wj-pc-badge--sm wj-pc-badge--confirmed">Có file</span>' : "";
+                ? '<span class="wj-pc-badge wj-pc-badge--sm wj-pc-badge--confirmed">' + escHtml(m("has-file", "Has file")) + "</span>" : "";
             var dot = n.is_read ? "" : '<span class="wj-pc-noti-popup__item-dot"></span>';
             return '<a href="' + n.url + '" class="wj-pc-noti-popup__item' +
                 (n.is_read ? "" : " wj-pc-noti-popup__item--unread") + '">' +
@@ -132,7 +143,7 @@
                     .then(function (data) { renderPopup(data); updateBadges(data.total_unread || 0); })
                     .catch(function () {
                         var list = document.getElementById("wj-noti-popup-list");
-                        if (list) list.innerHTML = '<div class="wj-pc-noti-popup__empty">Không tải được thông báo.</div>';
+                        if (list) list.innerHTML = '<div class="wj-pc-noti-popup__empty">' + escHtml(m("load-failed", "Could not load notifications.")) + "</div>";
                     });
             }
         });

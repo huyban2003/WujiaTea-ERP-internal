@@ -58,8 +58,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V4 | `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) + template `cart_sync_root` câu JS | sale ×3 | ✅ 06/10 — `359fe36c` đã lên UAT; sửa sau UAT `6129ca59` đã push, chờ deploy |
 | J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) + khối `_debt_copy_msgs` câu JS + đơn vị số rút gọn theo ngôn ngữ | debt | ✅ 06/10 — `2f9f5695` đã push, chờ deploy |
 | J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) + `_ret_line_msgs` câu JS + migration seed loại lỗi | return ×2 | ✅ 06/10 — `b78c4568` đã push, chờ deploy |
-| **J-V7** | **Phiên kế.** support (112+2) + knowledge (46+2) + notification (86+27) | 6 module | ☐ |
-| J-V8 | purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21) | 9 module | ☐ |
+| J-V7 | support (112+2) + knowledge (46+2) + notification (86+27) + migration seed loại thông báo + WJ-SUPPORT-003 | 6 module | ✅ 07/10 — chưa commit |
+| **J-V8** | **Phiên kế.** purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21) | 9 module | ☐ |
 | ★J-VR | Review Phần V: quét lại = 0 (code team), vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi danh sách 284 chuỗi cho Thái | — | ☐ |
 | J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; script CLI gọi lại module | wujia_i18n, scripts | ☐ |
 | J-T5 | **Dịch tự động (DeepL)**: chọn ngôn ngữ (tự bật nếu chưa có) → dịch hàng loạt chuỗi chưa dịch → BA rà → Áp dụng (xem §6b) | wujia_i18n | ☐ |
@@ -314,6 +314,20 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
 - Code translations của module KHÁC: `odoo.tools.translate.code_translations.get_python_translations(module, lang)` (`env._` lấy module
   của file gọi).
 - Probe vi_VN thêm `data-wj-msg-*` mới là lệch có chủ đích (chữ JS cũ nay thành attr) — ghi rõ, không cập nhật mốc.
+
+**J-V7 — ✅ 07/10: bài học cho V8**
+- Máy quét `vn_hardcode_scan` bỏ sót tiếng Việt KHÔNG dấu ("Xem", "Xem ticket" ở `aria-label`/`title`) ⇒ sau `sync` liệt kê msgid chưa
+  dịch + grep chữ không dấu quen (Xem, Tim kiem…) rồi thêm tay vào pairs.
+- Field computed không lưu trả nhãn dịch phải có `@api.depends_context('lang')`, nếu không cache ngôn ngữ trước trả cho ngôn ngữ sau.
+- Key glossary EN chung chung ("General") dễ đụng phân hệ sau ⇒ đặt cụ thể ("General notice"); đổi key thì đổi đồng loạt XML seed,
+  `legacy_seed.py`, pairs, `.po`.
+- KHÔNG backup nhiều file cùng basename (`controllers/portal.py`) vào một thư mục phẳng ⇒ giữ đường dẫn (`cp --parents` / `git stash`)
+  — phiên này đè nhầm controller support, phải viết lại.
+- Câu JS của nút hàng loạt nằm ở template con (`portal_notification_results_part`), không phải template trang ⇒ đặt t-set + attr ở
+  template chứa nút, test arch đọc đúng template đó.
+- HttpCase đổi `user.lang` giữa test ⇒ `authenticate` lại (ngôn ngữ phiên cố định lúc đăng nhập).
+- Lệch PC/mobile do một bên đọc `_fields[x].selection` thô (WJ-SUPPORT-003) ⇒ mọi nhãn selection ở portal đi qua một dict `_lt` chung
+  cho PC + mobile; test arch cấm `_fields['…'].selection` trong template.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

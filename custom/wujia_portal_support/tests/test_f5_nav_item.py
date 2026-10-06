@@ -9,6 +9,8 @@ from lxml import etree
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
+from odoo.addons.wujia_support.tests.common import load_vi
+
 
 @tagged('post_install', '-at_install', 'wujia_f5')
 class TestNavItemSupport(TransactionCase):
@@ -17,10 +19,13 @@ class TestNavItemSupport(TransactionCase):
         view = self.env.ref('wujia_portal_support.layout_sidenav_support')
         self.assertEqual(view.inherit_id, self.env.ref('wujia_portal_layout.layout_sidenav'))
         arch = view.arch
+        # J-V7: câu gốc EN; chữ VN cũ nằm ở vi_VN.po ⇒ assert ở vi_VN, không xoá assert.
+        arch_vi = view.with_env(load_vi(self.env, ('wujia_portal_support',))).arch
+        self.assertIn('<t t-set="ni_label">Support</t>', view.with_context(lang='en_US').arch)
         self.assertIn('<li', arch)
         self.assertIn('id="nav_item_support"', arch)
         self.assertIn('t-value="\'/portal/support\'"', arch)
-        self.assertIn('<t t-set="ni_label">Hỗ trợ</t>', arch)
+        self.assertIn('<t t-set="ni_label">Hỗ trợ</t>', arch_vi)
         # Nhóm theo BA: chèn trước neo của nhóm kế tiếp.
         self.assertIn("//li[@id='nav_end']", arch)
         # Cùng điều kiện sáng truyền vào wj_nav_item để có aria-current.

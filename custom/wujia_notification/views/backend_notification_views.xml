@@ -25,7 +25,7 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <widget name="web_ribbon" title="Đã lưu trữ"
+                    <widget name="web_ribbon" title="In archive"
                             bg_color="text-bg-secondary" invisible="active"/>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_notifications" type="object"
@@ -86,9 +86,9 @@
                            statusbar_visible="draft,published,archived"/>
                 </header>
                 <sheet>
-                    <widget name="web_ribbon" title="Đã lưu trữ"
+                    <widget name="web_ribbon" title="In archive"
                             bg_color="text-bg-secondary" invisible="active"/>
-                    <widget name="web_ribbon" title="Hết hiệu lực"
+                    <widget name="web_ribbon" title="Validity ended"
                             bg_color="text-bg-danger"
                             invisible="not is_expired or not active"/>
                     <div class="oe_button_box" name="button_box">

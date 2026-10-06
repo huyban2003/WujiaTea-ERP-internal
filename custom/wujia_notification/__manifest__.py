@@ -1,15 +1,15 @@
 {
     'name': 'Wujia Notifications',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'category': 'Wujia',
-    'summary': 'Thông báo HQ → cửa hàng nhượng quyền — soạn, chọn đối tượng, gửi, thu hồi, theo dõi đã đọc.',
+    'summary': 'HQ → franchise store notifications — compose, target, send, withdraw, track reads.',
     'description': """
-Nghiệp vụ thông báo. Tách từ wujia_portal_notification (F11, ADR-027).
+Notification business logic. Split from wujia_portal_notification (F11, ADR-027).
 
-- Model wujia.notification (mã ANN/, chatter, chọn đối tượng nhận, gửi/thu hồi),
-  wujia.notification.type (loại), wujia.notification.read (đã đọc theo user + cửa hàng).
+- Models wujia.notification (ANN/ code, chatter, recipient targeting, send/withdraw),
+  wujia.notification.type (type), wujia.notification.read (read per user + store).
 - _portal_history_domain / _portal_effective_domain / _portal_unread_count / _mark_read /
-  _portal_get_attachment: luật dùng chung cho mọi kênh.
+  _portal_get_attachment: rules shared by every channel.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

@@ -5,13 +5,13 @@
     <template id="mobile_bottomnav_knowledge"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="35"
-              name="Wujia Mobile — sheet Thêm: Kiến thức">
+              name="Wujia Mobile — More sheet: Knowledge">
         <xpath expr="//span[@id='msheet_end']" position="before">
             <t t-call="wujia_portal_layout.wj_msheet_item">
                 <t t-set="mi_href" t-value="'/portal/knowledge'"/>
                 <t t-set="mi_icon" t-value="'feather icon-book-open'"/>
-                <t t-set="mi_title">Kiến thức</t>
-                <t t-set="mi_sub">Tài liệu vận hành, quy định, hướng dẫn</t>
+                <t t-set="mi_title">Knowledge</t>
+                <t t-set="mi_sub">Operating documents, policies and guides</t>
             </t>
         </xpath>
     </template>

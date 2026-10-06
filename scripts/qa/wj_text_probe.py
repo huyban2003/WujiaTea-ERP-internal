@@ -37,6 +37,7 @@ DETAILS = [
     ('/portal/return', r'^/portal/return/\d+$'),
     ('/portal/notification', r'^/portal/notification/\d+$'),
     ('/portal/support', r'^/portal/support/\d+$'),
+    ('/portal/knowledge', r'^/portal/knowledge/(?!search$)[\w-]+$'),
     ('/portal/info-request', r'^/portal/info-request/\d+$'),
 ]
 WIDTHS = [1440, 390]

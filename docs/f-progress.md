@@ -2503,4 +2503,60 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V6".
 - Lệnh deploy: `-u wujia_return,wujia_portal_return` + **restart sau `-u`** (migration seed chạy trong `-u`).
 - Nợ để lại: xoá DB nháp `wujia_v6b`, `wujia_v6h` + worktree `v6/head` (scratchpad) — giữ `wujia_t1` tới hết Phần V.
+- UAT (06/10, deploy `8a0d5df6`): code đã pull + restart nhưng **2 module return chưa upgrade** (DB `wujia_return` 19.0.1.1.0,
+  `portal_return` 19.0.4.1.0) ⇒ trạng thái lệch: Python/JS mới + view cũ ⇒ en/th vẫn chữ Việt, form không có `data-wj-msg-*` nên user
+  vi_VN thấy placeholder EN. Chủ dự án duyệt ⇒ upgrade tay qua admin (`button_immediate_upgrade`, 6 s): 2 module lên 19.0.2.0.0 /
+  19.0.5.0.0; migration seed chạy — loại lỗi en_US = EN, vi_VN giữ nguyên (cả bản HQ đã sửa "Hết hạn / cận ngày"); constraint en/vi đúng.
+  Playwright `anh.owner` chỉ-đọc (chặn POST trừ đăng nhập) vi/en/th × 1440/390 × 3 trang (danh sách, tạo mới, chi tiết `/14`):
+  **18/18 0 tràn, 0 HTTP ≥400**; vi thấy y chữ cũ, en/th thấy EN (tiêu đề, "Resolution", "Compensation status", "No notes.",
+  "— All statuses —"); placeholder JS vi "— Đơn không có sản phẩm —", en/th "— Order has no products —". 1 lỗi JS lẻ
+  `$(...).pickadate is not a function` (th @1440, lượt đầu) — chạy lại 3 lượt × th/vi × 3 trang = 18/18 sạch ⇒ race nạp vendor khi mạng
+  UAT chập chờn, không liên quan V6. Ngôn ngữ `anh.owner` trả vi_VN.
 - Phiên kế: **J-V7** — support (112+2) + knowledge (46+2) + notification (86+27).
+
+## J-V7 Việt hoá source support + knowledge + notification (+ WJ-SUPPORT-003) · 07/10/2026 · Mac
+- Phạm vi: `wujia_portal_support` (112) + `wujia_support` (2) · `wujia_portal_knowledge` (46) + `wujia_knowledge` (2) ·
+  `wujia_portal_notification` (86) + `wujia_notification` (27). Gộp **WJ-SUPPORT-003** (chủ dự án chốt 06/10): PC "Normal" ≠ mobile
+  "Bình thường". KHÔNG làm WJ-SUPPORT-002. Không đụng module Thái. **Chưa commit** (chờ lệnh).
+- Đã làm:
+  - `vn_to_en_pairs` draft → check → apply cho 6 module (`docs/i18n-pairs/*.csv` CRLF); glossary +48 dòng (chỉ nối thêm; dòng
+    "General" của phiên này đổi thành "General notice" — key chung chung dễ đụng).
+  - support: `STATE_LABELS` / `MOBILE_TICKET_BADGES` / `PRIORITY_LABELS` → `_lt`, dịch lúc render qua `_translated()` + `_label_ctx()`
+    (màu badge giữ: `status_badge_for(lazy)`, Canceled ghim danger); t-set filter/placeholder; số ít/nhiều ticket/tickets, reply/replies.
+    **WJ-SUPPORT-003**: dd Mức độ PC đọc `priority_labels` (cùng nguồn mobile) thay `dict(_fields['priority'].selection)`.
+  - knowledge: `_lt('articles')`, t-set placeholder/tiêu đề "Recently updated documents", badge Mandatory/Important/New (PC + 2 dict
+    mobile), article/articles, view/views.
+  - notification portal: `ERROR_MESSAGES` + `PORTAL_PRIORITY_LABELS` → `_lt` + helper `_error_message` / `_priority_labels` /
+    `_pc_priority_tags` (JSON `/recent` cũng dịch); dict `WJ_PTAG` / `WJ_TDESC` ra t-set; JS `header_bell_badge.js` +
+    `portal_notification_pc.js` đọc `data-wj-msg-*` (popup chuông `#wj-noti-popup`, nút đánh dấu đã đọc ở template `results_part`)
+    với `%s` + số ít/nhiều.
+  - `wujia_notification`: MSG_* `_lt`, 6 constraint EN, `_compute_priority_label` thêm `@api.depends_context('lang')`; seed 5 loại thông
+    báo (noupdate) → EN + `legacy_seed.py` + `migrations/19.0.2.0.0/post-migrate.py` (mẫu V6). Máy quét khai `legacy_seed.py`.
+  - Tên template nav (attr `name`) → EN. Bump version 6 module. `.po` vi_VN tái sinh + `.pot` mới cho 4 module; khôi phục 14 msgstr
+    bị glossary chung ghi đè (Active, Archive, Attachments, In progress, Priority, Support → "Hỗ Trợ", Knowledge → "Kiến Thức",
+    Published, Submission date) bằng sửa text + `i18n import -w`; `msgfmt -c` sạch.
+  - Test: `tests/common.py` `load_vi` cho 3 module L2; `test_f5_nav_item` support/knowledge kiểm arch vi + en. Mới `test_jv7_i18n.py`
+    ×4 (bảng VN TRƯỚC phiên: trạng thái/badge + màu, ưu tiên, pager, lỗi, arch không còn `_fields['priority'].selection`, key JS ↔ attr,
+    JS không còn chữ Việt; HttpCase vi/en số ít "1 ticket/1 reply/1 article/1 view/1 notification"; **PC = mobile vi/en + đổi
+    ngôn ngữ**; MSG_*/constraint/priority_label theo ngôn ngữ; seed khớp XML + migration giữ bản HQ sửa, chạy lại = 0). Không xoá assert.
+- Số đo:
+  - `vn_hardcode_scan --fail-on-any`: 6 module **0** (trước 275).
+  - `-u` 6 module + `portal_base` + `portal_layout` `--test-enable` (DB copy `wujia_v7b`): **1032 test, 0 đỏ**; HEAD 999 / 0.
+  - Mutation (đã khôi phục): bỏ attr JS, đổi câu EN badge, bỏ `_lt`, trả PC ưu tiên về selection ⇒ 5 đỏ + 1 lỗi.
+  - So vi_VN DB HEAD ↔ mới: 52 chỗ khác, đều EN → VN (backend dịch thêm), **0 VN → EN**. Migration log "5 notification type(s) moved".
+  - `wj_text_probe` vi_VN 54 trang (thêm trang chi tiết kiến thức vào probe): mới 2 lần 0/54 lệch; HEAD ↔ mới chỉ (a) attr
+    `data-wj-msg-*` của popup chuông (mọi trang) — có chủ đích; (b) `/portal/support/new` danh mục seed "Order"/"Delivery" nay "Đặt
+    hàng"/"Giao hàng" (trước user vi thấy EN). Chữ VN → EN: 0.
+  - Playwright `anh.owner` en_US/th_TH × 1440/390 (support danh sách/tạo/chi tiết, knowledge danh sách/chi tiết, notification danh
+    sách/chi tiết + chuông, home): **0 tràn, 0 lỗi JS, 0 HTTP ≥400**. Chữ VN còn lại = dữ liệu người dùng + menu module khác (V8).
+    Ticket đo `WJ-TK/26/00328` (DB nháp): vi PC "Mức độ: Khẩn" = mobile "Ưu tiên: Khẩn"; en/th cả hai "Urgent".
+- WJ-SUPPORT-003: ledger + `qa_sync.py --only WJ-SUPPORT-003 --apply` ⇒ **Ready for Retest** (6 ô + 1 dòng History), build ghi
+  "CHƯA lên UAT | chưa commit".
+- Lệch / LIMIT: zh/th chưa có bản dịch câu mới ⇒ thấy EN (chờ J-T5). `wujia.notification.priority_label` nay dịch theo ngôn ngữ (HEAD
+  trả EN thô; không view nào dùng). msgid chưa dịch còn lại là field mixin mail/activity + vài câu EN có sẵn từ trước (không phải lùi).
+- Sự cố trong phiên: backup mutation chép 2 file cùng tên `portal.py` vào một thư mục ⇒ lúc khôi phục controller support bị đè bằng
+  controller notification; đã viết lại đúng nội dung, đối chiếu diff với HEAD + diffstat các file khác khớp trước mutation, test 0 đỏ.
+- Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V7".
+- Lệnh deploy: `-u wujia_support,wujia_portal_support,wujia_knowledge,wujia_portal_knowledge,wujia_notification,wujia_portal_notification`
+  + **restart sau `-u`** (migration seed loại thông báo). Kiểm tra version DB sau upgrade (bài học UAT V6).
+- Phiên kế: **J-V8** — purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21).

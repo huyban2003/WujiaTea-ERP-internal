@@ -5,13 +5,13 @@
     <template id="mobile_bottomnav_support"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="40"
-              name="Wujia Mobile — sheet Thêm: Hỗ trợ">
+              name="Wujia Mobile — More sheet: Support">
         <xpath expr="//span[@id='msheet_end']" position="before">
             <t t-call="wujia_portal_layout.wj_msheet_item">
                 <t t-set="mi_href" t-value="'/portal/support'"/>
                 <t t-set="mi_icon" t-value="'feather icon-life-buoy'"/>
-                <t t-set="mi_title">Hỗ trợ</t>
-                <t t-set="wj_txt">Gửi ticket và xem phản hồi từ {brand}</t>
+                <t t-set="mi_title">Support</t>
+                <t t-set="wj_txt">Send tickets and see replies from {brand}</t>
                 <t t-set="mi_sub" t-value="wj_txt.replace('{brand}', wj_brand['name'])"/>
             </t>
         </xpath>

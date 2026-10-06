@@ -3,6 +3,9 @@ from html import unescape
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.translate import LazyTranslate
+
+_lt = LazyTranslate(__name__)
 
 
 # Spec F §5 (sheet "1. Model/ Field"): 3 technical key, nhãn hiển thị
@@ -12,7 +15,6 @@ PRIORITY_SELECTION = [
     ('important', 'Important'),
     ('urgent', 'Action required'),
 ]
-PRIORITY_LABELS = dict(PRIORITY_SELECTION)
 
 # Spec F §3 — vòng đời do HQ điều khiển (expired_date KHÔNG tự đổi state).
 STATE_SELECTION = [
@@ -38,18 +40,18 @@ TARGET_MODE_SELECTION = [
     ('manual', 'Manual selection'),
 ]
 
-# Spec F §18 — message nghiệp vụ, không lộ lỗi kỹ thuật.
-MSG_PUBLISH_VALIDATION = (
-    'Vui lòng nhập đầy đủ tiêu đề, nội dung, loại và mức độ thông báo; '
-    'ngày hết hiệu lực không được nhỏ hơn ngày gửi.'
+# Spec F §18 — message nghiệp vụ, không lộ lỗi kỹ thuật. `_lt` ⇒ dịch lúc raise bằng `self.env._`.
+MSG_PUBLISH_VALIDATION = _lt(
+    'Please enter the title, content, type and severity of the notification; '
+    'the expiry date cannot be earlier than the sent date.'
 )
-MSG_TARGET_NO_CRITERIA = (
-    'Chọn "Theo tiêu chí" thì phải có ít nhất một tiêu chí: khu vực, tỉnh/thành '
-    'hoặc cửa hàng loại trừ.'
+MSG_TARGET_NO_CRITERIA = _lt(
+    'With "By criteria", choose at least one criterion: area, province/city '
+    'or excluded store.'
 )
-MSG_TARGET_EMPTY = 'Tiêu chí hiện không khớp cửa hàng nào. Vui lòng chỉnh lại trước khi gửi.'
-MSG_TARGET_MANUAL_EMPTY = 'Vui lòng chọn ít nhất một cửa hàng nhận.'
-MSG_TARGET_ALL_HAS_STORES = 'Gửi cho "Tất cả cửa hàng" thì không được chọn cửa hàng nhận.'
+MSG_TARGET_EMPTY = _lt('The criteria do not match any store. Please adjust them before sending.')
+MSG_TARGET_MANUAL_EMPTY = _lt('Please select at least one recipient store.')
+MSG_TARGET_ALL_HAS_STORES = _lt('When sending to "All stores", recipient stores must be left empty.')
 
 
 class WujiaNotification(models.Model):
@@ -184,16 +186,16 @@ class WujiaNotification(models.Model):
 
     _uniq_code = models.Constraint(
         'unique(code)',
-        'Mã thông báo phải duy nhất.',
+        'The notification code must be unique.',
     )
     _published_date_required = models.Constraint(
         "CHECK (state != 'published' OR published_date IS NOT NULL)",
-        'Thông báo đã gửi phải có ngày gửi.',
+        'A sent notification must have a sent date.',
     )
     _expired_after_published = models.Constraint(
         'CHECK (expired_date IS NULL OR published_date IS NULL'
         ' OR expired_date >= published_date)',
-        'Ngày hết hiệu lực không được nhỏ hơn ngày gửi.',
+        'The expiry date cannot be earlier than the sent date.',
     )
 
     # -----------------------------------------------------------------
@@ -206,9 +208,12 @@ class WujiaNotification(models.Model):
             rec.is_expired = bool(rec.expired_date and rec.expired_date < now)
 
     @api.depends('priority')
+    @api.depends_context('lang')
     def _compute_priority_label(self):
         for rec in self:
-            rec.priority_label = PRIORITY_LABELS.get(rec.priority, '')
+            rec.priority_label = dict(
+                rec._fields['priority']._description_selection(rec.env)
+            ).get(rec.priority, '')
 
     @api.depends('active', 'state', 'portal_visible')
     def _compute_is_published_portal(self):
@@ -292,13 +297,14 @@ class WujiaNotification(models.Model):
             vals.setdefault('franchise_ids', [fields.Command.clear()])
         new_state = vals.get('state')
         if new_state:
+            states = dict(self._fields['state']._description_selection(self.env))
             for rec in self:
                 if rec.state != new_state and new_state not in STATE_TRANSITIONS[rec.state]:
                     raise UserError(_(
-                        'Không thể chuyển thông báo "%(name)s" từ "%(old)s" sang "%(new)s".',
+                        'Cannot move notification "%(name)s" from "%(old)s" to "%(new)s".',
                         name=rec.name,
-                        old=dict(STATE_SELECTION)[rec.state],
-                        new=dict(STATE_SELECTION)[new_state],
+                        old=states[rec.state],
+                        new=states[new_state],
                     ))
             if new_state == 'published':
                 vals.setdefault('published_date', fields.Datetime.now())
@@ -310,7 +316,7 @@ class WujiaNotification(models.Model):
         blocked = self.filtered(lambda r: r.state != 'draft')
         if blocked:
             raise UserError(_(
-                'Không thể xoá thông báo đã gửi: %s. Hãy dùng Lưu trữ.',
+                'Cannot delete sent notifications: %s. Use Archive instead.',
                 ', '.join(blocked.mapped('name')),
             ))
         return super().unlink()
@@ -319,7 +325,7 @@ class WujiaNotification(models.Model):
     def _check_published_requirements(self):
         for rec in self:
             if rec.state == 'published' and not rec.type_id:
-                raise ValidationError(_(MSG_PUBLISH_VALIDATION))
+                raise ValidationError(self.env._(MSG_PUBLISH_VALIDATION))
 
     @api.constrains('target_mode', 'target_area_ids', 'target_state_ids',
                     'target_exclude_franchise_ids', 'franchise_ids')
@@ -330,9 +336,9 @@ class WujiaNotification(models.Model):
                 or rec.target_exclude_franchise_ids
             ):
                 # Tiêu chí rỗng khớp toàn bộ cửa hàng — trùng ý nghĩa "Tất cả", chặn cho rõ ràng.
-                raise ValidationError(_(MSG_TARGET_NO_CRITERIA))
+                raise ValidationError(self.env._(MSG_TARGET_NO_CRITERIA))
             if rec.target_mode == 'all' and rec.franchise_ids:
-                raise ValidationError(_(MSG_TARGET_ALL_HAS_STORES))
+                raise ValidationError(self.env._(MSG_TARGET_ALL_HAS_STORES))
 
     # -----------------------------------------------------------------
     # Actions (backend HQ)
@@ -341,14 +347,14 @@ class WujiaNotification(models.Model):
         """Spec F §9 — validate rồi mới gửi. Fail → message nghiệp vụ §18."""
         for rec in self:
             if rec.state != 'draft':
-                raise UserError(_('Chỉ thông báo ở trạng thái Nháp mới gửi được.'))
+                raise UserError(_('Only draft notifications can be sent.'))
             if not (rec.name and rec._has_content() and rec.priority):
-                raise UserError(_(MSG_PUBLISH_VALIDATION))
+                raise UserError(self.env._(MSG_PUBLISH_VALIDATION))
             if not rec.type_id or not rec.type_id.active:
-                raise UserError(_(MSG_PUBLISH_VALIDATION))
+                raise UserError(self.env._(MSG_PUBLISH_VALIDATION))
             now = fields.Datetime.now()
             if rec.expired_date and rec.expired_date < now:
-                raise UserError(_(MSG_PUBLISH_VALIDATION))
+                raise UserError(self.env._(MSG_PUBLISH_VALIDATION))
             vals = {
                 'state': 'published',
                 'published_date': now,
@@ -359,10 +365,10 @@ class WujiaNotification(models.Model):
             if rec.target_mode == 'filter':
                 franchises = rec._resolve_target_franchises()
                 if not franchises:
-                    raise UserError(_(MSG_TARGET_EMPTY))
+                    raise UserError(self.env._(MSG_TARGET_EMPTY))
                 vals['franchise_ids'] = [fields.Command.set(franchises.ids)]
             elif rec.target_mode == 'manual' and not rec.franchise_ids:
-                raise UserError(_(MSG_TARGET_MANUAL_EMPTY))
+                raise UserError(self.env._(MSG_TARGET_MANUAL_EMPTY))
             rec.write(vals)
         return True
 
@@ -377,7 +383,7 @@ class WujiaNotification(models.Model):
             domain = [('id', 'in', self.franchise_ids.ids)]
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Cửa hàng nhận'),
+            'name': _('Recipient stores'),
             'res_model': 'wujia.franchise.management',
             'view_mode': 'list,form',
             'domain': domain,
@@ -389,11 +395,11 @@ class WujiaNotification(models.Model):
         for rec in self:
             if rec.target_mode != 'filter':
                 raise UserError(_(
-                    'Chỉ thông báo gửi "Theo tiêu chí" mới cập nhật lại được danh sách nhận.'
+                    'Only notifications sent "By criteria" can refresh their recipient list.'
                 ))
             franchises = rec._resolve_target_franchises()
             if not franchises:
-                raise UserError(_(MSG_TARGET_EMPTY))
+                raise UserError(self.env._(MSG_TARGET_EMPTY))
             rec.franchise_ids = [fields.Command.set(franchises.ids)]
         return True
 
@@ -409,7 +415,7 @@ class WujiaNotification(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Trạng thái đọc'),
+            'name': _('Read status'),
             'res_model': 'wujia.notification.read',
             'view_mode': 'list,form',
             'domain': [('notification_id', '=', self.id)],

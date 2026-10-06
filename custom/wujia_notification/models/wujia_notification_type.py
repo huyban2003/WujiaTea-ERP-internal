@@ -24,7 +24,7 @@ class WujiaNotificationType(models.Model):
 
     _uniq_code = models.Constraint(
         'unique(code)',
-        'Mã loại thông báo phải duy nhất.',
+        'The notification type code must be unique.',
     )
 
     def _compute_notification_count(self):

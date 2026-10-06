@@ -4,6 +4,7 @@ from werkzeug.exceptions import Forbidden, NotFound
 
 from odoo import fields, http
 from odoo.http import request
+from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
@@ -17,22 +18,24 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     portal_tz,
 )
 
+_lt = LazyTranslate(__name__)
 
 # BA FINAL: popup 5, view list mặc định 10 record/trang (FE gửi limit trong danh sách cho phép).
 PAGE_SIZE = 10
 ALLOWED_LIMITS = (10, 20, 50)
 POPUP_LIMIT = 5
 
-# Bảng mã lỗi tiếng Việt (BA controller mapping — dễ hiểu cho user portal, không lộ lỗi kỹ thuật).
+# Bảng mã lỗi (BA controller mapping — dễ hiểu cho user portal, không lộ lỗi kỹ thuật).
+# `_lt` ⇒ dịch theo ngôn ngữ người xem trong `_err` (J-V7).
 ERROR_MESSAGES = {
-    'SESSION_EXPIRED': 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
-    'STORE_NOT_SELECTED': 'Vui lòng chọn cửa hàng trước khi thao tác.',
-    'STORE_ACCESS_DENIED': 'Bạn không có quyền thao tác với cửa hàng này.',
-    'INVALID_FILTER': 'Bộ lọc không hợp lệ. Vui lòng kiểm tra lại.',
-    'INVALID_PAGE_SIZE': 'Số lượng bản ghi mỗi trang không hợp lệ.',
-    'ANNOUNCEMENT_NOT_AVAILABLE': 'Thông báo không tồn tại, đã bị thu hồi hoặc bạn không có quyền xem.',
-    'MARK_READ_FAILED': 'Chưa thể cập nhật trạng thái đã đọc. Vui lòng thử lại.',
-    'ATTACHMENT_NOT_AVAILABLE': 'Tài liệu không tồn tại hoặc bạn không có quyền tải xuống.',
+    'SESSION_EXPIRED': _lt('Your session has expired. Please log in again.'),
+    'STORE_NOT_SELECTED': _lt('Please select a store first.'),
+    'STORE_ACCESS_DENIED': _lt('You do not have permission to act on this store.'),
+    'INVALID_FILTER': _lt('Invalid filter. Please check again.'),
+    'INVALID_PAGE_SIZE': _lt('Invalid number of records per page.'),
+    'ANNOUNCEMENT_NOT_AVAILABLE': _lt('The notification does not exist, has been withdrawn or you do not have permission to view it.'),
+    'MARK_READ_FAILED': _lt('Could not update the read status. Please try again.'),
+    'ATTACHMENT_NOT_AVAILABLE': _lt('The document does not exist or you do not have permission to download it.'),
 }
 
 # PC desktop — type code → (tone css, feather icon); priority → (nhãn, badge css) theo keys BA.
@@ -43,13 +46,13 @@ PC_TYPE_TONE = {
     'SYS': ('wj-pc-noti-type--violet', 'icon-settings'),
     'OTH': ('wj-pc-noti-type--green', 'icon-info'),
 }
-# Nhãn VN của wujia.notification.priority. Pin cứng tại đây vì source đã chuyển sang
-# tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
+# Nhãn mức độ portal (`_lt`, vi_VN = "Thông thường / Quan trọng / Cần làm"); dịch lúc render
+# bằng `_priority_labels` / `_pc_priority_tags` (J-V7).
 # Key phải khớp PRIORITY_SELECTION trong wujia_notification/models/wujia_notification.py.
 PORTAL_PRIORITY_LABELS = {
-    'normal': 'Thông thường',
-    'important': 'Quan trọng',
-    'urgent': 'Cần làm',
+    'normal': _lt('Regular'),
+    'important': _lt('Important'),
+    'urgent': _lt('Action required'),
 }
 PC_PRIORITY_TAGS = {
     'urgent': (PORTAL_PRIORITY_LABELS['urgent'], 'wj-pc-badge--done'),
@@ -59,9 +62,25 @@ PC_PRIORITY_TAGS = {
 VALID_PRIORITIES = ('normal', 'important', 'urgent')
 
 
+def _error_message(code):
+    """Câu lỗi theo mã, dịch theo ngôn ngữ user; mã lạ ⇒ trả nguyên mã."""
+    msg = ERROR_MESSAGES.get(code)
+    return request.env._(msg) if msg else code
+
+
+def _priority_labels():
+    """{priority: nhãn đã dịch} — dùng cho popup chuông (JSON)."""
+    return {key: request.env._(label) for key, label in PORTAL_PRIORITY_LABELS.items()}
+
+
+def _pc_priority_tags():
+    """PC_PRIORITY_TAGS với nhãn đã dịch theo ngôn ngữ người xem."""
+    return {key: (request.env._(label), css) for key, (label, css) in PC_PRIORITY_TAGS.items()}
+
+
 def _err(code, **extra):
     """Payload lỗi JSON — cùng shape với wujia_portal_sale để FE portal xử lý đồng nhất."""
-    res = {'success': False, 'error': code, 'message': ERROR_MESSAGES.get(code, code)}
+    res = {'success': False, 'error': code, 'message': _error_message(code)}
     res.update(extra)
     return res
 
@@ -110,7 +129,7 @@ class WujiaPortalNotification(http.Controller):
             'types': request.env['wujia.notification.type'].sudo().search(
                 [('active', '=', True)], order='sequence'),
             'pgn': build_pager(0, 1, lim, path='/portal/notification',
-                               item_label='thông báo',
+                               item_label=_lt('notifications'),
                                page_size_options=ALLOWED_LIMITS,
                                size_param='limit'),
             'type_id': _parse_int(type_id), 'keyword': keyword, 'tab': tab,
@@ -121,7 +140,7 @@ class WujiaPortalNotification(http.Controller):
             'read_status': read_status, 'filter_error': filter_error,
             'date_from': date_from, 'date_to': date_to, 'priority': priority,
             'page_size': lim,
-            'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
+            'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': _pc_priority_tags(),
             'wj_dt': fmt_local_dt,
         }
 
@@ -197,7 +216,7 @@ class WujiaPortalNotification(http.Controller):
         types = request.env['wujia.notification.type'].sudo().search(
             [('active', '=', True)], order='sequence')
         pgn = build_pager(total, page, lim, path='/portal/notification',
-                          item_label='thông báo',
+                          item_label=_lt('notifications'),
                           page_size_options=ALLOWED_LIMITS, size_param='limit')
         return {
             'notifications': notifications,
@@ -208,7 +227,7 @@ class WujiaPortalNotification(http.Controller):
             'read_status': read_status, 'filter_error': '',
             'date_from': date_from, 'date_to': date_to, 'priority': priority,
             'page_size': lim,
-            'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
+            'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': _pc_priority_tags(),
             'wj_dt': fmt_local_dt,
         }
 
@@ -239,7 +258,7 @@ class WujiaPortalNotification(http.Controller):
             request.env.user, active_fid, noti, opened=True, touch=True)
         return request.render('wujia_portal_notification.portal_notification_detail', {
             'noti': noti,
-            'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': PC_PRIORITY_TAGS,
+            'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': _pc_priority_tags(),
             'wj_dt': fmt_local_dt,
         })
 
@@ -256,6 +275,7 @@ class WujiaPortalNotification(http.Controller):
         read_ids = self._read_ids(recent.ids, active_fid)
         total_unread = self._unread_count(franchise_ids, active_fid)
         total_eff = Noti.search_count(eff)
+        priority_labels = _priority_labels()
 
         items = [{
             'id': n.id,
@@ -265,7 +285,7 @@ class WujiaPortalNotification(http.Controller):
             'type_code': n.type_id.code or 'GEN',
             'type_name': n.type_id.name or '',
             'priority': n.priority or 'normal',
-            'priority_label': PORTAL_PRIORITY_LABELS.get(n.priority or 'normal', ''),
+            'priority_label': priority_labels.get(n.priority or 'normal', ''),
             'has_file': bool(n.attachment_ids),
             'is_read': n.id in read_ids,
             'url': '/portal/notification/%s' % n.id,

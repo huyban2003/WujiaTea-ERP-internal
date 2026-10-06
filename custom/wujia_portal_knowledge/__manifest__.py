@@ -1,8 +1,8 @@
 {
     'name': 'Wujia Portal — Knowledge Library',
-    'version': '19.0.4.0.0',
+    'version': '19.0.5.0.0',
     'category': 'Wujia',
-    'summary': 'Màn portal thư viện kiến thức (nghiệp vụ ở wujia_knowledge).',
+    'summary': 'Knowledge library portal screens (business logic in wujia_knowledge).',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': ['wujia_portal_base', 'wujia_knowledge'],

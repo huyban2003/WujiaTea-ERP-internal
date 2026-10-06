@@ -1,6 +1,7 @@
-/* WujiaTea PC notification list — nút "Đánh dấu đã đọc" (BA row 6).
+/* WujiaTea PC notification list — nút "Mark as read" (BA row 6).
    Server tự đánh dấu TẤT CẢ thông báo còn hiệu lực chưa đọc của user tại cửa hàng hiện tại
-   (không gửi ids/filter) → toast "Đã đánh dấu N thông báo là đã đọc" → reload. */
+   (không gửi ids/filter) → toast "Marked N notifications as read." → reload.
+   Câu toast: data-wj-msg-* trên nút (dịch bằng .po, J-V7); fallback tiếng Anh. */
 (function () {
     "use strict";
     function toast(msg) {
@@ -19,6 +20,10 @@
     document.addEventListener("click", function (ev) {
         var btn = ev.target.closest ? ev.target.closest("#wj-noti-bulk-read") : null;
         if (!btn || btn.disabled) return;
+        function m(key, fallback, arg) {
+            var text = window.wjMsg ? window.wjMsg(btn, key, fallback) : fallback;
+            return arg === undefined ? text : text.replace("%s", arg);
+        }
         btn.disabled = true;
         fetch("/portal/notification/mark-all-read", {
             method: "POST",
@@ -31,11 +36,13 @@
                 var out = (res && res.result) || {};
                 if (out.error) {
                     // Ví dụ chưa chọn cửa hàng — hiện message nghiệp vụ, không reload.
-                    toast(out.message || "Chưa thể đánh dấu đã đọc. Vui lòng thử lại.");
+                    toast(out.message || m("mark-failed", "Could not mark as read. Please try again."));
                     btn.disabled = false;
                     return;
                 }
-                toast("Đã đánh dấu " + (out.updated_count || 0) + " thông báo là đã đọc.");
+                var n = out.updated_count || 0;
+                toast(n === 1 ? m("marked-one", "Marked %s notification as read.", n)
+                              : m("marked-n", "Marked %s notifications as read.", n));
                 setTimeout(function () { window.location.reload(); }, 600);
             })
             .catch(function () { btn.disabled = false; });

@@ -1,15 +1,15 @@
 {
     'name': 'Wujia Knowledge Library',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Wujia',
-    'summary': 'Thư viện kiến thức / SOP / đào tạo cho cửa hàng nhượng quyền — HQ soạn, publish, hẹn giờ, hết hạn.',
+    'summary': 'Knowledge / SOP / training library for franchise stores — HQ writes, publishes, schedules, expires.',
     'description': """
-Nghiệp vụ thư viện kiến thức. Tách từ wujia_portal_knowledge (F9, ADR-027).
+Knowledge library business logic. Split from wujia_portal_knowledge (F9, ADR-027).
 
-- Model wujia.knowledge.article (mã KNW-, slug, nháp → publish → lưu trữ, hẹn giờ, hết hạn, đính kèm, chatter),
-  wujia.knowledge.category (cây danh mục), wujia.knowledge.tag.
-- Cron hằng ngày hạ cờ hiển thị của bài đã hết hạn.
-- _portal_visible_domain / _portal_search_domain / _portal_get_attachment: luật dùng chung cho mọi kênh.
+- Models wujia.knowledge.article (KNW- code, slug, draft → publish → archive, scheduling, expiry,
+  attachments, chatter), wujia.knowledge.category (category tree), wujia.knowledge.tag.
+- Daily cron clears the portal flag of expired articles.
+- _portal_visible_domain / _portal_search_domain / _portal_get_attachment: rules shared by every channel.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

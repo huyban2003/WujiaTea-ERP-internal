@@ -4,6 +4,7 @@ from werkzeug.exceptions import Forbidden
 
 from odoo import http
 from odoo.http import request
+from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.wujia_portal_base.controllers.utils import (
     build_pager,
@@ -12,6 +13,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 )
 
 _logger = logging.getLogger(__name__)
+_lt = LazyTranslate(__name__)
 
 PAGE_SIZE = 12
 # Lưới bài viết 3 cột nên bậc cỡ trang là bội của 12, không dùng bậc 10/20/50 chung.
@@ -45,7 +47,7 @@ class WujiaPortalKnowledge(http.Controller):
         tag, tag_invalid = self._filter_record(Tag, tag_id)
         if cat_invalid or tag_invalid:
             _logger.info(
-                'Knowledge filter không hợp lệ (category_id=%r, tag_id=%r), user %s',
+                'Invalid knowledge filter (category_id=%r, tag_id=%r), user %s',
                 category_id, tag_id, request.env.uid,
             )
             return request.redirect(
@@ -76,7 +78,7 @@ class WujiaPortalKnowledge(http.Controller):
         categories = Category.search([('active', '=', True)], order='sequence, name')
         tags = Tag.search([('active', '=', True)], order='name')
         pgn = build_pager(total, page, size, path='/portal/knowledge',
-                          item_label='bài viết',
+                          item_label=_lt('articles'),
                           page_size_options=PAGE_SIZE_OPTIONS)
         return request.render('wujia_portal_knowledge.portal_knowledge_list', {
             'articles': articles, 'categories': categories, 'tags': tags,
