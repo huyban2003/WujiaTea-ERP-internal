@@ -55,7 +55,18 @@
                  none: "none", out: "out" }[state] || "none";
     }
 
+    /* Câu dịch chèn vào HTML dựng tay (aria-label) — thoát ký tự đặc biệt. */
+    function escAttr(text) {
+        return String(text).replace(/&/g, "&amp;").replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
     function init(root) {
+        /* J-V3 — câu hiển thị lấy từ data-wj-msg-* trên root (dịch bằng .po); fallback tiếng Anh. */
+        function m(key, fallback, arg) {
+            var text = window.wjMsg ? window.wjMsg(root, key, fallback) : fallback;
+            return arg === undefined ? text : text.replace("%s", arg);
+        }
         /* ---- element refs ---- */
         var courseSelect = qs(root, "[data-wj-exam-course]");
         var calEl        = qs(root, "[data-wj-exam-cal]");
@@ -178,13 +189,13 @@
         function showMonthEmpty() {
             hide(calBody); show(calEmpty);
             // đổi tháng/khóa → xoá slot đã tải + reset chọn.
-            clearSlots("Chọn một ngày có lịch để xem khung giờ.");
+            clearSlots(m("pick-day", "Pick a day with sessions to see its time slots."));
         }
 
         /* ================= Khung giờ (slots) ================= */
         function clearSlots(msg) {
             if (slotList) { slotList.innerHTML = ""; }
-            if (slotEmptyTtl) { slotEmptyTtl.textContent = msg || "Chọn một ngày có lịch để xem khung giờ."; }
+            if (slotEmptyTtl) { slotEmptyTtl.textContent = msg || m("pick-day", "Pick a day with sessions to see its time slots."); }
             hide(slotEmptyBtn);
             show(slotEmpty);
         }
@@ -192,7 +203,7 @@
             if (!slotList) { return; }
             slotList.innerHTML = "";
             if (!slots || !slots.length) {
-                if (slotEmptyTtl) { slotEmptyTtl.textContent = "Không có khung giờ khả dụng."; }
+                if (slotEmptyTtl) { slotEmptyTtl.textContent = m("no-slots", "No time slots available."); }
                 show(slotEmptyBtn); show(slotEmpty);
                 return;
             }
@@ -227,18 +238,18 @@
             var cid = currentCourseId();
             if (!cid || !iso) { return; }
             if (slotList) { slotList.innerHTML = ""; }
-            if (slotEmptyTtl) { slotEmptyTtl.textContent = "Đang tải khung giờ…"; }
+            if (slotEmptyTtl) { slotEmptyTtl.textContent = m("loading-slots", "Loading time slots…"); }
             hide(slotEmptyBtn); show(slotEmpty);
             jsonRpc("/portal/exam/slots", {
                 course_id: cid, exam_date: iso,
             }).then(function (res) {
                 if (res && res.error) {
-                    if (slotEmptyTtl) { slotEmptyTtl.textContent = res.message || "Không tải được khung giờ."; }
+                    if (slotEmptyTtl) { slotEmptyTtl.textContent = res.message || m("load-failed", "Could not load time slots."); }
                     return;
                 }
                 renderSlots(res && res.slots);
             }).catch(function () {
-                if (slotEmptyTtl) { slotEmptyTtl.textContent = "Lỗi kết nối khi tải khung giờ."; }
+                if (slotEmptyTtl) { slotEmptyTtl.textContent = m("load-error", "Connection error while loading time slots."); }
             });
         }
 
@@ -259,7 +270,7 @@
             chosen = freshChosen();
             chosen.iso = day.getAttribute("data-exam-iso") || "";
             chosen.dateLabel = isoToDMY(chosen.iso);
-            if (slotTitle) { slotTitle.textContent = "Khung giờ ngày " + chosen.dateLabel; }
+            if (slotTitle) { slotTitle.textContent = m("slot-title", "Time slots on %s", chosen.dateLabel); }
             hideConflict();
             syncSummary();
             loadSlots(chosen.iso);
@@ -290,7 +301,7 @@
             if (sumValues[3]) { sumValues[3].textContent = chosen.sessionId ? chosen.deadline : "—"; }
             // sumValues[4] = cửa hàng (server, không đổi).
             if (seatChip) {
-                seatChip.textContent = chosen.sessionId ? ("Ca còn: " + chosen.seats + " chỗ") : "—";
+                seatChip.textContent = chosen.sessionId ? m("seats-left", "Seats left in slot: %s", chosen.seats) : "—";
             }
             updateQuota();
         }
@@ -302,8 +313,8 @@
             // khóa sẽ để lại câu cũ.
             if (helpText) {
                 helpText.textContent = maxPer
-                    ? ("Mỗi phiếu được đăng ký tối đa " + maxPer + " người.")
-                    : "Chọn khóa thi để xem giới hạn người mỗi phiếu.";
+                    ? m("max-hint", "Each registration allows at most %s people.", maxPer)
+                    : m("max-hint-none", "Choose an exam course to see the limit of people per registration.");
             }
         }
 
@@ -324,11 +335,11 @@
                 + '<td class="wj-pc-td--muted"></td>'
                 + '<td class="wj-pc-td--muted"></td>'
                 + '<td><span class="wj-exam-pc-rowacts">'
-                + '<button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm" data-wj-exam-line-edit="1" aria-label="Sửa người tham gia">'
+                + '<button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm" data-wj-exam-line-edit="1" aria-label="' + escAttr(m("edit-row", "Edit this participant")) + '">'
                 + '<i class="feather icon-edit-2"></i></button>'
-                + '<button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm" data-wj-exam-line-remove="1" aria-label="Xóa người tham gia">'
+                + '<button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm" data-wj-exam-line-remove="1" aria-label="' + escAttr(m("remove-row", "Delete participant")) + '">'
                 + '<i class="feather icon-trash-2"></i></button></span></td>';
-            qs(tr, ".wj-exam-pc-photo__tag").textContent = hasPhoto ? "Đã tải" : "Chưa có ảnh";
+            qs(tr, ".wj-exam-pc-photo__tag").textContent = hasPhoto ? m("photo-uploaded", "Uploaded") : m("photo-missing", "No photo");
             var td = tr.querySelectorAll("td");
             td[1].textContent = p.employee_name || "";
             td[2].textContent = p.phone || "";
@@ -357,7 +368,7 @@
                     thumb.innerHTML = '<i class="feather icon-user"></i>';
                 }
             }
-            if (fileNameEl) { fileNameEl.textContent = modalPhoto ? "Ảnh đã chọn" : "Chưa chọn ảnh"; }
+            if (fileNameEl) { fileNameEl.textContent = modalPhoto ? m("photo-chosen", "Photo chosen") : m("photo-none", "No photo selected"); }
         }
         function clearFieldInvalid() {
             qsa(root, ".wj-exam-pc-formgrid .wj-pc-field").forEach(function (f) {
@@ -375,8 +386,8 @@
             fileInput.value = "";
             resetPhotoPreview();
             hide(phoneErr); hide(fieldHelp); clearFieldInvalid();
-            if (modalTitle) { modalTitle.textContent = row ? "Chỉnh sửa người tham gia" : "Thêm người đăng ký"; }
-            if (saveBtn) { saveBtn.textContent = row ? "Lưu" : "Thêm người"; }
+            if (modalTitle) { modalTitle.textContent = row ? m("modal-edit", "Edit participant") : m("modal-add", "Add participant"); }
+            if (saveBtn) { saveBtn.textContent = row ? m("save", "Save") : m("add-person", "Add person"); }
             openModal("participant");
         }
         function saveParticipant() {
@@ -387,7 +398,7 @@
                 if (phoneInput) { phoneInput.closest(".wj-pc-field").classList.toggle("is-invalid", !phoneOk); }
                 if (nameInput) { nameInput.closest(".wj-pc-field").classList.toggle("is-invalid", !name); }
                 if (!phoneOk) { show(phoneErr); } else { hide(phoneErr); }
-                if (fieldHelp) { fieldHelp.textContent = "Tên và số điện thoại là bắt buộc."; }
+                if (fieldHelp) { fieldHelp.textContent = m("name-phone-required", "Name and phone number are required."); }
                 show(fieldHelp);
                 return;
             }
@@ -402,7 +413,7 @@
                 renderRowCells(editingRow);
             } else {
                 if (maxPer && realRows().length >= maxPer) {
-                    if (fieldHelp) { fieldHelp.textContent = "Tối đa " + maxPer + " người mỗi phiếu."; }
+                    if (fieldHelp) { fieldHelp.textContent = m("max-people", "At most %s people per registration.", maxPer); }
                     show(fieldHelp);
                     return;
                 }
@@ -419,7 +430,7 @@
             if (!PHOTO_MIME_RE.test(file.type) || file.size > MAX_PHOTO_BYTES) {
                 modalPhoto = ""; fileInput.value = "";
                 resetPhotoPreview();
-                if (fileNameEl) { fileNameEl.textContent = "Ảnh không hợp lệ (JPG/PNG, ≤ 5 MB)."; }
+                if (fileNameEl) { fileNameEl.textContent = m("photo-invalid", "Invalid photo (JPG/PNG, ≤ 5 MB)."); }
                 return;
             }
             var reader = new FileReader();
@@ -470,7 +481,7 @@
             }
             if (kvValues[2]) { kvValues[2].textContent = chosen.loc || "—"; }
             if (kvValues[3]) { kvValues[3].textContent = chosen.deadline || "—"; }
-            if (mSeatChip) { mSeatChip.textContent = "Ca còn: " + chosen.seats + " chỗ"; }
+            if (mSeatChip) { mSeatChip.textContent = m("seats-left", "Seats left in slot: %s", chosen.seats); }
             updateQuota();
             if (sumBody) {
                 sumBody.innerHTML = "";
@@ -501,13 +512,13 @@
         function openCheck() {
             hideConflict();
             if (!chosen.sessionId) {
-                showConflict("Chưa chọn khung giờ thi.",
-                    "Hãy chọn ngày và khung giờ còn chỗ trước khi gửi yêu cầu.");
+                showConflict(m("no-slot-title", "No exam time slot selected."),
+                    m("no-slot-text", "Pick a day and a time slot with seats left before submitting."));
                 return;
             }
             if (realRows().length === 0) {
-                showConflict("Chưa có người tham gia.",
-                    "Hãy thêm ít nhất 1 người dự thi.");
+                showConflict(m("no-people-title", "No participants yet."),
+                    m("no-people-text", "Add at least 1 participant."));
                 return;
             }
             buildSubmitSummary();
@@ -530,7 +541,8 @@
             var participants = collectParticipants();
             if (!chosen.sessionId || !participants.length) {
                 closeModals();
-                showConflict("Thiếu thông tin", "Cần khung giờ và ít nhất 1 người dự thi.");
+                showConflict(m("missing-title", "Missing information"),
+                    m("missing-text", "A time slot and at least 1 participant are required."));
                 return;
             }
             setBusy(sendBtn, true);
@@ -549,14 +561,15 @@
                     window.location = res.redirect;
                     return;
                 }
-                var msg = (res && res.message) || "Không gửi được yêu cầu. Vui lòng thử lại.";
+                var msg = (res && res.message) || m("submit-failed", "Could not submit the request. Please try again.");
                 if (res && res.error === "not_found") {
-                    fail(msg, "Danh sách người và ảnh vẫn được giữ lại. Hãy chọn lại khung giờ.");
+                    fail(msg, m("keep-data", "Your participants and photos are kept. Please choose the time slot again."));
                 } else {
-                    fail("Không gửi được yêu cầu", msg);
+                    fail(m("submit-failed-title", "Could not submit the request"), msg);
                 }
             }).catch(function () {
-                fail("Lỗi kết nối", "Không gửi được yêu cầu. Vui lòng thử lại.");
+                fail(m("conn-error", "Connection error"),
+                    m("submit-failed", "Could not submit the request. Please try again."));
             });
         }
 
@@ -574,9 +587,9 @@
             if (monthBtn) {
                 var ym = getYM();
                 var delta = monthBtn.getAttribute("data-wj-exam-month") === "prev" ? -1 : 1;
-                var m = ym.month + delta, y = ym.year;
-                if (m < 1) { m = 12; y -= 1; } else if (m > 12) { m = 1; y += 1; }
-                loadCalendar(y, m);
+                var mo = ym.month + delta, y = ym.year;
+                if (mo < 1) { mo = 12; y -= 1; } else if (mo > 12) { mo = 1; y += 1; }
+                loadCalendar(y, mo);
                 return;
             }
 
@@ -626,8 +639,8 @@
             if (ev.target === courseSelect) {
                 chosen = freshChosen();
                 maxPer = parseMax();
-                clearSlots("Chọn một ngày có lịch để xem khung giờ.");
-                if (slotTitle) { slotTitle.textContent = "Khung giờ"; }
+                clearSlots(m("pick-day", "Pick a day with sessions to see its time slots."));
+                if (slotTitle) { slotTitle.textContent = m("slot-title-empty", "Time slot"); }
                 var ym = getYM();
                 loadCalendar(ym.year, ym.month);
                 syncSummary();

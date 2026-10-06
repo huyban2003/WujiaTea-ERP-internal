@@ -17,7 +17,7 @@ class WujiaExamTimeSlot(models.Model):
     active = fields.Boolean(default=True)
 
     _uniq_code = models.Constraint(
-        'unique(code)', 'Mã ca thi phải duy nhất.',
+        'unique(code)', 'Time slot code must be unique.',
     )
 
     @api.constrains('time_from', 'time_to')
@@ -25,5 +25,5 @@ class WujiaExamTimeSlot(models.Model):
         for rec in self:
             if not (0.0 <= rec.time_from < rec.time_to <= 24.0):
                 raise ValidationError(_(
-                    "Ca thi '%s': giờ phải thỏa 0 ≤ bắt đầu < kết thúc ≤ 24.",
+                    "Time slot '%s': hours must satisfy 0 ≤ start < end ≤ 24.",
                     rec.name))

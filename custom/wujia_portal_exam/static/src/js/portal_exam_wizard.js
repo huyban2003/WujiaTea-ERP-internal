@@ -35,6 +35,17 @@
     function init() {
         var wizard = document.querySelector('.wujia-mexam-wizard');
         if (!wizard) { return; }
+        /* J-V3 — câu hiển thị lấy từ data-wj-msg-* trên wizard (dịch bằng .po); fallback tiếng Anh. */
+        function m(key, fallback, arg) {
+            var text = window.wjMsg ? window.wjMsg(wizard, key, fallback) : fallback;
+            return arg === undefined ? text : text.replace('%s', arg);
+        }
+        function emptyNote(text) {
+            var p = document.createElement('p');
+            p.className = 'wujia-mexam-slot-empty';
+            p.textContent = text;
+            return p;
+        }
 
         var panels = wizard.querySelectorAll('[data-exam-step]');
         var sheet = wizard.querySelector('.wujia-mexam-sheet');
@@ -136,8 +147,7 @@
             if (!slotList) { return; }
             slotList.innerHTML = '';
             if (!slots || !slots.length) {
-                slotList.innerHTML =
-                    '<p class="wujia-mexam-slot-empty">Ngày này chưa có khung giờ mở.</p>';
+                slotList.appendChild(emptyNote(m('no-open-slots', 'No open time slots on this day.')));
                 return;
             }
             slots.forEach(function (s) {
@@ -162,8 +172,8 @@
 
         function loadSlots(iso) {
             if (!slotList) { return; }
-            slotList.innerHTML =
-                '<p class="wujia-mexam-slot-empty">Đang tải khung giờ…</p>';
+            slotList.innerHTML = '';
+            slotList.appendChild(emptyNote(m('loading-slots', 'Loading time slots…')));
             jsonRpc('/portal/exam/slots', {
                 course_id: courseId, exam_date: iso,
             }).then(function (res) {
@@ -191,7 +201,7 @@
             var rows = personRows();
             rows.forEach(function (p, i) {
                 var nameEl = p.querySelector('.wujia-mexam-person-name');
-                if (nameEl) { nameEl.textContent = 'Nhân sự ' + (i + 1); }
+                if (nameEl) { nameEl.textContent = m('person-n', 'Participant %s', i + 1); }
                 var del = p.querySelector('[data-exam-person-del]');
                 var req = p.querySelector('[data-exam-person-req]');
                 // Người 1 bắt buộc, không xóa; còn lại xóa được.
@@ -217,14 +227,14 @@
                 else { inp.value = ''; }
             });
             var pt = node.querySelector('.wujia-mexam-photo-text');
-            if (pt) { pt.textContent = 'Thêm ảnh (tùy chọn)'; }
+            if (pt) { pt.textContent = m('add-photo', 'Add photo (optional)'); }
             clearPersonErr(node);
             personList.appendChild(node);
             renumberPeople();
         }
         function flashPersonLimit() {
             var last = personRows()[personRows().length - 1];
-            if (last) { showPersonErr(last, 'Tối đa ' + chosen.max + ' người mỗi phiếu.'); }
+            if (last) { showPersonErr(last, m('max-people', 'At most %s people per registration.', chosen.max)); }
         }
         function showPersonErr(person, msg) {
             var err = person.querySelector('[data-exam-person-err]');
@@ -248,13 +258,13 @@
                 var name = readField(person, 'employee_name');
                 var phone = readField(person, 'phone');
                 if (!name || !phone) {
-                    showPersonErr(person, 'Cần họ tên và số điện thoại.');
+                    showPersonErr(person, m('need-name-phone', 'Full name and phone number are required.'));
                     ok = false;
                     return;
                 }
                 if (!PHONE_RE.test(phone)) {
                     showPersonErr(person,
-                        'Số điện thoại không hợp lệ (vd 0901234567).');
+                        m('phone-invalid', 'Invalid phone number (e.g. 0901234567).'));
                     ok = false;
                     return;
                 }
@@ -287,9 +297,9 @@
                     '<span class="wujia-mexam-cfperson-kv"></span>';
                 var kv = row.querySelectorAll('.wujia-mexam-cfperson-kv');
                 row.querySelector('.wujia-mexam-cfperson-name').textContent = p.employee_name;
-                kv[0].textContent = 'Số điện thoại: ' + p.phone;
-                kv[1].textContent = 'Năm sinh: ' + (p.birth_year || '—');
-                kv[2].textContent = 'Chức vụ: ' + (p.job_position || '—');
+                kv[0].textContent = m('cf-phone', 'Phone number: %s', p.phone);
+                kv[1].textContent = m('cf-birth', 'Year of birth: %s', p.birth_year || '—');
+                kv[2].textContent = m('cf-job', 'Job title: %s', p.job_position || '—');
                 box.appendChild(row);
             });
         }
@@ -314,7 +324,7 @@
             if (!file) { input._photoData = ''; return; }
             if (file.size > MAX_PHOTO_BYTES) {
                 input.value = ''; input._photoData = '';
-                if (person) { showPersonErr(person, 'Ảnh vượt 5 MB.'); }
+                if (person) { showPersonErr(person, m('photo-too-big', 'The photo exceeds 5 MB.')); }
                 return;
             }
             var reader = new FileReader();
@@ -377,10 +387,10 @@
             if (monthBtn) {
                 ev.preventDefault();
                 var dir = monthBtn.getAttribute('data-exam-cal-month') === 'prev' ? -1 : 1;
-                var m = calMonth + dir, y = calYear;
-                if (m < 1) { m = 12; y -= 1; }
-                else if (m > 12) { m = 1; y += 1; }
-                loadCalendar(y, m);
+                var mo = calMonth + dir, y = calYear;
+                if (mo < 1) { mo = 12; y -= 1; }
+                else if (mo > 12) { mo = 1; y += 1; }
+                loadCalendar(y, mo);
                 return;
             }
 
@@ -481,12 +491,12 @@
                 ev.preventDefault();
                 hideSubmitErr();
                 if (!chosen.sessionId) {
-                    showSubmitErr('Vui lòng chọn khung giờ thi.');
+                    showSubmitErr(m('choose-slot', 'Please choose an exam time slot.'));
                     return;
                 }
                 var participants = collectParticipants();
                 if (!participants) {
-                    showSubmitErr('Kiểm tra lại thông tin nhân sự.');
+                    showSubmitErr(m('check-people', 'Check the participant details again.'));
                     showStep(3);
                     return;
                 }
@@ -501,10 +511,10 @@
                     }
                     setBusy(submit, false);
                     showSubmitErr((res && res.message) ||
-                        'Không gửi được yêu cầu. Vui lòng thử lại.');
+                        m('submit-failed', 'Could not submit the request. Please try again.'));
                 }).catch(function () {
                     setBusy(submit, false);
-                    showSubmitErr('Có lỗi kết nối. Vui lòng thử lại.');
+                    showSubmitErr(m('conn-retry', 'Connection error. Please try again.'));
                 });
                 return;
             }

@@ -1,15 +1,15 @@
 {
     'name': 'Wujia Exams',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Wujia',
-    'summary': 'Đăng ký thi nhượng quyền — khóa thi, ca thi, kỳ thi, phiếu đa nhân sự, kết quả.',
+    'summary': 'Franchise exam registration — exam courses, time slots, exam sessions, multi-person registrations, results.',
     'description': """
-Nghiệp vụ đào tạo / thi. Tách từ wujia_portal_exam (F12, ADR-027).
+Training / exam business logic. Split out of wujia_portal_exam (F12, ADR-027).
 
-- Model wujia.exam.time.slot (ca giờ), wujia.exam.course (khóa, mã WJ-CRS/),
-  wujia.exam.session (kỳ thi, mã WJ-EXS/, sức chứa, công bố kết quả),
-  wujia.exam.registration (phiếu, mã WJ-EXR/) + wujia.exam.registration.line (thí sinh).
-- _effective_max_per_registration / _portal_* / register_from_portal: luật dùng chung cho mọi kênh.
+- Models wujia.exam.time.slot (time slots), wujia.exam.course (courses, code WJ-CRS/),
+  wujia.exam.session (exam sessions, code WJ-EXS/, capacity, result publishing),
+  wujia.exam.registration (registrations, code WJ-EXR/) + wujia.exam.registration.line (participants).
+- _effective_max_per_registration / _portal_* / register_from_portal: rules shared by every channel.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

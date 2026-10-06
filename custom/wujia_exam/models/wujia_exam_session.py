@@ -77,7 +77,7 @@ class WujiaExamSession(models.Model):
     note = fields.Text(string='Notes')
 
     _check_capacity_positive = models.Constraint(
-        'CHECK(capacity >= 1)', 'Sức chứa phải ≥ 1.',
+        'CHECK(capacity >= 1)', 'Capacity must be ≥ 1.',
     )
 
     # ------------------------------------------------------------ computes
@@ -179,7 +179,7 @@ class WujiaExamSession(models.Model):
             if rec.time_slot_id and rec.course_id and \
                     rec.time_slot_id not in rec.course_id.time_slot_ids:
                 raise ValidationError(_(
-                    "Ca thi phải thuộc danh sách ca của khóa thi '%s'.",
+                    "The time slot must be one of the time slots of exam course '%s'.",
                     rec.course_id.name))
 
     @api.constrains('capacity', 'reserved_participant_count')
@@ -187,7 +187,7 @@ class WujiaExamSession(models.Model):
         for rec in self:
             if rec.capacity < rec.reserved_participant_count:
                 raise ValidationError(_(
-                    "Sức chứa (%s) không được nhỏ hơn số đã giữ chỗ (%s).",
+                    "Capacity (%s) cannot be lower than the number of reserved seats (%s).",
                     rec.capacity, rec.reserved_participant_count))
 
     @api.constrains('registration_deadline', 'start_datetime')
@@ -196,7 +196,7 @@ class WujiaExamSession(models.Model):
             if rec.registration_deadline and rec.start_datetime and \
                     rec.registration_deadline > rec.start_datetime:
                 raise ValidationError(_(
-                    "Hạn đăng ký không được sau giờ bắt đầu thi."))
+                    "The registration deadline cannot be after the exam start time."))
 
     # ------------------------------------------------------------ sequence
     @api.model_create_multi
@@ -211,52 +211,52 @@ class WujiaExamSession(models.Model):
     def action_open(self):
         for rec in self:
             if rec.state != 'draft':
-                raise ValidationError(_("Chỉ mở đăng ký cho kỳ thi ở trạng thái Nháp."))
+                raise ValidationError(_("Registration can only be opened for exam sessions in Draft state."))
             rec.state = 'open'
-            rec.message_post(body=_("Kỳ thi đã mở đăng ký."))
+            rec.message_post(body=_("The exam session is now open for registration."))
 
     def action_close(self):
         for rec in self:
             if rec.state != 'open':
-                raise ValidationError(_("Chỉ đóng kỳ thi đang mở đăng ký."))
+                raise ValidationError(_("Only exam sessions open for registration can be closed."))
             rec.state = 'closed'
-            rec.message_post(body=_("Kỳ thi đã đóng đăng ký."))
+            rec.message_post(body=_("The exam session is now closed for registration."))
 
     def action_mark_done(self):
         for rec in self:
             if rec.state not in ('open', 'closed'):
-                raise ValidationError(_("Chỉ hoàn tất kỳ thi đang mở/đóng đăng ký."))
+                raise ValidationError(_("Only exam sessions that are open or closed for registration can be completed."))
             rec.state = 'done'
-            rec.message_post(body=_("Kỳ thi đã hoàn tất."))
+            rec.message_post(body=_("The exam session has been completed."))
 
     def action_cancel(self):
         for rec in self:
             if rec.state in ('done', 'cancelled'):
-                raise ValidationError(_("Kỳ thi này không thể hủy."))
+                raise ValidationError(_("This exam session cannot be cancelled."))
             if not rec.cancellation_reason:
-                raise ValidationError(_("Nhập lý do hủy trước khi hủy kỳ thi."))
+                raise ValidationError(_("Enter a cancellation reason before cancelling the exam session."))
             rec.state = 'cancelled'
-            rec.message_post(body=_("Kỳ thi bị hủy: %s", rec.cancellation_reason))
+            rec.message_post(body=_("Exam session cancelled: %s", rec.cancellation_reason))
 
     def action_publish_results(self):
         for rec in self:
             if rec.state not in ('closed', 'done'):
                 raise ValidationError(_(
-                    "Chỉ công bố kết quả khi kỳ thi đã đóng đăng ký / hoàn tất."))
+                    "Results can only be published once the exam session is closed for registration / completed."))
             pending_reg = rec.registration_ids.filtered(
                 lambda r: r.state == 'submitted')
             if pending_reg:
                 raise ValidationError(_(
-                    "Còn %s phiếu đăng ký chưa duyệt — xử lý trước khi công bố.",
+                    "%s registrations are still awaiting approval — handle them before publishing.",
                     len(pending_reg)))
             confirmed_lines = rec.registration_ids.filtered(
                 lambda r: r.state == 'confirmed').mapped('line_ids')
             if any(line.result == 'pending' for line in confirmed_lines):
                 raise ValidationError(_(
-                    "Còn thí sinh chưa nhập kết quả (Đạt/Không đạt)."))
+                    "Some participants have no result yet (Pass/Fail)."))
             rec.write({
                 'results_published': True,
                 'results_published_by_id': self.env.uid,
                 'results_published_date': fields.Datetime.now(),
             })
-            rec.message_post(body=_("Đã công bố kết quả kỳ thi."))
+            rec.message_post(body=_("The exam results have been published."))

@@ -1,8 +1,8 @@
 {
-    'name': 'Wujia Portal — Exam (Đào tạo / Thi)',
-    'version': '19.0.6.2.0',
+    'name': 'Wujia Portal — Exam (Training / Exams)',
+    'version': '19.0.7.0.0',
     'category': 'Wujia',
-    'summary': 'Màn Đăng ký thi trên portal (PC + mobile) — nghiệp vụ ở wujia_exam (F12).',
+    'summary': 'Portal exam registration screens (PC + mobile) — business logic lives in wujia_exam (F12).',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': ['wujia_portal_base', 'wujia_exam'],

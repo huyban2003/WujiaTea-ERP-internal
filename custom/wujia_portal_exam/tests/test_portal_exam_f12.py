@@ -6,9 +6,14 @@ from odoo.tests.common import HttpCase
 from odoo.addons.wujia_exam.tests.test_portal_rules import ExamCommon, png_b64
 from odoo.addons.wujia_portal_exam.controllers.portal import _max_hint
 
+# J-V3: nhãn/câu báo portal nằm ở .po của khung + portal_base + 2 module Thi.
+VI_MODULES = ('wujia_portal_layout', 'wujia_portal_base', 'wujia_exam', 'wujia_portal_exam')
+
 
 @tagged('post_install', '-at_install', 'wujia_exam')
 class TestPortalExamF12(ExamCommon, HttpCase):
+
+    _vi_modules = VI_MODULES
 
     @classmethod
     def setUpClass(cls):
@@ -27,7 +32,10 @@ class TestPortalExamF12(ExamCommon, HttpCase):
     def test_max_hint(self):
         self.assertIn('2', _max_hint(2))
         self.assertNotIn('4', _max_hint(2))
-        self.assertIn('Chọn khóa thi', _max_hint(0))
+        # Gọi trần (không request/env) ⇒ câu gốc tiếng Anh; vi_VN đọc qua env của user.
+        hint = _max_hint(0)
+        self.assertIn('Choose an exam course', hint)
+        self.assertIn('Chọn khóa thi', self.env._(hint))
 
     def test_calendar_and_slots(self):
         cal = self.make_jsonrpc_request('/portal/exam/calendar', {

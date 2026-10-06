@@ -1,280 +1,317 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* wujia_portal_exam
+# * wujia_portal_exam
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-01 19:33+0000\n"
-"PO-Revision-Date: 2026-08-01 19:33+0000\n"
+"POT-Creation-Date: 2026-10-06 07:19+0000\n"
+"PO-Revision-Date: 2026-10-06 07:19+0000\n"
 "Last-Translator: \n"
+"Language: vi_VN\n"
 "Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "/ trang"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+#, python-format
+msgid "%(count)d sessions • In the next %(days)d days"
+msgstr "%(count)d kỳ thi • Trong %(days)d ngày tới"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.layout_sidenav_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+#, python-format
+msgid "%d Fail"
+msgstr "%d Không đạt"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+#, python-format
+msgid "%d Pass"
+msgstr "%d Đạt"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+#, python-format
+msgid "%d failed"
+msgstr "%d không đạt"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+#, python-format
+msgid "%d participants"
+msgstr "%d nhân sự"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+#, python-format
+msgid "%d passed"
+msgstr "%d đạt"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+#, python-format
+msgid "%d seats left"
+msgstr "Còn %d chỗ"
+
+#. module: wujia_portal_exam
 msgid ""
-"<i class=\"feather icon-award\" aria-hidden=\"true\"/>\n"
-"                    <span class=\"menu-title\">Đào tạo</span>"
+"<i class=\"feather icon-calendar wj-lc__icon\"/>\n"
+"                                        Exam schedule"
 msgstr ""
+"<i class=\"feather icon-calendar wj-lc__icon\"/>\n"
+"                                        Lịch thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.layout_sidenav_exam
-msgid "<i class=\"feather icon-calendar me-1\"/>Đăng ký thi"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
 msgid ""
 "<i class=\"feather icon-camera\"/>\n"
-"                                    <span class=\"wujia-mexam-photo-text\">Thêm ảnh (tùy chọn)</span>"
+"                                    <span class=\"wujia-mexam-photo-"
+"text\">Add photo (optional)</span>"
 msgstr ""
+"<i class=\"feather icon-camera\"/>\n"
+"                                    <span class=\"wujia-mexam-photo-"
+"text\">Thêm ảnh (tùy chọn)</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<i class=\"feather icon-chevron-left\"/>Quay lại"
-msgstr ""
+msgid "<i class=\"feather icon-chevron-left\"/>Back"
+msgstr "<i class=\"feather icon-chevron-left\"/>Quay lại"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
 msgid ""
 "<i class=\"feather icon-info\"/>\n"
-"                            <span>Chọn ngày còn chỗ để xem khung giờ thi.</span>"
+"                            <span>Pick a day with seats left to see the exam"
+" time slots.</span>"
 msgstr ""
+"<i class=\"feather icon-info\"/>\n"
+"                            <span>Chọn ngày còn chỗ để xem khung giờ "
+"thi.</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
 msgid ""
 "<i class=\"feather icon-info\"/>\n"
-"                    <span>Người không đạt có thể đăng ký thi lại khi có lịch mở.</span>"
+"                    <span>Participants who failed can register for a retake "
+"when sessions open.</span>"
 msgstr ""
+"<i class=\"feather icon-info\"/>\n"
+"                    <span>Người không đạt có thể đăng ký thi lại khi có lịch"
+" mở.</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
 msgid ""
 "<i class=\"feather icon-plus\"/>\n"
+"                    <span>New registration</span>"
+msgstr ""
+"<i class=\"feather icon-plus\"/>\n"
 "                    <span>Đăng ký mới</span>"
-msgstr ""
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "<i class=\"feather icon-plus\"/> Đăng ký mới"
-msgstr ""
+msgid "<i class=\"feather icon-plus\"/> New registration"
+msgstr "<i class=\"feather icon-plus\"/> Đăng ký mới"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<i class=\"feather icon-plus\"/><span>Thêm người</span>"
-msgstr ""
+msgid "<i class=\"feather icon-plus\"/><span>Add person</span>"
+msgstr "<i class=\"feather icon-plus\"/><span>Thêm người</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<i class=\"feather icon-plus\"/>Thêm người"
-msgstr ""
+msgid "<i class=\"feather icon-plus\"/>Add person"
+msgstr "<i class=\"feather icon-plus\"/>Thêm người"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "<i class=\"feather icon-plus\"/>Đăng ký mới"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "<option value=\"\">Trạng thái</option>"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid ""
-"<option value=\"1\">Thi pha chế định kỳ</option>\n"
-"                                    <option value=\"2\">Đào tạo quản lý</option>"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid ""
-"<option value=\"20\">20 / trang</option>\n"
-"                                <option value=\"50\">50 / trang</option>"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid ""
-"<select name=\"result\" class=\"wj-pc-filter-control wj-exam-pc-fc--sel\">\n"
-"                                <option value=\"\">Kết quả</option>\n"
-"                                <option value=\"published\">Đã công bố</option>\n"
-"                                <option value=\"unpublished\">Chưa công bố</option>\n"
-"                            </select>"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
 msgid "<span class=\"wj-exam-pc-banner__chip\">i</span>"
 msgstr ""
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<span class=\"wj-exam-pc-kv__label\">Cửa hàng</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Date &amp; time</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Ngày &amp; giờ</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wj-exam-pc-kv__label\">Hạn đăng ký</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Exam course</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Khóa thi</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<span class=\"wj-exam-pc-kv__label\">Khóa thi</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Exam date &amp; time</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Ngày &amp; giờ thi</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<span class=\"wj-exam-pc-kv__label\">Mã phiếu</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Participants</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Người tham gia</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<span class=\"wj-exam-pc-kv__label\">Ngày &amp; giờ thi</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Registration deadline</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Hạn đăng ký</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wj-exam-pc-kv__label\">Ngày &amp; giờ</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Registration no.</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Mã phiếu</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<span class=\"wj-exam-pc-kv__label\">Ngày nộp phiếu</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Requested by</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Người đăng ký</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<span class=\"wj-exam-pc-kv__label\">Người tham gia</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Store</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Cửa hàng</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<span class=\"wj-exam-pc-kv__label\">Người đăng ký</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Submitted on</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Ngày nộp phiếu</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<span class=\"wj-exam-pc-kv__label\">Địa điểm</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-kv__label\">Venue</span>"
+msgstr "<span class=\"wj-exam-pc-kv__label\">Địa điểm</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
 msgid ""
 "<span class=\"wj-exam-pc-legend__item\">\n"
-"                                            <i class=\"wj-exam-pc-legend__dot wj-exam-pc-legend__dot--open\"/>Còn chỗ\n"
+"                                            <i class=\"wj-exam-pc-"
+"legend__dot wj-exam-pc-legend__dot--open\"/>Seats left\n"
 "                                        </span>\n"
-"                                        <span class=\"wj-exam-pc-legend__item\">\n"
-"                                            <i class=\"wj-exam-pc-legend__dot wj-exam-pc-legend__dot--block\"/>Không thể đăng ký\n"
+"                                        <span class=\"wj-exam-pc-"
+"legend__item\">\n"
+"                                            <i class=\"wj-exam-pc-"
+"legend__dot wj-exam-pc-legend__dot--block\"/>Unavailable\n"
 "                                        </span>\n"
-"                                        <span class=\"wj-exam-pc-legend__item\">\n"
-"                                            <i class=\"wj-exam-pc-legend__dot wj-exam-pc-legend__dot--none\"/>Không có lịch\n"
+"                                        <span class=\"wj-exam-pc-"
+"legend__item\">\n"
+"                                            <i class=\"wj-exam-pc-"
+"legend__dot wj-exam-pc-legend__dot--none\"/>No sessions\n"
 "                                        </span>"
 msgstr ""
+"<span class=\"wj-exam-pc-legend__item\">\n"
+"                                            <i class=\"wj-exam-pc-"
+"legend__dot wj-exam-pc-legend__dot--open\"/>Còn chỗ\n"
+"                                        </span>\n"
+"                                        <span class=\"wj-exam-pc-"
+"legend__item\">\n"
+"                                            <i class=\"wj-exam-pc-"
+"legend__dot wj-exam-pc-legend__dot--block\"/>Không thể đăng ký\n"
+"                                        </span>\n"
+"                                        <span class=\"wj-exam-pc-"
+"legend__item\">\n"
+"                                            <i class=\"wj-exam-pc-"
+"legend__dot wj-exam-pc-legend__dot--none\"/>Không có lịch\n"
+"                                        </span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
 msgid ""
 "<span class=\"wj-exam-pc-photobox__drop\">\n"
-"                                        <span class=\"wj-exam-pc-photobox__droptitle\">Hoặc kéo thả ảnh mới</span>\n"
-"                                        <span class=\"wj-exam-pc-photobox__hint\">JPG, PNG · giới hạn theo hệ thống</span>\n"
+"                                        <span class=\"wj-exam-pc-"
+"photobox__droptitle\">Or drag and drop a new photo</span>\n"
+"                                        <span class=\"wj-exam-pc-"
+"photobox__hint\">JPG, PNG · system size limit</span>\n"
 "                                    </span>"
 msgstr ""
+"<span class=\"wj-exam-pc-photobox__drop\">\n"
+"                                        <span class=\"wj-exam-pc-"
+"photobox__droptitle\">Hoặc kéo thả ảnh mới</span>\n"
+"                                        <span class=\"wj-exam-pc-"
+"photobox__hint\">JPG, PNG · giới hạn theo hệ thống</span>\n"
+"                                    </span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wj-exam-pc-quota__label\">Chỗ còn lại của ca</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-quota__label\">Limit per registration</span>"
+msgstr "<span class=\"wj-exam-pc-quota__label\">Giới hạn mỗi phiếu</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wj-exam-pc-quota__label\">Giới hạn mỗi phiếu</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-quota__label\">Seats left in slot</span>"
+msgstr "<span class=\"wj-exam-pc-quota__label\">Chỗ còn lại của ca</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wj-exam-pc-sumkv__label\">Cửa hàng</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-sumkv__label\">Exam course</span>"
+msgstr "<span class=\"wj-exam-pc-sumkv__label\">Khóa thi</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wj-exam-pc-sumkv__label\">Hạn đăng ký</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-sumkv__label\">Exam date &amp; time</span>"
+msgstr "<span class=\"wj-exam-pc-sumkv__label\">Ngày &amp; giờ thi</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wj-exam-pc-sumkv__label\">Khóa thi</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-sumkv__label\">Registration deadline</span>"
+msgstr "<span class=\"wj-exam-pc-sumkv__label\">Hạn đăng ký</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wj-exam-pc-sumkv__label\">Ngày &amp; giờ thi</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-sumkv__label\">Store</span>"
+msgstr "<span class=\"wj-exam-pc-sumkv__label\">Cửa hàng</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wj-exam-pc-sumkv__label\">Địa điểm</span>"
-msgstr ""
+msgid "<span class=\"wj-exam-pc-sumkv__label\">Venue</span>"
+msgstr "<span class=\"wj-exam-pc-sumkv__label\">Địa điểm</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
 msgid ""
 "<span class=\"wj-exam-pc-thumb\"><i class=\"feather icon-user\"/></span>\n"
-"                                <span class=\"wj-exam-pc-thumb__cap\">Ảnh xem trước</span>"
+"                                <span class=\"wj-exam-pc-thumb__cap\">Photo "
+"preview</span>"
 msgstr ""
+"<span class=\"wj-exam-pc-thumb\"><i class=\"feather icon-user\"/></span>\n"
+"                                <span class=\"wj-exam-pc-thumb__cap\">Ảnh "
+"xem trước</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "<span class=\"wj-filter-date-sep\">–</span>"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
 msgid ""
-"<span class=\"wj-status-badge wj-status-badge--danger\">Không "
-"đạt</span>"
+"<span class=\"wj-exam-pc-wd\">Mo</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">Tu</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">We</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">Th</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">Fr</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">Sa</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">Su</span>"
 msgstr ""
+"<span class=\"wj-exam-pc-wd\">T2</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">T3</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">T4</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">T5</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">T6</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">T7</span>\n"
+"                                            <span class=\"wj-exam-pc-"
+"wd\">CN</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "<span class=\"wj-status-badge wj-status-badge--success\">Đạt</span>"
-msgstr ""
+msgid "<span class=\"wj-status-badge wj-status-badge--danger\">Fail</span>"
+msgstr "<span class=\"wj-status-badge wj-status-badge--danger\">Không đạt</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
+msgid "<span class=\"wj-status-badge wj-status-badge--pending\">No result yet</span>"
+msgstr ""
+"<span class=\"wj-status-badge wj-status-badge--pending\">Chưa có kết "
+"quả</span>"
+
+#. module: wujia_portal_exam
+msgid "<span class=\"wj-status-badge wj-status-badge--success\">Pass</span>"
+msgstr "<span class=\"wj-status-badge wj-status-badge--success\">Đạt</span>"
+
+#. module: wujia_portal_exam
 msgid ""
-"<span class=\"wj-status-badge wj-status-badge--pending\">Chưa có "
-"kết quả</span>"
+"<span class=\"wujia-mexam-cal-wd\">Mo</span>\n"
+"                            <span class=\"wujia-mexam-cal-wd\">Tu</span>\n"
+"                            <span class=\"wujia-mexam-cal-wd\">We</span>\n"
+"                            <span class=\"wujia-mexam-cal-wd\">Th</span>\n"
+"                            <span class=\"wujia-mexam-cal-wd\">Fr</span>\n"
+"                            <span class=\"wujia-mexam-cal-wd\">Sa</span>\n"
+"                            <span class=\"wujia-mexam-cal-wd\">Su</span>"
 msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "<span class=\"wj-pc-page-btn is-disabled\">‹</span>"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "<span class=\"wj-pc-page-btn\">›</span>"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid ""
 "<span class=\"wujia-mexam-cal-wd\">T2</span>\n"
 "                            <span class=\"wujia-mexam-cal-wd\">T3</span>\n"
 "                            <span class=\"wujia-mexam-cal-wd\">T4</span>\n"
@@ -282,693 +319,904 @@ msgid ""
 "                            <span class=\"wujia-mexam-cal-wd\">T6</span>\n"
 "                            <span class=\"wujia-mexam-cal-wd\">T7</span>\n"
 "                            <span class=\"wujia-mexam-cal-wd\">CN</span>"
-msgstr ""
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
+msgid "<span class=\"wujia-mexam-kv-k\">Exam course</span>"
+msgstr "<span class=\"wujia-mexam-kv-k\">Khóa thi</span>"
+
+#. module: wujia_portal_exam
 msgid ""
-"<span class=\"wujia-mexam-kv-k\">Khung giờ</span>\n"
-"                            <span class=\"wujia-mexam-kv-v\" data-exam-cf-slot=\"1\">08:20</span>"
+"<span class=\"wujia-mexam-kv-k\">Exam date</span>\n"
+"                            <span class=\"wujia-mexam-kv-v\" data-exam-cf-"
+"date=\"1\">Thursday, 02/07/2026</span>"
 msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wujia-mexam-kv-k\">Khóa thi</span>"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid ""
 "<span class=\"wujia-mexam-kv-k\">Ngày thi</span>\n"
-"                            <span class=\"wujia-mexam-kv-v\" data-exam-cf-date=\"1\">Thứ 5, 02/07/2026</span>"
-msgstr ""
+"                            <span class=\"wujia-mexam-kv-v\" data-exam-cf-"
+"date=\"1\">Thứ 5, 02/07/2026</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
 msgid ""
-"<span class=\"wujia-mexam-kv-k\">Địa điểm</span>\n"
-"                            <span class=\"wujia-mexam-kv-v\" data-exam-cf-loc=\"1\">Trung tâm đào tạo Ngô Gia</span>"
+"<span class=\"wujia-mexam-kv-k\">Time slot</span>\n"
+"                            <span class=\"wujia-mexam-kv-v\" data-exam-cf-"
+"slot=\"1\">08:20</span>"
 msgstr ""
+"<span class=\"wujia-mexam-kv-k\">Khung giờ</span>\n"
+"                            <span class=\"wujia-mexam-kv-v\" data-exam-cf-"
+"slot=\"1\">08:20</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid ""
-"<span class=\"wujia-mexam-leg is-on\"><i class=\"wujia-mexam-leg-dot\"/>Còn chỗ</span>\n"
-"                            <span class=\"wujia-mexam-leg is-off\"><i class=\"wujia-mexam-leg-dot\"/>Hết chỗ</span>\n"
-"                            <span class=\"wujia-mexam-leg is-off\"><i class=\"wujia-mexam-leg-dot\"/>Không lịch</span>"
-msgstr ""
+msgid "<span class=\"wujia-mexam-kv-k\">Venue</span>"
+msgstr "<span class=\"wujia-mexam-kv-k\">Địa điểm</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
 msgid ""
+"<span class=\"wujia-mexam-leg is-on\"><i class=\"wujia-mexam-leg-"
+"dot\"/>Seats left</span>\n"
+"                            <span class=\"wujia-mexam-leg is-off\"><i class"
+"=\"wujia-mexam-leg-dot\"/>Fully booked</span>\n"
+"                            <span class=\"wujia-mexam-leg is-off\"><i class"
+"=\"wujia-mexam-leg-dot\"/>No session</span>"
+msgstr ""
+"<span class=\"wujia-mexam-leg is-on\"><i class=\"wujia-mexam-leg-dot\"/>Còn "
+"chỗ</span>\n"
+"                            <span class=\"wujia-mexam-leg is-off\"><i class"
+"=\"wujia-mexam-leg-dot\"/>Hết chỗ</span>\n"
+"                            <span class=\"wujia-mexam-leg is-off\"><i class"
+"=\"wujia-mexam-leg-dot\"/>Không lịch</span>"
+
+#. module: wujia_portal_exam
+msgid ""
+"<span class=\"wujia-mexam-person-name\">Participant 1</span>\n"
+"                                <span class=\"wujia-mexam-person-req\" data-"
+"exam-person-req=\"1\">Required</span>"
+msgstr ""
 "<span class=\"wujia-mexam-person-name\">Nhân sự 1</span>\n"
-"                                <span class=\"wujia-mexam-person-req\" data-exam-person-req=\"1\">Bắt buộc</span>"
-msgstr ""
+"                                <span class=\"wujia-mexam-person-req\" data-"
+"exam-person-req=\"1\">Bắt buộc</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wujia-mexam-selcard-badge\">Đã chọn</span>"
-msgstr ""
+msgid "<span class=\"wujia-mexam-selcard-badge\">Selected</span>"
+msgstr "<span class=\"wujia-mexam-selcard-badge\">Đã chọn</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wujia-mexam-stepbadge\">Bước 1/4</span>"
-msgstr ""
+msgid "<span class=\"wujia-mexam-stepbadge\">Step 1/4</span>"
+msgstr "<span class=\"wujia-mexam-stepbadge\">Bước 1/4</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wujia-mexam-stepbadge\">Bước 2/4</span>"
-msgstr ""
+msgid "<span class=\"wujia-mexam-stepbadge\">Step 2/4</span>"
+msgstr "<span class=\"wujia-mexam-stepbadge\">Bước 2/4</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wujia-mexam-stepbadge\">Bước 3/4</span>"
-msgstr ""
+msgid "<span class=\"wujia-mexam-stepbadge\">Step 3/4</span>"
+msgstr "<span class=\"wujia-mexam-stepbadge\">Bước 3/4</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "<span class=\"wujia-mexam-stepbadge\">Bước 4/4</span>"
-msgstr ""
+msgid "<span class=\"wujia-mexam-stepbadge\">Step 4/4</span>"
+msgstr "<span class=\"wujia-mexam-stepbadge\">Bước 4/4</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Bấm \"Đăng ký mới\" để tạo phiếu đầu tiên."
-msgstr ""
+msgid "A time slot and at least 1 participant are required."
+msgstr "Cần khung giờ và ít nhất 1 người dự thi."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Bộ lọc nhanh"
-msgstr ""
+msgid "Actions"
+msgstr "Thao tác"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Ca thi không còn đủ 2 chỗ."
-msgstr ""
+msgid "Add at least 1 participant."
+msgstr "Hãy thêm ít nhất 1 người dự thi."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Chi tiết đăng ký"
-msgstr ""
+msgid "Add participant"
+msgstr "Thêm người đăng ký"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Chi tiết đăng ký thi"
-msgstr ""
+msgid "Add person"
+msgstr "Thêm người"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Chưa có phiếu đăng ký thi"
-msgstr ""
+msgid "Add photo (optional)"
+msgstr "Thêm ảnh (tùy chọn)"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Chưa có đăng ký thi"
-msgstr ""
+msgid "After submitting, the registration is Awaiting confirmation."
+msgstr "Sau khi gửi, phiếu ở trạng thái Chờ xác nhận."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chưa có ảnh"
-msgstr ""
+msgid "All"
+msgstr "Tất cả"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn"
-msgstr ""
+#, python-format
+msgid "At most %s people per registration."
+msgstr "Tối đa %s người mỗi phiếu."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn khung giờ"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Awaiting approval"
+msgstr "Chờ duyệt"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn khung giờ khác"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Awaiting confirmation"
+msgstr "Chờ xác nhận"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn khóa còn lịch để tiếp tục"
-msgstr ""
+msgid "Awaiting result"
+msgstr "Chờ kết quả"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn khóa thi"
-msgstr ""
+msgid "Back"
+msgstr "Quay lại"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn khóa thi, lịch thi và nhập người tham gia."
-msgstr ""
+msgid "Back to edit"
+msgstr "Quay lại chỉnh sửa"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn lịch thi"
-msgstr ""
+msgid "Barista"
+msgstr "Pha chế"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn một ngày có lịch, sau đó chọn khung giờ còn chỗ."
-msgstr ""
+msgid "Cancel"
+msgstr "Hủy"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn ngày có lịch trong 60 ngày tiếp theo"
-msgstr ""
+msgid "Cancellation reason:"
+msgstr "Lý do hủy:"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Chọn ngày khác"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Cancelled"
+msgstr "Đã hủy"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Chờ kết quả"
-msgstr ""
+msgid "Change photo"
+msgstr "Thay ảnh"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Chức vụ"
-msgstr ""
+msgid "Check the full name and phone number before adding."
+msgstr "Hãy kiểm tra họ tên và số điện thoại trước khi thêm."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Còn lịch"
-msgstr ""
+msgid "Check the participant details again."
+msgstr "Kiểm tra lại thông tin nhân sự."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Danh sách người và ảnh vẫn được giữ lại."
-msgstr ""
+msgid "Choose a course with open sessions to continue"
+msgstr "Chọn khóa còn lịch để tiếp tục"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Danh sách nhân sự"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Choose an exam course to see the limit of people per registration."
+msgstr "Chọn khóa thi để xem giới hạn người mỗi phiếu."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Dữ liệu đã nhập được giữ lại nếu có lỗi."
-msgstr ""
+msgid "Choose exam course"
+msgstr "Chọn khóa thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Ghi chú"
-msgstr ""
+msgid "Choose exam schedule"
+msgstr "Chọn lịch thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Ghi chú (không bắt buộc)"
-msgstr ""
+msgid "Choose the exam course and schedule, then enter the participants."
+msgstr "Chọn khóa thi, lịch thi và nhập người tham gia."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Ghi chú kết quả"
-msgstr ""
+msgid "Choose time slot"
+msgstr "Chọn khung giờ"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Gửi yêu cầu"
-msgstr ""
+msgid "Click \"New registration\" to create the first one."
+msgstr "Bấm \"Đăng ký mới\" để tạo phiếu đầu tiên."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Gửi yêu cầu đăng ký"
-msgstr ""
+msgid "Close"
+msgstr "Đóng"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Hiển thị"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Closed"
+msgstr "Đã đóng"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Hiện chưa có đăng ký nào để hiển thị."
-msgstr ""
+msgid "Confirm registration"
+msgstr "Xác nhận đăng ký"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Hãy chuyển sang tháng khác."
-msgstr ""
+msgid "Confirm time slot"
+msgstr "Xác nhận khung giờ"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Hãy kiểm tra họ tên và số điện thoại trước khi thêm."
-msgstr ""
+msgid "Connection error"
+msgstr "Lỗi kết nối"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Hạn đăng ký:"
-msgstr ""
+msgid "Connection error while loading time slots."
+msgstr "Lỗi kết nối khi tải khung giờ."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Họ và tên"
-msgstr ""
+msgid "Connection error. Please try again."
+msgstr "Có lỗi kết nối. Vui lòng thử lại."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Họ và tên *"
-msgstr ""
+msgid "Continue"
+msgstr "Tiếp tục"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Hủy"
-msgstr ""
+msgid "Could not load time slots."
+msgstr "Không tải được khung giờ."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Khung giờ ngày"
-msgstr ""
+msgid "Could not submit the request"
+msgstr "Không gửi được yêu cầu"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Khóa thi"
-msgstr ""
+msgid "Could not submit the request. Please try again."
+msgstr "Không gửi được yêu cầu. Vui lòng thử lại."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Khóa thi *"
-msgstr ""
+msgid "Create a new registration to get started."
+msgstr "Tạo đăng ký mới để bắt đầu."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Không có khung giờ khả dụng"
-msgstr ""
+msgid "Delete participant"
+msgstr "Xóa người tham gia"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Không đóng hoặc gửi lại biểu mẫu."
-msgstr ""
+msgid "Do not close or resubmit the form."
+msgstr "Không đóng hoặc gửi lại biểu mẫu."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Kiểm tra lần cuối trước khi gửi yêu cầu đến Ngô Gia xác nhận."
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+#, python-format
+msgid "Each registration allows at most %d people."
+msgstr "Mỗi phiếu được đăng ký tối đa %d người."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Kiểm tra thông tin"
-msgstr ""
+#, python-format
+msgid "Each registration allows at most %s people."
+msgstr "Mỗi phiếu được đăng ký tối đa %s người."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Kiểm tra trước khi gửi yêu cầu"
-msgstr ""
+msgid "Edit participant"
+msgstr "Chỉnh sửa người tham gia"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Kết quả"
-msgstr ""
+msgid "Edit this participant"
+msgstr "Sửa người tham gia"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Kết quả thi"
-msgstr ""
+msgid "Enter participants"
+msgstr "Nhập nhân sự"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Kết quả đăng ký"
-msgstr ""
+msgid "Enter the details of each participant."
+msgstr "Nhập trực tiếp thông tin của từng người dự thi."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Kết quả được công bố theo từng người đã đăng ký."
-msgstr ""
+msgid "Enter the exact details of the person taking the exam."
+msgstr "Nhập đúng thông tin người sẽ tham gia kỳ thi."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Lịch sử đăng ký"
-msgstr ""
+msgid "Entered data is kept if an error occurs."
+msgstr "Dữ liệu đã nhập được giữ lại nếu có lỗi."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Lịch thi"
-msgstr ""
+msgid "Exam course"
+msgstr "Khóa thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Mã phiếu"
-msgstr ""
+msgid "Exam course *"
+msgstr "Khóa thi *"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Mỗi phiếu được đăng ký tối đa 4 người."
-msgstr ""
+msgid "Exam date &amp; time"
+msgstr "Ngày &amp; giờ thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Nguyễn Văn An"
-msgstr ""
+msgid "Exam registration"
+msgstr "Đăng ký thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Ngày &amp; giờ thi"
-msgstr ""
+msgid "Exam registration details"
+msgstr "Chi tiết đăng ký thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Người tham gia"
-msgstr ""
+msgid "Exam results"
+msgstr "Kết quả thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Nhân sự tham gia"
-msgstr ""
+msgid "Exam schedule"
+msgstr "Lịch thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Nhập nhân sự"
-msgstr ""
+msgid "Exam schedule details"
+msgstr "Thông tin lịch thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Nhập trực tiếp thông tin của từng người dự thi."
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Expired"
+msgstr "Hết hạn"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Nhập đúng thông tin người sẽ tham gia kỳ thi."
-msgstr ""
+msgid "Fail"
+msgstr "Không đạt"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Năm sinh"
-msgstr ""
+msgid "Fill in the participants' details"
+msgstr "Điền thông tin người tham gia thi"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Pha chế"
-msgstr ""
+msgid "Final check before sending the request to {brand} for confirmation."
+msgstr "Kiểm tra lần cuối trước khi gửi yêu cầu đến {brand} xác nhận."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Portal / Đào tạo / Đăng ký thi"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Friday"
+msgstr "Thứ 6"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Portal / Đào tạo / Đăng ký thi /"
-msgstr ""
+msgid "Full name *"
+msgstr "Họ và tên *"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Portal / Đào tạo / Đăng ký thi / Đăng ký mới"
-msgstr ""
+msgid "Full name and phone number are required."
+msgstr "Cần họ tên và số điện thoại."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Quay lại"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Fully booked"
+msgstr "Hết chỗ"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Quay lại chỉnh sửa"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Invalid exam course."
+msgstr "Khóa thi không hợp lệ."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Sau khi gửi, phiếu ở trạng thái Chờ xác nhận."
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Invalid exam schedule."
+msgstr "Lịch thi không hợp lệ."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
+msgid "Invalid phone number (e.g. 0901234567)."
+msgstr "Số điện thoại không hợp lệ (vd 0901234567)."
+
+#. module: wujia_portal_exam
+msgid "Invalid photo (JPG/PNG, ≤ 5 MB)."
+msgstr "Ảnh không hợp lệ (JPG/PNG, ≤ 5 MB)."
+
+#. module: wujia_portal_exam
+msgid "Job title"
+msgstr "Chức vụ"
+
+#. module: wujia_portal_exam
+#, python-format
+msgid "Job title: %s"
+msgstr "Chức vụ: %s"
+
+#. module: wujia_portal_exam
+msgid "Loading time slots…"
+msgstr "Đang tải khung giờ…"
+
+#. module: wujia_portal_exam
+msgid "Missing information"
+msgstr "Thiếu thông tin"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Monday"
+msgstr "Thứ 2"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+#, python-format
+msgid "Month %(month)d %(year)d"
+msgstr "Tháng %(month)d %(year)d"
+
+#. module: wujia_portal_exam
+msgid "Name and phone number are required."
+msgstr "Tên và số điện thoại là bắt buộc."
+
+#. module: wujia_portal_exam
+msgid "New exam registration"
+msgstr "Đăng ký thi mới"
+
+#. module: wujia_portal_exam
+msgid "New registration"
+msgstr "Đăng ký mới"
+
+#. module: wujia_portal_exam
+msgid "Next month"
+msgstr "Tháng sau"
+
+#. module: wujia_portal_exam
+msgid "Nguyen Van An"
+msgstr "Nguyễn Văn An"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "No exam course yet"
+msgstr "Chưa có khóa thi"
+
+#. module: wujia_portal_exam
+msgid "No exam registrations"
+msgstr "Chưa có đăng ký thi"
+
+#. module: wujia_portal_exam
+msgid "No exam registrations yet"
+msgstr "Chưa có phiếu đăng ký thi"
+
+#. module: wujia_portal_exam
+msgid "No exam sessions this month"
+msgstr "Tháng này chưa có lịch thi"
+
+#. module: wujia_portal_exam
+msgid "No exam time slot selected."
+msgstr "Chưa chọn khung giờ thi."
+
+#. module: wujia_portal_exam
+msgid "No open time slots on this day."
+msgstr "Ngày này chưa có khung giờ mở."
+
+#. module: wujia_portal_exam
+msgid "No participants yet"
+msgstr "Chưa có người dự thi"
+
+#. module: wujia_portal_exam
+msgid "No participants yet."
+msgstr "Chưa có người tham gia."
+
+#. module: wujia_portal_exam
+msgid "No participants yet. Click \"Add person\" to add one."
+msgstr "Chưa có người tham gia. Bấm \"Thêm người\" để nhập."
+
+#. module: wujia_portal_exam
+msgid "No photo"
+msgstr "Chưa có ảnh"
+
+#. module: wujia_portal_exam
+msgid "No photo selected"
+msgstr "Chưa chọn ảnh"
+
+#. module: wujia_portal_exam
+msgid "No time slots available."
+msgstr "Không có khung giờ khả dụng."
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "None yet"
+msgstr "Chưa có"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Not applicable"
+msgstr "Không áp dụng"
+
+#. module: wujia_portal_exam
+msgid "Note"
+msgstr "Ghi chú"
+
+#. module: wujia_portal_exam
+msgid "Note (optional)"
+msgstr "Ghi chú (không bắt buộc)"
+
+#. module: wujia_portal_exam
+#, python-format
+msgid "Participant %s"
+msgstr "Nhân sự %s"
+
+#. module: wujia_portal_exam
+msgid "Participant list"
+msgstr "Danh sách nhân sự"
+
+#. module: wujia_portal_exam
+msgid "Participant's full name"
+msgstr "Họ và tên"
+
+#. module: wujia_portal_exam
+msgid "Participants"
+msgstr "Người tham gia"
+
+#. module: wujia_portal_exam
+msgid "Participants count"
+msgstr "Số người"
+
+#. module: wujia_portal_exam
+msgid "Participating staff"
+msgstr "Nhân sự tham gia"
+
+#. module: wujia_portal_exam
+msgid "Pass"
+msgstr "Đạt"
+
+#. module: wujia_portal_exam
+msgid "Phone number"
+msgstr "Số điện thoại"
+
+#. module: wujia_portal_exam
+msgid "Phone number (e.g. 0901234567)"
+msgstr "Số điện thoại (vd 0901234567)"
+
+#. module: wujia_portal_exam
+msgid "Phone number *"
+msgstr "Số điện thoại *"
+
+#. module: wujia_portal_exam
+#, python-format
+msgid "Phone number: %s"
+msgstr "Số điện thoại: %s"
+
+#. module: wujia_portal_exam
+msgid "Photo"
+msgstr "Ảnh"
+
+#. module: wujia_portal_exam
+msgid "Photo chosen"
+msgstr "Ảnh đã chọn"
+
+#. module: wujia_portal_exam
+msgid "Photo selected"
+msgstr "Ảnh đã được chọn"
+
+#. module: wujia_portal_exam
+msgid "Pick a day and a time slot with seats left before submitting."
+msgstr "Hãy chọn ngày và khung giờ còn chỗ trước khi gửi yêu cầu."
+
+#. module: wujia_portal_exam
+msgid "Pick a day with sessions in the next 60 days"
+msgstr "Chọn ngày có lịch trong 60 ngày tiếp theo"
+
+#. module: wujia_portal_exam
+msgid "Pick a day with sessions to see its time slots."
+msgstr "Chọn một ngày có lịch để xem khung giờ."
+
+#. module: wujia_portal_exam
+msgid "Pick a day with sessions, then pick a time slot with seats left."
+msgstr "Chọn một ngày có lịch, sau đó chọn khung giờ còn chỗ."
+
+#. module: wujia_portal_exam
+msgid "Pick another day"
+msgstr "Chọn ngày khác"
+
+#. module: wujia_portal_exam
+msgid "Pick another time slot"
+msgstr "Chọn khung giờ khác"
+
+#. module: wujia_portal_exam
+msgid "Please choose an exam time slot."
+msgstr "Vui lòng chọn khung giờ thi."
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Please select a store first."
+msgstr "Vui lòng chọn cửa hàng trước khi thao tác."
+
+#. module: wujia_portal_exam
+msgid "Please wait for {brand} to confirm."
+msgstr "Vui lòng chờ {brand} xác nhận."
+
+#. module: wujia_portal_exam
+msgid "Portal / Training / Exam registration"
+msgstr "Portal / Đào tạo / Đăng ký thi"
+
+#. module: wujia_portal_exam
+msgid "Portal / Training / Exam registration /"
+msgstr "Portal / Đào tạo / Đăng ký thi /"
+
+#. module: wujia_portal_exam
+msgid "Portal / Training / Exam registration / New registration"
+msgstr "Portal / Đào tạo / Đăng ký thi / Đăng ký mới"
+
+#. module: wujia_portal_exam
+msgid "Previous month"
+msgstr "Tháng trước"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Published"
+msgstr "Đã công bố"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Registered"
+msgstr "Đã đăng ký"
+
+#. module: wujia_portal_exam
+msgid "Registration deadline:"
+msgstr "Hạn đăng ký:"
+
+#. module: wujia_portal_exam
+msgid "Registration detail"
+msgstr "Chi tiết đăng ký"
+
+#. module: wujia_portal_exam
+msgid "Registration details"
+msgstr "Thông tin đăng ký"
+
+#. module: wujia_portal_exam
+msgid "Registration history"
+msgstr "Lịch sử đăng ký"
+
+#. module: wujia_portal_exam
+msgid "Registration no."
+msgstr "Mã phiếu"
+
+#. module: wujia_portal_exam
+msgid "Registration request sent"
+msgstr "Đã gửi yêu cầu đăng ký"
+
+#. module: wujia_portal_exam
+msgid "Registration result"
+msgstr "Kết quả đăng ký"
+
+#. module: wujia_portal_exam
+msgid "Registration status"
+msgstr "Trạng thái đăng ký"
+
+#. module: wujia_portal_exam
+msgid "Registration summary"
+msgstr "Tóm tắt đăng ký"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Rejected"
+msgstr "Từ chối"
+
+#. module: wujia_portal_exam
+msgid "Rejection reason:"
+msgstr "Lý do từ chối:"
+
+#. module: wujia_portal_exam
+msgid "Remove participant"
+msgstr "Xóa nhân sự"
+
+#. module: wujia_portal_exam
+msgid "Remove photo"
+msgstr "Xóa ảnh"
+
+#. module: wujia_portal_exam
+msgid "Result"
+msgstr "Kết quả"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Result available"
+msgstr "Có kết quả"
+
+#. module: wujia_portal_exam
+msgid "Result note"
+msgstr "Ghi chú kết quả"
+
+#. module: wujia_portal_exam
+msgid "Results are published per registered person."
+msgstr "Kết quả được công bố theo từng người đã đăng ký."
+
+#. module: wujia_portal_exam
+msgid "Review before submitting the request"
+msgstr "Kiểm tra trước khi gửi yêu cầu"
+
+#. module: wujia_portal_exam
+msgid "Review details"
+msgstr "Kiểm tra thông tin"
+
+#. module: wujia_portal_exam
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Saturday"
+msgstr "Thứ 7"
+
+#. module: wujia_portal_exam
+msgid "Save"
+msgstr "Lưu"
+
+#. module: wujia_portal_exam
+msgid "Search registration no., exam course..."
+msgstr "Tìm mã phiếu, khóa thi..."
+
+#. module: wujia_portal_exam
 msgid ""
+"Seats and schedule status will be\n"
+"                                        <span class=\"wj-exam-pc-"
+"banner__cont\">re-checked when you submit the request.</span>"
+msgstr ""
 "Số chỗ và trạng thái lịch sẽ được\n"
-"                                        <span class=\"wj-exam-pc-banner__cont\">kiểm tra lại khi gửi yêu cầu.</span>"
-msgstr ""
+"                                        <span class=\"wj-exam-pc-"
+"banner__cont\">kiểm tra lại khi gửi yêu cầu.</span>"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Số chỗ và trạng thái lịch sẽ được kiểm tra lại khi gửi."
-msgstr ""
+msgid "Seats and schedule status will be re-checked on submit."
+msgstr "Số chỗ và trạng thái lịch sẽ được kiểm tra lại khi gửi."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Số người"
-msgstr ""
+#, python-format
+msgid "Seats left in slot: %s"
+msgstr "Ca còn: %s chỗ"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Số điện thoại"
-msgstr ""
+msgid "Select"
+msgstr "Chọn"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Số điện thoại *"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Slots available"
+msgstr "Còn lịch"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Số điện thoại không hợp lệ."
-msgstr ""
+msgid "Staff photo"
+msgstr "Ảnh nhân viên"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Sửa"
-msgstr ""
+msgid "Status"
+msgstr "Trạng thái"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Thao tác"
-msgstr ""
+msgid "Submit registration request"
+msgstr "Gửi yêu cầu đăng ký"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Thay ảnh"
-msgstr ""
+msgid "Submit request"
+msgstr "Gửi yêu cầu"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Theo dõi phiếu đăng ký và kết quả thi của cửa hàng đang thao tác"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Sunday"
+msgstr "Chủ nhật"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Tháng này chưa có lịch thi"
-msgstr ""
+msgid "The details are saved for this registration."
+msgstr "Thông tin được lưu cho lần đăng ký này."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Thêm người"
-msgstr ""
+msgid "The details will be sent to {brand} for confirmation."
+msgstr "Thông tin sẽ được gửi để {brand} xác nhận."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Thêm người đăng ký"
-msgstr ""
+msgid "The photo exceeds 5 MB."
+msgstr "Ảnh vượt 5 MB."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Thông tin dùng để ghi nhận kết quả thi."
-msgstr ""
+msgid "The photo is optional. You can change or remove it before submitting."
+msgstr "Ảnh không bắt buộc. Có thể thay hoặc xóa trước khi gửi yêu cầu."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Thông tin lịch thi"
-msgstr ""
+msgid "The time slot no longer has 2 seats left."
+msgstr "Ca thi không còn đủ 2 chỗ."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Thông tin sẽ được gửi để Ngô Gia xác nhận."
-msgstr ""
+msgid "There are no registrations to show yet."
+msgstr "Hiện chưa có đăng ký nào để hiển thị."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Thông tin đăng ký"
-msgstr ""
+msgid "These details are used to record exam results."
+msgstr "Thông tin dùng để ghi nhận kết quả thi."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Thông tin được lưu cho lần đăng ký này."
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Thursday"
+msgstr "Thứ 5"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Thứ 5, 02/07/2026 • 08:20"
-msgstr ""
+msgid "Thursday, 02/07/2026 • 08:20"
+msgstr "Thứ 5, 02/07/2026 • 08:20"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Thứ 5, 02/07/2026 • Đăng ký thi lại"
-msgstr ""
+msgid "Thursday, 02/07/2026 • Exam retake registration"
+msgstr "Thứ 5, 02/07/2026 • Đăng ký thi lại"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Tiếp tục"
-msgstr ""
+msgid "Time slot"
+msgstr "Khung giờ"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Trạng thái đăng ký"
-msgstr ""
+msgid "Time slots on"
+msgstr "Khung giờ ngày"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Tên và số điện thoại là bắt buộc."
-msgstr ""
+#, python-format
+msgid "Time slots on %s"
+msgstr "Khung giờ ngày %s"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Tìm kiếm"
-msgstr ""
+msgid "Track exam registrations and results of the current store"
+msgstr "Theo dõi phiếu đăng ký và kết quả thi của cửa hàng đang thao tác"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Tìm mã phiếu, khóa thi..."
-msgstr ""
+msgid "Try another month."
+msgstr "Hãy chuyển sang tháng khác."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Tóm tắt đăng ký"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Tuesday"
+msgstr "Thứ 3"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Tạo đăng ký mới để bắt đầu."
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Unpublished"
+msgstr "Chưa công bố"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Tất cả"
-msgstr ""
+msgid "Uploaded"
+msgstr "Đã tải"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Từ ngày"
-msgstr ""
+msgid "Venue"
+msgstr "Địa điểm"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Vui lòng chờ Ngô Gia xác nhận."
-msgstr ""
+msgid "View details"
+msgstr "Xem chi tiết"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Xem chi tiết"
-msgstr ""
+msgid "View exam schedules, registrations and results"
+msgstr "Xem lịch thi, đăng ký và kết quả"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Xác nhận khung giờ"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "Wednesday"
+msgstr "Thứ 4"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Xác nhận đăng ký"
-msgstr ""
+msgid "Year of birth"
+msgstr "Năm sinh"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Xóa"
-msgstr ""
+#, python-format
+msgid "Year of birth: %s"
+msgstr "Năm sinh: %s"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Xóa ảnh"
-msgstr ""
+msgid "Your participants and photos are kept."
+msgstr "Danh sách người và ảnh vẫn được giữ lại."
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
+msgid "Your participants and photos are kept. Please choose the time slot again."
+msgstr "Danh sách người và ảnh vẫn được giữ lại. Hãy chọn lại khung giờ."
+
+#. module: wujia_portal_exam
 msgid "anh-nguyen-van-an.jpg · JPG"
 msgstr ""
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "bản ghi"
-msgstr ""
+msgid "registrations in the current store"
+msgstr "đăng ký trong cửa hàng hiện tại"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "· giờ địa phương"
-msgstr ""
+#. odoo-python
+#: code:addons/wujia_portal_exam/controllers/portal.py
+msgid "{brand} Training Center"
+msgstr "Trung tâm đào tạo {brand}"
 
 #. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Đang tải khung giờ…"
-msgstr ""
+msgid "· local time"
+msgstr "· giờ địa phương"
 
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Điền thông tin người tham gia thi"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Đã gửi yêu cầu đăng ký"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Đã tải"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Đã đóng"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Đóng"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Đăng ký thi"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Đăng ký thi mới"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Đặt lại"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Đến ngày"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "Địa điểm"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_schedule
-msgid "đăng ký trong cửa hàng hiện tại"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Ảnh"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Ảnh không bắt buộc. Có thể thay hoặc xóa trước khi gửi yêu cầu."
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_registration_detail
-msgid "Ảnh nhân viên"
-msgstr ""
-
-#. module: wujia_portal_exam
-#: model_terms:ir.ui.view,arch_db:wujia_portal_exam.portal_exam_register
-msgid "Ảnh đã được chọn"
-msgstr ""

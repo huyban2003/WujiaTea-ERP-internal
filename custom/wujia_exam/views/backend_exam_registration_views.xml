@@ -23,9 +23,9 @@
                            statusbar_visible="submitted,confirmed"/>
                 </header>
                 <sheet>
-                    <widget name="web_ribbon" title="Từ chối" bg_color="text-bg-danger"
+                    <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger"
                             invisible="state != 'rejected'"/>
-                    <widget name="web_ribbon" title="Đã hủy" bg_color="text-bg-secondary"
+                    <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-secondary"
                             invisible="state != 'cancelled'"/>
                     <div class="oe_title">
                         <label for="name"/>
@@ -93,7 +93,7 @@
                 <field name="session_id"/>
                 <field name="course_id" optional="show"/>
                 <field name="franchise_id"/>
-                <field name="participant_count" sum="Tổng nhân sự"/>
+                <field name="participant_count" sum="Total participants"/>
                 <field name="request_date"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'submitted'"

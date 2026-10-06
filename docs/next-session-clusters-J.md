@@ -54,8 +54,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V0 | Chốt quy ước + công cụ Việt hoá source (xem §6) + khách portal mặc định vi_VN + bật zh_CN | docs, scripts, i18n, portal_layout | ✅ 05/10 — chưa commit |
 | J-V1 | `wujia_portal_layout` (259) + helper `wjMsg` + khối `#wj-msgs` + xoá `lang.js` chết | portal_layout | ✅ 05/10 — chưa commit |
 | J-V2 | `wujia_portal_base` (382) + màu badge theo EN/lazy/VN cũ + nhãn theo `record.env` | portal_base | ✅ 05/10 — đã push, chờ deploy |
-| **J-V3** | **Phiên kế.** `wujia_portal_exam` (345) + `wujia_exam` (63) | exam ×2 | ☐ |
-| J-V4 | `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) | sale ×3 | ☐ |
+| J-V3 | `wujia_portal_exam` (345) + `wujia_exam` (63) + khối `_ex_msgs` câu JS | exam ×2 | ✅ 06/10 — chưa commit |
+| **J-V4** | **Phiên kế.** `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) | sale ×3 | ☐ |
 | J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) | debt | ☐ |
 | J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) | return ×2 | ☐ |
 | J-V7 | support (112+2) + knowledge (46+2) + notification (86+27) | 6 module | ☐ |
@@ -249,6 +249,23 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
 - Dữ liệu mẫu (`data/*sample*.xml`, `noupdate`) giữ tiếng Việt ⇒ thêm vào `DATA_FILES` của `vn_hardcode_scan.py`.
 - Đo: DB copy phải thuộc user `odoo19` (`ALTER DATABASE … OWNER TO odoo19`) và chép filestore (`rsync -a --ignore-existing`), nếu không
   `/portal` 404 / mất logo ⇒ lệch giả. Mốc vi_VN hiện tại = sau V2.
+
+**J-V3 — ✅ 06/10: bài học cho V4–V8**
+- Trình trích `.pot` lấy MỌI literal nằm trong lời gọi `_(...)` ⇒ `env._(X['published'][0])` đẻ msgid rác "published" ⇒ gán biến trước
+  (`label = X[k][0]; env._(label)`).
+- `docs/i18n-glossary.csv` chỉ được **nối thêm** (CRLF, giữ nguyên byte dòng cũ) — ghi lại cả file bằng csv writer đổi quote/CRLF 68 dòng.
+- Không round-trip `.po` qua babel `write_po` (mất dòng `#:`); sửa `.po` bằng text.
+- Glossary dùng chung **ghi đè msgstr cũ** của module (V3: 10 câu `wujia_exam`) ⇒ sau `sync` so `.po` cũ/mới bằng babel, khôi phục câu
+  không chủ ý bằng sửa text; câu khác nghĩa theo màn giữ riêng từng module (`Time slot` = "Ca thi" backend / "Khung giờ" portal).
+- Nhiều câu JS: 1 `<t t-set>` mỗi câu + 1 dict `{'data-wj-msg-key': biến}` rồi `t-att="dict"` lên mọi root dùng (PC + mobile) —
+  không lặp 45 thuộc tính ở 2 nơi. Helper `m(key, 'EN', arg)` trong `init(root)`; cẩn thận `var m` cục bộ che helper.
+- Chữ không dấu (T2…CN, `Mo`…) máy quét không bắt ⇒ đọc msgid chưa dịch sau `sync`; Odoo gom `<span>` inline thành 1 term ⇒ glossary
+  phải đúng msgid gộp (cả `&amp;`, khoảng trắng).
+- Test fixture dùng chung nhiều module: cờ lớp `_vi_modules` cho module con nạp thêm `.po` của mình; module nghiệp vụ L2 không phụ thuộc
+  `portal_base` ⇒ `load_vi(env, modules)` riêng ở `wujia_exam/tests/common.py`.
+- Test chống lùi badge: bảng nhãn VN viết cứng TRƯỚC phiên ⇒ assert `env_vi._(lazy) == vn_cũ` và `status_badge_for(lazy) ==
+  status_badge_for(vn_cũ)` (nhãn vốn trung tính thì miễn kiểm "khác neutral").
+- DB trắng `-i X --test-enable` gãy vì test `wujia_franchise` (Thái) import file đã xoá ⇒ `-i` không test rồi `-u --test-enable`.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

@@ -1,6 +1,7 @@
 """F12 — luật đăng ký thi ở model: chọn được ca / lịch tháng / meta khóa / tạo phiếu từ portal."""
 import base64
 import io
+import re
 from datetime import date, timedelta
 
 from PIL import Image
@@ -11,6 +12,8 @@ from odoo.tests.common import TransactionCase, tagged
 
 from odoo.addons.wujia_exam.models.wujia_exam_registration import ExamPortalError
 
+from .common import load_vi
+
 
 def png_b64(size=(20, 20)):
     buf = io.BytesIO()
@@ -19,13 +22,19 @@ def png_b64(size=(20, 20)):
 
 
 class ExamCommon:
-    """Fixture dùng chung với test portal: 2 cửa hàng, 1 khóa (tối đa 2 người/phiếu), 4 ca cùng ngày D."""
+    """Fixture dùng chung với test portal: 2 cửa hàng, 1 khóa (tối đa 2 người/phiếu), 4 ca cùng ngày D.
+
+    J-V3: câu báo assert bằng tiếng Việt ⇒ env + user portal ở vi_VN (nạp .po của `_vi_modules`).
+    """
+
+    _vi_modules = ('wujia_exam',)
 
     @classmethod
     def _setup_exam(cls, login='f12_owner'):
+        cls.env = load_vi(cls.env, cls._vi_modules)
         cls.store_a, cls.store_b = [cls._store(code) for code in ('F12A', 'F12B')]
         cls.user = cls.env['res.users'].create({
-            'name': 'F12 Owner', 'login': login, 'password': login,
+            'name': 'F12 Owner', 'login': login, 'password': login, 'lang': 'vi_VN',
             'group_ids': [(6, 0, [cls.env.ref('base.group_portal').id])],
         })
         cls.member = cls.env['wujia.franchise.member'].create({
@@ -146,6 +155,19 @@ class TestPortalRules(ExamCommon, TransactionCase):
         big = base64.b64encode(b'\0' * (5 * 1024 * 1024 + 1)).decode()
         self.assertIn('5 MB', self._kind(self.open.id, [self._person(1, photo=big)])[1])
         self.assertEqual(self.Reg.search_count([]), before)
+
+    def test_error_follows_user_lang(self):
+        """J-V3: câu gốc tiếng Anh, user vi_VN vẫn nhận đúng câu cũ (kể cả lỗi constraint)."""
+        for lang, empty, phone in (
+                ('en_US', 'At least 1 participant is required.', "Phone number '123' is invalid"),
+                ('vi_VN', 'Cần ít nhất 1 người dự thi.', "Số điện thoại '123' không hợp lệ")):
+            with self.subTest(lang=lang):
+                Reg = self.Reg.with_context(lang=lang)
+                with self.assertRaises(ExamPortalError) as cm:
+                    Reg.register_from_portal(self.open.id, self.store_a.id, self.user, [])
+                self.assertEqual(cm.exception.args[0], empty)
+                with self.assertRaisesRegex(ValidationError, re.escape(phone)):
+                    self._reg(self.open, [self._person(1)]).line_ids.with_context(lang=lang).phone = '123'
 
     def test_business_error_rolls_back(self):
         before = self.Reg.search_count([])

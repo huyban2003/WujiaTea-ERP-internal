@@ -106,11 +106,11 @@ class WujiaExamRegistration(models.Model):
             n = len(rec.line_ids)
             if n < 1:
                 raise ValidationError(_(
-                    "Phiếu '%s' cần ít nhất 1 nhân sự dự thi.", rec.name))
+                    "Registration '%s' needs at least 1 participant.", rec.name))
             max_p = rec.session_id._effective_max_per_registration() or 0
             if max_p and n > max_p:
                 raise ValidationError(_(
-                    "Phiếu '%s': tối đa %s nhân sự / phiếu.", rec.name, max_p))
+                    "Registration '%s': at most %s participants per registration.", rec.name, max_p))
 
     # ------------------------------------------------------------ capacity lock
     def _lock_and_check_capacity(self):
@@ -129,14 +129,14 @@ class WujiaExamRegistration(models.Model):
             )
         except LockNotAvailable:
             raise UserError(_(
-                "Hệ thống đang xử lý đăng ký khác cho kỳ thi này, vui lòng thử lại."))
+                "Another registration for this exam session is being processed, please try again."))
         # Recount reserved participants per session (submitted + confirmed).
         sessions.invalidate_recordset(
             ['reserved_participant_count', 'available_participant_count'])
         for sess in sessions:
             if sess.reserved_participant_count > sess.capacity:
                 raise ValidationError(_(
-                    "Kỳ thi '%s' đã hết chỗ (sức chứa %s, đã giữ %s).",
+                    "Exam session '%s' is fully booked (capacity %s, reserved %s).",
                     sess.name, sess.capacity, sess.reserved_participant_count))
 
     def _check_booking_allowed(self):
@@ -144,11 +144,11 @@ class WujiaExamRegistration(models.Model):
             sess = rec.session_id
             if sess.state != 'open':
                 raise ValidationError(_(
-                    "Kỳ thi '%s' không mở đăng ký.", sess.name))
+                    "Exam session '%s' is not open for registration.", sess.name))
             if sess.registration_deadline and \
                     fields.Datetime.now() > sess.registration_deadline:
                 raise ValidationError(_(
-                    "Kỳ thi '%s' đã quá hạn đăng ký.", sess.name))
+                    "Exam session '%s' is past its registration deadline.", sess.name))
 
     # ------------------------------------------------------------ sequence
     @api.model_create_multi
@@ -190,14 +190,14 @@ class WujiaExamRegistration(models.Model):
         """
         session = self.env['wujia.exam.session'].sudo().browse(session_id).exists()
         if not session or session.course_id.state != 'published':
-            raise ExamPortalError('Khung giờ đã thay đổi hoặc không còn. Vui lòng'
-                                  ' chọn lại lịch thi.', kind='not_found')
+            raise ExamPortalError(_('The time slot has changed or is no longer available.'
+                                    ' Please choose the exam schedule again.'), kind='not_found')
         parts = participants or []
         max_p = session._effective_max_per_registration()
         if not parts:
-            raise ExamPortalError('Cần ít nhất 1 người dự thi.')
+            raise ExamPortalError(_('At least 1 participant is required.'))
         if max_p and len(parts) > max_p:
-            raise ExamPortalError('Tối đa %d người mỗi phiếu.' % max_p)
+            raise ExamPortalError(_('At most %d people per registration.', max_p))
         Line = self.env['wujia.exam.registration.line']
         try:
             line_cmds = [(0, 0, Line._portal_prepare_vals(p)) for p in parts]
@@ -227,40 +227,40 @@ class WujiaExamRegistration(models.Model):
     def action_confirm(self):
         for rec in self:
             if rec.state != 'submitted':
-                raise ValidationError(_("Chỉ duyệt phiếu đang ở trạng thái Đã gửi."))
+                raise ValidationError(_("Only registrations in Submitted state can be approved."))
             rec.write({
                 'state': 'confirmed',
                 'confirmed_by_id': self.env.uid,
                 'confirmed_date': fields.Datetime.now(),
             })
-            rec.message_post(body=_("Phiếu đăng ký đã được duyệt."))
+            rec.message_post(body=_("The registration has been approved."))
 
     def action_reject(self):
         for rec in self:
             if rec.state not in ('submitted', 'confirmed'):
-                raise ValidationError(_("Phiếu này không thể từ chối."))
+                raise ValidationError(_("This registration cannot be rejected."))
             if not rec.reject_reason:
-                raise ValidationError(_("Nhập lý do từ chối trước khi từ chối."))
+                raise ValidationError(_("Enter a rejection reason before rejecting."))
             rec.write({
                 'state': 'rejected',
                 'rejected_by_id': self.env.uid,
                 'rejected_date': fields.Datetime.now(),
             })
-            rec.message_post(body=_("Phiếu bị từ chối: %s", rec.reject_reason))
+            rec.message_post(body=_("Registration rejected: %s", rec.reject_reason))
 
     def action_cancel(self):
         for rec in self:
             if rec.state in ('rejected', 'cancelled'):
-                raise ValidationError(_("Phiếu này không thể hủy."))
+                raise ValidationError(_("This registration cannot be cancelled."))
             if rec.session_id.results_published:
                 raise ValidationError(_(
-                    "Không thể hủy phiếu sau khi kỳ thi đã công bố kết quả."))
+                    "A registration cannot be cancelled after the exam results have been published."))
             if not rec.cancellation_reason:
-                raise ValidationError(_("Nhập lý do hủy trước khi hủy phiếu."))
+                raise ValidationError(_("Enter a cancellation reason before cancelling the registration."))
             rec.write({
                 'state': 'cancelled',
                 'cancelled_by_id': self.env.uid,
                 'cancelled_date': fields.Datetime.now(),
             })
-            rec.message_post(body=_("Phiếu đăng ký đã bị hủy: %s",
+            rec.message_post(body=_("The registration has been cancelled: %s",
                                     rec.cancellation_reason))

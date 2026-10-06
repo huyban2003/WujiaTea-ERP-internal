@@ -5,13 +5,13 @@
     <template id="mobile_bottomnav_exam"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="30"
-              name="Wujia Mobile — sheet Thêm: Đăng ký thi">
+              name="Wujia Mobile — More sheet: Exam registration">
         <xpath expr="//span[@id='msheet_end']" position="before">
             <t t-call="wujia_portal_layout.wj_msheet_item">
                 <t t-set="mi_href" t-value="'/portal/exam'"/>
                 <t t-set="mi_icon" t-value="'feather icon-calendar'"/>
-                <t t-set="mi_title">Đăng ký thi</t>
-                <t t-set="mi_sub">Xem lịch thi, đăng ký và kết quả</t>
+                <t t-set="mi_title">Exam registration</t>
+                <t t-set="mi_sub">View exam schedules, registrations and results</t>
             </t>
         </xpath>
     </template>

@@ -66,7 +66,7 @@ class WujiaExamRegistrationLine(models.Model):
         for rec in self:
             if rec.phone and not PHONE_RE.match(rec.phone.strip()):
                 raise ValidationError(_(
-                    "Số điện thoại '%s' không hợp lệ (vd 0901234567).", rec.phone))
+                    "Phone number '%s' is invalid (e.g. 0901234567).", rec.phone))
 
     @api.constrains('birth_year')
     def _check_birth_year(self):
@@ -74,7 +74,7 @@ class WujiaExamRegistrationLine(models.Model):
         for rec in self:
             if rec.birth_year and not (1900 <= rec.birth_year <= current):
                 raise ValidationError(_(
-                    "Năm sinh phải trong khoảng 1900–%s.", current))
+                    "Year of birth must be between 1900 and %s.", current))
 
     # ------------------------------------------------------------ portal intake
     @api.model
@@ -88,11 +88,11 @@ class WujiaExamRegistrationLine(models.Model):
         phone = (p.get('phone') or '').strip()
         if not name or not phone:
             raise ValidationError(_(
-                "Mỗi người dự thi cần có họ tên và số điện thoại."))
+                "Each participant needs a full name and a phone number."))
         # WJ-EXAM-001 — chặn ngay lúc nhận thay vì đợi constraint lúc flush.
         if not PHONE_RE.match(phone):
             raise ValidationError(_(
-                "Số điện thoại '%s' không hợp lệ (vd 0901234567).", phone))
+                "Phone number '%s' is invalid (e.g. 0901234567).", phone))
         vals = {
             'employee_name': name, 'phone': phone,
             'job_position': (p.get('job_position') or '').strip() or False,
@@ -103,7 +103,7 @@ class WujiaExamRegistrationLine(models.Model):
             try:
                 vals['birth_year'] = int(by)
             except (TypeError, ValueError):
-                raise ValidationError(_("Năm sinh '%s' không hợp lệ.", by))
+                raise ValidationError(_("Year of birth '%s' is invalid.", by))
         photo = p.get('photo')
         if photo:
             vals['image_1920'] = self._portal_clean_photo(photo)
@@ -118,26 +118,26 @@ class WujiaExamRegistrationLine(models.Model):
                 head, data = raw.split(',', 1)
             except ValueError:
                 raise ValidationError(_(
-                    "Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép."))
+                    "The staff photo has an invalid format or exceeds the allowed size."))
             mime = head[5:].split(';', 1)[0].lower()
             if mime and mime not in PHOTO_MIMES:
                 raise ValidationError(_(
-                    "Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép."))
+                    "The staff photo has an invalid format or exceeds the allowed size."))
         try:
             decoded = base64.b64decode(data, validate=True)
         except (binascii.Error, ValueError):
             raise ValidationError(_(
-                "Ảnh nhân viên không đúng định dạng hoặc vượt dung lượng cho phép."))
+                "The staff photo has an invalid format or exceeds the allowed size."))
         if len(decoded) > MAX_PHOTO_BYTES:
             raise ValidationError(_(
-                "Ảnh nhân viên vượt dung lượng cho phép (tối đa 5 MB)."))
+                "The staff photo exceeds the allowed size (max 5 MB)."))
         # Chạy đúng pipeline mà fields.Image dùng lúc write (resize ≤1920). Ảnh
         # hỏng/cắt cụt sẽ ném ở đây → trả message thân thiện thay vì 500 khi flush.
         try:
             image_process(decoded, size=(1920, 1920))
         except Exception:
             raise ValidationError(_(
-                "Ảnh nhân viên không hợp lệ hoặc bị hỏng. Vui lòng chọn ảnh khác."))
+                "The staff photo is invalid or corrupted. Please choose another photo."))
         return data
 
     def write(self, vals):
@@ -151,8 +151,8 @@ class WujiaExamRegistrationLine(models.Model):
         for rec in self:
             if rec.session_id.results_published:
                 raise ValidationError(_(
-                    "Không thể xóa thí sinh sau khi kỳ thi đã công bố kết quả."))
+                    "A participant cannot be removed after the exam results have been published."))
             if len(rec.registration_id.line_ids) <= 1 and \
                     rec.registration_id.state in ('submitted', 'confirmed'):
                 raise ValidationError(_(
-                    "Phiếu phải còn ít nhất 1 nhân sự dự thi."))
+                    "A registration must keep at least 1 participant."))

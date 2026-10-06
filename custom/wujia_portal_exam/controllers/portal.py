@@ -23,6 +23,7 @@ import pytz
 from werkzeug.exceptions import Forbidden, NotFound
 
 from odoo import _, fields, http
+from odoo.tools.translate import LazyGettext, LazyTranslate
 from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
@@ -39,35 +40,37 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 from odoo.addons.wujia_exam.models.wujia_exam_registration import ExamPortalError
 
 _logger = logging.getLogger(__name__)
+_lt = LazyTranslate(__name__)
 
 PAGE_SIZE = 10  # spec: list mặc định 10/trang
 PAGE_SIZES = (10, 20, 50)  # whitelist ?limit — khớp <select> trong pager PC
 DEFAULT_TZ = 'Asia/Ho_Chi_Minh'
 
-_WEEKDAYS_VN = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật']
+_WEEKDAYS = [_lt('Monday'), _lt('Tuesday'), _lt('Wednesday'), _lt('Thursday'),
+             _lt('Friday'), _lt('Saturday'), _lt('Sunday')]
 
 # Nhãn hiển thị — key trùng state của registration (mobile).
 M_REG_BADGE = {k: (v, status_badge_for(v)) for k, v in {
-    'submitted': 'Chờ duyệt',
-    'confirmed': 'Đã đăng ký',
-    'rejected': 'Từ chối',
-    'cancelled': 'Đã hủy',
+    'submitted': _lt('Awaiting approval'),
+    'confirmed': _lt('Registered'),
+    'rejected': _lt('Rejected'),
+    'cancelled': _lt('Cancelled'),
 }.items()}
 
 # PC — dùng lại nhãn Figma WJ_Exam_PC (badge riêng cho trạng thái đăng ký).
 PC_REG_STATES = {k: (v, status_badge_for(v)) for k, v in {
-    'submitted': 'Chờ xác nhận',
-    'confirmed': 'Đã đăng ký',
-    'rejected': 'Từ chối',
-    'cancelled': 'Đã hủy',
+    'submitted': _lt('Awaiting confirmation'),
+    'confirmed': _lt('Registered'),
+    'rejected': _lt('Rejected'),
+    'cancelled': _lt('Cancelled'),
 }.items()}
 
 # Trạng thái công bố kết quả — LUÔN là badge riêng với trạng thái đăng ký.
 PC_PUBLISH_STATES = {k: (v, status_badge_for(v)) for k, v in {
-    'published': 'Đã công bố',
-    'unpublished': 'Chưa công bố',
-    'none': 'Chưa có',
-    'na': 'Không áp dụng',
+    'published': _lt('Published'),
+    'unpublished': _lt('Unpublished'),
+    'none': _lt('None yet'),
+    'na': _lt('Not applicable'),
 }.items()}
 
 # --------------------------------------------------------------------------- #
@@ -109,25 +112,31 @@ def _session_dt_label(session, sep='·'):
 
 
 def _session_day_label(session):
-    """'Thứ 5, 02/07/2026 • 08:20' cho card mobile."""
+    """'Thursday, 02/07/2026 • 08:20' cho card mobile (thứ theo ngôn ngữ user)."""
     local = _to_local(session.start_datetime)
     if not local:
         return '—'
-    return '%s, %s' % (_WEEKDAYS_VN[local.weekday()],
+    return '%s, %s' % (session.env._(_WEEKDAYS[local.weekday()]),
                        local.strftime('%d/%m/%Y • %H:%M'))
+
+
+def _publish_label(reg, key):
+    """Nhãn trạng thái công bố đã dịch (biến, không literal trong `_()` ⇒ không lọt msgid rác vào .pot)."""
+    label = PC_PUBLISH_STATES[key][0]
+    return reg.env._(label)
 
 
 def _result_summary(reg):
     """(label, kind) tổng hợp Đạt/Không đạt — chỉ khi đã công bố."""
     if not reg.session_id.results_published:
-        return ('Chưa công bố', 'muted')
+        return (_publish_label(reg, 'unpublished'), 'muted')
     passed, failed = reg._portal_result_counts()
     parts = []
     if passed:
-        parts.append('%d Đạt' % passed)
+        parts.append(reg.env._('%d Pass', passed))
     if failed:
-        parts.append('%d Không đạt' % failed)
-    label = ' · '.join(parts) or 'Đã công bố'
+        parts.append(reg.env._('%d Fail', failed))
+    label = ' · '.join(parts) or _publish_label(reg, 'published')
     if passed and not failed:
         kind = 'pass'
     elif failed and not passed:
@@ -138,17 +147,22 @@ def _result_summary(reg):
 
 
 def _max_hint(n):
-    return (_("Mỗi phiếu được đăng ký tối đa %d người.", n) if n
-            else _("Chọn khóa thi để xem giới hạn người mỗi phiếu."))
+    return (_("Each registration allows at most %d people.", n) if n
+            else _("Choose an exam course to see the limit of people per registration."))
 
+
+# Nhãn khóa thi (mobile, bước 1) + nhãn phiếu đã công bố kết quả.
+COURSE_OPEN = _lt('Slots available')
+RESULT_AVAILABLE = _lt('Result available')
 
 # Nhãn khung giờ theo wujia.exam.session._portal_slot_status().
-SLOT_STATUS_LABELS = {'closed': 'Đã đóng', 'expired': 'Hết hạn', 'full': 'Hết chỗ'}
+SLOT_STATUS_LABELS = {'closed': _lt('Closed'), 'expired': _lt('Expired'), 'full': _lt('Fully booked')}
 
 
 def _exam_calendar(course, year, month):
     """Ma trận tuần (T2→CN) trạng thái ngày cho 1 khóa thi (dữ liệu thật)."""
     states = course._portal_day_states(year, month)
+    weekdays = [course.env._(w) for w in _WEEKDAYS]
     weeks = []
     for week in _calendar.Calendar(firstweekday=0).monthdatescalendar(year, month):
         row = []
@@ -159,10 +173,10 @@ def _exam_calendar(course, year, month):
                 'state': states[d] if in_month else 'out',
                 'date': d.isoformat(),
                 'date_label': '%s, %02d/%02d/%d' % (
-                    _WEEKDAYS_VN[d.weekday()], d.day, month, year),
+                    weekdays[d.weekday()], d.day, month, year),
             })
         weeks.append(row)
-    return {'label': 'Tháng %d %d' % (month, year), 'weeks': weeks,
+    return {'label': course.env._('Month %(month)d %(year)d', month=month, year=year), 'weeks': weeks,
             'year': year, 'month': month}
 
 
@@ -174,8 +188,8 @@ def _exam_slots(course, d):
         status = s._portal_slot_status(now)
         slots.append({
             'session_id': s.id, 'time': _slot_time_label(s),
-            'status': SLOT_STATUS_LABELS.get(
-                status, 'Còn %d chỗ' % s.available_participant_count),
+            'status': (course.env._(SLOT_STATUS_LABELS[status]) if status in SLOT_STATUS_LABELS
+                       else course.env._('%d seats left', s.available_participant_count)),
             'available': s._portal_is_selectable(now),
             'seats': s.available_participant_count,
             'max_per_reg': s._effective_max_per_registration(),
@@ -193,8 +207,8 @@ def _course_meta(course):
     """Meta ngắn cho card khóa thi (mobile) + cờ 'closed'/'full' (luật ở model)."""
     meta = course._portal_booking_meta()
     return {
-        'meta': '%d kỳ thi • Trong %d ngày tới' % (
-            meta['upcoming_count'], course.registration_horizon_days),
+        'meta': course.env._('%(count)d sessions • In the next %(days)d days',
+                             count=meta['upcoming_count'], days=course.registration_horizon_days),
         'closed': meta['closed'],
         'full': meta['full'],
     }
@@ -241,7 +255,7 @@ class WujiaPortalExam(http.Controller):
         # Một nguồn duy nhất cho số trang: build_pager kẹp ?page=99 về trang cuối
         # nên lát cắt bên dưới không bao giờ rơi ra trang rỗng.
         pgn = build_pager(total, page, size, path='/portal/exam',
-                          item_label='bản ghi', page_size_options=PAGE_SIZES,
+                          page_size_options=PAGE_SIZES,
                           size_param='limit')
         if total:
             regs = Reg.search(domain, limit=pgn['page_size'],
@@ -271,11 +285,11 @@ class WujiaPortalExam(http.Controller):
         m_courses = []
         for c in courses:
             meta = _course_meta(c)
-            cstatus = ('Còn lịch' if not meta['closed']
-                       else 'Hết chỗ' if meta['full'] else 'Đã đóng')
+            cstatus = (COURSE_OPEN if not meta['closed']
+                       else SLOT_STATUS_LABELS['full'] if meta['full'] else SLOT_STATUS_LABELS['closed'])
             m_courses.append({
                 'course_id': c.id, 'title': c.name, 'meta': meta['meta'],
-                'status': cstatus,
+                'status': request.env._(cstatus),
                 'badge': status_badge_for(cstatus),
                 'closed': meta['closed'],
             })
@@ -294,7 +308,7 @@ class WujiaPortalExam(http.Controller):
         store_name = request.env['wujia.franchise.management'].sudo().browse(
             fid).name or '—'
         pc_summary = {
-            'course_name': selected.name if selected else 'Chưa có khóa thi',
+            'course_name': selected.name if selected else _('No exam course yet'),
             'franchise_name': store_name,
             'quota_label': '0 / %d' % max_per_reg, 'max_per_reg': max_per_reg,
             'max_hint': _max_hint(max_per_reg),
@@ -307,7 +321,7 @@ class WujiaPortalExam(http.Controller):
             'courses': m_courses,
             'selected_course': {
                 'course_id': selected.id if selected else 0,
-                'title': selected.name if selected else 'Chưa có khóa thi',
+                'title': selected.name if selected else _('No exam course yet'),
                 'meta': sel_meta['meta'],
             },
             'calendar': calendar,
@@ -325,11 +339,11 @@ class WujiaPortalExam(http.Controller):
     def portal_exam_calendar(self, course_id=None, year=None, month=None, **kw):
         if not get_active_franchise_id():
             return {'error': 'no_store',
-                    'message': 'Vui lòng chọn cửa hàng trước khi thao tác.'}
+                    'message': _('Please select a store first.')}
         course = _published_courses().browse(int(course_id or 0)).exists()
         course = course.filtered(lambda c: c.state == 'published')
         if not course:
-            return {'error': 'not_found', 'message': 'Khóa thi không hợp lệ.'}
+            return {'error': 'not_found', 'message': _('Invalid exam course.')}
         today = fields.Date.context_today(request.env.user)
         return {'calendar': _exam_calendar(
             course, int(year or today.year), int(month or today.month))}
@@ -340,12 +354,12 @@ class WujiaPortalExam(http.Controller):
     def portal_exam_slots(self, course_id=None, exam_date=None, **kw):
         if not get_active_franchise_id():
             return {'error': 'no_store',
-                    'message': 'Vui lòng chọn cửa hàng trước khi thao tác.'}
+                    'message': _('Please select a store first.')}
         course = _published_courses().browse(int(course_id or 0)).exists()
         course = course.filtered(lambda c: c.state == 'published')
         d = _parse_date(exam_date)
         if not course or not d:
-            return {'error': 'not_found', 'message': 'Lịch thi không hợp lệ.'}
+            return {'error': 'not_found', 'message': _('Invalid exam schedule.')}
         return {'slots': _exam_slots(course, d)}
 
     # --------------------------------------------------------------- submit
@@ -356,7 +370,7 @@ class WujiaPortalExam(http.Controller):
         fid = get_active_franchise_id()
         if not fid:
             return {'error': 'no_store',
-                    'message': 'Vui lòng chọn cửa hàng trước khi thao tác.'}
+                    'message': _('Please select a store first.')}
         try:
             reg = request.env['wujia.exam.registration'].sudo().register_from_portal(
                 int(session_id or 0), fid, request.env.user, participants, note)
@@ -408,10 +422,11 @@ class WujiaPortalExam(http.Controller):
 def _m_list_item(reg):
     label, kind = _result_summary(reg)
     if reg.session_id.results_published:
-        status, badge, meta = 'Có kết quả', status_badge('success'), _m_result_meta(reg)
+        status, badge, meta = reg.env._(RESULT_AVAILABLE), status_badge('success'), _m_result_meta(reg)
     else:
         status, badge = M_REG_BADGE.get(reg.state, (reg.state, status_badge('neutral')))
-        meta = '%d nhân sự' % reg.participant_count
+        status = reg.env._(status) if isinstance(status, LazyGettext) else status
+        meta = reg.env._('%d participants', reg.participant_count)
     return {
         'title': reg.course_id.name or reg.session_id.name,
         'date_label': _session_day_label(reg.session_id),
@@ -424,10 +439,10 @@ def _m_result_meta(reg):
     passed, failed = reg._portal_result_counts()
     parts = []
     if passed:
-        parts.append('%d đạt' % passed)
+        parts.append(reg.env._('%d passed', passed))
     if failed:
-        parts.append('%d không đạt' % failed)
-    return ' • '.join(parts) or ('%d nhân sự' % reg.participant_count)
+        parts.append(reg.env._('%d failed', failed))
+    return ' • '.join(parts) or reg.env._('%d participants', reg.participant_count)
 
 
 def _pc_list_item(reg):
@@ -459,8 +474,9 @@ def _m_detail(reg):
     """Chi tiết cho mobile — state-aware (thay demo DEMO_RESULT có 'điểm')."""
     published = reg.session_id.results_published
     status, badge = M_REG_BADGE.get(reg.state, (reg.state, status_badge('neutral')))
+    status = reg.env._(status) if isinstance(status, LazyGettext) else status
     if published:
-        status, badge = 'Có kết quả', status_badge('success')
+        status, badge = reg.env._(RESULT_AVAILABLE), status_badge('success')
     reason = ''
     if reg.state == 'rejected':
         reason = reg.reject_reason or ''
@@ -470,9 +486,9 @@ def _m_detail(reg):
         'id': reg.id, 'name': reg.name,
         'title': reg.course_id.name or reg.session_id.name,
         'date_label': _session_day_label(reg.session_id),
-        'location': reg.session_id.location or request.env.company._wj_brand_text('Trung tâm đào tạo {brand}'),
-        'summary': '%d nhân sự%s' % (
-            reg.participant_count,
+        'location': reg.session_id.location or request.env.company._wj_brand_text(
+            reg.env._('{brand} Training Center')),
+        'summary': reg.env._('%d participants', reg.participant_count) + (
             (' • ' + _result_summary(reg)[0]) if published else ''),
         'status': status, 'badge': badge,
         'state': reg.state, 'is_published': published, 'reason': reason,
@@ -486,35 +502,35 @@ def _pc_detail(reg):
     """Chi tiết cho PC — dữ liệu thật vào layout Figma 05/06."""
     published = reg.session_id.results_published
     show_results = reg.state == 'confirmed'
+    _t = reg.env._
     if reg.state == 'submitted':
         publish_state, banner_kind = 'none', 'warning'
-        card_sub = 'Phiếu đang chờ {brand} xác nhận.'
-        banner_title = 'Yêu cầu đã được gửi đến {brand}.'
-        banner_text = ('Portal chưa hiển thị kết quả cho đến khi phiếu được xác'
-                       ' nhận và công bố.')
+        card_sub = _t('The registration is awaiting confirmation from {brand}.')
+        banner_title = _t('The request has been sent to {brand}.')
+        banner_text = _t('The portal shows no results until the registration is confirmed'
+                         ' and results are published.')
     elif reg.state == 'confirmed':
         publish_state = 'published' if published else 'unpublished'
         banner_kind = 'info'
-        card_sub = 'Thông tin phiếu đã được {brand} xác nhận.'
+        card_sub = _t('The registration has been confirmed by {brand}.')
         if published:
-            banner_title = 'Kết quả đã được công bố.'
-            banner_text = 'Trang hiển thị giá trị kết quả mới nhất theo từng người.'
+            banner_title = _t('The results have been published.')
+            banner_text = _t('This page shows the latest result of each person.')
         else:
-            banner_title = '{brand} đã xác nhận danh sách đăng ký.'
-            banner_text = ('Kết quả sẽ xuất hiện trên chính danh sách người tham'
-                           ' gia sau khi công bố.')
+            banner_title = _t('{brand} has confirmed the registration list.')
+            banner_text = _t('Results will appear in the participant list once published.')
     elif reg.state == 'rejected':
         publish_state, banner_kind = 'na', 'danger'
-        card_sub = 'Phiếu đã bị từ chối.'
-        banner_title = 'Lý do: %s' % (reg.reject_reason or 'Không có.')
-        banner_text = ('Cửa hàng chỉ có thể xem lý do; MVP không sửa hoặc gửi lại'
-                       ' từ phiếu này.')
+        card_sub = _t('The registration was rejected.')
+        banner_title = _t('Reason: %s', reg.reject_reason or _t('None.'))
+        banner_text = _t('The store can only view the reason; this registration cannot be'
+                         ' edited or resubmitted.')
     else:  # cancelled
         publish_state, banner_kind = 'na', 'muted'
-        card_sub = 'Phiếu đã bị hủy.'
-        banner_title = 'Lý do: %s' % (reg.cancellation_reason or 'Không có.')
-        banner_text = ('Phiếu không tham gia công bố kết quả và không có nút hủy'
-                       ' trên portal.')
+        card_sub = _t('The registration was cancelled.')
+        banner_title = _t('Reason: %s', reg.cancellation_reason or _t('None.'))
+        banner_text = _t('This registration is excluded from result publishing and cannot be'
+                         ' cancelled on the portal.')
     brand = reg.env.company._wj_brand_text
     return {
         'id': reg.id, 'name': reg.name, 'state': reg.state,
@@ -527,7 +543,7 @@ def _pc_detail(reg):
         'requester': reg.requester_user_id.name or '—',
         'request_date': (_to_local(reg.request_date).strftime('%d/%m/%Y · %H:%M')
                          if reg.request_date else '—'),
-        'participant_label': '%02d người' % reg.participant_count,
+        'participant_label': _t('%02d people', reg.participant_count),
         'banner_kind': banner_kind, 'banner_title': brand(banner_title),
         'banner_text': banner_text,
         'lines': _reg_lines(reg, published),

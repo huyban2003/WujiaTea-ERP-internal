@@ -13,6 +13,7 @@ import re
 
 from odoo.tests import TransactionCase, tagged
 
+from odoo.addons.wujia_exam.tests.common import load_vi
 from odoo.addons.wujia_portal_base.tests.css_probe import CUSTOM, _view
 
 JS = os.path.join(CUSTOM, 'wujia_portal_exam', 'static', 'src', 'js',
@@ -77,8 +78,13 @@ class TestExamListCardE5b2(TransactionCase):
         xml = re.sub(r'\s+', ' ', ''.join(state.itertext()) + ' '
                      + ' '.join(el.get('t-out') or el.get('t-attf-class') or ''
                                 for el in state.iter()))
-        for chu in ('Đạt', 'Không đạt', 'Chờ kết quả'):
+        # J-V3: nguồn là câu gốc tiếng Anh; user vi_VN vẫn thấy đủ ba nhãn cũ.
+        for chu in ('Pass', 'Fail', 'Awaiting result'):
             self.assertIn(chu, xml, 'mất trạng thái %s' % chu)
+        arch_vi = load_vi(self.env, ('wujia_portal_exam',)).ref(
+            'wujia_portal_exam.portal_exam_registration_detail').arch
+        for chu in ('Đạt', 'Không đạt', 'Chờ kết quả'):
+            self.assertIn(chu, arch_vi, 'mất trạng thái %s' % chu)
         badges = state.xpath('.//span[contains(@class, "wj-status-badge")]'
                              ' | .//span[contains(@t-attf-class, "wj-status-badge")]')
         self.assertEqual(len(badges), 2, 'hai nhánh published/chờ kết quả')

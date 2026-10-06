@@ -2,6 +2,8 @@
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase, tagged
 
+from .common import load_vi
+
 
 @tagged('post_install', '-at_install', 'wujia_exam_c10')
 class TestExamQuotaSource(TransactionCase):
@@ -9,6 +11,8 @@ class TestExamQuotaSource(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # J-V3: câu báo gốc tiếng Anh, assert tiếng Việt ⇒ chạy ở vi_VN.
+        cls.env = load_vi(cls.env)
         cls.slot = cls.env['wujia.exam.time.slot'].create({
             'name': 'C10 08:00-10:00', 'code': 'C10-0810',
             'time_from': 8.0, 'time_to': 10.0,

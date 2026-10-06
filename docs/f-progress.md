@@ -2252,7 +2252,55 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Hàm nhận bản ghi ⇒ dịch bằng `record.env._(lazy)`, không `str(lazy)` (không có request thì ra EN).
   - `wujia_core` chuyển log về `<thư mục logfile>/<năm>/<tháng>/<ngày>.log` (giờ UTC) ⇒ đọc kết quả test ở đó, `--logfile` trống.
 - Lệnh deploy: thêm `wujia_portal_base` vào lệnh `-u` gộp (J-B2/J-T/J-V0/V1); **restart sau `-u`**.
+- UAT (05/10 tối): deploy tự động (`deploy.yml`) **dừng ở `wujia_portal_base`** — core/franchise/layout lên 13:41 UTC, `portal_base` và
+  module sau giữ 19.0.7.35.0 (view 12:09); không có log để biết lỗi gì (máy dev chưa đăng nhập `gh`). Nâng lại bằng nút **Upgrade**
+  trên trình duyệt (admin, Apps → `wujia_portal_base`) ⇒ **thành công**, 19.0.7.36.0, view ghi 14:01 UTC (+ debt, exam). Kiểm chỉ-đọc:
+  en_US 0/18 view còn chữ VN, vi_VN y cũ, th_TH ra EN; admin vi_VN 5 route × 1440/390 = 200, 0 lỗi JS, 0 tràn, badge đúng màu.
+  ⚠️ Lần deploy kế mà `-u` CLI lại lỗi ⇒ cần log bước "Install / Upgrade Wujia modules".
 - Nợ để lại: deploy J-B2 + J-T + J-V0 + V1 + V2 (chủ dự án deploy để test) · xoá DB nháp `wujia_v2b/d/h/p` (giữ `wujia_t1` tới hết
   Phần V) · ★VR: xoá nhánh nhãn VN cũ `_legacy_vn_status_labels` + danh sách câu EN số nhiều · 3 test `f5_legacy_redirect` đỏ sẵn · I0 treo.
 - Phiên kế: **J-V3** — `wujia_portal_exam` (345) + `wujia_exam` (63): `draft` → điền EN → `check` → `apply` → sửa tay → `.po` →
   `load_vi` → probe so mốc V2. Nhãn trạng thái gọi `status_badge_for` ⇒ chuyển sang `_lt()` EN (nhánh VN cũ không cần nữa cho exam).
+
+## J-V3 Việt hoá source `wujia_portal_exam` + `wujia_exam` · 06/10/2026 · Mac
+- Kết quả: ✅ code + test, **chưa commit** (chờ lệnh chủ dự án); 0 ghi sheet (không có ID Issue List).
+- Đầu phiên: HEAD `7e1d5abf` (J-V2). Không đụng `wujia_mobile_portal_exam` (Thái) — đã soi: không xpath/assert theo chữ VN.
+- Đã làm (`wujia_exam` 19.0.1.1.0 · `wujia_portal_exam` 19.0.7.0.0; `portal_base` không đổi — mọi nhãn EN đã có trong bảng màu):
+  - Câu gốc → tiếng Anh: `docs/i18n-pairs/wujia_exam.csv` 63 dòng (auto 55 · tay 8), `wujia_portal_exam.csv` 345 (auto 213 · tay 132);
+    glossary +290 dòng (chỉ thêm, giữ CRLF). "Họ và tên" người dự thi = "Participant's full name" (tránh đụng "Full name"="Họ tên").
+  - `wujia_exam`: 49 `_()` + 3 `models.Constraint` + lỗi `register_from_portal` (`ExamPortalError` giữ `kind`) → EN; 6 `title=`/`sum=`
+    view backend + manifest → EN. Backend tooltip "Đã công bố KQ" → **"Đã công bố kết quả"** (chủ ý, đủ chữ).
+  - `controllers/portal.py`: `_WEEKDAYS`, `M_REG_BADGE`, `PC_REG_STATES`, `PC_PUBLISH_STATES`, `SLOT_STATUS_LABELS`, `COURSE_OPEN`,
+    `RESULT_AVAILABLE` → `_lt()` (dict, `status_badge_for(lazy)`); câu theo bản ghi (`Month %(month)d %(year)d`, `%d seats left`,
+    `%d participants/passed/failed`, banner `{brand}`) → `record.env._()`; `_publish_label` để không lọt msgid rác vào `.pot`.
+  - QWeb: `'Đăng ký mới'`, FilterBar, `'Chưa có'`, lý do từ chối/huỷ, Đạt/Không đạt → `<t t-set>`/`t-if`; tiêu đề thứ T2…CN → Mo…Su.
+  - JS `portal_exam_pc.js` + `portal_exam_wizard.js`: 45 câu → khối `_ex_msgs` (`<t t-set>` dịch được, gắn `t-att` dict lên root PC +
+    wizard mobile) + helper `m(key, 'EN', arg)` qua `wjMsg`; câu ghép số → 1 câu `%s`. Biến tháng `var m` (che helper `m` trong handler
+    click) đổi thành `mo`.
+  - `.po` + `.pot` mới: `wujia_portal_exam` 241 msgid / 239 dịch (2 còn lại không cần: chip `i`, tên file mẫu); `wujia_exam` 215 / 176
+    (trước 216 / 117; 39 còn lại = trường mixin mail + tên model, **trước J-V3 cũng chưa dịch** — không lùi). 9 msgstr cũ của
+    `wujia_exam` bị glossary chung ghi đè ⇒ khôi phục bằng sửa text.
+  - Test: `wujia_exam/tests/common.py::load_vi(env, modules)`; `ExamCommon` chạy vi_VN (+ user portal `lang='vi_VN'`, `_vi_modules`
+    để test portal nạp `.po` khung + base + 2 module Thi); `c10_quota` vi_VN; `f5_nav_item`/`list_card_e5b2` so EN ở nguồn + tiếng
+    Việt ở arch vi_VN; `f12.test_max_hint` so EN + bản dịch. Mới: `test_portal_rules.test_error_follows_user_lang` (en/vi, cả lỗi
+    constraint) + `test_jv3_i18n` (badge đối chiếu nhãn VN TRƯỚC J-V3: cùng chữ + cùng màu; nhãn ca/thứ theo ngôn ngữ; mọi key
+    `m("…")` của JS có `data-wj-msg-*` ở `_ex_msgs`, gắn đủ 2 root). Không xoá assert nào.
+- Số đo:
+  - `vn_hardcode_scan --fail-on-any`: `wujia_exam` **0** (trước 63) · `wujia_portal_exam` **0** (trước 345).
+  - DB copy `wujia_v3b`: suite `/wujia_exam,/wujia_portal_exam` **53/0** (5 đỏ lần đầu đều do assert chữ VN ⇒ sửa như trên;
+    3 `f5_legacy_redirect` đỏ sẵn ở V2 nay xanh trên DB này). DB trắng `wujia_v3blank` (cài rồi `-u --test-enable`): `/wujia_exam` **14/0**.
+    Mobile Thái `wujia_mobile_portal_exam` cài trên bản copy `wujia_v3m`: **3/3**.
+  - Mutation 3/3 đỏ đúng: đổi nhãn badge `Rejected`→`Declined` (2 subtest), bỏ 1 key `_ex_msgs`, bỏ `load_vi` ở `c10_quota`; đã khôi phục.
+  - `wj_text_probe` vi_VN 52 trang so mốc V2: chữ hiển thị **0 lệch**; chỉ thêm 45 dòng `@data-wj-msg-*` (câu JS, toàn tiếng Việt) ở
+    `/portal/exam/register` 1440/390 ⇒ **mốc mới** `docs/i18n-baseline/vi_VN.json` cho V4.
+  - Playwright en_US/th_TH × 1440/390: danh sách, 3 chi tiết phiếu (chờ duyệt/đã đăng ký/từ chối), đăng ký (PC: kiểm tra khi chưa
+    chọn ca, chọn ngày → khung giờ, modal Thêm người + lưu rỗng; mobile: chọn khoá → lịch → sheet khung giờ): **0 tràn ngang, 0 lỗi
+    JS**, câu JS ra EN (th_TH chưa có `.po` ⇒ EN). Chữ VN còn: dữ liệu (tên khoá/cửa hàng/người, brand "Ngô Gia") + nav module V4–V8.
+    DB đo có thêm 1 ca thi mở (id 308, "JV3 QA room") để thấy khung giờ.
+- Lệch / LIMIT:
+  - Nợ cũ còn nguyên: tiêu đề khung giờ PC "Time slots on —" (trước là "Khung giờ ngày —", `chosen.dateLabel` không được điền) ⇒ ★VR.
+  - EN số nhiều: "1 sessions • In the next 60 days" ⇒ gom vào danh sách ★VR.
+- Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V3".
+- Lệnh deploy: thêm `wujia_exam,wujia_portal_exam` vào lệnh `-u` gộp; **restart sau `-u`**.
+- Nợ để lại: commit/push J-V3 (chờ lệnh) · xoá DB nháp `wujia_v3b` (giữ `wujia_t1` tới hết Phần V) · ★VR như trên + danh sách J-V2.
+- Phiên kế: **J-V4** — `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8), so mốc vi_VN sau V3.

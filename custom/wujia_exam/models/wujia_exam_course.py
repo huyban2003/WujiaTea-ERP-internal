@@ -46,7 +46,7 @@ class WujiaExamCourse(models.Model):
     active = fields.Boolean(default=True)
 
     _uniq_code = models.Constraint(
-        'unique(code)', 'Mã khóa thi phải duy nhất.',
+        'unique(code)', 'Exam course code must be unique.',
     )
 
     @api.depends('session_ids')
@@ -66,11 +66,11 @@ class WujiaExamCourse(models.Model):
     def _check_config(self):
         for rec in self:
             if rec.max_participants_per_registration <= 0:
-                raise ValidationError(_("Số nhân sự tối đa / phiếu phải > 0."))
+                raise ValidationError(_("Max participants per registration must be > 0."))
             if rec.registration_lead_days < 0:
-                raise ValidationError(_("Hạn đăng ký trước không được âm."))
+                raise ValidationError(_("Registration lead time cannot be negative."))
             if rec.registration_horizon_days <= 0:
-                raise ValidationError(_("Số ngày mở đăng ký phải > 0."))
+                raise ValidationError(_("Registration window (days) must be > 0."))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -158,10 +158,10 @@ class WujiaExamCourse(models.Model):
         for rec in self:
             if not rec.time_slot_ids:
                 raise ValidationError(_(
-                    "Khóa thi '%s' cần ít nhất 1 ca thi trước khi phát hành.",
+                    "Exam course '%s' needs at least 1 time slot before it can be published.",
                     rec.name))
             if rec.max_participants_per_registration <= 0:
-                raise ValidationError(_("Số nhân sự tối đa / phiếu phải > 0."))
+                raise ValidationError(_("Max participants per registration must be > 0."))
             rec.state = 'published'
 
     def action_reset_to_draft(self):
