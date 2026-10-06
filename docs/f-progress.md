@@ -2382,7 +2382,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   Phát hiện (có sẵn, không do V4): (1) trang chi tiết SP khổ 390 hàng nút không `flex-wrap` ⇒ nút "Xem giỏ"/"View cart" bị cắt ở mép thẻ
   (vi cũng vậy); (2) mọi trang portal nạp `pdfmake` + `vfs_fonts` (~1,8 MB) của datatable ⇒ `load` ~2 s; bấm nút trước `load` thì
   lazyloader Odoo giữ cú bấm (spinner) rồi phát lại — đúng thiết kế, không kẹt.
-- Sửa sau UAT (06/10, **chưa commit** — chờ lệnh): `portal_layout` 19.0.60.4.0 · `portal_sale` 19.0.5.1.0 · `portal_exam` 19.0.7.1.0 ·
+- Sửa sau UAT (06/10, **đã push `6129ca59`**): `portal_layout` 19.0.60.4.0 · `portal_sale` 19.0.5.1.0 · `portal_exam` 19.0.7.1.0 ·
   `portal_base` 19.0.7.37.0.
   - Chi tiết SP: hàng "Số lượng · Thêm vào giỏ · Xem giỏ" thêm `flex-wrap` + nhãn `text-nowrap` ⇒ 390 nút "Xem giỏ" xuống dòng, hết cắt.
   - `assets.xml`: bỏ `tables_js` (DataTables + `pdfmake`/`vfs_fonts`, ~2 MB/trang, không trang nào dùng — `$.fn.DataTable` vốn không gắn
