@@ -1,276 +1,241 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* wujia_order_window
+# * wujia_order_window
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-01 19:33+0000\n"
-"PO-Revision-Date: 2026-08-01 19:33+0000\n"
+"POT-Creation-Date: 2026-10-06 08:26+0000\n"
+"PO-Revision-Date: 2026-10-06 08:26+0000\n"
 "Last-Translator: \n"
+"Language: vi_VN\n"
 "Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__active
 msgid "Active"
 msgstr "Đang hoạt động"
 
 #. module: wujia_order_window
-#: model_terms:ir.actions.act_window,help:wujia_order_window.action_wujia_order_window
 msgid ""
 "An area can define several windows (e.g. Morning + Evening). The portal "
 "allows ordering while at least one window of the area is open. An area "
 "without any window falls back to the default configuration in Settings."
-msgstr "Mỗi khu vực có thể có nhiều khung giờ (ví dụ Khung sáng + Khung tối).\n                Portal sẽ cho phép đặt hàng khi ít nhất một khung giờ của khu vực đang mở.\n                Khu vực không có khung giờ nào → dùng cấu hình mặc định ở Settings."
+msgstr ""
+"Mỗi khu vực có thể có nhiều khung giờ (ví dụ Khung sáng + Khung tối).\n"
+"                Portal sẽ cho phép đặt hàng khi ít nhất một khung giờ của "
+"khu vực đang mở.\n"
+"                Khu vực không có khung giờ nào → dùng cấu hình mặc định ở "
+"Settings."
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__area_id
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_search
 msgid "Area"
 msgstr "Khu vực"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__company_id
 msgid "Company"
 msgstr "Công ty"
 
 #. module: wujia_order_window
-#: model:ir.model,name:wujia_order_window.model_res_config_settings
 msgid "Config Settings"
 msgstr "Cài đặt cấu hình"
 
 #. module: wujia_order_window
-#: model_terms:ir.actions.act_window,help:wujia_order_window.action_wujia_order_window
 msgid "Create an ordering time window for an area"
 msgstr "Tạo khung giờ đặt hàng cho khu vực"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__create_date
 msgid "Created on"
-msgstr ""
+msgstr "Ngày tạo"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,help:wujia_order_window.field_res_config_settings__portal_order_time_to
+msgid "Crosses midnight"
+msgstr "Qua nửa đêm"
+
+#. module: wujia_order_window
 msgid ""
 "Default end hour (float 0.0–24.0). If To < From the window runs past "
 "midnight."
-msgstr "Giờ kết thúc mặc định (float 0.0–24.0). Nếu To < From thì khung giờ chạy qua nửa đêm."
+msgstr ""
+"Giờ kết thúc mặc định (float 0.0–24.0). Nếu To < From thì khung giờ chạy qua"
+" nửa đêm."
 
 #. module: wujia_order_window
-#: model:ir.model.fields,help:wujia_order_window.field_res_config_settings__portal_order_time_from
 msgid ""
 "Default start hour (float 0.0–24.0) used when the area has no window of its "
 "own."
 msgstr "Giờ bắt đầu mặc định (float 0.0–24.0) khi khu vực chưa có khung giờ riêng."
 
 #. module: wujia_order_window
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
 msgid ""
 "Default time window <em>applies only to areas without their own "
 "configuration</em>. Configure it per area under <strong>Sales → "
 "Configuration → Wujia Portal → Ordering time windows</strong>. If To &lt; "
 "From, the window runs past midnight."
-msgstr ""
+msgstr "Khung giờ mặc định <em>chỉ áp dụng cho khu vực chưa có cấu hình riêng</em>. Cấu hình theo khu vực tại <strong>Bán hàng → Cấu hình → Wujia Portal → Khung giờ đặt hàng</strong>. Nếu Đến &lt; Từ, khung giờ kéo qua nửa đêm."
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__description
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_form
 msgid "Description"
 msgstr "Mô tả"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:wujia_order_window.field_sale_order__display_name
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__portal_order_time_limit_enabled
 msgid "Enable Portal Order Time Limit"
-msgstr ""
+msgstr "Bật giới hạn khung giờ đặt hàng portal"
 
 #. module: wujia_order_window
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
 msgid ""
 "Enable/disable the portal ordering time window. Off = ordering allowed at "
 "any time."
 msgstr "Bật/tắt giới hạn khung giờ đặt hàng cho portal. Tắt = cho phép đặt mọi lúc."
 
 #. module: wujia_order_window
-#: model:ir.model.fields,help:wujia_order_window.field_res_config_settings__portal_order_time_limit_enabled
 msgid ""
 "Enable/disable the portal ordering time window. When off, ordering is "
 "allowed at any time regardless of `wujia.order.window`."
-msgstr "Bật/tắt giới hạn khung giờ đặt hàng cho portal. Nếu tắt thì cho phép đặt mọi lúc, bất kể `wujia.order.window`."
+msgstr ""
+"Bật/tắt giới hạn khung giờ đặt hàng cho portal. Nếu tắt thì cho phép đặt mọi"
+" lúc, bất kể `wujia.order.window`."
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__order_time_to
+msgid "End hour must be within [0, 24)."
+msgstr "Giờ kết thúc phải nằm trong [0, 24)."
+
+#. module: wujia_order_window
 msgid "End time"
 msgstr "Giờ kết thúc"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__order_time_from
-msgid "Float hours 0.0–24.0. Vd 10.5 = 10:30."
-msgstr ""
+msgid "Float hours 0.0–24.0. E.g. 10.5 = 10:30."
+msgstr "Giờ dạng số thập phân 0.0–24.0. Vd 10.5 = 10:30."
 
 #. module: wujia_order_window
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
 msgid "From (fallback)"
-msgstr ""
+msgstr "Từ (mặc định)"
 
 #. module: wujia_order_window
-#: model:ir.model.constraint,message:wujia_order_window.constraint_wujia_order_window_order_time_from_range
-msgid "Giờ bắt đầu phải nằm trong [0, 24)."
-msgstr ""
-
-#. module: wujia_order_window
-#: model:ir.model.constraint,message:wujia_order_window.constraint_wujia_order_window_order_time_to_range
-msgid "Giờ kết thúc phải nằm trong [0, 24)."
-msgstr ""
-
-#. module: wujia_order_window
-#. odoo-python
-#: code:addons/wujia_order_window/models/sale_order.py:0
-msgid ""
-"Hiện chưa nằm trong khung giờ nhận đơn. Vui lòng đặt hàng trong khung giờ "
-"%(f).2f – %(t).2f."
-msgstr ""
-
-#. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__id
-#: model:ir.model.fields,field_description:wujia_order_window.field_sale_order__id
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__order_time_to
 msgid "If < From the window runs past midnight (is_overnight=True)."
 msgstr "Nếu < From → khung chạy qua nửa đêm (is_overnight=True)."
 
 #. module: wujia_order_window
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_search
 msgid "In use"
 msgstr "Đang dùng"
 
 #. module: wujia_order_window
-#. odoo-python
-#: code:addons/wujia_order_window/models/wujia_order_window.py:0
-msgid "Khung giờ '%s' có From == To — không có thời điểm hợp lệ."
-msgstr ""
-
-#. module: wujia_order_window
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
-msgid "Khung giờ đặt hàng Portal (fallback)"
-msgstr ""
-
-#. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "Người cập nhật"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__write_date
 msgid "Last Updated on"
-msgstr ""
+msgstr "Cập nhật lúc"
 
 #. module: wujia_order_window
-#: model:ir.actions.act_window,name:wujia_order_window.action_wujia_order_window
-#: model:ir.ui.menu,name:wujia_order_window.menu_wujia_order_window
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_form
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_list
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_search
+#. odoo-python
+#: code:addons/wujia_order_window/models/sale_order.py
+#, python-format
+msgid ""
+"Not within the ordering window right now. Please order within %(f)s – "
+"%(t)s."
+msgstr ""
+"Hiện chưa nằm trong khung giờ nhận đơn. Vui lòng đặt hàng trong khung giờ "
+"%(f)s – %(t)s."
+
+#. module: wujia_order_window
 msgid "Ordering time windows"
 msgstr "Khung giờ đặt hàng"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__is_overnight
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_search
 msgid "Overnight"
 msgstr "Qua nửa đêm"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__portal_order_time_from
 msgid "Portal Order Time From (fallback)"
-msgstr ""
+msgstr "Giờ bắt đầu đặt hàng portal (mặc định)"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__portal_order_time_to
 msgid "Portal Order Time To (fallback)"
-msgstr ""
+msgstr "Giờ kết thúc đặt hàng portal (mặc định)"
 
 #. module: wujia_order_window
-#: model:ir.model,name:wujia_order_window.model_wujia_order_window
 msgid "Portal ordering time window (per area)"
 msgstr "Khung giờ portal đặt hàng (theo khu vực)"
 
 #. module: wujia_order_window
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_form
-msgid "Qua nửa đêm"
-msgstr ""
+msgid "Portal ordering window (fallback)"
+msgstr "Khung giờ đặt hàng Portal (fallback)"
 
 #. module: wujia_order_window
-#: model:ir.model,name:wujia_order_window.model_sale_order
 msgid "Sales Order"
-msgstr ""
+msgstr "Đơn bán hàng"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__sequence
 msgid "Sequence"
-msgstr ""
+msgstr "Thứ tự"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__order_time_from
+msgid "Start hour must be within [0, 24)."
+msgstr "Giờ bắt đầu phải nằm trong [0, 24)."
+
+#. module: wujia_order_window
 msgid "Start time"
 msgstr "Giờ bắt đầu"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__area_id
 msgid ""
 "The window applies only to franchises located in this area. An area can have"
 " several windows (e.g. morning + evening) — the controller checks them all "
 "and allows ordering while at least one is open."
-msgstr "Khung giờ chỉ áp cho franchise thuộc khu vực này. Một khu vực có thể có nhiều khung giờ (vd sáng + tối) — controller check tất cả, miễn 1 khung đang mở là cho phép."
-
-#. module: wujia_order_window
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
-msgid "To (fallback)"
 msgstr ""
+"Khung giờ chỉ áp cho franchise thuộc khu vực này. Một khu vực có thể có "
+"nhiều khung giờ (vd sáng + tối) — controller check tất cả, miễn 1 khung đang"
+" mở là cho phép."
 
 #. module: wujia_order_window
-#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__is_overnight
+msgid "To (fallback)"
+msgstr "Đến (mặc định)"
+
+#. module: wujia_order_window
 msgid "True when To < From — the window spans midnight."
 msgstr "True khi To < From — khung giờ bắc qua nửa đêm."
 
 #. module: wujia_order_window
-#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__name
+#. odoo-python
+#: code:addons/wujia_order_window/models/wujia_order_window.py
+#, python-format
+msgid "Window '%s' has From == To — no valid time."
+msgstr "Khung giờ '%s' có From == To — không có thời điểm hợp lệ."
+
+#. module: wujia_order_window
 msgid "Window name"
 msgstr "Tên khung giờ"
 
 #. module: wujia_order_window
-#: model:ir.ui.menu,name:wujia_order_window.menu_wujia_portal_config_root
 msgid "Wujia Portal"
-msgstr ""
+msgstr "Wujia Portal"
 
 #. module: wujia_order_window
-#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
 msgid "Wujia Portal Order Window"
-msgstr ""
+msgstr "Khung giờ đặt hàng Wujia Portal"
 
 #. module: wujia_order_window
-#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__name
 msgid ""
 "e.g. \"Morning window HN\" — shown in the portal UI when reporting that "
 "ordering is outside the window."
 msgstr "Vd \"Khung sáng HN\" — hiển thị trong UI portal khi báo ngoài khung giờ."
+

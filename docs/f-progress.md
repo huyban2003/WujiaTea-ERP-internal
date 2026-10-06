@@ -2263,7 +2263,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `load_vi` → probe so mốc V2. Nhãn trạng thái gọi `status_badge_for` ⇒ chuyển sang `_lt()` EN (nhánh VN cũ không cần nữa cho exam).
 
 ## J-V3 Việt hoá source `wujia_portal_exam` + `wujia_exam` · 06/10/2026 · Mac
-- Kết quả: ✅ code + test, **chưa commit** (chờ lệnh chủ dự án); 0 ghi sheet (không có ID Issue List).
+- Kết quả: ✅ code + test, **đã push `main` `baa5b547`**, chủ dự án đã deploy UAT; 0 ghi sheet (không có ID Issue List).
 - Đầu phiên: HEAD `7e1d5abf` (J-V2). Không đụng `wujia_mobile_portal_exam` (Thái) — đã soi: không xpath/assert theo chữ VN.
 - Đã làm (`wujia_exam` 19.0.1.1.0 · `wujia_portal_exam` 19.0.7.0.0; `portal_base` không đổi — mọi nhãn EN đã có trong bảng màu):
   - Câu gốc → tiếng Anh: `docs/i18n-pairs/wujia_exam.csv` 63 dòng (auto 55 · tay 8), `wujia_portal_exam.csv` 345 (auto 213 · tay 132);
@@ -2302,5 +2302,77 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - EN số nhiều: "1 sessions • In the next 60 days" ⇒ gom vào danh sách ★VR.
 - Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V3".
 - Lệnh deploy: thêm `wujia_exam,wujia_portal_exam` vào lệnh `-u` gộp; **restart sau `-u`**.
-- Nợ để lại: commit/push J-V3 (chờ lệnh) · xoá DB nháp `wujia_v3b` (giữ `wujia_t1` tới hết Phần V) · ★VR như trên + danh sách J-V2.
+- UAT (06/10): deploy tự động lại **dừng trước tầng `portal_*`** (L2 + mobile Thái lên 07:39–07:40 UTC, `wujia_portal_exam` kẹt
+  19.0.6.2.0 ⇒ view cũ, thiếu khối `_ex_msgs` ⇒ câu JS sẽ ra EN cho user VN). Được chủ dự án đồng ý ⇒ Upgrade `wujia_portal_exam`
+  (nút Upgrade, admin) ⇒ 19.0.7.0.0, 5 s. Kiểm chỉ-đọc `anh.owner` vi/en/th × 1440/390 (`/portal/exam`, `/portal/exam/register`, PC:
+  kiểm tra khi chưa chọn ca + modal Thêm người + lưu rỗng): **0 tràn, 0 lỗi JS**, vi y cũ, en/th ra EN; chữ VN còn = dữ liệu + nav
+  V4–V8. Ngôn ngữ user trả về vi_VN. LIMIT: UAT không có phiếu ở HN-01 và không có ca mở ⇒ chưa xem được chi tiết phiếu / khung
+  giờ (đã xem trên DB đo local). Lần đầu đổi ngôn ngữ qua `/portal/set-lang` có lượt chưa ăn (`<html lang>` vẫn vi) ⇒ script đo phải
+  xác nhận `document.documentElement.lang` trước khi chụp. ⚠️ Deploy kế cần log bước "Install / Upgrade Wujia modules" (2 lần liền dừng).
+- Nợ để lại: xoá DB nháp `wujia_v3b` (giữ `wujia_t1` tới hết Phần V) · ★VR như trên + danh sách J-V2.
 - Phiên kế: **J-V4** — `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8), so mốc vi_VN sau V3.
+
+## J-V4 Việt hoá source `wujia_portal_sale` + `wujia_sale` + `wujia_order_window` · 06/10/2026 · Mac
+- Kết quả: ✅ code + test, **chưa commit** (chờ lệnh chủ dự án); 0 ghi sheet (không có ID Issue List).
+- Đầu phiên: HEAD `baa5b547` (J-V3). Không module Thái nào phụ thuộc 3 module này (`wujia_mobile_sale` đã standalone) ⇒ không đụng code Thái.
+- Đã làm (`wujia_portal_sale` 19.0.5.0.0 · `wujia_sale` 19.0.4.7.0 · `wujia_order_window` 19.0.1.1.0):
+  - Câu gốc → tiếng Anh: `docs/i18n-pairs/wujia_portal_sale.csv` 201 dòng (auto 118 · tay 83), `wujia_sale.csv` 16 (12 · 4),
+    `wujia_order_window.csv` 8 (4 · 4); glossary +147 dòng (chỉ thêm, giữ CRLF, 0 dòng cũ đổi).
+  - `controllers/portal.py`: `ERROR_MESSAGES`, `QTY_MESSAGES`, `SUCCESS_MESSAGES`, `LINE_INVALID_MESSAGES` → dict `_lt('EN')`; tra bảng qua
+    helper `_qty_message` / `_line_invalid_message` / `_success_message` (gán biến rồi mới `env._`, tránh msgid rác `QTY_ABOVE_MAX`);
+    `_error_message` dịch theo request rồi mới `_wj_brand_text` (`{brand}`). Câu ghép → 1 câu `_()` có placeholder: "The quantity of %s must
+    be a whole number.", khung qua đêm "%(start)s today – %(end)s tomorrow (%(tz)s)", "Today, %s" / "On %s"; `build_pager(item_label=
+    _lt('products'))`; fallback ký hiệu tiền `'đ'` → `'₫'`. `wujia_portal_cart.py`: constraint + display name "Cart [%(code)s] %(name)s".
+  - JS `portal_order.js` (11) + `portal_cart_sync.js` (4): template mới `wujia_portal_sale.cart_sync_root` — 13 câu `<t t-set>` + dict `t-att`
+    lên `#wj-cart-sync`, gọi ở catalog + giỏ + chi tiết SP (thay div trần cũ); JS đọc qua `wjMsg` (`m(key,'EN',arg)` / `this.msg(key,'EN')`).
+  - QWeb: aria-label nút mobile (`Add %s to cart`…), FilterBar (ô tìm/danh mục), trang kết quả (`Order placed`, câu `{brand}`, ngoài khung
+    giờ) → `<t t-set>`; chữ không dấu máy quét sót: `SL` → `Qty`, `SP` → `SKUs`, `. Khung:` → `. Window:` (+ glossary).
+  - `wujia_sale` 12 `_()` + `wujia_order_window` 2 `_()` + 2 `ValidationError` → EN; manifest, log migration, `name=` template → EN.
+  - `.po` + `.pot`: `wujia_portal_sale` **mới** 163 msgid / 158 dịch (5 còn lại backend: chip `!`, Franchise, ID, 2 tên model);
+    `wujia_sale` 138 / 118 (HEAD 149 / 119: 18 msgid mồ côi không còn trong source bị bỏ); `wujia_order_window` 45 / 34 (HEAD 45 / 24).
+    Các msgid còn trống đều là chuỗi backend **vốn EN từ HEAD** (tên model, help field, mixin) — không lùi. msgstr `Active` bị glossary ghi đè
+    và help `franchise_id` (msgid HEAD chỉ là câu đầu) ⇒ khôi phục bằng sửa text.
+  - Test: `wujia_sale/tests/common.py::load_vi(env, modules)`; `test_order_window` (EN dưới en_US + VN dưới vi_VN), `f5_nav_item`,
+    `f6_cart_submit` (env + user vi_VN), `portal_base/test_scan_c8_section_header` (nhãn pager "products"/"sản phẩm" theo env).
+    Mới `test_jv4_i18n`: bảng câu VN TRƯỚC V4 so `env_vi._(lazy)` + placeholder, câu ghép, constraint vi/en, mọi key JS có `data-wj-msg-*`
+    trong `cart_sync_root` + 3 trang gọi nó; HttpCase user `vi_VN`/`en_US` nhận lỗi giỏ đúng ngôn ngữ. Không xoá assert nào.
+- Số đo:
+  - `vn_hardcode_scan --fail-on-any`: 3 module **0** (trước 225).
+  - DB copy `wujia_v4b`, `-u` 9 module (sale, order_window, portal_sale + account, delivery, return, portal_base, portal_report,
+    purchase_history) `--test-enable`: **502 test, 0 đỏ mới**; 2 lỗi có sẵn ở HEAD (đo song song worktree HEAD + DB `wujia_v4h`: 497 / 0 / 2):
+    `wujia_sale test_06_filters_return_right_orders` (phụ thuộc giờ — chạy sáng UTC ngoài khung đặt hàng) và `TestWujiaSupplyDemandReport`
+    setUpClass ("Quants cannot be created for consumables"). 1 đỏ lần đầu (`portal_base` c8 assert "sản phẩm" trong arch sale) ⇒ sửa như trên.
+  - Mutation: bỏ key `removed` ⇒ đỏ; đổi câu EN `PRODUCT_NOT_AVAILABLE` không thêm glossary ⇒ đỏ 3 nơi; bỏ `'lang': 'vi_VN'` của user f6 ⇒
+    xanh — mutation tương đương (user tạo từ `cls.env` `lang=vi_VN` nên mặc định vẫn vi_VN); bỏ `load_vi` f6 ⇒ xanh (DB đo đã nạp `.po`;
+    chốt chặn là `test_jv4_i18n`). Đã khôi phục.
+  - `wj_text_probe` vi_VN 52 trang so mốc V3: chữ hiển thị **0 lệch do V4**; thêm 13 dòng `@data-wj-msg-*` (tiếng Việt) × 6 trang
+    (catalog/giỏ/chi tiết × 1440/390). `/portal/exam/register` lệch "Đã đóng" ↔ "Còn lịch" do ca thi 308 ("JV3 QA room") có trên DB đo
+    ⇒ **mốc mới** `docs/i18n-baseline/vi_VN.json` = probe V4, giữ 2 trang exam/register của mốc V3.
+  - So giá trị vi_VN trong DB HEAD (`wujia_v4h`) ↔ mới (`wujia_v4b`) — field/help/selection/model/menu/action/arch view 3 module:
+    **0 chỗ VN → EN**; 36 chỗ EN → VN (field backend nay có bản dịch: Ngày tạo, Người cập nhật, Đủ hàng/Thiếu hàng…).
+  - Playwright en_US/th_TH × 1440/390 (`<html lang>` xác nhận): catalog, giỏ, chi tiết SP, ngoài khung giờ, đã gửi đơn (S00012), modal
+    xác nhận: **0 tràn ngang, 0 lỗi JS mới**; câu JS ra EN ("Please enter a valid quantity.", "The minimum/maximum quantity is %s.",
+    "Quantity in cart: %s. View cart →", "Added to cart (1)", confirm "Remove this product from the cart?"); vi_VN cùng luồng ra y chữ cũ.
+    Chữ VN còn: dữ liệu (tên SP/danh mục/quy cách/cửa hàng/người, brand "Ngô Gia") + nav module V5–V8.
+- Fix nốt (cùng phiên, chủ dự án "cái nào fix được fix nốt"):
+  - **404 locale Vuexy** `/<lang>/app-assets/data/locales/en.json` trên mọi trang portal (có từ trước): `core/app.js` gọi `i18next.init` ngay
+    lúc nạp nên stub trong `my_js.js` (nạp sau) không chặn được ⇒ bỏ `i18next.init` + `changeLanguage` trong `core/app.js`, xoá stub chết;
+    `?v=` cho 2 file; `wujia_portal_layout` 19.0.60.3.0. Đo th_TH × 1440/390: **0 request ≥400, 0 lỗi JS**, bấm dropdown ngôn ngữ ⇒ vi-VN.
+  - **Nợ dịch backend**: 35 msgid vốn EN chưa có bản vi (`wujia_sale` 20, `wujia_order_window` 11, `wujia_portal_sale` 4) ⇒ dịch, thuật ngữ
+    theo Odoo core (`Đơn bán hàng`, `Biến thể sản phẩm`, `Lệnh chuyển hàng`…); help `franchise_id` dịch đủ 2 câu. Độ phủ vi_VN:
+    `wujia_sale` **138/138**, `wujia_order_window` **45/45**, `wujia_portal_sale` **162/163** (còn chip `!`). Glossary +32 (chỉ thêm).
+  - Help khung giờ có chữ không dấu "Vd" ⇒ source "E.g."; lỗi tạo đơn portal ngoài khung giờ in giờ `10.00 – 4.00` ⇒ `10:00 – 04:00`
+    (`_hhmm`, msgid `%(f)s – %(t)s`, test thêm `assertRegex` giờ:phút).
+  - **2 lỗi test có sẵn của `wujia_sale`**: `test_06_filters_return_right_orders` tắt giới hạn khung giờ trong `setUpClass` (test lọc, không
+    phụ thuộc giờ chạy); `TestWujiaSupplyDemandReport` (code anh Thái `c64de509`, chưa từng chạy qua setUpClass): sản phẩm test thêm
+    `is_storable` (Odoo 19), `flush_all()` trước khi đọc SQL view, sửa xmlid menu `menu_wujia_sale_supply_demand_report`.
+  - Suite 10 module (thêm `wujia_portal_layout`) `-u --test-enable`: 761 test ⇒ chỉ còn 2 đỏ ở test cung–cầu (lộ ra khi setUpClass hết gãy)
+    ⇒ sửa ⇒ `/wujia_sale` **16/0**. Quét 4 module = 0.
+- Lệch / LIMIT:
+  - ★VR: "SP" → EN "SKUs"; glossary "Qty" = "SL" cũng áp nhãn field backend `qty` của dòng giỏ; "Có lỗi xảy ra, vui lòng thử lại" dùng
+    chung câu EN ⇒ bản vi giờ là "Có lỗi xảy ra. Vui lòng thử lại." (dấu `,` → `.`); 35 câu backend mới dịch (danh sách ở `.po`) cho BA rà.
+- Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V4".
+- Lệnh deploy: thêm `wujia_portal_layout,wujia_sale,wujia_order_window,wujia_portal_sale` vào lệnh `-u` gộp; **restart sau `-u`**. Kiểm deploy kế có thật sự
+  chạy tới tầng `portal_*` (V3 dừng trước tầng này 2 lần).
+- Nợ để lại: xoá DB nháp `wujia_v3b`, `wujia_v4b`, `wujia_v4h` + worktree nháp trong scratchpad (giữ `wujia_t1` tới hết Phần V); ★VR như trên.
+- Phiên kế: **J-V5** — `wujia_portal_debt` (196) + `wujia_account` (4), so mốc vi_VN sau V4.

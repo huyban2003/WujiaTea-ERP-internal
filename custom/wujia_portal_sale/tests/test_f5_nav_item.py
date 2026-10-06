@@ -9,12 +9,17 @@ from lxml import etree
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
+from odoo.addons.wujia_sale.tests.common import load_vi
+
 
 @tagged('post_install', '-at_install', 'wujia_f5')
 class TestNavItemSale(TransactionCase):
 
     def test_item_is_declared_by_this_module(self):
-        view = self.env.ref('wujia_portal_sale.layout_sidenav_order')
+        # J-V4: câu gốc tiếng Anh ⇒ đọc arch ở vi_VN để giữ assert nhãn tiếng Việt.
+        view = load_vi(self.env, ('wujia_portal_sale',)).ref('wujia_portal_sale.layout_sidenav_order')
+        self.assertIn('<t t-set="ni_label">Order</t>',
+                      self.env.ref('wujia_portal_sale.layout_sidenav_order').with_context(lang='en_US').arch)
         self.assertEqual(view.inherit_id, self.env.ref('wujia_portal_layout.layout_sidenav'))
         arch = view.arch
         self.assertIn('<li', arch)

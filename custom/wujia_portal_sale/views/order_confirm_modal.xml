@@ -8,42 +8,42 @@
 
          Số liệu không render ở đây — JS đọc `data-oc-*` của CHÍNH form gửi đơn lúc mở (form nằm trong
          panel được thay mới nên số luôn khớp giỏ hiện tại), ghi chú đọc từ ô đang gõ. -->
-    <template id="order_confirm_modal" name="Wujia Portal — Xác nhận gửi đơn">
+    <template id="order_confirm_modal" name="Wujia Portal — Confirm order submission">
         <div class="wj-pc-modal__backdrop wj-order-confirm" id="wjOrderConfirm" hidden="hidden">
             <div class="wj-pc-modal__panel wj-order-confirm__panel" role="dialog" aria-modal="true"
                  aria-labelledby="wjOrderConfirmTitle" aria-describedby="wjOrderConfirmDesc">
-                <h2 class="wj-pc-modal__title" id="wjOrderConfirmTitle">Xác nhận gửi đơn</h2>
-                <t t-set="wj_txt">Kiểm tra lại thông tin trước khi gửi đơn cho {brand}.</t>
+                <h2 class="wj-pc-modal__title" id="wjOrderConfirmTitle">Confirm order</h2>
+                <t t-set="wj_txt">Review the details before submitting your order to {brand}.</t>
                 <p class="wj-pc-modal__body" id="wjOrderConfirmDesc" t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                 <p class="wj-order-confirm__changed" data-wj-oc="changed" role="alert" hidden="hidden">
-                    Giỏ hàng vừa thay đổi. Vui lòng kiểm tra lại trước khi gửi.
+                    The cart has just changed. Please review it before submitting.
                 </p>
                 <hr class="wj-pc-modal__divider"/>
                 <dl class="wj-order-confirm__list">
                     <div class="wj-order-confirm__row">
-                        <dt>Cửa hàng</dt>
+                        <dt>Store</dt>
                         <dd data-wj-oc="store"/>
                     </div>
                     <div class="wj-order-confirm__row">
-                        <dt>Số mặt hàng</dt>
+                        <dt>Number of items</dt>
                         <dd data-wj-oc="lines"/>
                     </div>
                     <div class="wj-order-confirm__row">
-                        <dt>Tổng số lượng</dt>
+                        <dt>Total quantity</dt>
                         <dd data-wj-oc="qty"/>
                     </div>
                     <div class="wj-order-confirm__row wj-order-confirm__row--grand">
-                        <dt>Tổng thanh toán</dt>
+                        <dt>Grand total</dt>
                         <dd data-wj-oc="total"/>
                     </div>
                     <div class="wj-order-confirm__row wj-order-confirm__row--note">
-                        <dt>Ghi chú</dt>
+                        <dt>Note</dt>
                         <dd data-wj-oc="note"/>
                     </div>
                 </dl>
                 <div class="wj-pc-modal__actions wj-order-confirm__actions">
-                    <button type="button" class="wj-btn wj-btn--secondary" data-wj-oc-action="cancel">Hủy</button>
-                    <button type="button" class="wj-btn wj-btn--primary" data-wj-oc-action="confirm">Xác nhận gửi đơn</button>
+                    <button type="button" class="wj-btn wj-btn--secondary" data-wj-oc-action="cancel">Cancel</button>
+                    <button type="button" class="wj-btn wj-btn--primary" data-wj-oc-action="confirm">Confirm order</button>
                 </div>
             </div>
         </div>

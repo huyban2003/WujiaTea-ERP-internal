@@ -9,12 +9,12 @@
         <t t-set="cs_lines" t-value="cart_state['lines'] if cart_state else []"/>
         <div class="wj-pc-cart">
             <t t-call="wujia_portal_layout.wj_card_header">
-                <t t-set="ch_title">Giỏ hàng</t>
+                <t t-set="ch_title">Cart</t>
                 <t t-set="ch_platform" t-value="'pc'"/>
                 <!-- WJ-ORD-022: header = số MẶT HÀNG (SKU), phân biệt tổng số lượng dưới -->
                 <t t-set="ch_meta">
                     <span class="wj-pc-cart-count wj-count-meta wj-count-meta--bold">
-                        <t t-out="len(cs_lines)"/> mặt hàng
+                        <t t-out="len(cs_lines)"/> items
                     </span>
                 </t>
             </t>
@@ -24,15 +24,15 @@
             <div t-if="order_window_enabled"
                  t-attf-class="wj-pc-cart-warnbar #{'wj-pc-cart-warnbar--open' if order_window_open else 'wj-pc-cart-warnbar--closed'}">
                 <i t-attf-class="feather #{'icon-check-circle' if order_window_open else 'icon-alert-circle'}"/>
-                <span t-if="order_window_open">Đang trong khung giờ đặt hàng: <t t-out="order_window_label"/></span>
-                <span t-else="">Ngoài khung giờ — mở lại lúc <t t-out="order_window_reopen"/>. Khung: <t t-out="order_window_label"/></span>
+                <span t-if="order_window_open">Within ordering hours: <t t-out="order_window_label"/></span>
+                <span t-else="">Outside hours — reopens at <t t-out="order_window_reopen"/>. Window: <t t-out="order_window_label"/></span>
             </div>
 
             <!-- Empty -->
             <div t-if="not cs_lines" class="wj-pc-cart-empty">
                 <span class="wj-pc-cart-empty-icon"><i class="feather icon-shopping-cart"/></span>
-                <p class="wj-pc-cart-empty-text">Giỏ hàng trống</p>
-                <a href="/portal/order" class="wj-btn wj-btn--secondary">Tiếp tục mua hàng</a>
+                <p class="wj-pc-cart-empty-text">Cart is empty</p>
+                <a href="/portal/order" class="wj-btn wj-btn--secondary">Continue shopping</a>
             </div>
 
             <t t-else="">
@@ -41,10 +41,10 @@
                     <table class="wj-pc-cart-table">
                         <thead>
                             <tr>
-                                <th>Sản phẩm</th>
-                                <th class="text-end">Đơn giá</th>
-                                <th class="text-center">SL</th>
-                                <th class="text-end">Thành tiền</th>
+                                <th>Product</th>
+                                <th class="text-end">Unit price</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Line total</th>
                                 <th/>
                             </tr>
                         </thead>
@@ -67,10 +67,10 @@
                                 <td class="text-center">
                                     <div class="wj-pc-stepper">
                                         <button type="button" class="wj-pc-cart-step wj-state-surface" data-action="dec"
-                                                t-att-data-line-id="line['line_id']" aria-label="Giảm">−</button>
+                                                t-att-data-line-id="line['line_id']" aria-label="Decrease">−</button>
                                         <span class="wj-pc-cart-qty" t-out="line['qty']"/>
                                         <button type="button" class="wj-pc-cart-step wj-state-surface" data-action="inc"
-                                                t-att-data-line-id="line['line_id']" aria-label="Tăng">+</button>
+                                                t-att-data-line-id="line['line_id']" aria-label="Increase">+</button>
                                     </div>
                                 </td>
                                 <td class="text-end wj-pc-cart-subtotal"
@@ -78,7 +78,7 @@
                                 <td class="text-center">
                                     <button type="button" class="wj-iconbtn wj-iconbtn--ghost wj-iconbtn--sm wj-pc-cart-del"
                                             t-att-data-line-id="line['line_id']"
-                                            aria-label="Xóa sản phẩm khỏi giỏ" title="Xóa sản phẩm khỏi giỏ">
+                                            aria-label="Remove product from cart" title="Remove product from cart">
                                         <i class="feather icon-trash-2"/>
                                     </button>
                                 </td>
@@ -96,31 +96,31 @@
                       t-att-data-oc-qty="cart_state['total_qty'] if cart_state else 0"
                       t-att-data-oc-total="money(cart_state['total_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals']) if cart_state else ''">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                    <label class="wj-pc-cart-note-label" for="wj-pc-cart-note">Ghi chú đơn hàng</label>
+                    <label class="wj-pc-cart-note-label" for="wj-pc-cart-note">Order note</label>
                     <!-- Note chung của giỏ (mọi user cùng store) — autosave qua /cart/note.
                          wj-cart-note = hook chung PC/mobile: autosave + guard swap khi đang gõ. -->
-                    <t t-set="wj_txt">Nhập ghi chú cho {brand} nếu cần</t>
+                    <t t-set="wj_txt">Enter a note for {brand} if needed</t>
                     <textarea id="wj-pc-cart-note" name="portal_note" class="wj-pc-cart-note wj-cart-note" rows="2"
                               t-att-placeholder="wj_txt.replace('{brand}', wj_brand['name'])"
                               t-out="cart_state['note'] if cart_state else ''"/>
                     <div class="wj-pc-cart-totals">
                         <div class="wj-pc-cart-total-line">
                             <!-- WJ-ORD-022: total_qty = TỔNG SỐ LƯỢNG (đơn vị), nhãn tường minh -->
-                            <span class="wj-pc-cart-total-label">Tổng số lượng</span>
+                            <span class="wj-pc-cart-total-label">Total quantity</span>
                             <span class="wj-pc-cart-total-qty"><t t-out="cart_state['total_qty'] if cart_state else 0"/></span>
                         </div>
                         <!-- WJ-ORD-024: cùng breakdown với giỏ mobile — Tạm tính · Thuế ·
                              Tổng thanh toán, cùng nguồn `cart_state` nên không thể lệch nhau. -->
                         <div class="wj-pc-cart-total-line">
-                            <span class="wj-pc-cart-total-label">Tạm tính</span>
+                            <span class="wj-pc-cart-total-label">Subtotal</span>
                             <span t-out="money(cart_state['total_untaxed'] if cart_state else 0, cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
                         </div>
                         <div t-if="cart_state and cart_state['total_tax_amount']" class="wj-pc-cart-total-line">
-                            <span class="wj-pc-cart-total-label">Thuế</span>
+                            <span class="wj-pc-cart-total-label">Tax</span>
                             <span t-out="money(cart_state['total_tax_amount'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                         </div>
                         <div class="wj-pc-cart-total-line">
-                            <span class="wj-pc-cart-total-label wj-pc-cart-total-label--grand">Tổng thanh toán</span>
+                            <span class="wj-pc-cart-total-label wj-pc-cart-total-label--grand">Grand total</span>
                             <span class="wj-pc-cart-grand"
                                   t-out="money(cart_state['total_tax_included'] if cart_state else 0, cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
                         </div>
@@ -132,10 +132,10 @@
                             data-wj-confirm-open="1"
                             t-att-data-wj-window-closed="'1' if (order_window_enabled and not order_window_open) else None"
                             t-att-disabled="'disabled' if (order_window_enabled and not order_window_open) else None">
-                        <i class="feather icon-shopping-cart"/> Gửi đơn đặt hàng
+                        <i class="feather icon-shopping-cart"/> Submit order
                     </button>
                     <p t-if="order_window_enabled and not order_window_open" class="wj-pc-cart-submit-hint">
-                        Ngoài khung giờ — vẫn sửa được giỏ, gửi lại lúc <t t-out="order_window_reopen"/>.
+                        Outside hours — you can still edit the cart, submit again at <t t-out="order_window_reopen"/>.
                     </p>
                 </form>
             </t>

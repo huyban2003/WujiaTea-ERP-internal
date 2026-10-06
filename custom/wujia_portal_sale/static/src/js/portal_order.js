@@ -25,8 +25,15 @@
         setTimeout(function () { el.remove(); }, 2500);
     }
 
+    /* J-V4: câu hiển thị lấy từ data-wj-msg-* trên #wj-cart-sync (dịch bằng .po), fallback EN. */
+    function m(key, fallback, arg) {
+        const root = document.getElementById("wj-cart-sync");
+        const text = window.wjMsg ? window.wjMsg(root, key, fallback) : fallback;
+        return arg === undefined ? text : text.replace("%s", arg);
+    }
+
     function errText(res) {
-        return res.message || ("Lỗi: " + res.error);
+        return res.message || m("error-code", "Error: %s", res.error);
     }
 
     /* Reconcile giỏ (badge/floatbar/panel) qua module realtime — không reload. */
@@ -54,12 +61,12 @@
                         return;
                     }
                     if (res.warning) toast(res.message, false);
-                    else toast("Đã thêm vào giỏ (" + res.qty + ")", true);
+                    else toast(m("added", "Added to cart (%s)", res.qty), true);
                     syncCart();
                 })
                 .catch(function () {
                     btn.disabled = false;
-                    toast("Lỗi kết nối", false);
+                    toast(m("conn-error", "Connection error"), false);
                 });
         });
 
@@ -75,18 +82,18 @@
                 const raw = qtyEl ? String(qtyEl.value).trim() : "";
                 const qty = Number(raw);
                 // WJ-ORD-001: validate ngay tại client — KHÔNG gửi request khi
-                // quantity invalid; lỗi tiếng Việt cạnh input.
+                // quantity invalid; lỗi (theo ngôn ngữ user) cạnh input.
                 let err = null;
                 if (raw === "" || !Number.isFinite(qty)) {
-                    err = "Vui lòng nhập số lượng hợp lệ.";
+                    err = m("qty-invalid", "Please enter a valid quantity.");
                 } else if (!Number.isInteger(qty)) {
-                    err = "Số lượng phải là số nguyên.";
+                    err = m("qty-integer", "Quantity must be a whole number.");
                 } else if (qty < step) {
-                    err = "Số lượng tối thiểu là " + step + ".";
+                    err = m("qty-min", "The minimum quantity is %s.", step);
                 } else if (qty % step !== 0) {
-                    err = "Số lượng phải tăng theo bước " + step + ".";
+                    err = m("qty-step", "Quantity must be in steps of %s.", step);
                 } else if (max && qty > max) {
-                    err = "Số lượng tối đa là " + max + ".";
+                    err = m("qty-max", "The maximum quantity is %s.", max);
                 }
                 if (err) {
                     if (msgEl) msgEl.innerHTML = '<div class="alert alert-danger">' + err + "</div>";
@@ -102,12 +109,13 @@
                             if (msgEl) msgEl.innerHTML = '<div class="alert alert-danger">' + errText(res) + "</div>";
                             return;
                         }
-                        if (msgEl) msgEl.innerHTML = '<div class="alert alert-success">Số lượng trong giỏ: ' + res.qty + '. <a href="/portal/order/cart">Xem giỏ →</a></div>';
+                        if (msgEl) msgEl.innerHTML = '<div class="alert alert-success">' + m("in-cart", "Quantity in cart: %s.", res.qty) +
+                            ' <a href="/portal/order/cart">' + m("view-cart", "View cart") + ' →</a></div>';
                         syncCart();
                     })
                     .catch(function () {
                         btn.disabled = false;
-                        if (msgEl) msgEl.innerHTML = '<div class="alert alert-danger">Lỗi kết nối</div>';
+                        if (msgEl) msgEl.innerHTML = '<div class="alert alert-danger">' + m("conn-error", "Connection error") + '</div>';
                     });
             });
         });

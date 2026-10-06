@@ -1,8 +1,8 @@
 {
     'name': 'Wujia Portal — Sale (Catalog + Cart)',
-    'version': '19.0.4.28.0',
+    'version': '19.0.5.0.0',
     'category': 'Wujia',
-    'summary': 'Trang đặt hàng portal — catalog + giỏ hàng chung theo cửa hàng (BA controller mapping)',
+    'summary': 'Portal ordering page — catalog + shared cart per store (BA controller mapping)',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     # wujia_portal_purchase_history: dùng chung nhãn trạng thái SO (_state_meta)

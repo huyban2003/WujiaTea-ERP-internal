@@ -54,9 +54,9 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V0 | Chốt quy ước + công cụ Việt hoá source (xem §6) + khách portal mặc định vi_VN + bật zh_CN | docs, scripts, i18n, portal_layout | ✅ 05/10 — chưa commit |
 | J-V1 | `wujia_portal_layout` (259) + helper `wjMsg` + khối `#wj-msgs` + xoá `lang.js` chết | portal_layout | ✅ 05/10 — chưa commit |
 | J-V2 | `wujia_portal_base` (382) + màu badge theo EN/lazy/VN cũ + nhãn theo `record.env` | portal_base | ✅ 05/10 — đã push, chờ deploy |
-| J-V3 | `wujia_portal_exam` (345) + `wujia_exam` (63) + khối `_ex_msgs` câu JS | exam ×2 | ✅ 06/10 — chưa commit |
-| **J-V4** | **Phiên kế.** `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) | sale ×3 | ☐ |
-| J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) | debt | ☐ |
+| J-V3 | `wujia_portal_exam` (345) + `wujia_exam` (63) + khối `_ex_msgs` câu JS | exam ×2 | ✅ 06/10 — `baa5b547`, đã lên UAT |
+| J-V4 | `wujia_portal_sale` (201) + `wujia_sale` (16) + `wujia_order_window` (8) + template `cart_sync_root` câu JS | sale ×3 | ✅ 06/10 — chưa commit |
+| **J-V5** | **Phiên kế.** `wujia_portal_debt` (196) + `wujia_account` (4) | debt | ☐ |
 | J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) | return ×2 | ☐ |
 | J-V7 | support (112+2) + knowledge (46+2) + notification (86+27) | 6 module | ☐ |
 | J-V8 | purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21) | 9 module | ☐ |
@@ -266,6 +266,24 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
 - Test chống lùi badge: bảng nhãn VN viết cứng TRƯỚC phiên ⇒ assert `env_vi._(lazy) == vn_cũ` và `status_badge_for(lazy) ==
   status_badge_for(vn_cũ)` (nhãn vốn trung tính thì miễn kiểm "khác neutral").
 - DB trắng `-i X --test-enable` gãy vì test `wujia_franchise` (Thái) import file đã xoá ⇒ `-i` không test rồi `-u --test-enable`.
+
+**J-V4 — ✅ 06/10: bài học cho V5–V8**
+- Bảng câu thông báo tra theo mã (`X[code]`) ⇒ helper `_x_message(code)` gán `msg = X[code]` rồi `request.env._(msg)`; viết thẳng
+  `env._(X[code])` đẻ msgid rác (`QTY_ABOVE_MAX`, `message`). Câu có `{brand}` ⇒ dịch trước, `_wj_brand_text` sau (hàm chỉ `.replace`).
+- Câu JS của 1 cụm màn dùng chung root (`#wj-cart-sync`) ⇒ 1 template riêng (`cart_sync_root`: `<t t-set>` + dict `t-att`) rồi `t-call`
+  ở mọi trang — không chép khối câu vào từng trang; test kiểm mọi key `m("…")`/`this.msg("…")` có `data-wj-msg-*` + mọi trang gọi template.
+- Chữ không dấu máy quét sót kiểu viết tắt: `SL`, `SP`, `. Khung:` ⇒ đọc msgid chưa dịch + grep viết tắt quen (`SL`, `SP`, `ĐVT`, `KH`).
+- **Bản dịch `model:` (field/help/selection) gắn theo xmlid**, không cần msgid khớp source ⇒ `.po` sinh lại có thể làm trống msgstr mà DB cũ
+  vẫn hiện VN (DB cài mới sẽ ra EN). Sau `sync` so giá trị vi_VN trong DB HEAD ↔ DB mới (bảng `ir_model_fields`/`_selection`/`ir_model`/
+  menu/action/arch view theo `ir_model_data.module`): phải 0 chỗ VN → EN.
+- Module khác assert chữ trong arch của module đang Việt hoá (`portal_base` c8 đọc arch sale) ⇒ `-u` mỗi module V không chạy test module
+  phụ thuộc: luôn `-u` cả danh sách module phụ thuộc (V4: 9 module) và so số test với HEAD (worktree + DB copy riêng).
+- Test so chữ VN theo `env._` cùng ngôn ngữ + DB đo đã nạp `.po` ⇒ mutation "bỏ `load_vi`" có thể vẫn xanh; chốt chặn là test bảng VN
+  viết cứng TRƯỚC phiên (`test_jv4_i18n.test_messages_vi_unchanged`).
+- Trang có kết nối nền (bus/polling) không bao giờ `networkidle` ⇒ script Playwright chờ `load` + 700 ms.
+- Stub chặn thư viện vendor (Vuexy `i18next`) phải chạy TRƯỚC lời gọi; `core/app.js` gọi ngay lúc nạp ⇒ sửa tại nguồn (stub nạp sau = vô
+  tác dụng, 404 locale tồn tại từ Sprint 4.2). Đo `response.status >= 400` trong Playwright, không chỉ `pageerror`.
+- Model báo cáo SQL view (`_auto = False`) không khai `_depends` ⇒ test tạo dữ liệu rồi search phải `env.flush_all()` trước.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

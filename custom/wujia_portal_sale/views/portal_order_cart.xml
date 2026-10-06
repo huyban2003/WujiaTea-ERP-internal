@@ -9,7 +9,7 @@
         <t t-call="wujia_portal_layout.wj_page_header">
             <t t-set="ph_platform" t-value="'m'"/>
             <t t-set="ph_variant" t-value="'back'"/>
-            <t t-set="ph_title">Giỏ hàng</t>
+            <t t-set="ph_title">Cart</t>
             <t t-set="ph_back_url" t-value="'/portal/order'"/>
         </t>
 
@@ -19,18 +19,18 @@
              phẩm". UI-only. -->
         <div t-if="not cs_lines" class="wujia-mcart-empty">
             <div class="wujia-mcart-empty-count">
-                <span class="wj-count-meta wj-count-meta--bold">0 sản phẩm</span>
+                <span class="wj-count-meta wj-count-meta--bold">0 products</span>
             </div>
             <a href="/portal/order" class="wujia-mcart-continue">
                 <i class="feather icon-arrow-left"/>
-                <span>Tiếp tục chọn sản phẩm</span>
+                <span>Continue selecting products</span>
             </a>
             <div class="wj-empty-state wj-empty-state--rich wujia-mcart-empty-card">
                 <div class="wj-empty-state-icon wujia-mcart-empty-icon"/>
-                <p class="wj-empty-state-title">Giỏ hàng đang trống</p>
-                <p class="wj-empty-state-sub">Bạn chưa chọn sản phẩm nào.</p>
-                <p class="wj-empty-state-sub">Hãy thêm sản phẩm để tạo đơn đặt hàng.</p>
-                <a href="/portal/order" class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wujia-mcart-empty-cta">Chọn sản phẩm</a>
+                <p class="wj-empty-state-title">Your cart is empty</p>
+                <p class="wj-empty-state-sub">You have not selected any products.</p>
+                <p class="wj-empty-state-sub">Add products to create an order.</p>
+                <a href="/portal/order" class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wujia-mcart-empty-cta">Choose products</a>
             </div>
         </div>
 
@@ -39,17 +39,17 @@
             <div t-if="order_window_enabled"
                  t-attf-class="wujia-morder-warnbar #{'wujia-morder-warnbar--open' if order_window_open else 'wujia-morder-warnbar--closed'}">
                 <i t-attf-class="feather #{'icon-check-circle' if order_window_open else 'icon-alert-circle'}"/>
-                <span t-if="order_window_open">Đang trong khung giờ đặt hàng: <t t-out="order_window_label"/></span>
-                <span t-else="">Ngoài khung giờ — mở lại lúc <t t-out="order_window_reopen"/>. Khung: <t t-out="order_window_label"/></span>
+                <span t-if="order_window_open">Within ordering hours: <t t-out="order_window_label"/></span>
+                <span t-else="">Outside hours — reopens at <t t-out="order_window_reopen"/>. Window: <t t-out="order_window_label"/></span>
             </div>
 
             <!-- List header (CMP-SH-001) — WJ-ORD-022: số MẶT HÀNG (SKU), không phải tổng SL -->
             <t t-call="wujia_portal_layout.wj_section_header">
-                <t t-set="sh_title">Sản phẩm trong giỏ</t>
+                <t t-set="sh_title">Products in cart</t>
                 <t t-set="sh_level" t-value="3"/>
                 <t t-set="sh_platform" t-value="'m'"/>
                 <t t-set="sh_meta">
-                    <span class="wj-section-header__meta"><t t-out="len(cs_lines)"/> mặt hàng</span>
+                    <span class="wj-section-header__meta"><t t-out="len(cs_lines)"/> items</span>
                 </t>
             </t>
 
@@ -65,7 +65,7 @@
                         <div class="wujia-mcart-row-main">
                             <span class="wujia-mcart-row-name" t-out="line['name']"/>
                             <span class="wujia-mcart-row-meta">
-                                <t t-out="line['uom']"/> • Đơn giá
+                                <t t-out="line['uom']"/> • Unit price
                                 <t t-out="money(line['unit_price_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                             </span>
                             <span t-if="line['invalid_reason']"
@@ -84,7 +84,7 @@
                                             t-att-data-line-id="line['line_id']">+</button>
                                 </div>
                                 <div class="wujia-mcart-row-amount">
-                                    <span class="wujia-mcart-row-amount-label">Thành tiền</span>
+                                    <span class="wujia-mcart-row-amount-label">Line total</span>
                                     <span class="wujia-mcart-row-amount-value"
                                           t-att-data-line-id="line['line_id']"
                                           t-out="money(line['line_total_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
@@ -92,7 +92,7 @@
                             </div>
                         </div>
                         <button type="button" class="wj-iconbtn wj-iconbtn--ghost wujia-mcart-del"
-                                aria-label="Xóa sản phẩm khỏi giỏ" title="Xóa sản phẩm khỏi giỏ"
+                                aria-label="Remove product from cart" title="Remove product from cart"
                                 t-att-data-line-id="line['line_id']">
                             <i class="feather icon-trash-2"/>
                         </button>
@@ -114,8 +114,8 @@
                      rejected). PC không gửi field này → giữ redirect cũ đã retest. -->
                 <input type="hidden" name="flow" value="m"/>
                 <div class="wujia-mcart-noteblock">
-                    <label class="wujia-mcart-note-label" for="wj-mcart-note">Ghi chú đơn hàng</label>
-                    <t t-set="wj_txt">Nhập ghi chú cho {brand} nếu cần</t>
+                    <label class="wujia-mcart-note-label" for="wj-mcart-note">Order note</label>
+                    <t t-set="wj_txt">Enter a note for {brand} if needed</t>
                     <textarea id="wj-mcart-note" name="portal_note" class="wujia-mcart-note wj-cart-note" rows="2"
                               t-att-placeholder="wj_txt.replace('{brand}', wj_brand['name'])"
                               t-out="cart_state['note'] if cart_state else ''"/>
@@ -127,21 +127,21 @@
                              số mình trả TRƯỚC khi bấm gửi, không phải sau. Dòng Thuế ẩn khi
                              đơn không có thuế (giữ nguyên giao diện cũ cho case đó). -->
                         <div class="wujia-mcart-summary-line muted">
-                            <span>Tạm tính</span>
+                            <span>Subtotal</span>
                             <span t-out="money(cart_state['total_untaxed'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                         </div>
                         <div t-if="cart_state['total_tax_amount']" class="wujia-mcart-summary-line muted">
-                            <span>Thuế</span>
+                            <span>Tax</span>
                             <span t-out="money(cart_state['total_tax_amount'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                         </div>
                         <div class="wujia-mcart-summary-line">
-                            <span>Tổng thanh toán</span>
+                            <span>Grand total</span>
                             <strong class="wujia-mcart-grand"
                                     t-out="money(cart_state['total_tax_included'], cart_state['currency_symbol'], cart_state['currency_decimals'])"/>
                         </div>
                         <div class="wujia-mcart-summary-line muted">
                             <!-- WJ-ORD-022: tổng số lượng (đơn vị), khác số mặt hàng -->
-                            <span>Tổng số lượng</span>
+                            <span>Total quantity</span>
                             <span><t t-out="cart_state['total_qty']"/></span>
                         </div>
                     </div>
@@ -150,31 +150,52 @@
                     <button type="submit" class="wj-btn wj-btn--primary wj-btn--lg wj-btn--block wujia-mcart-submit"
                             data-wj-confirm-open="1"
                             t-att-data-wj-window-closed="'1' if (order_window_enabled and not order_window_open) else None"
-                            t-att-disabled="'disabled' if (order_window_enabled and not order_window_open) else None">Gửi đơn đặt hàng</button>
+                            t-att-disabled="'disabled' if (order_window_enabled and not order_window_open) else None">Submit order</button>
                     <p t-if="order_window_enabled and not order_window_open" class="wujia-mcart-submit-hint">
-                        Ngoài khung giờ — gửi lại lúc <t t-out="order_window_reopen"/>.
+                        Outside hours — submit again at <t t-out="order_window_reopen"/>.
                     </p>
                 </div>
             </form>
         </t>
     </template>
 
+    <!-- J-V4: gốc realtime giỏ (#wj-cart-sync, catalog + giỏ + chi tiết SP) kiêm khối câu JS của
+         portal_order.js + portal_cart_sync.js. Câu nằm trong <t t-set> (dịch bằng .po), data-wj-msg-*
+         thì Odoo không dịch ⇒ gắn qua t-att; JS đọc bằng wjMsg(#wj-cart-sync, key, 'EN'). -->
+    <template id="cart_sync_root" name="Wujia Portal — Cart sync root + JS messages">
+        <t t-set="_os_m_error_code">Error: %s</t>
+        <t t-set="_os_m_added">Added to cart (%s)</t>
+        <t t-set="_os_m_conn_error">Connection error</t>
+        <t t-set="_os_m_qty_invalid">Please enter a valid quantity.</t>
+        <t t-set="_os_m_qty_integer">Quantity must be a whole number.</t>
+        <t t-set="_os_m_qty_min">The minimum quantity is %s.</t>
+        <t t-set="_os_m_qty_step">Quantity must be in steps of %s.</t>
+        <t t-set="_os_m_qty_max">The maximum quantity is %s.</t>
+        <t t-set="_os_m_in_cart">Quantity in cart: %s.</t>
+        <t t-set="_os_m_view_cart">View cart</t>
+        <t t-set="_os_m_remove_confirm">Remove this product from the cart?</t>
+        <t t-set="_os_m_generic_error">Something went wrong. Please try again.</t>
+        <t t-set="_os_m_removed">Removed from cart</t>
+        <t t-set="_os_msgs" t-value="{'data-wj-msg-error-code': _os_m_error_code, 'data-wj-msg-added': _os_m_added, 'data-wj-msg-conn-error': _os_m_conn_error, 'data-wj-msg-qty-invalid': _os_m_qty_invalid, 'data-wj-msg-qty-integer': _os_m_qty_integer, 'data-wj-msg-qty-min': _os_m_qty_min, 'data-wj-msg-qty-step': _os_m_qty_step, 'data-wj-msg-qty-max': _os_m_qty_max, 'data-wj-msg-in-cart': _os_m_in_cart, 'data-wj-msg-view-cart': _os_m_view_cart, 'data-wj-msg-remove-confirm': _os_m_remove_confirm, 'data-wj-msg-generic-error': _os_m_generic_error, 'data-wj-msg-removed': _os_m_removed}"/>
+        <div id="wj-cart-sync" class="d-none" t-att-data-franchise-id="active_franchise_id" t-att="_os_msgs"/>
+    </template>
+
     <template id="portal_order_cart" name="Wujia Portal — Cart">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_width" t-value="'narrow'"/>
             <t t-set="pc_bottom" t-value="'sticky'"/>
-            <t t-set="title">Giỏ hàng</t>
+            <t t-set="title">Cart</t>
             <div class="content-wrapper">
                 <!-- Realtime cart sync root — bus channel wujia.franchise_<id> (Sprint 31). -->
-                <div id="wj-cart-sync" class="d-none" t-att-data-franchise-id="active_franchise_id"/>
+                <t t-call="wujia_portal_sale.cart_sync_root"/>
 
                 <!-- ===== DESKTOP (≥992px) — standalone cart (wj-pc, shared panel; Sprint PC-1) ===== -->
                 <div class="d-none d-lg-block">
                     <t t-call="wujia_portal_layout.wj_page_header">
                         <t t-set="ph_platform" t-value="'pc'"/>
                         <t t-set="ph_variant" t-value="'back'"/>
-                        <t t-set="ph_crumb">Đặt hàng / Giỏ hàng</t>
-                        <t t-set="ph_title">Giỏ hàng</t>
+                        <t t-set="ph_crumb">Order / Cart</t>
+                        <t t-set="ph_title">Cart</t>
                         <t t-set="ph_back_url" t-value="'/portal/order'"/>
                     </t>
 
@@ -205,9 +226,9 @@
                      role="status" aria-live="polite" aria-hidden="true">
                     <div class="wujia-msubmit-card">
                         <span class="wujia-msubmit-spinner" aria-hidden="true"/>
-                        <p class="wujia-msubmit-title">Đang tạo đơn...</p>
-                        <p class="wujia-msubmit-sub">Vui lòng không đóng màn hình.</p>
-                        <p class="wujia-msubmit-sub">Hệ thống đang xử lý yêu cầu.</p>
+                        <p class="wujia-msubmit-title">Creating order...</p>
+                        <p class="wujia-msubmit-sub">Please do not close this screen.</p>
+                        <p class="wujia-msubmit-sub">The system is processing your request.</p>
                     </div>
                 </div>
             </div>

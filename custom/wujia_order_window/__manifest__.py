@@ -1,16 +1,16 @@
 {
     'name': 'Wujia Order Window',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Wujia',
-    'summary': 'Khung giờ đặt hàng theo khu vực (BA Section B.5 + Model Field Mục I)',
+    'summary': 'Ordering windows by area (BA Section B.5 + Model Field Section I)',
     'description': """
-Khung giờ được phép tạo đơn portal, cấu hình theo khu vực. Tách từ wujia_portal_order_window (F7, ADR-027).
+Time windows in which portal orders may be created, configured per area. Split from wujia_portal_order_window (F7, ADR-027).
 
-- Model wujia.order.window: khung giờ riêng cho từng res.area; một khu vực có thể có nhiều khung (sáng + tối).
-- res.config.settings: 3 tham số fallback wujia_portal.* khi khu vực chưa cấu hình riêng.
-- _is_within_order_window(area_id): ưu tiên khu vực, fallback chung, xử lý qua nửa đêm theo tz người dùng.
-- _next_order_window(area_id): khung sắp mở (giờ + ngày) cho màn "ngoài khung giờ".
-- sale.order.create chặn đơn portal ngoài khung giờ, raise OrderWindowClosed.
+- Model wujia.order.window: windows per res.area; an area may have several windows (morning + evening).
+- res.config.settings: 3 fallback parameters wujia_portal.* when an area has no own configuration.
+- _is_within_order_window(area_id): area first, then global fallback, handles crossing midnight in the user's tz.
+- _next_order_window(area_id): the next window to open (time + date) for the "outside ordering hours" screen.
+- sale.order.create blocks portal orders outside the window, raises OrderWindowClosed.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

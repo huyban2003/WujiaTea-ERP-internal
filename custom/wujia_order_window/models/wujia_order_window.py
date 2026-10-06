@@ -26,7 +26,7 @@ class WujiaOrderWindow(models.Model):
         string='Start time',
         required=True,
         default=10.0,
-        help='Float hours 0.0–24.0. Vd 10.5 = 10:30.',
+        help='Float hours 0.0–24.0. E.g. 10.5 = 10:30.',
     )
     order_time_to = fields.Float(
         string='End time',
@@ -49,11 +49,11 @@ class WujiaOrderWindow(models.Model):
 
     _order_time_from_range = models.Constraint(
         'CHECK (order_time_from >= 0.0 AND order_time_from < 24.0)',
-        'Giờ bắt đầu phải nằm trong [0, 24).',
+        'Start hour must be within [0, 24).',
     )
     _order_time_to_range = models.Constraint(
         'CHECK (order_time_to >= 0.0 AND order_time_to < 24.0)',
-        'Giờ kết thúc phải nằm trong [0, 24).',
+        'End hour must be within [0, 24).',
     )
 
     @api.depends('order_time_from', 'order_time_to')
@@ -66,7 +66,7 @@ class WujiaOrderWindow(models.Model):
         for rec in self:
             if rec.order_time_from == rec.order_time_to:
                 raise ValidationError(_(
-                    "Khung giờ '%s' có From == To — không có thời điểm hợp lệ.",
+                    "Window '%s' has From == To — no valid time.",
                     rec.display_name,
                 ))
 

@@ -107,12 +107,12 @@ class SaleOrder(models.Model):
             if order.is_portal_order:
                 if not order.franchise_id:
                     raise ValidationError(_(
-                        "Đơn '%s' từ portal phải có cửa hàng nhượng quyền (franchise_id).",
+                        "Portal order '%s' must have a franchise store (franchise_id).",
                         order.name or order.display_name,
                     ))
                 if not order.franchise_partner_id:
                     raise ValidationError(_(
-                        "Đơn '%s' từ portal phải có partner cửa hàng (franchise_partner_id).",
+                        "Portal order '%s' must have a store partner (franchise_partner_id).",
                         order.name or order.display_name,
                     ))
 
@@ -126,7 +126,7 @@ class SaleOrder(models.Model):
                 continue
             if not order.franchise_id:
                 raise ValidationError(_(
-                    "Đơn '%s' tạo từ portal phải có cửa hàng (franchise_id).",
+                    "Order '%s' created from the portal must have a store (franchise_id).",
                     order.name or order.display_name,
                 ))
             if order.portal_member_id:
@@ -134,7 +134,7 @@ class SaleOrder(models.Model):
                 if (m.user_id != order.portal_requester_user_id
                         or m.franchise_id != order.franchise_id):
                     raise ValidationError(_(
-                        "Member của đơn '%s' không khớp user/cửa hàng đã chọn.",
+                        "The member of order '%s' does not match the selected user/store.",
                         order.name or order.display_name,
                     ))
             else:
@@ -144,7 +144,7 @@ class SaleOrder(models.Model):
                 )
                 if not membership:
                     raise ValidationError(_(
-                        "User '%s' không có membership active trong cửa hàng '%s'.",
+                        "User '%s' has no active membership in store '%s'.",
                         order.portal_requester_user_id.name,
                         order.franchise_id.display_name,
                     ))

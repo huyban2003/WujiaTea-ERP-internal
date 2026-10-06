@@ -1,29 +1,29 @@
 {
     'name': 'Wujia Sale',
-    'version': '19.0.4.6.1',
+    'version': '19.0.4.7.0',
     'category': 'Wujia',
-    'summary': 'Sale order extension cho cửa hàng nhượng quyền + tính khối lượng',
+    'summary': 'Sale order extension for franchise stores + weight calculation',
     'author': 'WujiaTea',
     'description': """
-Mở rộng sale.order cho luồng đặt hàng từ portal (BA spec):
-- is_portal_order: phân biệt đơn portal vs admin tạo manual.
+Extends sale.order for the portal ordering flow (BA spec):
+- is_portal_order: tells portal orders apart from orders created manually by admins.
 - franchise_partner_id (M2o res.partner is_franchise=True).
-- franchise_id (M2o wujia.franchise.management) — required nếu is_portal_order.
+- franchise_id (M2o wujia.franchise.management) — required when is_portal_order.
 - portal_requester_user_id, portal_member_id (audit trail).
 - area_id (related franchise_id.area_id, store).
-- portal_delivery_street/phone/note: override địa chỉ giao theo đơn.
+- portal_delivery_street/phone/note: per-order delivery address override.
 
-Tính khối lượng (BA spec mục 3):
-- sale.order.line.weight_per_unit (snapshot từ product.weight, readonly).
+Weight calculation (BA spec section 3):
+- sale.order.line.weight_per_unit (snapshot of product.weight, readonly).
 - sale.order.line.planned_weight (compute = qty * weight_per_unit, store).
 - sale.order.total_planned_weight (compute store).
 - stock.move.weight_per_unit/planned_weight/done_weight.
 - stock.picking.planned_weight/done_weight (aggregate).
 - stock.picking.batch.planned_weight/done_weight (aggregate).
 
-product.product thêm: is_public_portal, min_qty, max_qty, wujia_packaging,
-name_chinese, public_categ_id (portal catalog — BA sheet mục H + L).
-wujia.product.category: danh mục portal (thay product.public.category, không kéo website_sale).
+product.product adds: is_public_portal, min_qty, max_qty, wujia_packaging,
+name_chinese, public_categ_id (portal catalog — BA sheet sections H + L).
+wujia.product.category: portal categories (replaces product.public.category without pulling in website_sale).
 """,
     'license': 'LGPL-3',
     'depends': [

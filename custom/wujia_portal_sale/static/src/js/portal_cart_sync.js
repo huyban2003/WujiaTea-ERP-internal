@@ -157,13 +157,18 @@ export class WujiaCartSync extends Interaction {
         this.mutate("/portal/order/cart/step", { line_id: lineId, direction: isInc ? "inc" : "dec" });
     }
 
+    /* J-V4: câu hiển thị từ data-wj-msg-* trên chính root #wj-cart-sync (dịch bằng .po), fallback EN. */
+    msg(key, fallback) {
+        return window.wjMsg ? window.wjMsg(this.el, key, fallback) : fallback;
+    }
+
     handleRemove(btn) {
         const row = btn.closest(".wj-pc-cart-row, .wujia-mcart-row");
         if (!row) {
             return;
         }
         const lineId = parseInt(row.dataset.lineId, 10);
-        if (!window.confirm("Xoá sản phẩm này khỏi giỏ?")) {
+        if (!window.confirm(this.msg("remove-confirm", "Remove this product from the cart?"))) {
             return;
         }
         this.mutate("/portal/order/cart/remove", { line_id: lineId });
@@ -183,18 +188,18 @@ export class WujiaCartSync extends Interaction {
         try {
             const res = await rpc(url, params);
             if (!res || res.error) {
-                this.toast((res && res.message) || "Có lỗi xảy ra, vui lòng thử lại", false);
+                this.toast((res && res.message) || this.msg("generic-error", "Something went wrong. Please try again."), false);
                 return;
             }
             if (res.removed) {
                 // WJ-ORD-021: giảm ở min/xoá → phản hồi rõ.
-                this.toast("Đã bỏ khỏi giỏ", true);
+                this.toast(this.msg("removed", "Removed from cart"), true);
             } else if (res.warning && res.message) {
                 this.toast(res.message, false);
             }
             await this.refresh();
         } catch (e) {
-            this.toast("Lỗi kết nối", false);
+            this.toast(this.msg("conn-error", "Connection error"), false);
         }
     }
 

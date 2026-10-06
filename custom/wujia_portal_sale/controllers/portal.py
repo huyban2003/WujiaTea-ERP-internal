@@ -28,6 +28,7 @@ from collections import defaultdict
 
 from odoo import fields, http
 from odoo.http import request
+from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     ACTIVE_FRANCHISE_COOKIE,
@@ -48,6 +49,7 @@ from odoo.addons.wujia_portal_sale.models.wujia_portal_cart import PortalOrderEr
 from odoo.addons.wujia_portal_purchase_history.controllers.portal import _state_meta
 
 _logger = logging.getLogger(__name__)
+_lt = LazyTranslate(__name__)
 
 
 PAGE_SIZE = 24
@@ -56,56 +58,74 @@ PAGE_SIZE_OPTIONS = (24, 48, 96)
 
 # Bảng mã lỗi BA (chat "Controller Product + Cart" FINAL) + mã legacy còn lưu hành.
 ERROR_MESSAGES = {
-    'STORE_NOT_SELECTED': "Vui lòng chọn cửa hàng trước khi đặt hàng.",
-    'STORE_ACCESS_DENIED': "Bạn không có quyền thao tác tại cửa hàng này.",
-    'MEMBERSHIP_INACTIVE': "Tài khoản của bạn hiện không còn hiệu lực tại cửa hàng này.",
-    'ORDER_TIME_NOT_CONFIGURED': "Chưa có cấu hình thời gian đặt hàng. Vui lòng liên hệ {brand}.",
-    'ORDER_TIME_CLOSED': "Hiện ngoài khung giờ đặt hàng. Vui lòng gửi đơn trong thời gian cho phép.",
-    'PRODUCT_NOT_AVAILABLE': "Sản phẩm này hiện không còn được phép đặt hàng.",
-    'MIN_QTY_NOT_CONFIGURED': "Sản phẩm chưa được cấu hình số lượng đặt tối thiểu. Vui lòng liên hệ {brand}.",
-    'QTY_BELOW_MIN': "Số lượng thấp hơn mức tối thiểu của sản phẩm.",
-    'QTY_ABOVE_MAX': "Số lượng vượt mức tối đa của sản phẩm.",
-    'QTY_INVALID_STEP': "Số lượng phải tăng theo bước bằng số lượng tối thiểu.",
-    'CART_EMPTY': "Giỏ hàng chưa có sản phẩm.",
-    'CART_LOAD_FAILED': "Không thể tải giỏ hàng. Vui lòng thử lại.",
-    'CART_HAS_INVALID_PRODUCT': "Một số sản phẩm trong giỏ không còn được phép đặt. Vui lòng kiểm tra lại.",
-    'CART_QUANTITY_INVALID': "Số lượng một số sản phẩm chưa hợp lệ. Vui lòng kiểm tra lại.",
-    'CART_IS_PROCESSING': "Giỏ hàng đang được một người dùng khác gửi đơn. Vui lòng thử lại sau.",
-    'STORE_CUSTOMER_NOT_CONFIGURED': "Cửa hàng chưa được cấu hình khách hàng đặt hàng. Vui lòng liên hệ {brand}.",
-    'ORDER_CREATE_FAILED': "Không thể tạo đơn hàng. Vui lòng thử lại hoặc liên hệ {brand}.",
-    'OLD_PORTAL_QUOTATION_CANCEL_FAILED': "Không thể hoàn tất đơn hàng do đơn nháp cũ chưa được xử lý. Vui lòng thử lại.",
-    'PRODUCT_LIST_UNAVAILABLE': "Không thể tải danh sách sản phẩm. Vui lòng thử lại.",
-    'invalid_input': "Dữ liệu gửi lên không hợp lệ.",
+    'STORE_NOT_SELECTED': _lt("Please select a store before ordering."),
+    'STORE_ACCESS_DENIED': _lt("You do not have permission to act for this store."),
+    'MEMBERSHIP_INACTIVE': _lt("Your account is no longer active at this store."),
+    'ORDER_TIME_NOT_CONFIGURED': _lt("Ordering hours are not configured yet. Please contact {brand}."),
+    'ORDER_TIME_CLOSED': _lt("Outside ordering hours. Please submit your order during the allowed time."),
+    'PRODUCT_NOT_AVAILABLE': _lt("This product can no longer be ordered."),
+    'MIN_QTY_NOT_CONFIGURED': _lt("The minimum order quantity of this product is not configured. Please contact {brand}."),
+    'QTY_BELOW_MIN': _lt("The quantity is below the product's minimum."),
+    'QTY_ABOVE_MAX': _lt("The quantity exceeds the product's maximum."),
+    'QTY_INVALID_STEP': _lt("The quantity must be in steps of the minimum quantity."),
+    'CART_EMPTY': _lt("There are no products in the cart."),
+    'CART_LOAD_FAILED': _lt("Could not load the cart. Please try again."),
+    'CART_HAS_INVALID_PRODUCT': _lt("Some products in the cart can no longer be ordered. Please check again."),
+    'CART_QUANTITY_INVALID': _lt("Some product quantities are invalid. Please check again."),
+    'CART_IS_PROCESSING': _lt("The cart is being submitted by another user. Please try again later."),
+    'STORE_CUSTOMER_NOT_CONFIGURED': _lt("The store's ordering customer is not configured. Please contact {brand}."),
+    'ORDER_CREATE_FAILED': _lt("Could not create the order. Please try again or contact {brand}."),
+    'OLD_PORTAL_QUOTATION_CANCEL_FAILED': _lt("Could not complete the order because an old draft order has not been processed. Please try again."),
+    'PRODUCT_LIST_UNAVAILABLE': _lt("Could not load the product list. Please try again."),
+    'invalid_input': _lt("The submitted data is invalid."),
     # legacy codes (redirect cũ có thể còn bookmark)
-    'no_active_franchise': "Vui lòng chọn cửa hàng trước khi đặt hàng.",
-    'cart_empty': "Giỏ hàng chưa có sản phẩm.",
-    'branch_locked': "Cửa hàng đang tạm khóa đặt hàng. Vui lòng liên hệ {brand}.",
-    'outside_order_window': "Hiện ngoài khung giờ đặt hàng. Vui lòng gửi đơn trong thời gian cho phép.",
-    'internal_error': "Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ {brand}.",
+    'no_active_franchise': _lt("Please select a store before ordering."),
+    'cart_empty': _lt("There are no products in the cart."),
+    'branch_locked': _lt("The store is temporarily locked for ordering. Please contact {brand}."),
+    'outside_order_window': _lt("Outside ordering hours. Please submit your order during the allowed time."),
+    'internal_error': _lt("Something went wrong. Please try again or contact {brand}."),
 }
 
 def _error_message(code, default=''):
-    """Câu lỗi theo mã, đã điền tên thương hiệu (`{brand}`)."""
-    return request.env.company._wj_brand_text(ERROR_MESSAGES.get(code, default))
+    """Câu lỗi theo mã — dịch theo ngôn ngữ user rồi mới điền tên thương hiệu (`{brand}`)."""
+    msg = ERROR_MESSAGES.get(code)
+    return request.env.company._wj_brand_text(request.env._(msg) if msg else default)
 
 
 # Câu lỗi số lượng theo mã của `product._portal_qty_error` (thêm tên SP + ngưỡng).
 QTY_MESSAGES = {
-    'QTY_BELOW_MIN': "Số lượng tối thiểu của {name} là {limit}.",
-    'QTY_INVALID_STEP': "Số lượng của {name} phải tăng theo bước {limit}.",
-    'QTY_ABOVE_MAX': "Số lượng tối đa của {name} là {limit}.",
+    'QTY_BELOW_MIN': _lt("The minimum quantity of {name} is {limit}."),
+    'QTY_INVALID_STEP': _lt("The quantity of {name} must be in steps of {limit}."),
+    'QTY_ABOVE_MAX': _lt("The maximum quantity of {name} is {limit}."),
 }
 
 SUCCESS_MESSAGES = {
-    'order_submitted': "Đã gửi đơn đặt hàng thành công.",
+    'order_submitted': _lt("Your order has been submitted."),
 }
 
 # Dòng giỏ không hợp lệ (đánh dấu per-line trên cart view — BA row 11).
 LINE_INVALID_MESSAGES = {
-    'PRODUCT_NOT_AVAILABLE': "Sản phẩm không còn được phép đặt.",
-    'MIN_QTY_NOT_CONFIGURED': "Sản phẩm chưa cấu hình số lượng tối thiểu.",
-    'CART_QUANTITY_INVALID': "Số lượng chưa hợp lệ (min/bước/max).",
+    'PRODUCT_NOT_AVAILABLE': _lt("Product no longer available to order."),
+    'MIN_QTY_NOT_CONFIGURED': _lt("Minimum quantity not configured for this product."),
+    'CART_QUANTITY_INVALID': _lt("Invalid quantity (min/step/max)."),
 }
+
+
+# Gán bảng tra ra biến trước khi dịch: trình trích .pot lấy MỌI literal trong lời gọi `_(...)`
+# ⇒ `env._(X['KEY'])` đẻ msgid rác "KEY" (bài học J-V3).
+def _qty_message(code, name, limit):
+    msg = QTY_MESSAGES[code]
+    return request.env._(msg).format(name=name, limit=limit)
+
+
+def _line_invalid_message(code):
+    msg = LINE_INVALID_MESSAGES.get(code)
+    return request.env._(msg) if msg else ''
+
+
+def _success_message(code):
+    msg = SUCCESS_MESSAGES.get(code)
+    return request.env._(msg) if msg else ''
 
 
 def _float_to_hhmm(value):
@@ -138,7 +158,7 @@ def _window_phrase(from_f, to_f):
     except (TypeError, ValueError):
         overnight = False
     if overnight:
-        return f'{f} hôm nay – {t} ngày mai ({ORDER_TZ_LABEL})'
+        return request.env._('%(start)s today – %(end)s tomorrow (%(tz)s)', start=f, end=t, tz=ORDER_TZ_LABEL)
     return f'{f} – {t} ({ORDER_TZ_LABEL})'
 
 
@@ -184,7 +204,7 @@ class WujiaPortalSale(http.Controller):
         code, limit = error
         if code == 'MIN_QTY_NOT_CONFIGURED':
             return self._err(code)
-        return self._err(code, message=QTY_MESSAGES[code].format(name=product.name, limit=limit))
+        return self._err(code, message=_qty_message(code, product.name, limit))
 
     def _get_store_line(self, line_id, fid):
         """Browse line, verify thuộc giỏ của store hiện tại (guard theo store)."""
@@ -295,7 +315,7 @@ class WujiaPortalSale(http.Controller):
                 'line_total_tax_included': taxed['line_total_tax_included'],
                 'tax_amount': taxed['tax_amount'],
                 'invalid_reason': invalid,
-                'invalid_message': LINE_INVALID_MESSAGES.get(invalid, ''),
+                'invalid_message': _line_invalid_message(invalid),
             })
             total_qty += line.qty
             total_amount += unit * line.qty
@@ -317,7 +337,7 @@ class WujiaPortalSale(http.Controller):
             'total_tax_amount': currency.round(total_tax_amount),
             'total_tax_included': currency.round(total_tax_included),
             'currency': currency.name or 'VND',
-            'currency_symbol': currency.symbol or 'đ',
+            'currency_symbol': currency.symbol or '₫',
             'currency_decimals': currency.decimal_places or 0,
             'lines': lines_data,
             'has_invalid_line': any(l['invalid_reason'] for l in lines_data),
@@ -417,7 +437,7 @@ class WujiaPortalSale(http.Controller):
         # Chỉ resolve mã đã biết — không reflect chuỗi lạ từ query string ra UI.
         return {
             'error': _error_message(kw.get('error') or ''),
-            'message': SUCCESS_MESSAGES.get(kw.get('message') or '', ''),
+            'message': _success_message(kw.get('message') or ''),
         }
 
     # ------------------------------------------------------------------ catalog
@@ -451,7 +471,7 @@ class WujiaPortalSale(http.Controller):
         # Một nguồn duy nhất cho số trang + URL trang (CMP-PGNT-001): query-string lấy
         # từ request nên đổi trang giữ nguyên keyword/danh mục.
         pgn = build_pager(total, page, size, path='/portal/order',
-                          item_label='sản phẩm', page_size_options=PAGE_SIZE_OPTIONS,
+                          item_label=_lt('products'), page_size_options=PAGE_SIZE_OPTIONS,
                           size_param='page_size')
         products = Product.search(domain, limit=pgn['page_size'],
                                   offset=pgn['offset'], order='name asc')
@@ -578,7 +598,7 @@ class WujiaPortalSale(http.Controller):
                 return self._err('invalid_input')
             if fval != int(fval):
                 return self._err('QTY_INVALID_STEP',
-                                 message=f"Số lượng của {product.name} phải là số nguyên.")
+                                 message=request.env._("The quantity of %s must be a whole number.", product.name))
             increment = int(fval)
             error = product._portal_qty_error(increment)
             if error:
@@ -602,7 +622,7 @@ class WujiaPortalSale(http.Controller):
         }
         if product.max_qty and new_qty >= product.max_qty:
             res['warning'] = 'QTY_ABOVE_MAX'
-            res['message'] = f"Số lượng tối đa của {product.name} là {product.max_qty}."
+            res['message'] = _qty_message('QTY_ABOVE_MAX', product.name, product.max_qty)
         return res
 
     # -------------------------------------------------------------- cart update
@@ -704,7 +724,7 @@ class WujiaPortalSale(http.Controller):
             res['line'] = next((l for l in state['lines'] if l['line_id'] == line_id), None)
         if warning:
             res['warning'] = warning
-            res['message'] = f"Số lượng tối đa của {product.name} là {product.max_qty}."
+            res['message'] = _qty_message('QTY_ABOVE_MAX', product.name, product.max_qty)
         return res
 
     # -------------------------------------------------------------- cart remove
@@ -870,7 +890,8 @@ class WujiaPortalSale(http.Controller):
                 f"{_float_to_hhmm(nxt['from'])} – {_float_to_hhmm(nxt['to'])}" if nxt else '—'
             ),
             'next_window_date_label': (
-                ('Hôm nay, ' if nxt['is_today'] else '') + 'Ngày ' + nxt['date'].strftime('%d/%m/%Y')
+                (request.env._('Today, %s', nxt['date'].strftime('%d/%m/%Y')) if nxt['is_today']
+                 else request.env._('On %s', nxt['date'].strftime('%d/%m/%Y')))
                 if nxt else ''
             ),
             'next_window_name': (nxt or {}).get('name') or '',

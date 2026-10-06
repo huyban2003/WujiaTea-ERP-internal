@@ -36,22 +36,23 @@
     <template id="portal_order_submitted" name="Wujia Portal — Order submitted (mobile)">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_width" t-value="'standard'"/>
-            <t t-set="title">Đặt hàng thành công</t>
+            <t t-set="title">Order placed</t>
             <div class="content-wrapper">
                 <t t-call="wujia_portal_sale.mres_shell">
-                    <t t-set="res_page_title" t-value="'Đặt hàng'"/>
+                    <t t-set="res_page_title">Order</t>
                     <t t-set="res_tone" t-value="'ok'"/>
-                    <t t-set="res_title" t-value="'Đặt hàng thành công'"/>
-                    <t t-set="res_sub" t-value="'Đơn hàng đã được tạo và đang chờ %s xác nhận.' % wj_brand['name']"/>
+                    <t t-set="res_title">Order placed</t>
+                    <t t-set="wj_txt">Your order has been created and is awaiting confirmation from {brand}.</t>
+                    <t t-set="res_sub" t-value="wj_txt.replace('{brand}', wj_brand['name'])"/>
 
                     <!-- 4 dòng thông tin đơn — lấy từ sale.order vừa tạo. -->
                     <dl class="wujia-mres-info">
                         <div class="wujia-mres-info-row">
-                            <dt class="wujia-mres-info-label">Mã đơn hàng</dt>
+                            <dt class="wujia-mres-info-label">Order number</dt>
                             <dd class="wujia-mres-info-value" t-out="order_name"/>
                         </div>
                         <div class="wujia-mres-info-row">
-                            <dt class="wujia-mres-info-label">Thời gian đặt</dt>
+                            <dt class="wujia-mres-info-label">Order time</dt>
                             <dd class="wujia-mres-info-value" t-out="order_date_label"/>
                         </div>
                         <!-- WJ-ORD-024: breakdown y hệt giỏ vừa rồi → user đối chiếu được
@@ -59,24 +60,24 @@
                              Thuế chỉ hiện khi đơn CÓ thuế, giữ nguyên màn cũ cho case không thuế. -->
                         <t t-if="order_has_tax">
                             <div class="wujia-mres-info-row">
-                                <dt class="wujia-mres-info-label">Tạm tính</dt>
+                                <dt class="wujia-mres-info-label">Subtotal</dt>
                                 <dd class="wujia-mres-info-value" t-out="order_untaxed_label"/>
                             </div>
                             <div class="wujia-mres-info-row">
-                                <dt class="wujia-mres-info-label">Thuế</dt>
+                                <dt class="wujia-mres-info-label">Tax</dt>
                                 <dd class="wujia-mres-info-value" t-out="order_tax_label"/>
                             </div>
                         </t>
                         <div class="wujia-mres-info-row">
                             <dt class="wujia-mres-info-label">
-                                <t t-if="order_has_tax">Tổng thanh toán</t>
-                                <t t-else="">Tổng tiền</t>
+                                <t t-if="order_has_tax">Grand total</t>
+                                <t t-else="">Total amount</t>
                             </dt>
                             <dd class="wujia-mres-info-value wujia-mres-info-value--lg"
                                 t-out="order_amount_label"/>
                         </div>
                         <div class="wujia-mres-info-row">
-                            <dt class="wujia-mres-info-label">Trạng thái</dt>
+                            <dt class="wujia-mres-info-label">Status</dt>
                             <dd class="wujia-mres-info-value">
                                 <span t-attf-class="wj-status-badge #{order_status_badge}"
                                       t-out="order_state_label"/>
@@ -85,10 +86,10 @@
                     </dl>
 
                     <a class="wujia-mres-cta" t-attf-href="/portal/purchase-history/#{order.id}">
-                        Xem chi tiết đơn hàng
+                        View order details
                     </a>
                     <a class="wujia-mres-cta wujia-mres-cta--ghost" href="/portal/order">
-                        Tiếp tục chọn sản phẩm
+                        Continue selecting products
                     </a>
                 </t>
             </div>
@@ -99,20 +100,20 @@
     <template id="portal_order_rejected" name="Wujia Portal — Order rejected, outside window (mobile)">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_width" t-value="'standard'"/>
-            <t t-set="title">Không thể gửi đơn</t>
+            <t t-set="title">Unable to submit order</t>
             <div class="content-wrapper">
                 <t t-call="wujia_portal_sale.mres_shell">
-                    <t t-set="res_page_title" t-value="'Không thể gửi đơn'"/>
+                    <t t-set="res_page_title">Unable to submit order</t>
                     <t t-set="res_tone" t-value="'danger'"/>
-                    <t t-set="res_title" t-value="'Ngoài khung giờ đặt hàng'"/>
-                    <t t-set="res_sub" t-value="'Đơn hàng chưa được tạo.'"/>
-                    <t t-set="res_sub2" t-value="'Giỏ hàng của bạn vẫn được giữ nguyên.'"/>
+                    <t t-set="res_title">Outside ordering hours</t>
+                    <t t-set="res_sub">The order was not created.</t>
+                    <t t-set="res_sub2">Your cart has been kept as is.</t>
 
                     <!-- Khung giờ tiếp theo — _next_order_window() theo khu vực của cửa hàng. -->
                     <div class="wujia-mres-note wujia-mres-note--danger">
                         <span class="wujia-mres-note-dot" aria-hidden="true">!</span>
                         <div class="wujia-mres-note-body">
-                            <span class="wujia-mres-note-label">Khung giờ đặt hàng tiếp theo</span>
+                            <span class="wujia-mres-note-label">Next ordering window</span>
                             <strong class="wujia-mres-note-value" t-out="next_window_label"/>
                             <span t-if="next_window_date_label" class="wujia-mres-note-label"
                                   t-out="next_window_date_label"/>
@@ -124,14 +125,14 @@
                     <div class="wujia-mres-note wujia-mres-note--info">
                         <i class="feather icon-shopping-cart wujia-mres-note-icon" aria-hidden="true"/>
                         <div class="wujia-mres-note-body">
-                            <span class="wujia-mres-note-label">Bạn vẫn có thể chỉnh sửa sản phẩm</span>
-                            <span class="wujia-mres-note-text">trong giỏ hàng.</span>
+                            <span class="wujia-mres-note-label">You can still edit the products</span>
+                            <span class="wujia-mres-note-text">in the cart.</span>
                         </div>
                     </div>
 
-                    <a class="wujia-mres-cta" href="/portal/order/cart">Quay lại giỏ hàng</a>
+                    <a class="wujia-mres-cta" href="/portal/order/cart">Back to cart</a>
                     <a class="wujia-mres-cta wujia-mres-cta--ghost" href="/portal/order">
-                        Tiếp tục chọn sản phẩm
+                        Continue selecting products
                     </a>
                 </t>
             </div>

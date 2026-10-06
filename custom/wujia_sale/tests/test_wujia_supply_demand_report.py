@@ -21,11 +21,13 @@ class TestWujiaSupplyDemandReport(TransactionCase):
         cls.product_1 = cls.Product.create({
             'name': 'Test Hong Tra Dai Loan',
             'default_code': 'TEST_TEA_01',
+            'is_storable': True,  # Odoo 19: chỉ hàng lưu kho mới có quant
             'list_price': 50000,
         })
         cls.product_2 = cls.Product.create({
             'name': 'Test Sua Tuoi',
             'default_code': 'TEST_MILK_02',
+            'is_storable': True,  # Odoo 19: chỉ hàng lưu kho mới có quant
             'list_price': 70000,
         })
 
@@ -69,6 +71,8 @@ class TestWujiaSupplyDemandReport(TransactionCase):
             ]
         })
         so.action_confirm()
+        # Báo cáo là SQL view (_auto=False) ⇒ ORM không tự flush sale.order/line trước khi search.
+        self.env.flush_all()
 
         # Query report model
         report_p1 = self.env['wujia.sale.supply.demand.report'].search([
@@ -94,5 +98,5 @@ class TestWujiaSupplyDemandReport(TransactionCase):
         action = self.env.ref('wujia_sale.action_wujia_sale_supply_demand_report')
         self.assertEqual(action.res_model, 'wujia.sale.supply.demand.report')
 
-        menu = self.env.ref('wujia_sale.menu_wujia_supply_demand_report')
+        menu = self.env.ref('wujia_sale.menu_wujia_sale_supply_demand_report')
         self.assertEqual(menu.action.id, action.id)

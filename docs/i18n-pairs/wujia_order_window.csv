@@ -1,0 +1,9 @@
+file,line,category,attr,vn,en,mode,note
+custom/wujia_order_window/__manifest__.py,5,py_literal,,Khung giờ đặt hàng theo khu vực (BA Section B.5 + Model Field Mục I),Ordering windows by area (BA Section B.5 + Model Field Section I),manual,
+custom/wujia_order_window/__manifest__.py,6,py_literal,,"Khung giờ được phép tạo đơn portal, cấu hình theo khu vực. Tách từ wujia_portal_order_window (F7, ADR-027). - Model wujia.order.window: khung giờ riêng cho từng res.area; một khu vực có thể có nhiều khung (sáng + tối). - res.config.settings: 3 tham số fallback wujia_portal.* khi khu vực chưa cấu hình riêng. - _is_within_order_window(area_id): ưu tiên khu vực, fallback chung, xử lý qua nửa đêm theo tz người dùng. - _next_order_window(area_id): khung sắp mở (giờ + ngày) cho màn ""ngoài khung giờ"". - sale.order.create chặn đơn portal ngoài khung giờ, raise OrderWindowClosed.",,manual,
+custom/wujia_order_window/models/sale_order.py,31,py_gettext,,Hiện chưa nằm trong khung giờ nhận đơn. Vui lòng đặt hàng trong khung giờ %(f).2f – %(t).2f.,Not within the ordering window right now. Please order within %(f).2f – %(t).2f.,auto,
+custom/wujia_order_window/models/wujia_order_window.py,52,py_literal,,"Giờ bắt đầu phải nằm trong [0, 24).","Start hour must be within [0, 24).",manual,
+custom/wujia_order_window/models/wujia_order_window.py,56,py_literal,,"Giờ kết thúc phải nằm trong [0, 24).","End hour must be within [0, 24).",manual,
+custom/wujia_order_window/models/wujia_order_window.py,69,py_gettext,,Khung giờ '%s' có From == To — không có thời điểm hợp lệ.,Window '%s' has From == To — no valid time.,auto,
+custom/wujia_order_window/views/res_config_settings_views.xml,15,qweb_attr,title,Khung giờ đặt hàng Portal (fallback),Portal ordering window (fallback),auto,
+custom/wujia_order_window/views/wujia_order_window_views.xml,31,qweb_attr,title,Qua nửa đêm,Crosses midnight,auto,

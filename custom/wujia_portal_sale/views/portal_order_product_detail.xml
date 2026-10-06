@@ -3,14 +3,14 @@
     <template id="portal_order_product_detail" name="Wujia Portal — Product Detail">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_width" t-value="'standard'"/>
-            <t t-set="title">Chi tiết sản phẩm</t>
+            <t t-set="title">Product details</t>
             <div class="content-wrapper">
                 <!-- Realtime cart sync root — header cart badge realtime (Sprint 31). -->
-                <div id="wj-cart-sync" class="d-none" t-att-data-franchise-id="active_franchise_id"/>
+                <t t-call="wujia_portal_sale.cart_sync_root"/>
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Đặt hàng / Chi tiết sản phẩm</t>
+                    <t t-set="ph_crumb">Order / Product details</t>
                     <t t-set="ph_title" t-value="product.name"/>
                     <t t-set="ph_back_url" t-value="'/portal/order'"/>
                 </t>
@@ -37,10 +37,10 @@
                                        t-out="product.name_chinese"/>
                                     <p class="text-muted">
                                         <span t-if="product.public_categ_id">
-                                            Nhóm: <t t-out="product.public_categ_id.name"/>
+                                            Group: <t t-out="product.public_categ_id.name"/>
                                         </span>
                                         <span t-if="product.wujia_packaging">
-                                            • Quy cách: <t t-out="product.wujia_packaging"/>
+                                            • Specification: <t t-out="product.wujia_packaging"/>
                                         </span>
                                     </p>
                                     <p class="text-primary fs-4 fw-bold">
@@ -49,13 +49,13 @@
                                     </p>
                                     <p t-if="product.description_sale" t-out="product.description_sale"/>
                                     <p class="text-muted small">
-                                        Tối thiểu: <t t-out="product.min_qty or 1"/>
-                                        <span t-if="product.max_qty"> • Tối đa: <t t-out="product.max_qty"/></span>
-                                        • Bước đặt: <t t-out="product.min_qty or 1"/>
+                                        Minimum: <t t-out="product.min_qty or 1"/>
+                                        <span t-if="product.max_qty"> • Maximum: <t t-out="product.max_qty"/></span>
+                                        • Order step: <t t-out="product.min_qty or 1"/>
                                     </p>
 
                                     <div class="d-flex align-items-center gap-2 mt-3">
-                                        <label class="form-label mb-0">Số lượng</label>
+                                        <label class="form-label mb-0">Quantity</label>
                                         <input type="number" id="product-detail-qty"
                                                class="form-control"
                                                style="width: 100px;"
@@ -68,10 +68,10 @@
                                                 t-att-data-product-id="product.id"
                                                 t-att-data-min-qty="product.min_qty or 1"
                                                 t-att-data-max-qty="str(product.max_qty or 0)">
-                                            <i class="fa fa-cart-plus me-1"/>Thêm vào giỏ
+                                            <i class="fa fa-cart-plus me-1"/>Add to cart
                                         </button>
                                         <a href="/portal/order/cart" class="wj-btn wj-btn--secondary">
-                                            <i class="fa fa-shopping-basket me-1"/>Xem giỏ
+                                            <i class="fa fa-shopping-basket me-1"/>View cart
                                         </a>
                                     </div>
                                     <div id="product-detail-msg" class="mt-2"></div>
@@ -80,7 +80,7 @@
 
                             <div t-if="related" class="mt-4">
                                 <t t-call="wujia_portal_layout.wj_card_header">
-                                    <t t-set="ch_title">Sản phẩm liên quan</t>
+                                    <t t-set="ch_title">Related products</t>
                                     <t t-set="ch_level" t-value="4"/>
                                 </t>
                                 <div class="row g-2">

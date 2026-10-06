@@ -39,6 +39,9 @@ class TestWujiaOrderView(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.SaleOrder = cls.env['sale.order']
+        # Đơn portal bị chặn ngoài khung giờ (wujia_order_window) ⇒ test lọc không phụ thuộc giờ chạy.
+        cls.env['ir.config_parameter'].sudo().set_param(
+            'wujia_portal.portal_order_time_limit_enabled', 'False')
         cls.partner = cls.env['res.partner'].create({
             'name': 'Test Store Partner WJ-SALE-002',
             'is_franchise': True,

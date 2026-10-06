@@ -42,15 +42,5 @@ if (typeof $ !== 'undefined' && $.app && $.app.menu) {
     }
 }
 
-/* Sprint 4.2+: app.js line 492 calls i18next.use(XHRBackend).init({...})
-   with loadPath '../../../app-assets/data/locales/{{lng}}.json' which
-   returns 404 — that path isn't served anywhere in this repo. Portal strings
-   are translated server-side (QWeb + data-wj-msg-*, see wj_msg.js), so i18next is unused.
-   No-op the chain to silence the console 404. */
-if (typeof i18next !== 'undefined') {
-    i18next.use = function () { return i18next; };
-    i18next.init = function (opts, cb) {
-        if (typeof cb === 'function') { cb(null, function (k) { return k; }); }
-        return i18next;
-    };
-}
+/* i18next của Vuexy đã bỏ ngay trong core/app.js (J-V4): stub ở đây chạy SAU app.js nên không chặn
+   được 404 locales/{{lng}}.json. Chữ portal dịch phía server (QWeb + data-wj-msg-*, see wj_msg.js). */

@@ -10,6 +10,7 @@ from odoo.tests.common import TransactionCase
 from odoo.tools import mute_logger
 
 from odoo.addons.wujia_order_window.models.sale_order import OrderWindowClosed
+from odoo.addons.wujia_sale.tests.common import load_vi
 
 TODAY = date(2026, 9, 25)
 
@@ -118,8 +119,13 @@ class TestOrderWindow(TransactionCase):
 
     def test_portal_order_blocked_outside_window(self):
         SO = self.env['sale.order']
+        # J-V4: câu gốc tiếng Anh, tiếng Việt qua .po — lỗi ra theo ngôn ngữ của env.
         with self.at(15.0), self.assertRaises(OrderWindowClosed) as err:
-            SO.create(self.so_vals())
+            SO.with_context(lang='en_US').create(self.so_vals())
+        self.assertIn('Not within the ordering window', str(err.exception))
+        self.assertRegex(str(err.exception), r'within \d\d:\d\d – \d\d:\d\d\.')  # giờ:phút, không phải 10.00
+        with self.at(15.0), self.assertRaises(OrderWindowClosed) as err:
+            load_vi(self.env)['sale.order'].create(self.so_vals())
         self.assertIn('khung giờ nhận đơn', str(err.exception))
         self.assertIsInstance(err.exception, ValidationError)
         with self.at(15.0):

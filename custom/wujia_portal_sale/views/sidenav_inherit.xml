@@ -6,14 +6,14 @@
     <template id="layout_sidenav_order"
               inherit_id="wujia_portal_layout.layout_sidenav"
               priority="20"
-              name="Wujia Sidenav — Đặt hàng">
+              name="Wujia Sidenav — Order">
         <xpath expr="//li[@id='nav_header_finance']" position="before">
             <t t-set="ni_active" t-value="_p.startswith('/portal/order')"/>
             <li t-attf-class="nav-item #{ni_active and 'active' or ''}" id="nav_item_order">
                 <t t-call="wujia_portal_layout.wj_nav_item">
                     <t t-set="ni_href" t-value="'/portal/order'"/>
                     <t t-set="ni_icon" t-value="'feather icon-shopping-cart'"/>
-                    <t t-set="ni_label">Đặt hàng</t>
+                    <t t-set="ni_label">Order</t>
                 </t>
             </li>
         </xpath>

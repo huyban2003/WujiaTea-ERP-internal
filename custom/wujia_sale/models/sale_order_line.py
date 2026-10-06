@@ -96,15 +96,15 @@ class SaleOrderLine(models.Model):
             code, limit = error
             if code == 'QTY_BELOW_MIN':
                 raise ValidationError(_(
-                    "Sản phẩm '%s' yêu cầu số lượng tối thiểu %s, đang đặt %s.",
+                    "Product '%s' requires a minimum quantity of %s, ordered %s.",
                     product.name, limit, qty,
                 ))
             if code == 'QTY_INVALID_STEP':
                 raise ValidationError(_(
-                    "Số lượng của '%s' phải tăng theo bước %s, đang đặt %s.",
+                    "The quantity of '%s' must be in steps of %s, ordered %s.",
                     product.name, limit, qty,
                 ))
             raise ValidationError(_(
-                "Sản phẩm '%s' chỉ cho phép tối đa %s/đơn, đang đặt %s.",
+                "Product '%s' allows at most %s per order, ordered %s.",
                 product.name, limit, qty,
             ))

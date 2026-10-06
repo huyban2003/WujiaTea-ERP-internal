@@ -1,0 +1,276 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* wujia_order_window
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-06 08:26+0000\n"
+"PO-Revision-Date: 2026-10-06 08:26+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__active
+msgid "Active"
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.actions.act_window,help:wujia_order_window.action_wujia_order_window
+msgid ""
+"An area can define several windows (e.g. Morning + Evening). The portal "
+"allows ordering while at least one window of the area is open. An area "
+"without any window falls back to the default configuration in Settings."
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__area_id
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_search
+msgid "Area"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__company_id
+msgid "Company"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model,name:wujia_order_window.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.actions.act_window,help:wujia_order_window.action_wujia_order_window
+msgid "Create an ordering time window for an area"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_form
+msgid "Crosses midnight"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,help:wujia_order_window.field_res_config_settings__portal_order_time_to
+msgid ""
+"Default end hour (float 0.0–24.0). If To < From the window runs past "
+"midnight."
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,help:wujia_order_window.field_res_config_settings__portal_order_time_from
+msgid ""
+"Default start hour (float 0.0–24.0) used when the area has no window of its "
+"own."
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
+msgid ""
+"Default time window <em>applies only to areas without their own "
+"configuration</em>. Configure it per area under <strong>Sales → "
+"Configuration → Wujia Portal → Ordering time windows</strong>. If To &lt; "
+"From, the window runs past midnight."
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__description
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_form
+msgid "Description"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:wujia_order_window.field_sale_order__display_name
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__portal_order_time_limit_enabled
+msgid "Enable Portal Order Time Limit"
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
+msgid ""
+"Enable/disable the portal ordering time window. Off = ordering allowed at "
+"any time."
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,help:wujia_order_window.field_res_config_settings__portal_order_time_limit_enabled
+msgid ""
+"Enable/disable the portal ordering time window. When off, ordering is "
+"allowed at any time regardless of `wujia.order.window`."
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.constraint,message:wujia_order_window.constraint_wujia_order_window_order_time_to_range
+msgid "End hour must be within [0, 24)."
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__order_time_to
+msgid "End time"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__order_time_from
+msgid "Float hours 0.0–24.0. E.g. 10.5 = 10:30."
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
+msgid "From (fallback)"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__id
+#: model:ir.model.fields,field_description:wujia_order_window.field_sale_order__id
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__id
+msgid "ID"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__order_time_to
+msgid "If < From the window runs past midnight (is_overnight=True)."
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_search
+msgid "In use"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: wujia_order_window
+#. odoo-python
+#: code:addons/wujia_order_window/models/sale_order.py:0
+msgid ""
+"Not within the ordering window right now. Please order within %(f)s – "
+"%(t)s."
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.actions.act_window,name:wujia_order_window.action_wujia_order_window
+#: model:ir.ui.menu,name:wujia_order_window.menu_wujia_order_window
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_form
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_list
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_search
+msgid "Ordering time windows"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__is_overnight
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.view_wujia_order_window_search
+msgid "Overnight"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__portal_order_time_from
+msgid "Portal Order Time From (fallback)"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_res_config_settings__portal_order_time_to
+msgid "Portal Order Time To (fallback)"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model,name:wujia_order_window.model_wujia_order_window
+msgid "Portal ordering time window (per area)"
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
+msgid "Portal ordering window (fallback)"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model,name:wujia_order_window.model_sale_order
+msgid "Sales Order"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.constraint,message:wujia_order_window.constraint_wujia_order_window_order_time_from_range
+msgid "Start hour must be within [0, 24)."
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__order_time_from
+msgid "Start time"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__area_id
+msgid ""
+"The window applies only to franchises located in this area. An area can have"
+" several windows (e.g. morning + evening) — the controller checks them all "
+"and allows ordering while at least one is open."
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
+msgid "To (fallback)"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__is_overnight
+msgid "True when To < From — the window spans midnight."
+msgstr ""
+
+#. module: wujia_order_window
+#. odoo-python
+#: code:addons/wujia_order_window/models/wujia_order_window.py:0
+msgid "Window '%s' has From == To — no valid time."
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,field_description:wujia_order_window.field_wujia_order_window__name
+msgid "Window name"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.ui.menu,name:wujia_order_window.menu_wujia_portal_config_root
+msgid "Wujia Portal"
+msgstr ""
+
+#. module: wujia_order_window
+#: model_terms:ir.ui.view,arch_db:wujia_order_window.res_config_settings_view_form_wujia_portal_window
+msgid "Wujia Portal Order Window"
+msgstr ""
+
+#. module: wujia_order_window
+#: model:ir.model.fields,help:wujia_order_window.field_wujia_order_window__name
+msgid ""
+"e.g. \"Morning window HN\" — shown in the portal UI when reporting that "
+"ordering is outside the window."
+msgstr ""

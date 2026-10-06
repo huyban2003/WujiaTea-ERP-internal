@@ -27,9 +27,9 @@ def migrate(cr, version):
     except Exception as exc:  # noqa: BLE001 — thiếu quyền DB là non-fatal
         cr.execute("ROLLBACK TO SAVEPOINT wj_ord_004_unaccent")
         _logger.warning(
-            "WJ-ORD-004: không thể tạo extension unaccent (%s). "
-            "Search sản phẩm sẽ vẫn chạy nhưng không bỏ dấu.", exc,
+            "WJ-ORD-004: could not create the unaccent extension (%s). "
+            "Product search still works but without accent folding.", exc,
         )
     else:
         cr.execute("RELEASE SAVEPOINT wj_ord_004_unaccent")
-        _logger.info("WJ-ORD-004: extension unaccent đã sẵn sàng.")
+        _logger.info("WJ-ORD-004: unaccent extension is ready.")

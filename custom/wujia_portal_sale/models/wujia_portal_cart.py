@@ -45,13 +45,16 @@ class WujiaPortalCart(models.Model):
 
     _franchise_uniq = models.Constraint(
         'UNIQUE (franchise_id)',
-        'Mỗi cửa hàng chỉ có một giỏ hàng.',
+        'Each store can only have one cart.',
     )
 
     @api.depends('franchise_id')
     def _compute_display_name(self):
         for cart in self:
-            cart.display_name = f'Giỏ [{cart.franchise_id.code or "?"}] {cart.franchise_id.name or ""}'
+            cart.display_name = cart.env._(
+                'Cart [%(code)s] %(name)s',
+                code=cart.franchise_id.code or '?', name=cart.franchise_id.name or '',
+            )
 
     @api.model
     def _get_for_store(self, fid, create=False):
@@ -218,7 +221,7 @@ class WujiaPortalCartLine(models.Model):
 
     _cart_product_uniq = models.Constraint(
         'UNIQUE (cart_id, product_id)',
-        'Mỗi sản phẩm chỉ có một dòng trong giỏ.',
+        'Each product can only have one line in the cart.',
     )
 
     @api.model

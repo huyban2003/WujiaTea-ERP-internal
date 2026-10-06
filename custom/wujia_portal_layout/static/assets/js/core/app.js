@@ -488,20 +488,8 @@
 
   // main menu internationalization
 
-  // init i18n and load language file
-  i18next.use(window.i18nextXHRBackend).init({
-      debug: false,
-      fallbackLng: "en",
-      backend: {
-        loadPath: "../../../app-assets/data/locales/{{lng}}.json"
-      },
-      returnObjects: true
-    },
-    function (err, t) {
-      // resources have been loaded
-      jqueryI18next.init(i18next, $);
-    }
-  );
+  // Wujia: bỏ i18next của Vuexy — loadPath tương đối "../../../app-assets/data/locales/{{lng}}.json"
+  // không có trong repo ⇒ 404 mỗi trang. Chữ portal dịch phía server (QWeb .po + data-wj-msg-*, wj_msg.js).
 
   // change language according to data-language of dropdown item
   $(".dropdown-language .dropdown-item").on("click", function () {
@@ -514,10 +502,7 @@
     $("#dropdown-flag .flag-icon")
       .removeClass()
       .addClass(selectedFlag);
-    var currentLanguage = $this.data("language");
-    i18next.changeLanguage(currentLanguage, function (err, t) {
-      $(".main-menu, .horizontal-menu-wrapper").localize();
-    });
+    // Wujia: link /portal/set-lang/<code> đổi ngôn ngữ phía server (không còn i18next).
   });
 
   /********************* Bookmark & Search ***********************/

@@ -16,26 +16,26 @@
             <t t-call="wujia_portal_layout.wj_surface_card">
                 <t t-set="sc_class" t-value="'wj-pc-card wj-pc-order-card'"/>
                 <t t-call="wujia_portal_layout.wj_section_header">
-                    <t t-set="sh_title">Danh sách sản phẩm</t>
+                    <t t-set="sh_title">Product list</t>
                     <t t-set="sh_level" t-value="3"/>
                     <t t-set="sh_platform" t-value="'pc'"/>
                     <t t-set="sh_meta">
-                        <span class="wj-section-header__meta"><t t-out="product_count"/> sản phẩm</span>
+                        <span class="wj-section-header__meta"><t t-out="product_count"/> products</span>
                     </t>
                 </t>
                 <div t-if="not products" class="wj-empty-state">
                     <i class="feather icon-package"/>
-                    <p>Không có sản phẩm phù hợp.</p>
+                    <p>No matching products.</p>
                 </div>
                 <t t-else="">
                     <table class="wj-pc-order-table">
                         <thead>
                             <tr>
-                                <th>Sản phẩm</th>
-                                <th t-if="has_spec">Quy cách</th>
-                                <th>ĐVT</th>
-                                <th class="text-end">Đơn giá</th>
-                                <th class="text-center">Thao tác</th>
+                                <th>Product</th>
+                                <th t-if="has_spec">Specification</th>
+                                <th>UoM</th>
+                                <th class="text-end">Unit price</th>
+                                <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -61,7 +61,7 @@
                                             t-att-data-product-id="product.id"
                                             t-att-data-min-qty="product.min_qty or 1"
                                             t-att-data-max-qty="str(product.max_qty or 0)"
-                                            aria-label="Thêm vào giỏ">
+                                            aria-label="Add to cart">
                                         <i class="feather icon-shopping-cart"/>
                                         <span t-attf-class="wj-pc-order-add-badge #{'' if in_cart else 'd-none'}"
                                               t-out="in_cart"/>
@@ -80,17 +80,17 @@
         <!-- Meta PageHeader (CMP-PG-001) — H1 nay do shared wj_page_header dựng; giữ nguyên
              id để wj_ajax_list vẫn thay được số SP sau khi lọc. Luôn render (rỗng khi 0 SP). -->
         <span t-if="part == 'mcount'" id="wj-ord-mcount" class="wj-page-header__meta">
-            <t t-if="products"><t t-out="len(products)"/> SP</t>
+            <t t-if="products"><t t-out="len(products)"/> SKUs</t>
         </span>
         <span t-if="part == 'pccount'" id="wj-ord-pccount" class="wj-page-header__meta">
-            <t t-if="products"><t t-out="len(products)"/> SP</t>
+            <t t-if="products"><t t-out="len(products)"/> SKUs</t>
         </span>
 
         <!-- Luôn render (ẩn khi chưa có danh mục) — AJAX cần chỗ để thay. -->
         <div t-if="part == 'mchips'" id="wj-ord-mchips" class="wj-filter-chips wujia-morder-chips"
              t-att-hidden="None if categories else 'hidden'">
             <a t-attf-href="/portal/order#{('?keyword=' + keyword) if keyword else ''}"
-               t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if not category_id else ''}">Tất cả</a>
+               t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if not category_id else ''}">All</a>
             <t t-foreach="categories" t-as="cat">
                 <a t-attf-href="/portal/order?category_id=#{cat.id}#{('&amp;keyword=' + keyword) if keyword else ''}"
                    t-attf-class="wj-filter-chip wj-filter-chip--soft #{'is-active' if category_id == cat.id else ''}"
@@ -101,22 +101,28 @@
         <div t-if="part == 'mbody'" id="wj-ord-mbody" class="wj-ajax-slot">
             <!-- List header — CMP-SH-001: count dùng TỪ ĐẦY ĐỦ và hiện cả khi = 0 -->
             <t t-call="wujia_portal_layout.wj_section_header">
-                <t t-set="sh_title">Danh sách sản phẩm</t>
+                <t t-set="sh_title">Product list</t>
                 <t t-set="sh_level" t-value="3"/>
                 <t t-set="sh_platform" t-value="'m'"/>
                 <t t-set="sh_meta">
-                    <span class="wj-section-header__meta"><t t-out="len(products)"/> sản phẩm</span>
+                    <span class="wj-section-header__meta"><t t-out="len(products)"/> products</span>
                 </t>
             </t>
 
             <!-- Empty -->
             <div t-if="not products" class="wujia-empty-state">
                 <i class="feather icon-package"/>
-                <p>Không có sản phẩm phù hợp.</p>
+                <p>No matching products.</p>
             </div>
 
             <!-- Product compact rows -->
             <t t-else="">
+                <!-- J-V4: nhãn aria theo tên SP — câu dịch được (<t t-set>), ghép tên bằng %. -->
+                <t t-set="_os_t_add">Add %s to cart</t>
+                <t t-set="_os_t_adjust">Adjust quantity of %s</t>
+                <t t-set="_os_t_dec">Decrease %s</t>
+                <t t-set="_os_t_qty">Quantity of %s</t>
+                <t t-set="_os_t_inc">Increase %s</t>
                 <div class="wujia-morder-list">
                     <t t-foreach="products" t-as="product">
                         <t t-set="in_cart" t-value="cart_qty_map.get(product.id, 0)"/>
@@ -150,17 +156,17 @@
                                  t-att-data-max-qty="str(product.max_qty or 0)"
                                  t-attf-data-qty="#{in_cart}">
                                 <button type="button" class="wujia-morder-row-add wujia-morder-add-btn wj-state-surface"
-                                        t-att-aria-label="'Thêm ' + product.name + ' vào giỏ'">
+                                        t-att-aria-label="_os_t_add % product.name">
                                     <i class="feather icon-shopping-cart"/>
                                 </button>
                                 <div class="wujia-morder-mstepper" role="group"
-                                     t-att-aria-label="'Điều chỉnh số lượng ' + product.name">
+                                     t-att-aria-label="_os_t_adjust % product.name">
                                     <button type="button" class="wujia-morder-mstep wujia-morder-mstep-minus wj-state-surface"
-                                            t-att-aria-label="'Giảm ' + product.name">−</button>
+                                            t-att-aria-label="_os_t_dec % product.name">−</button>
                                     <span class="wujia-morder-mstep-qty" aria-live="polite"
-                                          t-att-aria-label="'Số lượng ' + product.name" t-out="in_cart"/>
+                                          t-att-aria-label="_os_t_qty % product.name" t-out="in_cart"/>
                                     <button type="button" class="wujia-morder-mstep wujia-morder-mstep-plus wj-state-surface"
-                                            t-att-aria-label="'Tăng ' + product.name">+</button>
+                                            t-att-aria-label="_os_t_inc % product.name">+</button>
                                 </div>
                             </div>
                         </div>
@@ -191,7 +197,7 @@
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="pc_bottom" t-value="'sticky'"/>
-            <t t-set="title">Đặt hàng</t>
+            <t t-set="title">Order</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/order'"/>
                 <t t-set="wjl_slots" t-value="'wj-ord-pc,wj-ord-pccount,wj-ord-mcount,wj-ord-mchips,wj-ord-mbody'"/>
@@ -199,7 +205,7 @@
             </t>
             <div class="content-wrapper">
                 <!-- Realtime cart sync root — bus channel wujia.franchise_<id> (Sprint 31). -->
-                <div id="wj-cart-sync" class="d-none" t-att-data-franchise-id="active_franchise_id"/>
+                <t t-call="wujia_portal_sale.cart_sync_root"/>
                 <!-- Sprint 30: products = product.product, giá từ price_map (pricelist),
                      giỏ chung theo store (cart_state dict từ controller).
                      WJ-ORD-009: cột Quy cách chỉ hiện khi ÍT NHẤT 1 SP có dữ liệu thực.
@@ -209,13 +215,13 @@
                 <!-- ===== DESKTOP (≥992px) — PC combined catalog + cart (Figma PC_Product_Cart 4600:2, Sprint PC-1) ===== -->
                 <div class="d-none d-lg-block">
                     <div t-if="no_franchise" class="alert alert-warning m-3">
-                        Bạn chưa được gán vào cửa hàng nào — không thể đặt hàng.
+                        You are not assigned to any store — ordering is unavailable.
                     </div>
                     <t t-else="">
                         <t t-call="wujia_portal_layout.wj_page_header">
                             <t t-set="ph_platform" t-value="'pc'"/>
                             <t t-set="ph_variant" t-value="'title'"/>
-                            <t t-set="ph_title">Đặt hàng</t>
+                            <t t-set="ph_title">Order</t>
                             <t t-set="ph_meta">
                                 <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
                                     <t t-set="part" t-value="'pccount'"/>
@@ -226,7 +232,7 @@
                         <div t-if="error" class="alert alert-danger" role="alert"><t t-esc="error"/></div>
                         <div t-if="message" class="alert alert-success" role="status"><t t-esc="message"/></div>
                         <div t-if="order_window_not_configured" class="alert alert-warning" role="alert">
-                            <t t-set="wj_txt">Chưa có cấu hình thời gian đặt hàng. Vui lòng liên hệ {brand}.</t>
+                            <t t-set="wj_txt">Ordering hours are not configured yet. Please contact {brand}.</t>
                             <t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                         </div>
 
@@ -236,17 +242,20 @@
                                 <!-- WJ-ORD-023 (E4b1: về component CMP-FB-001) — select cũ
                                      không khai width nên ăn `select{width:100%}` của shell
                                      dashboard.css → wrap 3 hàng. -->
+                                <t t-set="_os_t_search_ph">Search by product name, product code...</t>
+                                <t t-set="_os_t_category">Category</t>
+                                <t t-set="_os_t_all_categories">All categories</t>
                                 <t t-call="wujia_portal_layout.wj_filter_bar">
                                     <t t-set="fb_platform" t-value="'pc'"/>
                                     <t t-set="fb_action" t-value="'/portal/order'"/>
                                     <t t-set="fb_class" t-value="'wj-pc-order-filter'"/>
                                     <t t-set="fb_search"
                                        t-value="{'name': 'keyword', 'value': keyword,
-                                                 'placeholder': 'Tìm theo tên sản phẩm, mã hàng...'}"/>
+                                                 'placeholder': _os_t_search_ph}"/>
                                     <t t-set="fb_selects"
                                        t-value="[{'name': 'category_id', 'value': category_id,
-                                                  'label': 'Danh mục',
-                                                  'all_label': 'Tất cả danh mục',
+                                                  'label': _os_t_category,
+                                                  'all_label': _os_t_all_categories,
                                                   'auto': True,
                                                   'options': [(c.id, c.name) for c in categories]}]"/>
                                 </t>
@@ -270,7 +279,7 @@
                 <!-- ===== MOBILE (<992px) — BA UI Registry v3 + Figma 2480:2 ===== -->
                 <div class="d-lg-none wujia-morder">
                     <div t-if="no_franchise" class="alert alert-warning" role="alert">
-                        Bạn chưa được gán vào cửa hàng nào — không thể đặt hàng.
+                        You are not assigned to any store — ordering is unavailable.
                     </div>
                     <t t-else="">
                         <!-- WJ-ORD-005: H1 = task chính "Đặt hàng"; bộ đếm SP cùng hàng bên phải,
@@ -279,7 +288,7 @@
                         <t t-call="wujia_portal_layout.wj_page_header">
                             <t t-set="ph_platform" t-value="'m'"/>
                             <t t-set="ph_variant" t-value="'title'"/>
-                            <t t-set="ph_title">Đặt hàng</t>
+                            <t t-set="ph_title">Order</t>
                             <t t-set="ph_meta">
                                 <t t-call="wujia_portal_sale.portal_order_catalog_results_part">
                                     <t t-set="part" t-value="'mcount'"/>
@@ -296,8 +305,8 @@
                         <div t-if="order_window_enabled"
                              t-attf-class="wujia-morder-warnbar #{'wujia-morder-warnbar--open' if order_window_open else 'wujia-morder-warnbar--closed'}">
                             <i t-attf-class="feather #{'icon-check-circle' if order_window_open else 'icon-alert-circle'}"/>
-                            <span t-if="order_window_open">Đang trong khung giờ đặt hàng: <t t-out="order_window_label"/></span>
-                            <span t-else="">Ngoài khung giờ đặt hàng — mở lại lúc <t t-out="order_window_reopen"/>. Khung: <t t-out="order_window_label"/></span>
+                            <span t-if="order_window_open">Within ordering hours: <t t-out="order_window_label"/></span>
+                            <span t-else="">Outside ordering hours — reopens at <t t-out="order_window_reopen"/>. Window: <t t-out="order_window_label"/></span>
                         </div>
 
                         <!-- Search box — FUNC-MOB-ORDER-006: nút "Tìm" hiện rõ (không
@@ -305,7 +314,7 @@
                         <form method="get" action="/portal/order" class="wujia-morder-search">
                             <label class="wujia-morder-search-input">
                                 <i class="feather icon-search"/>
-                                <input type="text" name="keyword" placeholder="Nhập tên sản phẩm cần tìm"
+                                <input type="text" name="keyword" placeholder="Enter a product name to search"
                                        t-att-value="keyword"/>
                             </label>
                             <!-- WJ-ORD-027: LUÔN render (rỗng = mọi danh mục). Chip đổi danh mục qua
@@ -313,7 +322,7 @@
                                  kiện thì trang mở từ "Tất cả" mất ô ⇒ tìm sau khi chọn chip rơi danh mục. -->
                             <input type="hidden" name="category_id"
                                    t-att-value="category_id or ''"/>
-                            <button type="submit" class="wujia-morder-search-btn wj-state-surface" aria-label="Tìm sản phẩm">
+                            <button type="submit" class="wujia-morder-search-btn wj-state-surface" aria-label="Search products">
                                 <i class="feather icon-search"/>
                             </button>
                         </form>
@@ -334,10 +343,10 @@
                                 <i class="feather icon-shopping-cart"/>
                             </span>
                             <span class="wujia-morder-floatbar-info">
-                                <span class="wujia-morder-floatbar-title">Giỏ hàng</span>
+                                <span class="wujia-morder-floatbar-title">Cart</span>
                                 <span class="wujia-morder-floatbar-sub">
                                     <!-- WJ-ORD-022: line_count = số mặt hàng (SKU), KHÁC total_qty -->
-                                    <span class="wujia-morder-floatbar-count" t-out="cart_state['line_count'] if cart_state else 0"/> mặt hàng •
+                                    <span class="wujia-morder-floatbar-count" t-out="cart_state['line_count'] if cart_state else 0"/> items •
                                     <!-- Ký hiệu nằm TRONG span (trước đây ở ngoài) để JS ghi đè
                                          cả số lẫn ký hiệu bằng cùng một nguồn currency (WJ-ORD-025).
                                          Số = Tổng thanh toán đã thuế, khớp giỏ. -->
@@ -345,7 +354,7 @@
                                           t-out="money(cart_state['total_tax_included'] if cart_state else 0, cart_state['currency_symbol'] if cart_state else '', cart_state['currency_decimals'] if cart_state else 0)"/>
                                 </span>
                             </span>
-                            <span class="wujia-morder-floatbar-btn">Xem giỏ</span>
+                            <span class="wujia-morder-floatbar-btn">View cart</span>
                         </a>
                     </t>
                 </div>

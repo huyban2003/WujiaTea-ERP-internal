@@ -13,6 +13,10 @@ from odoo.tests.common import HttpCase
 
 from odoo.addons.wujia_order_window.models.sale_order import OrderWindowClosed
 from odoo.addons.wujia_portal_base.controllers.utils import _RateLimiter
+from odoo.addons.wujia_sale.tests.common import load_vi
+
+# J-V4: câu gốc tiếng Anh ⇒ assert câu tiếng Việt chạy với user/env vi_VN + .po cụm sale.
+VI_MODULES = ('wujia_sale', 'wujia_order_window', 'wujia_portal_sale')
 
 OPEN = (True, {'from': 10.0, 'to': 4.0, 'enabled': True, 'configured': True,
                'source': 'global', 'windows': []})
@@ -30,13 +34,13 @@ class TestF6CartSubmit(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        env = cls.env
+        cls.env = env = load_vi(cls.env, VI_MODULES)
         cls.partner = env['res.partner'].create({'name': 'F6 partner'})
         cls.franchise = env['wujia.franchise.management'].create({
             'code': 'F6ST', 'name': 'F6 store', 'franchise_end_date': '2030-01-01',
             'partner_id': cls.partner.id})
         cls.user = env['res.users'].create({
-            'name': 'f6_owner', 'login': 'f6_owner', 'password': 'f6_owner',
+            'name': 'f6_owner', 'login': 'f6_owner', 'password': 'f6_owner', 'lang': 'vi_VN',
             'group_ids': [(6, 0, [env.ref('base.group_portal').id])]})
         cls.member = env['wujia.franchise.member'].create({
             'user_id': cls.user.id, 'franchise_id': cls.franchise.id, 'role': 'owner'})
@@ -315,7 +319,7 @@ class TestF6CartSubmit(HttpCase):
 class TestF6LineConstraint(HttpCase):
 
     def test_constraint_messages_unchanged(self):
-        env = self.env
+        env = load_vi(self.env, VI_MODULES)
         partner = env['res.partner'].create({'name': 'F6c'})
         franchise = env['wujia.franchise.management'].create({
             'code': 'F6C', 'name': 'F6 C store', 'franchise_end_date': '2030-01-01',

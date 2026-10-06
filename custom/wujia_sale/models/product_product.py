@@ -56,20 +56,20 @@ class ProductProduct(models.Model):
     def _check_portal_qty_rules(self):
         for product in self:
             if product.min_qty < 0 or product.max_qty < 0:
-                raise ValidationError(_("Số lượng tối thiểu/tối đa không thể âm."))
+                raise ValidationError(_("Minimum/maximum quantity cannot be negative."))
             if product.is_public_portal and product.min_qty <= 0:
                 raise ValidationError(_(
-                    "Sản phẩm public portal '%s' phải có số lượng tối thiểu > 0 "
-                    "(bước đặt hàng = số lượng tối thiểu).", product.display_name,
+                    "Portal product '%s' must have a minimum quantity > 0 "
+                    "(order step = minimum quantity).", product.display_name,
                 ))
             if product.max_qty:
                 if product.max_qty < product.min_qty:
                     raise ValidationError(_(
-                        "Số lượng tối đa (%s) phải >= số lượng tối thiểu (%s).",
+                        "Maximum quantity (%s) must be >= minimum quantity (%s).",
                         product.max_qty, product.min_qty,
                     ))
                 if product.min_qty and product.max_qty % product.min_qty:
                     raise ValidationError(_(
-                        "Số lượng tối đa (%s) phải chia hết cho số lượng tối thiểu (%s).",
+                        "Maximum quantity (%s) must be a multiple of the minimum quantity (%s).",
                         product.max_qty, product.min_qty,
                     ))
