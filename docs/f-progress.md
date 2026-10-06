@@ -2402,7 +2402,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: **J-V5** — `wujia_portal_debt` (196) + `wujia_account` (4), so mốc vi_VN sau V4.
 
 ## J-V5 Việt hoá source `wujia_portal_debt` + `wujia_account` · 06/10/2026 · Mac
-- Kết quả: ✅ code + test local, **chưa commit/push** (chờ lệnh); 0 ghi sheet (không có ID Issue List).
+- Kết quả: ✅ code + test, **đã push `main` `2f9f5695`**, chủ dự án deploy; 0 ghi sheet (không có ID Issue List).
 - Đầu phiên: HEAD `a6f97309` (J-V4, khớp `origin/main`). Không module Thái nào phụ thuộc 2 module này; phụ thuộc ngược chỉ
   `wujia_portal_base` (Home KPI qua `hasattr`) + test `wujia_portal_layout` ⇒ không đụng code Thái.
 - Đã làm (`wujia_portal_debt` 19.0.5.0.0 · `wujia_account` 19.0.1.2.0):
