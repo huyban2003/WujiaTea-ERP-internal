@@ -2455,7 +2455,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: **J-V6** — `wujia_portal_return` (168) + `wujia_return` (69).
 
 ## J-V6 Việt hoá source `wujia_portal_return` + `wujia_return` · 06/10/2026 · Mac
-- Kết quả: ✅ code + test, **chưa commit/push** (chờ lệnh); 0 ghi sheet (không có ID Issue List).
+- Kết quả: ✅ code + test, **đã push `main` `b78c4568`**, chờ deploy; 0 ghi sheet (không có ID Issue List).
 - Đầu phiên: HEAD `0d6464be` = `origin/main`. Không module Thái nào phụ thuộc; phụ thuộc ngược `wujia_portal_base` (Home KPI +
   `RETURN_STATUS_LABELS` đã `_lt` từ V2) + `wujia_portal_layout` ⇒ `-u` cả 4. Issue List 10 Ready for Dev (157–168) để sau ★JR.
 - Đã làm (`wujia_portal_return` 19.0.5.0.0 · `wujia_return` 19.0.2.0.0):
@@ -2501,6 +2501,6 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - th_TH chưa có bản dịch module ⇒ thấy EN (đúng thiết kế, chờ J-T5).
   - ★VR: "Replacement ordered" (badge EN cũ từ V2), "Still short", "Compensation sales order", "Canceled" (ribbon backend) cho BA rà.
 - Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V6".
-- Lệnh deploy (sau khi được lệnh push): `-u wujia_return,wujia_portal_return` + **restart sau `-u`** (migration seed chạy trong `-u`).
+- Lệnh deploy: `-u wujia_return,wujia_portal_return` + **restart sau `-u`** (migration seed chạy trong `-u`).
 - Nợ để lại: xoá DB nháp `wujia_v6b`, `wujia_v6h` + worktree `v6/head` (scratchpad) — giữ `wujia_t1` tới hết Phần V.
 - Phiên kế: **J-V7** — support (112+2) + knowledge (46+2) + notification (86+27).
