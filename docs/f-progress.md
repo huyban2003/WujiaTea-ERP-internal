@@ -2705,7 +2705,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Danh sách gửi đi `docs/i18n-review/`: `ba-en-terms.csv` (1 361 cặp VN → EN, 10 dòng cần chốt 1 VN ↔ 2 EN), `thai-vn-hardcode.csv`
     (284, 18 có gợi ý EN), `README.md` (+ lỗi `.po` `#: web_survey_ui` + WJ-INSPECT-001). Chưa gửi.
   - Mốc `docs/i18n-baseline/vi_VN.json` cập nhật (54 trang, DB `wujia_vr`).
-- Commit: chưa commit
+- Commit: `457ff953` — feat(i18n): ★J-VR review Phần V (đã push, chờ deploy)
 - Deploy: chưa — lệnh: `-u wujia_portal_base,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery` + **restart**;
   kiểm version DB 19.0.7.37.1 / 19.0.5.1.1 / 19.0.4.0.1 / 19.0.4.0.1.
 - Số đo (DB `wujia_vr` = copy `wujia_t1` + `-u` 26 module team):
