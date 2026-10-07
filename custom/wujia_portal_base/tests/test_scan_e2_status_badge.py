@@ -19,7 +19,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
-from .common import load_vi
+from .common import legacy_vn_badge, load_vi
 
 CUSTOM = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -72,7 +72,8 @@ class TestStatusBadgeMapsAndCallSites(TransactionCase):
         label = SALE_STATE_META['sale'][0]
         self.assertEqual(load_vi(self.env)._(label), 'Đã xác nhận')
         self.assertEqual(status_badge_for(label), 'wj-status-badge--info')
-        self.assertEqual(status_badge_for('Đã xác nhận'), 'wj-status-badge--info')
+        # ★J-VR: nhãn đã dịch không quyết màu nữa; màu cũ của chữ VN giữ qua đáp án test.
+        self.assertEqual(legacy_vn_badge('Đã xác nhận'), 'wj-status-badge--info')
 
     def test_every_shared_map_emits_a_component_class(self):
         order = {k: (lbl, status_badge_for(lbl)) for k, (lbl, _t) in SALE_STATE_META.items()}

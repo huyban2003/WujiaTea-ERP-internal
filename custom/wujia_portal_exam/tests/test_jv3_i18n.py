@@ -10,6 +10,7 @@ from odoo.tests import TransactionCase, tagged
 
 from odoo.addons.wujia_exam.tests.common import load_vi
 from odoo.addons.wujia_portal_base.controllers.utils import status_badge_for
+from odoo.addons.wujia_portal_base.tests.common import legacy_vn_badge
 from odoo.addons.wujia_portal_base.tests.css_probe import CUSTOM
 from odoo.addons.wujia_portal_exam.controllers.portal import (
     M_REG_BADGE, PC_PUBLISH_STATES, PC_REG_STATES, SLOT_STATUS_LABELS, _WEEKDAYS, _course_meta,
@@ -50,7 +51,7 @@ class TestExamI18nJV3(TransactionCase):
                 with self.subTest(table=table, key=key):
                     label, badge = _TABLES[table][key]
                     self.assertEqual(self.env_vi._(label), vn, 'vi_VN đổi chữ')
-                    self.assertEqual(badge, status_badge_for(vn), 'đổi màu badge')
+                    self.assertEqual(badge, legacy_vn_badge(vn), 'đổi màu badge')
                     if key not in _NEUTRAL:
                         self.assertNotEqual(badge, status_badge_for('__unknown__'),
                                             'nhãn EN chưa có trong _STATUS_TERMS_BY_VARIANT')

@@ -1,0 +1,127 @@
+\chapter{Sprint 65 --- Cụm J Phần V: Việt hoá source, V0 $\to$ ★VR (2026-10-05 $\to$ 10-07)}
+
+\emph{Chapter này ghi lại Phần V của cụm J: đổi toàn bộ câu gốc tiếng Việt viết cứng trong source code team sang tiếng Anh,
+còn bản tiếng Việt chuyển vào \texttt{i18n/vi\_VN.po}. Người dùng tiếng Việt vẫn thấy đúng chữ cũ. Người dùng tiếng Anh, Thái,
+Trung không còn thấy tiếng Việt lẫn vào giao diện. Có 10 phiên code (V1 \ldots\ V8b) và một phiên review (★VR). Nhật ký ở
+\texttt{docs/f-progress.md}; quy ước, bài học từng phiên ở \texttt{docs/next-session-clusters-J.md} §6; quy trình công cụ ở
+\texttt{scripts/qa/README.md} §Phần V.}
+
+\section{Vì sao có Phần V}
+
+Ngày 05/10, khi làm tool dịch \texttt{wujia\_i18n} (J-T1+T2), máy quét \texttt{scripts/qa/vn\_hardcode\_scan.py} đếm được
+\textbf{2\,659 chuỗi tiếng Việt viết cứng}: code team khoảng 2\,375, code anh Thái 284, còn lại 945 chuỗi trong test.
+Odoo chỉ dịch được khi câu gốc là tiếng Anh. Vì vậy dù đã có tool dịch, portal ở en/th/zh vẫn hiện tiếng Việt.
+Chủ dự án chốt làm Phần V \textbf{trước} J-T4 (``ưu tiên xử lý trước'').
+
+\section{Quy ước chốt ở J-V0}
+
+\begin{enumerate}[nosep]
+\item Câu gốc trong QWeb/Python/JS đổi sang tiếng Anh ngắn, giữ nghĩa nghiệp vụ. Thêm một dòng vào \texttt{docs/i18n-glossary.csv}
+  (key = câu EN, VN = câu cũ), rồi \texttt{sync\_translations.py} sinh \texttt{vi\_VN.po} + \texttt{.pot}.
+\item Hằng nhãn Python dùng \texttt{\_lt()}, dịch lúc render theo env người xem. Thông báo controller dùng \texttt{\_()}.
+\item JS portal không có \texttt{\_t}: câu đặt trong \texttt{<t t-set>} (dịch được), gắn lên phần tử bằng
+  \texttt{data-wj-msg-*}, JS đọc qua \texttt{wjMsg(el, key, fallbackEN)}.
+\item User tiếng Anh thấy tiếng Anh, user tiếng Việt thấy tiếng Việt. Khách chưa đăng nhập trên \texttt{/portal} mặc định vi\_VN.
+  Bật đủ vi/en/th/zh\_CN.
+\item BA không duyệt câu EN từng phiên. Gom một danh sách gửi BA một lần ở ★VR. Bản zh/th sẽ dịch máy ở J-T5.
+\item Mỗi phiên phải đạt: quét lại module = 0; \texttt{wj\_text\_probe} vi\_VN 0 lệch chữ; en/th không vỡ layout; suite 0 đỏ mới;
+  so bản dịch trong DB 0 chỗ VN $\to$ EN.
+\end{enumerate}
+
+\section{Các phiên}
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.3cm}}
+\toprule
+Phiên & Commit & Module (số chuỗi) & Ngày \\
+\midrule
+V0 & \texttt{d2966119} & Quy ước + công cụ (\texttt{vn\_to\_en\_pairs}, \texttt{wj\_text\_probe}, mốc vi\_VN 52 trang) & 05/10 \\
+V1 & \texttt{7b03b680} & \texttt{portal\_layout} (259) + helper \texttt{wjMsg} & 05/10 \\
+V2 & \texttt{7e1d5abf} & \texttt{portal\_base} (382); màu badge theo câu EN & 05/10 \\
+V3 & \texttt{baa5b547} & \texttt{portal\_exam} (345) + \texttt{exam} (63) & 06/10 \\
+V4 & \texttt{359fe36c}, \texttt{6129ca59} & \texttt{portal\_sale} (201) + \texttt{sale} (16) + \texttt{order\_window} (8) & 06/10 \\
+V5 & \texttt{2f9f5695} & \texttt{portal\_debt} (196) + \texttt{account} (4) & 06/10 \\
+V6 & \texttt{b78c4568} & \texttt{portal\_return} (168) + \texttt{return} (69), migration seed loại lỗi & 06/10 \\
+V7 & \texttt{351932a8} & support (112+2), knowledge (46+2), notification (86+27); WJ-SUPPORT-003 & 07/10 \\
+V8a & \texttt{dbd4335b} & \texttt{purchase\_history} (99), \texttt{portal\_delivery} (93), \texttt{delivery} (15), \texttt{fleet} (11) & 07/10 \\
+V8b & \texttt{02e363fc} & \texttt{info\_request} (85+7), \texttt{portal\_report} (69), \texttt{core} (9), metabase (1) & 07/10 \\
+★VR & chưa commit & Review cả Phần V (mục dưới) & 07/10 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+V3 \ldots\ V8b đã lên UAT (lần cuối 07/10, \texttt{6ef4db78}); chủ dự án duyệt nâng tay \texttt{wujia\_metabase\_connector}.
+
+\section{★VR --- review cả Phần V}
+
+Đo trên DB \texttt{wujia\_vr}, chép từ \texttt{wujia\_t1} (mốc trước V1, cùng dữ liệu với \texttt{docs/i18n-baseline/vi\_VN.json}),
+rồi \texttt{-u} 26 module team.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}X}
+\toprule
+Thước & Kết quả \\
+\midrule
+Quét chuỗi VN viết cứng & Code team \textbf{0} trên 24 module; anh Thái 284 (gửi danh sách) \\
+Chữ không dấu máy quét sót & 1 chỗ: cột ``SL'' ở chi tiết chuyến giao mobile $\to$ ``Qty'' (vi giữ ``SL'') \\
+msgid vi\_VN mới chưa dịch & 83, không chỗ nào người dùng thấy (gallery dev, template chết \texttt{signup}/\texttt{forgot\_pass\_back}, field backend, metabase) \\
+\texttt{wj\_text\_probe} vi\_VN, 54 trang & 2 lần đo 0 lệch nhau; so mốc trước Phần V: chỉ thêm \texttt{data-wj-msg-*} + 2 sửa có chủ đích (tiêu đề khung giờ thi V4, danh mục hỗ trợ V7) $\Rightarrow$ cập nhật mốc \\
+DB vi\_VN \texttt{wujia\_t1} $\leftrightarrow$ \texttt{wujia\_vr} & field/help/selection/model/menu/action/arch: \textbf{0 chỗ VN $\to$ EN}, arch không mất term tiếng Việt \\
+Playwright vi/en/th $\times$ 1440/390 & 156 trang: 0 tràn ngang, 0 lỗi JS, 0 HTTP $\geq$ 400; chữ Việt còn trên en/th = dữ liệu + ``Tiếng Việt'' + 2 menu Khảo sát (module Thái) \\
+Độ phủ vi\_VN (\texttt{wujia\_i18n}) & Module portal 96,6--100\,\% (thiếu = chữ giống nhau 2 ngôn ngữ: PDF, ID, Email, chip ``i''); backend L2 41--95\,\% do field backend vốn tiếng Anh từ trước \\
+Suite 25 module (trừ core) & 1\,185 test: 2 đỏ $\to$ 1 sửa (test bảng BA), 1 do DB đo có sẵn kết quả quét cũ (\texttt{wujia\_i18n}); nhóm liên quan chạy lại 544/0 \\
+Mutation & 4/4 bị bắt \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Bỏ nhánh tra ngược nhãn tiếng Việt}
+
+Từ V2, \texttt{status\_badge\_for(label)} có một nhánh tạm. Nếu nhãn là tiếng Việt, nhánh này tra ngược \texttt{vi\_VN.po} ra câu EN
+để tô màu badge, cho các module chưa Việt hoá. Rà 8 module gọi hàm này thì thấy 2 chỗ vẫn truyền nhãn \emph{đã dịch}: Lịch sử đặt
+hàng (danh sách + chi tiết) và màn ``Đặt hàng thành công'' mobile. Ở vi\_VN, 2 chỗ này đúng màu chỉ nhờ nhánh tạm. Với th/zh sau
+J-T5, nhãn sẽ là tiếng Thái/Trung và badge rơi về màu xám.
+
+Sửa: Lịch sử lấy màu qua \texttt{portal\_order\_badge(order)} sẵn có. Màn kết quả dùng helper mới
+\texttt{portal\_order\_state\_badge(state)}, tính màu từ \texttt{\_lt}. Sau đó xoá nhánh tra ngược khỏi code chạy thật. Test chống lùi
+cần ``màu của nhãn tiếng Việt trước phiên'' làm đáp án, nên logic tra ngược chuyển sang \texttt{tests/common.py::legacy\_vn\_badge}
+(chỉ test dùng). Version: \texttt{portal\_base} 19.0.7.37.1, \texttt{portal\_sale} 19.0.5.1.1, \texttt{purchase\_history} 19.0.4.0.1,
+\texttt{portal\_delivery} 19.0.4.0.1.
+
+\subsection{Danh sách gửi đi}
+
+\begin{itemize}[nosep]
+\item \texttt{docs/i18n-review/ba-en-terms.csv}: 1\,361 cặp câu VN cũ $\to$ EN mới cho BA rà một lần. 10 dòng cần chốt: một câu
+  tiếng Việt đang có 2 câu tiếng Anh, ví dụ ``Khẩn cấp'' là \emph{Emergency} ở loại thông báo nhưng là \emph{Critical} ở ticket.
+\item \texttt{docs/i18n-review/thai-vn-hardcode.csv}: 284 chuỗi trong module anh Thái (18 dòng có gợi ý EN từ glossary).
+\item Báo anh Thái: \texttt{\#: web\_survey\_ui} trong \texttt{.po} của \texttt{wujia\_franchise\_inspection} làm mỗi lần \texttt{-u}
+  ghi 120 dòng ERROR; WJ-INSPECT-001 (trang Khảo sát không theo ngôn ngữ phiên).
+\end{itemize}
+
+\section{Bài học của cả Phần V}
+
+\begin{itemize}[nosep]
+\item Hàm tô màu theo \emph{nhãn} phải nhận câu gốc (\texttt{\_lt}), không nhận chữ đã dịch. Nếu không, màu chỉ đúng ở ngôn ngữ
+  có bảng tra ngược. Trả \texttt{(nhãn đã dịch, màu)} cùng một chỗ, đừng để caller tự tô từ nhãn đã dịch.
+\item Máy quét nhận tiếng Việt qua dấu, nên sót chữ không dấu và viết tắt (\texttt{Xem}, \texttt{Trang}, \texttt{SL}, \texttt{SP},
+  \texttt{T2}\ldots\texttt{CN}). Sau mỗi \texttt{sync} phải liệt kê msgid chưa dịch và grep danh sách viết tắt quen.
+\item Glossary dùng chung ghi đè bản dịch riêng của module. Luôn so \texttt{.po} cũ/mới bằng babel (chỉ đọc) và so bản dịch trong DB
+  (0 chỗ VN $\to$ EN), sửa \texttt{.po} bằng text.
+\item Bản dịch \texttt{model:} gắn theo xmlid: DB cũ vẫn hiện chữ Việt dù \texttt{.po} mới bỏ trống. Chỉ phép so DB mới bắt được.
+\item Đáp án test chống lùi phải là bảng viết cứng \emph{trước} phiên. So bằng \texttt{env.\_} cùng ngôn ngữ thì đột biến ``bỏ
+  \texttt{load\_vi}'' vẫn xanh.
+\item File xuất (XLSX), câu JS, \texttt{aria-label}, tiêu đề tab đều là chữ người dùng thấy, phải đi đường dịch như QWeb.
+\end{itemize}
+
+\section{Nợ để lại}
+
+\begin{itemize}[nosep]
+\item Deploy ★VR: \texttt{-u wujia\_portal\_base,wujia\_portal\_sale,wujia\_portal\_purchase\_history,wujia\_portal\_delivery} + restart.
+\item Backend L2 (support, knowledge, fleet, info\_request, exam, notification\ldots) còn field/view tiếng Anh chưa có bản vi (có từ
+  trước Phần V, không phải lùi). Làm bằng J-T5 hoặc một lượt riêng nếu chủ dự án cần backend tiếng Việt đủ.
+\item Template chết \texttt{wujia\_portal\_layout.signup\_form} / \texttt{forgot\_pass\_back} và trang gallery dev vẫn nằm trong
+  \texttt{.pot}. Xoá khi dọn layout.
+\item 284 chuỗi của anh Thái; zh/th thấy EN tới J-T5.
+\end{itemize}

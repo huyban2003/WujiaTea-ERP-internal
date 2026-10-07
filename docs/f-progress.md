@@ -2688,3 +2688,40 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Dọn: DB `wujia_v8h`/`v8t`/`v8b`/`v8r`/`v8bh`/`v8bn`/`v8bm`/`v8bc` + filestore, worktree scratchpad. Giữ `wujia_t1` tới hết Phần V.
 - Phiên kế: **★J-VR** — review Phần V (quét lại = 0 code team, vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi Thái danh sách chuỗi module Thái
   + lỗi `.po` zh/th `web_survey_ui`).
+
+## ★J-VR Review Phần V (Việt hoá source) · 07/10/2026 · Mac
+- Kết quả: ✅ xong — Phần V khép (V0 → ★VR), chapter 79 `chapters/79-sprint65-cluster-j-part-v.tex`, PDF build lại.
+- Đã làm:
+  - Quét lại: `vn_hardcode_scan` code team **0** / 24 module; Thái 284. msgid vi_VN chưa dịch MỚI so với trước Phần V (`d2966119`):
+    83, không chỗ nào người dùng thấy (gallery dev, template chết `signup_form`/`forgot_pass_back`, field backend, metabase).
+    Grep viết tắt không dấu bắt 1 chỗ: cột "SL" chi tiết chuyến giao mobile ⇒ "Qty" (vi giữ "SL"), `.po` sinh lại.
+  - Bỏ nhánh tra ngược nhãn VN `_legacy_vn_status_labels` trong `status_badge_for`. Rà 8 module gọi: Lịch sử đặt hàng (list +
+    chi tiết) và màn "Đặt hàng thành công" mobile còn tô màu từ nhãn ĐÃ DỊCH (vi đúng nhờ nhánh tạm, th/zh sau J-T5 sẽ ra xám) ⇒
+    PH dùng `portal_order_badge(order)`, sale dùng helper mới `portal_order_state_badge(state)`. Đáp án màu cũ cho test chuyển vào
+    `wujia_portal_base/tests/common.py::legacy_vn_badge` (7 file test đổi đáp án, không xoá assert). Test mới `test_jvr_badge` (sale,
+    vi/en cùng màu) + assert "Qty"/"SL" trong `test_jv8_i18n` delivery.
+  - Bump: portal_base 19.0.7.37.0 → **19.0.7.37.1**, portal_sale 19.0.5.1.0 → **19.0.5.1.1**, purchase_history 19.0.4.0.0 →
+    **19.0.4.0.1**, portal_delivery 19.0.4.0.0 → **19.0.4.0.1**.
+  - Danh sách gửi đi `docs/i18n-review/`: `ba-en-terms.csv` (1 361 cặp VN → EN, 10 dòng cần chốt 1 VN ↔ 2 EN), `thai-vn-hardcode.csv`
+    (284, 18 có gợi ý EN), `README.md` (+ lỗi `.po` `#: web_survey_ui` + WJ-INSPECT-001). Chưa gửi.
+  - Mốc `docs/i18n-baseline/vi_VN.json` cập nhật (54 trang, DB `wujia_vr`).
+- Commit: chưa commit
+- Deploy: chưa — lệnh: `-u wujia_portal_base,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery` + **restart**;
+  kiểm version DB 19.0.7.37.1 / 19.0.5.1.1 / 19.0.4.0.1 / 19.0.4.0.1.
+- Số đo (DB `wujia_vr` = copy `wujia_t1` + `-u` 26 module team):
+  - `wj_text_probe` vi_VN 54 trang: 2 lần 0/54 lệch; so mốc trước Phần V chỉ thêm `data-wj-msg-*` + 2 sửa có chủ đích (khung giờ thi V4,
+    danh mục hỗ trợ V7).
+  - So vi_VN DB `wujia_t1` ↔ `wujia_vr` (field/help/selection/model/menu/action/arch): **0 VN → EN**, arch 0 term VN mất.
+  - Playwright chỉ-đọc vi/en/th × 1440/390 × 26 route = **156 trang: 0 tràn, 0 lỗi JS, 0 HTTP ≥400**. Chữ Việt trên en/th = dữ liệu +
+    "Tiếng Việt" + 2 menu Khảo sát (Thái).
+  - Độ phủ vi_VN (`wujia_i18n`): portal 96,6–100 % (thiếu = PDF/ID/Email/chip "i"); backend L2 41–95 % (field backend tiếng Anh có từ
+    trước); th 1,4 %, zh 1,0 % (chờ J-T5).
+  - Suite 25 module (trừ core) `--test-enable`: 1 185 test, 2 đỏ ⇒ `e2b` bảng nhãn BA đổi đáp án sang `legacy_vn_badge`; `wujia_i18n`
+    `test_scan_reads_db_and_code_terms` đỏ do DB đo có sẵn kết quả quét cũ (120 × 3 ngôn ngữ) — không do code. Chạy lại nhóm liên quan
+    (portal_base/exam/debt/return/support/info_request + `wujia_jvr` + `wujia_home_order_status`): **544/0**; delivery 22/0.
+  - Mutation trên snapshot: PH về nhãn đã dịch · sale về nhãn đã dịch · khôi phục tra ngược · trả "SL" ⇒ **4/4 bị bắt**.
+- Lệch plan / quyết định mới: không so ảnh pixel vi (không có ảnh mốc) — thay bằng probe chữ + Playwright layout; ghi LIMIT.
+- Nợ để lại: deploy ★VR; gửi 2 danh sách (BA, Thái) khi chủ dự án duyệt; backend L2 thiếu bản vi (có từ trước); xoá template chết
+  layout; DB `wujia_t1` + `wujia_vr` còn giữ (chờ chủ dự án cho xoá).
+- Bài học: `next-session-clusters-J.md` §6 "★J-VR".
+- Phiên kế: **J-T4** — nhập/xuất CSV kiểu Thái + zip `.po`/`.pot` (`wujia_i18n`, scripts).

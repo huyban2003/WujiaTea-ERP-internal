@@ -10,8 +10,8 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     DEFAULT_STATE_META,  # noqa: F401 — re-export cho script/test cũ đọc qua module này
     DELIVERY_NEUTRAL_STATUSES, DELIVERY_OVERRIDE_META, SALE_STATE_META,
     build_pager, date_range_error, local_day_range_utc,
-    portal_line_price_vals, portal_money, portal_order_state_meta, portal_order_status,
-    portal_tax_mapper, portal_tz, to_local_dt, status_badge_for,
+    portal_line_price_vals, portal_money, portal_order_badge, portal_order_state_meta, portal_order_status,
+    portal_tax_mapper, portal_tz, to_local_dt,
 )
 
 
@@ -109,7 +109,7 @@ def _history_row_vals(order, line_count_map, batch_status_labels, tz):
         'status_type': status_type,
         # CMP-SB-001: variant lấy từ NHÃN qua map dùng chung — PC và mobile
         # cùng một giá trị, hết cảnh "Đã xác nhận" xanh lá ở mobile / xanh dương ở PC.
-        'badge': status_badge_for(label),
+        'badge': portal_order_badge(order)[1],
         'amount_total': order.amount_total,
         'currency_symbol': order.currency_id.symbol or '',
         'currency_decimals': order.currency_id.decimal_places or 0,
@@ -163,7 +163,7 @@ def _history_detail_vals(order, batch_status_labels, tz):
         'status_type': status_type,
         # CMP-SB-001: variant lấy từ NHÃN qua map dùng chung — PC và mobile
         # cùng một giá trị, hết cảnh "Đã xác nhận" xanh lá ở mobile / xanh dương ở PC.
-        'badge': status_badge_for(label),
+        'badge': portal_order_badge(order)[1],
         'amount_total': order.amount_total,
         'currency_symbol': order.currency_id.symbol or '',
         'currency_decimals': order.currency_id.decimal_places or 0,

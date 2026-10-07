@@ -13,14 +13,14 @@ import re
 
 from lxml import etree
 
-from odoo.addons.wujia_portal_base.controllers.utils import (
-    STATUS_BADGE_VARIANTS,
-    status_badge_for,
-)
+from odoo.addons.wujia_portal_base.controllers.utils import STATUS_BADGE_VARIANTS
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
-# Bậc BA chốt cho nhãn mới của E2b (tab UI Component + spec CMP-SB-001).
+from .common import legacy_vn_badge
+
+# Bậc BA chốt cho nhãn mới của E2b (tab UI Component + spec CMP-SB-001). Nhãn theo chữ vi_VN của spec ⇒
+# ★J-VR: so qua `legacy_vn_badge` (câu EN có bản dịch vi = nhãn này ⇒ màu đó).
 BA_LABEL_VARIANT = {
     'Chưa đọc': 'info', 'Đã đọc': 'neutral', 'Đã hết hiệu lực': 'neutral',
     'Chờ duyệt': 'pending', 'Đã đăng ký': 'info', 'Đã công bố': 'success',
@@ -66,7 +66,7 @@ class TestStatusBadgeRemainder(TransactionCase):
     # --- 1. nhãn mới đúng bậc BA ------------------------------------------
     def test_new_labels_carry_the_ba_variant(self):
         for label, variant in BA_LABEL_VARIANT.items():
-            self.assertEqual(status_badge_for(label), 'wj-status-badge--%s' % variant,
+            self.assertEqual(legacy_vn_badge(label), 'wj-status-badge--%s' % variant,
                              '%s phải là %s theo bậc BA' % (label, variant))
 
     # --- 2. map của từng module lấy class từ nguồn chung --------------------

@@ -39,9 +39,9 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     parse_page_size,
     portal_line_price_vals,
     portal_money,
+    portal_order_state_badge,
     portal_tax_mapper,
     rate_limit,
-    status_badge_for,
 )
 from odoo.addons.wujia_portal_sale.models.wujia_portal_cart import PortalOrderError
 # Nhãn trạng thái SO dùng CHUNG với trang Lịch sử đặt hàng — không nhân bản dict
@@ -865,7 +865,7 @@ class WujiaPortalSale(http.Controller):
             'order_has_tax': bool(order.currency_id.compare_amounts(order.amount_tax, 0.0)),
             'order_state_label': label,
             'order_status_type': status_type,
-            'order_status_badge': status_badge_for(label),  # CMP-SB-001
+            'order_status_badge': portal_order_state_badge(order.state),  # CMP-SB-001 — màu từ `_lt`, không từ nhãn đã dịch
             **self._order_window_context(franchise),
         })
 

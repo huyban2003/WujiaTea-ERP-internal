@@ -9,7 +9,7 @@ from odoo.tests import tagged
 from odoo.tests.common import HttpCase, TransactionCase
 
 from odoo.addons.wujia_info_request.models.wujia_info_update_request import REQUEST_TYPE
-from odoo.addons.wujia_portal_base.controllers.utils import status_badge_for
+from odoo.addons.wujia_portal_base.tests.common import legacy_vn_badge
 from odoo.addons.wujia_portal_info_request.controllers import portal as ctrl
 
 from .common import load_vi
@@ -72,7 +72,7 @@ class TestJv8bInfoRequestLabels(TransactionCase):
                 lazy, css = ctrl.STATE_LABELS[state]
                 self.assertEqual(self.env_vi._(lazy), old)
                 # Màu badge trước phiên tính từ nhãn VN — phải trùng màu tính từ nhãn EN.
-                self.assertEqual(css, status_badge_for(old))
+                self.assertEqual(css, legacy_vn_badge(old))
                 self.assertFalse(VN_CHARS.search(lazy._source))
 
     def test_error_messages_vi_unchanged(self):

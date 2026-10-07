@@ -11,6 +11,7 @@ from odoo.tests import tagged
 from odoo.tests.common import HttpCase, TransactionCase
 
 from odoo.addons.wujia_portal_base.controllers.utils import status_badge_for
+from odoo.addons.wujia_portal_base.tests.common import legacy_vn_badge
 from odoo.addons.wujia_return.tests.common import JPEG, ReturnFixture
 
 from .common import load_vi
@@ -81,7 +82,7 @@ class TestJv6Labels(TransactionCase):
                 self.assertEqual(self.env_vi._(lazy), old)
                 self.assertEqual(self.env_en._(lazy), lazy._source)
                 # Màu không đổi so với nhãn VN cũ (câu EN có trong _STATUS_TERMS_BY_VARIANT).
-                self.assertEqual(css, status_badge_for(old))
+                self.assertEqual(css, legacy_vn_badge(old))
                 self.assertEqual(status_badge_for(lazy._source), css)
 
     def test_filter_all_and_pager_label(self):
@@ -222,7 +223,7 @@ class TestJv6PortalByLang(HttpCase, ReturnFixture):
         for word in ('Phương án xử lý', 'Tình trạng bù', 'Chưa xử lý', 'Không có ghi chú.'):
             self.assertNotIn(word, en)
         # Badge giữ màu cũ ở cả hai ngôn ngữ.
-        css = status_badge_for(COMP_STATUS_VI['none'])
+        css = legacy_vn_badge(COMP_STATUS_VI['none'])
         self.assertIn('wj-status-badge %s' % css, vi)
         self.assertIn('wj-status-badge %s' % css, en)
         self.assertIn('1 ảnh đính kèm', _text(vi))

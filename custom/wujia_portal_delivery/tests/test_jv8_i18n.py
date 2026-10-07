@@ -69,7 +69,8 @@ class TestJv8DeliveryLabels(TransactionCase):
             'wujia_portal_delivery.portal_delivery_results_part': ('chuyến · Mới nhất trước', 'Xem'),
             'wujia_portal_delivery.portal_delivery_tracking': (
                 'Tìm mã chuyến / mã SO', 'Trạng thái', 'Tất cả trạng thái', 'Sắp giao', 'Đang giao', 'Đã giao'),
-            'wujia_portal_delivery.portal_delivery_detail': ('STT',),
+            # ★J-VR: cột số lượng mobile — vi giữ "SL", en "Qty" (máy quét sót chữ viết tắt không dấu).
+            'wujia_portal_delivery.portal_delivery_detail': ('STT', '<span class="qt">SL</span>'),
         }
         for xmlid, words in cases.items():
             view = self.env.ref(xmlid)
@@ -80,6 +81,7 @@ class TestJv8DeliveryLabels(TransactionCase):
                 self.assertFalse(VN_CHARS.search(arch_en), VN_CHARS.findall(arch_en)[:5])
                 self.assertNotIn('>Xem<', arch_en)
                 self.assertNotIn('>STT<', arch_en)
+                self.assertNotIn('>SL<', arch_en)
 
 
 @tagged('post_install', '-at_install', 'wujia_delivery_c5', 'wujia_jv8')

@@ -15,7 +15,7 @@ from werkzeug.exceptions import Forbidden, TooManyRequests
 from werkzeug.utils import secure_filename
 
 from odoo import _
-from odoo.tools.translate import LazyGettext, LazyTranslate, code_translations
+from odoo.tools.translate import LazyGettext, LazyTranslate
 from odoo.exceptions import ValidationError
 from odoo.http import request
 
@@ -489,28 +489,14 @@ STATUS_VARIANT_BY_LABEL = {
 }
 
 
-_UY_OLD, _UY_NEW = 'u' + chr(0x1EF7), chr(0x1EE7) + 'y'
-
-
-@functools.cache
-def _legacy_vn_status_labels():
-    """Câu tiếng Việt → câu gốc EN, dựng ngược từ i18n/vi_VN.po (không viết lại chữ VN trong code).
-
-    TẠM cho module portal_* chưa qua Phần V (V3–V8) còn truyền nhãn tiếng Việt viết cứng;
-    ★J-VR xoá khi mọi nhãn đã là `_lt()`.
-    """
-    vi = code_translations.get_python_translations('wujia_portal_base', 'vi_VN')
-    return {vi[k]: k for k in STATUS_VARIANT_BY_LABEL if vi.get(k)}
-
-
 def _status_label_key(label):
-    """Khoá EN của một nhãn: `_lt()` ⇒ câu gốc; chuỗi EN giữ nguyên; chuỗi VN cũ ⇒ tra ngược .po."""
+    """Khoá EN của một nhãn: `_lt()` ⇒ câu gốc; chuỗi khác giữ nguyên.
+
+    Nhãn ĐÃ DỊCH (vi/th/zh) không tra được ⇒ neutral: caller phải truyền `_lt` (★J-VR bỏ nhánh tra ngược vi_VN.po).
+    """
     if isinstance(label, LazyGettext):
         return label._source
-    if label in STATUS_VARIANT_BY_LABEL:
-        return label
-    # "huỷ" và "hủy" là một chữ (hai cách bỏ dấu, portal_support còn dùng cách cũ) — .po chỉ giữ "hủy".
-    return _legacy_vn_status_labels().get((label or '').replace(_UY_OLD, _UY_NEW), label)
+    return label
 
 
 def status_badge(variant):
@@ -523,7 +509,7 @@ def status_badge(variant):
 def status_badge_for(label, default='neutral'):
     """Class modifier theo NHÃN hiển thị — dùng khi màn chưa có key ngữ nghĩa.
 
-    Nhận `_lt()`, câu gốc EN, hoặc câu tiếng Việt cũ của module chưa Việt hoá source.
+    Nhận `_lt()` hoặc câu gốc EN — KHÔNG nhận nhãn đã dịch (màu phải giống nhau ở mọi ngôn ngữ).
     """
     return status_badge(STATUS_VARIANT_BY_LABEL.get(_status_label_key(label), default))
 
@@ -561,6 +547,11 @@ def portal_order_state_meta(state):
     """(label, status_type) — label đã dịch theo ngôn ngữ request."""
     label, status_type = SALE_STATE_META.get(state, DEFAULT_STATE_META)
     return str(label), status_type
+
+
+def portal_order_state_badge(state):
+    """Class badge theo state SO — tính từ `_lt`, không từ nhãn đã dịch của portal_order_state_meta."""
+    return status_badge_for(SALE_STATE_META.get(state, DEFAULT_STATE_META)[0])
 
 
 def _portal_order_meta(order):

@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-07 · **CỤM J — PHẦN V XONG V1–V8b (J-V8a `dbd4335b` + J-V8b đã push, chờ deploy)** · trước đó: J-V0 quy ước Việt hoá + công cụ; J-T1+T2 TOOL DỊCH `wujia_i18n`. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **★J-VR** (review Phần V).
+**Cập nhật:** 2026-10-07 · **CỤM J — PHẦN V KHÉP (★J-VR xong, chapter 79; V3–V8b đã lên UAT, ★VR chưa commit/deploy)** · trước đó: J-V0…V8b Việt hoá source; J-T1+T2 TOOL DỊCH `wujia_i18n`. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-T4** (nhập/xuất CSV + zip `.po`).
 
 ---
 
@@ -83,6 +83,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 | Sprint | Date | Outcome (1 dòng) |
 |---|---|---|
+| 65 | 10-05..10-07 | **Cụm J Phần V — Việt hoá source** (V0 → V1…V8b → ★VR): câu gốc code team 2 375 chuỗi tiếng Việt → tiếng Anh, vi_VN qua glossary ⇒ user vi thấy y cũ, en/th/zh hết lẫn tiếng Việt; V3–V8b đã lên UAT; ★VR bỏ nhánh tra ngược badge VN, danh sách BA/Thái `docs/i18n-review/`. → ch.79 |
 | 64 | 09-26..09-30 | **Cụm G — Issue List lứa 140–151** (G1 → G2 → G3a/b → H150/151 → review UAT → G5 → G6; G4 ⏸): mật độ mobile 143/145/144 `fcce811` · dải cửa hàng + top bar PC 141/140 `6745671` · Home PC V4 142 `160d13e`+`d8f89bf` · Home giống Lịch sử 150/151 `0cd1f0a` · hộp xác nhận gửi đơn 148 + lọc gửi lại 11 màn 147 `887da0a` · Ngày xác nhận 149 `9efa67f`. Mỗi lượt deploy UAT + đo chỉ-đọc, 11 ID → Ready for Retest. Chapter 78. |
 | 63 | 09-25..09-26 | **Cụm F khối A — tách 7 phân hệ khỏi `wujia_portal_*` thành module nghiệp vụ L2 + controller mỏng** (F6 → F7 → ★FR-P → F8–F13 → ★FR-A), mỗi phiên 1 deploy UAT, 0 lệch dữ liệu: `wujia_order_window` · `_info_request` · `_knowledge` · `_support` · `_notification` · `_exam` · `_return`; luật portal một nguồn ở model (Home dùng chung); hook đổi chủ `wujia_core/tools/module_split.py`; `check_layers` 0 vi phạm Dev; query Δ0; suite 822 → **914/0/0**. **ADR-027 chốt.** → ch.77 |
 | 62 | 09-17..09-18 | **Cổng F chuẩn hoá kiến trúc portal** (F0 → F1 → F2 → F3 → F4 → ★FR-B → F5a → F5b → ★FR-A3), 0 tính năng, gần như 0 pixel. CSS 1 màn ở `portal_layout` 193 → 26 · rule đổi dáng 41 → 8 · 24 mục điều hướng về module sở hữu route · test cross-module của khung 236 → 0 · DB trắng chỉ cài khung chạy được 129/129 · `check_layers` thêm R6/R7 · vá 2 lỗi tầng 500 có từ trước. FR-A3 kết luận **mở lại Issue List**. → ch.76 |
@@ -123,6 +124,8 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-10-07 · ★J-VR) — PHẦN V KHÉP; CHƯA COMMIT/DEPLOY.** Review cả Phần V trên DB `wujia_vr` (copy `wujia_t1` + `-u` 26 module team): quét code team 0 (Thái 284); vi_VN 54 trang 0 lệch ngoài 2 sửa có chủ đích (mốc `docs/i18n-baseline/vi_VN.json` cập nhật); DB 0 VN → EN; Playwright vi/en/th × 1440/390 156 trang 0 tràn/0 JS/0 ≥400; độ phủ vi portal 96,6–100 %. Sửa: cột "SL" chi tiết chuyến mobile → "Qty"; **bỏ nhánh tra ngược nhãn VN của `status_badge_for`** — Lịch sử + màn Đặt hàng thành công còn tô màu từ nhãn đã dịch (th/zh sau J-T5 sẽ ra xám) ⇒ `portal_order_badge` / helper mới `portal_order_state_badge`; đáp án test = `tests/common.py::legacy_vn_badge`. Version portal_base 19.0.7.37.1 · portal_sale 19.0.5.1.1 · purchase_history 19.0.4.0.1 · portal_delivery 19.0.4.0.1. Suite 1 185 test (2 đỏ: 1 sửa, 1 do DB đo) → nhóm liên quan 544/0; mutation 4/4. Danh sách `docs/i18n-review/` (BA 1 361 cặp, Thái 284 + lỗi `.po` `web_survey_ui`) — chưa gửi. Chapter 79 `chapters/79-sprint65-cluster-j-part-v.tex`. **Pending:** commit + deploy ★VR (`-u` 4 module + restart) · gửi 2 danh sách · backend L2 thiếu bản vi (có từ trước) → J-T5 · **J-T4** → J-T5 → J-O → ★JR → Issue List (10 Ready for Dev, STT 156–168).
 
 **State (2026-10-07 · J-V8b) — PHẦN V (VIỆT HOÁ SOURCE) XONG V1–V8b, CHỈ CÒN ★J-VR.** Câu gốc source code team đã là tiếng Anh, vi_VN sinh từ `docs/i18n-glossary.csv` ⇒ user vi thấy y chữ cũ (`wj_text_probe` 0 lệch mỗi phiên), en/th/zh không lẫn tiếng Việt (th/zh thấy EN tới J-T5). Commit: V3 `baa5b547` (đã lên UAT) · V4 `359fe36c` (UAT) + `6129ca59` · V5 `2f9f5695` · V6 `b78c4568` · V7 `351932a8` (V3–V7 đã lên UAT, mốc `fa6a6835`) · V8a `dbd4335b` · V8b `02e363fc` — V8a + V8b đã push, **chờ deploy**. V8b: info_request + portal_info_request + portal_report (XLSX header theo ngôn ngữ, câu chart qua `data-wj-msg-*`) + core (không bump, `DEFAULT_BRAND_NAME` miễn quét) + metabase; suite 1014/0, mutation 8/8, 0 VN → EN. Bài học từng phiên: `next-session-clusters-J.md` §6. **Pending:** deploy V8a + V8b (lệnh ở mục J-V8b `f-progress.md`) · **★J-VR** (kèm báo Thái lỗi `.po` zh/th `web_survey_ui` của `wujia_franchise_inspection`) → J-T4 → J-T5 → J-O.
 

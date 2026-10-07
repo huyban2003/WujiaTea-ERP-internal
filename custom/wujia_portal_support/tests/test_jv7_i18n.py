@@ -9,7 +9,8 @@ import re
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase, TransactionCase
 
-from odoo.addons.wujia_portal_base.controllers.utils import status_badge, status_badge_for
+from odoo.addons.wujia_portal_base.controllers.utils import status_badge
+from odoo.addons.wujia_portal_base.tests.common import legacy_vn_badge
 from odoo.addons.wujia_support.tests.common import load_vi
 from odoo.addons.wujia_support.tests.test_support import SupportCommon
 
@@ -71,7 +72,7 @@ class TestJv7Labels(TransactionCase):
                 self.assertEqual(self.env_en._(lazy), lazy._source)
                 self.assertNotEqual(lazy._source, old)
                 # Màu y như khi nhãn còn là câu VN.
-                self.assertEqual(css, status_badge_for(old))
+                self.assertEqual(css, legacy_vn_badge(old))
 
     def test_mobile_badges_vi_unchanged_and_same_colour(self):
         from odoo.addons.wujia_portal_support.controllers.portal import MOBILE_TICKET_BADGES

@@ -37,3 +37,20 @@ def load_vi(env):
         ('name', 'in', ('wujia_portal_layout', 'wujia_portal_base')),
     ])._update_translations(['vi_VN'])
     return env(context=dict(env.context, lang='vi_VN'))
+
+
+_UY_OLD, _UY_NEW = 'u' + chr(0x1EF7), chr(0x1EE7) + 'y'
+
+
+def legacy_vn_badge(label):
+    """★J-VR — màu badge của một nhãn tiếng Việt CŨ, tra ngược `i18n/vi_VN.po` (chỉ dùng trong test).
+
+    Nhánh này từng nằm trong `status_badge_for` cho module chưa Việt hoá source; ★J-VR bỏ khỏi code chạy thật.
+    Test chống lùi Phần V vẫn cần "màu của nhãn VN trước phiên" làm đáp án ⇒ giữ ở đây.
+    "huỷ" và "hủy" là một chữ — .po chỉ giữ "hủy".
+    """
+    from odoo.tools.translate import code_translations
+    from ..controllers.utils import STATUS_VARIANT_BY_LABEL, status_badge_for
+    vi = code_translations.get_python_translations('wujia_portal_base', 'vi_VN')
+    by_vn = {vi[k]: k for k in STATUS_VARIANT_BY_LABEL if vi.get(k)}
+    return status_badge_for(by_vn.get((label or '').replace(_UY_OLD, _UY_NEW), label))

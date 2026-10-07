@@ -59,10 +59,10 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) + khối `_debt_copy_msgs` câu JS + đơn vị số rút gọn theo ngôn ngữ | debt | ✅ 06/10 — `2f9f5695` đã push, chờ deploy |
 | J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) + `_ret_line_msgs` câu JS + migration seed loại lỗi | return ×2 | ✅ 06/10 — `b78c4568` đã push, chờ deploy |
 | J-V7 | support (112+2) + knowledge (46+2) + notification (86+27) + migration seed loại thông báo + WJ-SUPPORT-003 | 6 module | ✅ 07/10 — `351932a8` đã push, chờ deploy |
-| J-V8a | purchase_history (99) + portal_delivery (93) + delivery (15) + fleet (11) — chủ dự án tách J-V8 làm đôi 07/10 | 4 module | ✅ 07/10 — `dbd4335b` đã push, chờ deploy |
-| J-V8b | info_request (85+7) + report (69) + core (9) + metabase (1). `wujia_core` sửa câu **không bump version** (tránh `-u wujia_core` kéo dây chuyền module Thái); `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét | 5 module | ✅ 07/10 — `02e363fc` đã push, chờ deploy |
-| **★J-VR** | **Phiên kế.** Review Phần V: quét lại = 0 (code team), vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi danh sách 284 chuỗi cho Thái | — | ☐ |
-| J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; script CLI gọi lại module | wujia_i18n, scripts | ☐ |
+| J-V8a | purchase_history (99) + portal_delivery (93) + delivery (15) + fleet (11) — chủ dự án tách J-V8 làm đôi 07/10 | 4 module | ✅ 07/10 — `dbd4335b` đã lên UAT 07/10 |
+| J-V8b | info_request (85+7) + report (69) + core (9) + metabase (1). `wujia_core` sửa câu **không bump version** (tránh `-u wujia_core` kéo dây chuyền module Thái); `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét | 5 module | ✅ 07/10 — `02e363fc` đã lên UAT 07/10 |
+| ★J-VR | Review Phần V: quét = 0, vi_VN 0 lệch, en/th 156 trang sạch, bỏ nhánh tra ngược badge VN, danh sách BA (1 361 cặp) + Thái (284) ở `docs/i18n-review/`, chapter 79 | portal_base, sale, purchase_history, delivery | ✅ 07/10 — chưa commit |
+| **J-T4** | **Phiên kế.** Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; script CLI gọi lại module | wujia_i18n, scripts | ☐ |
 | J-T5 | **Dịch tự động (DeepL)**: chọn ngôn ngữ (tự bật nếu chưa có) → dịch hàng loạt chuỗi chưa dịch → BA rà → Áp dụng (xem §6b) | wujia_i18n | ☐ |
 | J-O0 | Bảng đối chiếu CT-059…067 ↔ backend + danh sách màn + câu hỏi BA (0 code) | docs | ☐ |
 | J-O1 | Luật portal ở L2 (file mới `portal_rules.py`, báo Thái) | franchise_operations (thêm file) | ☐ |
@@ -351,6 +351,15 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
 - Log của `wujia_core` dời vào `<logfile dir>/<năm>/<tháng>/<ngày>.log` ⇒ đọc kết quả test ở đó, `--logfile=/dev/stderr` làm vỡ
   `odoo-bin shell`; zsh không tách từ `$var` trong vòng `for` ⇒ gọi tường minh.
 - DB đo cài thêm module (metabase) ⇒ số test lệch mốc HEAD; luôn đối chiếu danh sách test chứ không chỉ tổng.
+
+**★J-VR — ✅ 07/10: bài học cho J-T / ★JR**
+- Hàm tô màu theo nhãn (`status_badge_for`) chỉ nhận `_lt`/câu EN. Caller nào trả `(nhãn đã dịch, màu)` phải tính màu từ `_lt`
+  (`portal_order_badge`, `portal_order_state_badge`). Nhánh tra ngược vi_VN.po đã bỏ; đáp án màu cũ cho test = `tests/common.py::legacy_vn_badge`.
+- Grep viết tắt không dấu bắt được chỗ máy quét sót ("SL" ở chi tiết chuyến mobile); Odoo gộp 3 `<span>` thành 1 term nên `.po` vẫn có
+  bản vi nhưng en hiện "SL" ⇒ liệt kê msgid chưa dịch KHÔNG đủ, phải grep source.
+- msgid chưa dịch phải so với trước Phần V (`git show <mốc>:…/vi_VN.po`), nếu không 463 dòng backend tiếng Anh có từ trước che mất chỗ lùi thật.
+- DB đo chép từ DB đã từng quét bằng `wujia_i18n` ⇒ `test_scan_reads_db_and_code_terms` đỏ (đếm cả kết quả quét cũ) — không phải lỗi code.
+- Mốc `docs/i18n-baseline/vi_VN.json` cập nhật sau Phần V (54 trang, DB `wujia_vr`).
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

@@ -17,7 +17,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 )
 from odoo.addons.wujia_portal_base.models.wujia_franchise_member import ROLE_LABELS
 
-from .common import load_vi
+from .common import legacy_vn_badge, load_vi
 
 
 @tagged('post_install', '-at_install', 'wujia_jv2')
@@ -28,8 +28,11 @@ class TestStatusBadgeAnyLanguage(TransactionCase):
         self.assertEqual(status_badge_for(lazy), 'wj-status-badge--info')
         self.assertEqual(status_badge_for('Confirmed'), 'wj-status-badge--info')
 
-    def test_legacy_vietnamese_label_still_colored(self):
-        """portal_debt/exam/support… chưa Việt hoá source vẫn truyền nhãn VN lúc import."""
+    def test_translated_label_does_not_pick_colour(self):
+        """★J-VR: bỏ nhánh tra ngược vi_VN.po — nhãn đã dịch ra neutral, caller phải truyền `_lt`.
+
+        `legacy_vn_badge` (chỉ test) giữ đáp án màu cũ cho test chống lùi Phần V.
+        """
         cases = {
             'Đã xác nhận': 'info', 'Chờ xác nhận': 'pending', 'Đang giao': 'processing',
             'Hoàn tất': 'success', 'Có quá hạn': 'danger', 'Cần bổ sung': 'feedback',
@@ -37,11 +40,12 @@ class TestStatusBadgeAnyLanguage(TransactionCase):
         }
         for label, variant in cases.items():
             with self.subTest(label=label):
-                self.assertEqual(status_badge_for(label), 'wj-status-badge--' + variant)
+                self.assertEqual(status_badge_for(label), 'wj-status-badge--neutral')
+                self.assertEqual(legacy_vn_badge(label), 'wj-status-badge--' + variant)
 
     def test_both_spellings_of_cancelled(self):
-        """'huỷ' (portal_support) và 'hủy' cùng một chữ."""
-        self.assertEqual(status_badge_for('Đã huỷ'), 'wj-status-badge--danger')
+        """'huỷ' (portal_support cũ) và 'hủy' cùng một chữ trong đáp án màu cũ."""
+        self.assertEqual(legacy_vn_badge('Đã huỷ'), 'wj-status-badge--danger')
 
     def test_every_english_key_has_a_vietnamese_translation(self):
         vi = load_vi(self.env)

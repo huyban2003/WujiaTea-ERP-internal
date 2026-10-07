@@ -11,7 +11,7 @@ from datetime import date, timedelta
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase, TransactionCase
 
-from odoo.addons.wujia_portal_base.controllers.utils import status_badge_for
+from odoo.addons.wujia_portal_base.tests.common import legacy_vn_badge
 
 from .common import load_vi
 
@@ -70,7 +70,7 @@ class TestJv5Labels(TransactionCase):
                     self.assertEqual(en[key][0], lazy._source)
                     self.assertNotEqual(en[key][0], old)
                     # Màu không đổi so với nhãn VN cũ (không rơi về neutral).
-                    self.assertEqual(css, status_badge_for(old))
+                    self.assertEqual(css, legacy_vn_badge(old))
                     self.assertEqual(vi[key][1], css)
 
     def test_fallback_bank_and_method_follow_env_lang(self):
