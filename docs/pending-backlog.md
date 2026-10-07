@@ -3,43 +3,37 @@
 Một chỗ duy nhất liệt kê mọi việc còn treo, chia lô làm dần. Mỗi phiên: làm lô đầu bảng "Thứ tự làm", xong thì gạch ở đây +
 ghi `f-progress.md`. Nguồn gom: compact summary §5, `f-progress.md` (mục Nợ), chapter 74/77/78, `next-session-clusters-{H,J}.md`.
 
-## 1. Thứ tự làm (chủ dự án chốt 04–05/10)
+## 1. Thứ tự làm (chủ dự án chốt 04–05/10, sắp lại 07/10)
+
+> 07/10: cụm J Phần B + T + V **xong, đã lên UAT** (END-SPRINT 66, chapter 79 + 80). Phần O **pend theo ý BA**.
+> Issue List: 15 Ready for Dev gom thành **cụm I mở rộng** (11 phiên + ★IR), rồi cụm H.
 
 | # | Lô | Nội dung | Số phiên | Plan |
 |---|---|---|---|---|
-| 1 | **Phần V — Việt hoá source** | 2 659 chuỗi VN viết cứng → tiếng Anh + `.po` (~~V0~~ ~~V1~~ ✅ 05/10 → **V2** … V8 → ★VR) | 8 còn lại | `next-session-clusters-J.md` §6 |
-| 2 | J-T4 | Tool dịch: nhập/xuất CSV kiểu Thái + zip `.po/.pot` | 1 | `next-session-clusters-J.md` §5 |
-| 2b | ~~J-T5~~ ✅ 07/10 | Tool dịch: dịch tự động DeepL — chọn ngôn ngữ → dịch hàng loạt → rà → Áp dụng (`78a68ea5` đã push, chờ deploy; chưa có key thật) | 1 | `next-session-clusters-J.md` §6b |
-| 3 | J-O0…O4 + ★JR | Portal Vận hành nhượng quyền (O0 đối chiếu + câu hỏi BA → O1 luật → O2 → O3+O4 → review) — **tạm gác, chủ dự án hỏi BA trước (05/10)**; chưa có trả lời thì nhảy sang lô 4 | 5 | `next-session-clusters-J.md` §5 |
-| 4 | Issue List — cụm I | I1 #155 → I2 #62 → I3 #154 → I4a/b #152 → I5 #153 → ★IR | 6 | `next-session-clusters-H.md` §3 |
-| 5 | Issue List — 10 issue mới | STT 156, 157, 159, 160, 162–167 — **chưa phân cụm** (164, 167 dính ngôn ngữ ⇒ xem gộp vào Phần V) | ? | phân cụm ở đầu lô |
-| 6 | Cụm H | Chuẩn hoá component lượt 2 (H0–H10 + ★HR-1/2) | 12 | `next-session-clusters-H.md` |
+| ~~1~~ | ~~Phần V~~ ✅ 07/10 | Việt hoá source V0…V8b + ★VR — ch.79 | — | `next-session-clusters-J.md` §6 |
+| ~~2~~ | ~~J-T4 · J-T5 · J-T5b~~ ✅ 07/10 | Nhập/xuất `.po` + dịch máy DeepL (key thật đã chạy trên UAT) — ch.80 | — | `next-session-clusters-J.md` §6b |
+| **1** | **Issue List — cụm I mở rộng** | I1 #155 → I2 #156 → I3 #154 → I4a #152 → I4b #152+#157 → I5 #153 → I6 #159 → I7 #62+#163 → I8 #160+#162+#166 → I9 #167+#164 → I10 #168+H2 → ★IR | 12 | `next-session-clusters-H.md` §2–3 |
+| 2 | Cụm H | Chuẩn hoá component lượt 2 (H0, H1, H3 → ★HR-1 chờ BA 19 câu → H4–H10 → ★HR-2; H2 đã gộp vào I10) | 11 | `next-session-clusters-H.md` |
+| ⏸ | J-O0…O4 + ★JR | Portal Vận hành — **pend theo ý BA (07/10)**, mở lại khi BA trả lời §3 "Vận hành" | 5 | `next-session-clusters-J.md` §5 |
 
 Issue List vẫn là task thường trực: đầu mỗi phiên chạy `issue_queue.py --dev`; issue **Retest Failed** / Severity High mới thì báo
 chủ dự án trước khi làm lô kế.
 
 ## 2. Chờ lệnh chủ dự án (làm được ngay khi có lệnh)
 
-- [x] ~~Commit J-T1+T2~~ — `ba08698e`, đã push 05/10.
-- [x] ~~Commit J-V0~~ — `d2966119`, đã ở `origin/main`.
-- [ ] **Commit J-V1** (`wujia_portal_layout` 19.0.60.2.0 + `i18n/` mới + glossary +171 + pairs + mốc vi_VN + `vn_hardcode_scan.py`).
-- [ ] **Deploy UAT J-V1**: nằm sẵn trong lệnh `-u` J-B2 (`wujia_portal_layout`) — **phải restart** sau `-u` (chuỗi `_()` đọc `.po` lúc nạp).
-- [ ] **Deploy UAT J-V0**: gộp vào lệnh `-i wujia_i18n` (tự bật zh_CN) (`wujia_portal_layout` đã có trong lệnh `-u` J-B2 ⇒ không thêm lệnh).
-- [ ] **Deploy UAT J-B2**: `-u wujia_core,wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_sale,wujia_portal_exam,`
-      `wujia_portal_return,wujia_portal_support,wujia_portal_delivery,wujia_portal_notification,wujia_portal_purchase_history,wujia_return`.
-- [ ] **Deploy UAT J-T1+T2**: `-i wujia_i18n` → app "Bản dịch" → Quét chuỗi.
-- [ ] **Deploy J-T5** (`78a68ea5` đã push): `-u wujia_i18n` (19.0.1.3.0) + restart; kiểm menu Translation Tool có Machine translate / Glossary /
-      Settings, cron "machine translation queue" có mặt. Sau khi có key: nhập Settings → wizard th_TH 1 module nhỏ → rà.
-- [ ] **Top bar PC 992 (`bea5fa8`)**: đã push `origin/main`; **chưa xác nhận đã deploy UAT** ⇒ deploy `-u wujia_portal_layout,wujia_portal_base`
-      + đo chỉ-đọc 992/993/1000/1199 với `em.hcm`.
+- [x] ~~Commit + deploy J-B1/B2, J-T1…T5, J-V0…★VR, top bar 992 (`bea5fa8`)~~ — kiểm chỉ-đọc UAT 07/10: `wujia_core` 19.0.2.1.1 ·
+      `wujia_portal_layout` 19.0.60.4.0 · `wujia_portal_base` 19.0.7.37.1 · `wujia_portal_sale` 19.0.5.1.1 · `wujia_i18n` 19.0.1.3.0 — khớp repo.
+- [ ] **Tool dịch — chuỗi code th/zh**: nút "Export .po for code strings" (th còn 276 chuỗi `_()` chờ) → commit → `-u wujia_i18n` + restart;
+      sửa tay 2 câu dịch máy bị chặn (zh exam QWeb "HTML tags changed", th sale `On %s`).
+- [ ] Gửi BA 1 361 cặp câu + gửi anh Thái 284 chuỗi + lỗi `.po` `web_survey_ui` (`docs/i18n-review/`).
 
 ## 3. Chờ BA / chủ dự án trả lời
 
 | Chủ đề | Câu hỏi | Chặn lô |
 |---|---|---|
 | ~~Phần V~~ | ✅ chốt 05/10 (§6 plan J): JS qua `data-wj-msg-*` · mặc định vi_VN · bật hết vi/en/th/zh · EN không cần BA duyệt, ZH/TH DeepL — **gửi BA 1 danh sách câu cần sửa ở ★VR** | — |
-| Vận hành | Chấm công/nghỉ phép có trong portal? · duyệt ca (cửa hàng/HQ) · Staff xem gì · gắn nhân viên ↔ tài khoản portal · spec Model Field mục G lệch backend · Figma | J-O0 |
-| Dịch tự động | ~~Free/Pro, đồng ý gửi~~ (07/10: chưa có key, J-T5 code xong bằng giả lập) · **chủ dự án tạo key DeepL** rồi nhập Settings → smoke thật 1 lô nhỏ · ai rà th/zh | dùng thật J-T5 |
+| Vận hành (**pend theo BA 07/10**) | Chấm công/nghỉ phép có trong portal? · duyệt ca (cửa hàng/HQ) · Staff xem gì · gắn nhân viên ↔ tài khoản portal · spec Model Field mục G lệch backend · Figma | J-O0 |
+| Dịch tự động | ~~key DeepL~~ ✅ đã nhập UAT, smoke thật 07/10 đạt · **ai rà bản th/zh** | rà bản dịch máy |
 | ADR-027 | 7 câu hỏi BA (chapter 74 §Câu hỏi) | áp `auto_install` |
 | Chuẩn component | 19 câu "CẦN BA CHỐT" (`ba-component-spec-proposal.xlsx`) + gửi 2 PDF chuẩn component | cụm H |
 | Issue #146 (G4) | Routing `/` — BA đã xoá dòng khỏi sheet, chờ BA mở lại | — |

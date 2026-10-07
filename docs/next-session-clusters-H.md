@@ -62,14 +62,37 @@ Số liệu B4–B10 chi tiết: `docs/ba-component-spec-proposal.pdf` (cột Hi
 
 Luật BA 01/10: dữ liệu chỉ theo **một** cửa hàng đang chọn; quyền theo **role tại cửa hàng đó**.
 
+### D. 10 issue mới (BA thêm 03–04/10) — phân cụm 07/10, gộp vào cụm I
+
+Reconcile 07/10: 0 commit / 0 dòng `custom/` / 0 ledger cho cả 10 ⇒ chưa fix. ⚠ **BA dùng lại ID** `WJ-EXAM-001` (#157) và
+`WJ-NOTI-001` (#159) — ledger đã có entry 08/2026 cùng key ⇒ khi đóng phải **thay** entry cũ, kiểm `qa_sync --dry-run` ghi đúng dòng.
+
+| STT | ID | Sev | Tóm tắt | Phiên |
+|---|---|---|---|---|
+| 156 | WJ-RETURN-001 | High | Hạn 10 ngày tính từ lúc **giao hoàn tất toàn bộ** (không phải ngày đặt); bỏ Lưu nháp PC + mobile; endpoint không tạo được phiếu nháp | I2 |
+| 157 | WJ-EXAM-001 | Med | Chưa chọn cửa hàng ⇒ nhắc chọn (không "Chưa có đăng ký thi"); nhãn "Chờ xác nhận" thống nhất; "Có kết quả" tách khỏi trạng thái phiếu | I4b |
+| 159 | WJ-NOTI-001 | High | Đã đọc: thông báo toàn hệ theo user, thông báo riêng theo user + cửa hàng; một luật số chưa đọc (Home/chuông/hộp/lọc); migration | I6 |
+| 163 | WJ-PH-009 | Med | Chi tiết đơn PC thiếu "Ghi chú khi đặt hàng" (mobile có) | I7 |
+| 160 | WJ-ORD-032 | Med | Chi tiết SP mobile: hàng Số lượng / Thêm vào giỏ / Xem giỏ tràn 64px | I8 |
+| 162 | WJ-SUPPORT-002 | Med | Chi tiết phiếu hỗ trợ mobile thiếu nội dung gốc | I8 |
+| 166 | WJ-EXAM-008 | Low | Modal Thêm người: "Ảnh đã được chọn" + "Chưa chọn ảnh" hiện cùng lúc | I8 |
+| 167 | WJ-LANG-002 | Low | Cờ ngôn ngữ đang chọn trên header PC bị co (en 4×15px) — giữ ~20×15 | I9 |
+| 164 | WJ-INSPECT-001 | Low | `/portal/inspection*` hiện cờ/nhãn English khi phiên đang vi_VN | I9 |
+| 168 | UI-LISTCARD-002 | Low | ListCard: token chữ title/label/value + 2 họ badge lệch line-height | I10 (+H2) |
+
 ---
 
 ## 2. Lộ trình
 
+> **Sắp lại 07/10** (chủ dự án: Phần O cụm J pend theo BA ⇒ sang Issue List; #62 Dev nhận). Cụm I mở rộng thành 11 phiên,
+> gom 15 issue. Nguyên tắc: High độc lập làm sớm · issue dùng luật "một cửa hàng đang chọn" xếp **sau** I4 · gom theo module
+> để mỗi phiên một lần `-u` · issue trước H. H2 gộp vào I10 (cùng đụng `wujia-badge`).
+
 ```
-I0 push+deploy top bar (tay) ─► I1 #155 ─► I2 #62 ─► I3 #154 ─► I4a #152 ─► I4b #152 ─► I5 #153 ─► ★IR
+I1 #155 ─► I2 #156 ─► I3 #154 ─► I4a #152 ─► I4b #152+#157 ─► I5 #153 ─► I6 #159 ─► I7 #62+#163
+        ─► I8 #160+#162+#166 ─► I9 #167+#164 ─► I10 #168+H2 ─► ★IR
                                                                                               │
-H-A (không cần BA): H0 công cụ ─► H1 code chết ─► H2 StatusBadge sót ─► H3 CSS trang ─► ★HR-1 ◄┘
+H-A (không cần BA): H0 công cụ ─► H1 code chết ─► H3 CSS trang ─► ★HR-1 ◄────────────────────┘
                                                                                      │ (+ BA trả kết quả duyệt spec)
 H-B (sau BA duyệt):  H4 EmptyState ─► H4b Badge ─► H5 DetailSummary ─► H6 InfoBanner ─► H7 StatCard
                      ─► H8 Modal ─► H9 FormField ─► H10a/b Đăng ký thi PC ─► ★HR-2
@@ -80,17 +103,22 @@ luôn chen trước H (Step 2b `/wujia-start`).
 
 | Phiên | Nội dung | Module `-u` | Rủi ro | Trạng thái |
 |---|---|---|---|---|
-| I0 | Push `bea5fa8` + deploy top bar 992 + đo chỉ-đọc UAT (chủ dự án làm tay) | layout, base | Thấp | ☐ |
+| ~~I0~~ | Push `bea5fa8` + deploy top bar 992 — **đã có trên UAT** (portal_layout 19.0.60.4.0 khớp repo, đo chỉ-đọc 07/10) | layout, base | Thấp | ✅ |
 | I1 | #155 WJ-ORD-031 danh mục Portal bắt buộc khi công khai | wujia_sale, portal_sale | Thấp | ☐ |
-| I2 | #62 WJ-PH-003 Lịch sử gồm đơn Đã hủy (xác nhận Owner trước) | portal_purchase_history, portal_base | Thấp | ☐ |
+| I2 | #156 WJ-RETURN-001 hạn đổi trả tính từ giao hoàn tất + bỏ Lưu nháp | wujia_return (L2), portal_return | TB | ☐ |
 | I3 | #154 WJ-ORD-030 khung giờ nhiều khu vực (M2M + migration) | order_window, portal_sale, portal_base | Cao (schema) | ☐ |
 | I4a | #152 helper scope một nguồn + Home · Giao hàng · Báo cáo (+ export) | base, delivery, report | Cao | ☐ |
-| I4b | #152 Đổi trả · Yêu cầu cập nhật · Hỗ trợ · Thông báo · Công nợ + bàn giao màn Khảo sát | return, info_request, support, notification, debt | Cao | ☐ |
+| I4b | #152 Đổi trả · Yêu cầu cập nhật · Hỗ trợ · Thông báo · Công nợ + bàn giao màn Khảo sát **+ #157 WJ-EXAM-001** | return, info_request, support, notification, debt, portal_exam | Cao | ☐ |
 | I5 | #153 role theo cửa hàng đang chọn, chặn backend + ẩn menu/nút | base, report, debt, info_request, layout (nav) | Cao | ☐ |
+| I6 | #159 WJ-NOTI-001 phạm vi đã đọc + một luật số chưa đọc (migration dấu đọc) | wujia_notification (L2), portal_notification, portal_base | Cao | ☐ |
+| I7 | #62 WJ-PH-003 Lịch sử gồm đơn Đã hủy (Dev nhận 07/10) + #163 WJ-PH-009 ghi chú đặt hàng PC | portal_purchase_history, portal_base | Thấp | ☐ |
+| I8 | #160 WJ-ORD-032 · #162 WJ-SUPPORT-002 · #166 WJ-EXAM-008 — lệch PC↔mobile nhỏ | portal_sale, portal_support, portal_exam | Thấp | ☐ |
+| I9 | #167 WJ-LANG-002 cờ ngôn ngữ PC + #164 WJ-INSPECT-001 ngôn ngữ trang Khảo sát | portal_layout (+ bàn giao Thái) | Thấp | ☐ |
+| I10 | #168 UI-LISTCARD-002 typography ListCard + badge **(gộp H2)** | layout + module màn | TB | ☐ |
 | **★IR** | **Review cụm I: ma trận role × store × route bằng máy + ảnh** | 0 / vá nhỏ | — | ☐ |
 | H0 | `scripts/qa/wj_cmp_audit.py` + test bánh cóc (họ legacy không tăng) | layout (test) | Thấp | ☐ |
 | H1 | Dọn code chết B1 | layout | Thấp | ☐ |
-| H2 | StatusBadge sót B2 + mở guard ra mọi module portal | return, info_request, base (test) | Thấp | ☐ |
+| ~~H2~~ | StatusBadge sót B2 + mở guard ra mọi module portal — **gộp vào I10** | return, info_request, base (test) | Thấp | → I10 |
 | H3 | Dời ~800 dòng CSS trang khỏi `_components.css` | layout, base, sale | TB | ☐ |
 | H-SPEC | Đề xuất spec 7 dòng gửi BA | 0 | — | ✅ 02/10 — `docs/ba-component-spec-proposal.pdf` (chờ BA) |
 | **★HR-1** | **Review H0–H3 + nhận kết quả BA duyệt** | 0 / vá nhỏ | — | ☐ |
@@ -122,7 +150,7 @@ Dán **sau `/wujia-start`**. Áp cho MỌI phiên (prompt không nhắc lại):
   → `--apply`; tối đa `Ready for Retest`.
 - Chưa được yêu cầu thì không commit/push/deploy. Kết thúc: mục `docs/f-progress.md` + ✅ bảng §2 + §5 compact summary.
 
-### Prompt I0 — (tay chủ dự án) push + deploy top bar
+### Prompt I0 — (tay chủ dự án) push + deploy top bar — ✅ đã có trên UAT (kiểm 07/10)
 
 ```text
 Không cần phiên Claude. Chủ dự án: git push (3 commit, gồm bea5fa8) → deploy UAT
@@ -143,16 +171,19 @@ Dừng hỏi nếu: SP thiếu danh mục đang nằm trong giỏ/đơn nháp c�
 Nghiệm thu: test model + controller, đo /portal/order "Tất cả" = tổng các danh mục.
 ```
 
-### Prompt I2 — #62 WJ-PH-003
+### Prompt I2 — #156 WJ-RETURN-001
 
 ```text
-Làm phiên I2. Issue STT 62 WJ-PH-003 — BA đổi yêu cầu 01/10 (Lịch sử phải gồm đơn Đã hủy).
-TRƯỚC KHI CODE: sheet ghi Owner=BA/Tester ⇒ hỏi chủ dự án xác nhận Dev nhận issue này.
-1. Đọc commit cũ của WJ-PH-003 (git log --all -S"WJ-PH-003") — đang làm theo yêu cầu cũ, đối chiếu lại.
-2. SALE_STATE_META (portal_base/controllers/utils.py) + domain Lịch sử: thêm trạng thái Đã hủy
-   (StatusBadge neutral/danger theo bảng BA), filter chip/select "Đã hủy", mở được chi tiết đơn hủy.
-3. Giữ kiểm current store; Home dùng chung SALE_STATE_META ⇒ kiểm Home không hiện đơn hủy nếu BA không yêu cầu.
-Nghiệm thu: test đếm theo trạng thái, đơn hủy store khác → 404/redirect.
+Làm phiên I2 (docs/next-session-clusters-H.md §1.D). Issue STT 156 WJ-RETURN-001 (High).
+Đọc nguyên dòng issue (Kết quả mong muốn) trước khi code. Luật sửa ở L2 wujia_return, controller portal_return chỉ gọi.
+1. Mốc "giao hoàn tất toàn bộ": xác minh trên dữ liệu picking thật (đơn nhiều picking / giao nhiều lần / backorder / picking
+   huỷ) — đề xuất field (vd max date_done khi mọi picking outgoing done) + bảng ví dụ, HỎI chủ dự án trước khi chốt.
+2. _portal_eligible_order_domain + kiểm lại trong create_from_portal: 10 ngày tính từ mốc trên; chưa giao hoàn tất ⇒ không chọn được;
+   quá hạn ⇒ backend chặn, báo đúng lý do. Perf: mốc nên là field store + index nếu domain cần (1500 user).
+3. Bỏ nút + nhánh Lưu nháp PC và mobile; gọi thẳng endpoint không tạo được phiếu Nháp; tạo xong ⇒ Đã gửi, đúng một phiếu.
+   Giữ rule cũ: 1 SP/yêu cầu, SP thuộc đơn gốc + current store, SP chưa cấu hình chính sách bù bị chặn, rollback savepoint.
+4. KHÔNG xoá phiếu nháp cũ.
+Nghiệm thu: test 3 GIVEN của issue + endpoint trực tiếp + đơn nhiều picking; mutation cho luật mốc ngày.
 ```
 
 ### Prompt I3 — #154 WJ-ORD-030
@@ -193,7 +224,10 @@ Nghiệm thu: test user 2 cửa hàng — số liệu chỉ của store đang ch
 Làm phiên I4b (tiếp I4a, cùng luật). Đổi trả · Yêu cầu cập nhật · Hỗ trợ · Thông báo · Công nợ:
 list / detail / create / cancel / tải tệp đính kèm — mỗi route kiểm ID thuộc store đang chọn.
 Ghi bàn giao cho nhóm Khảo sát (route nào đổi hành vi theo helper) vào docs/, không sửa code của họ.
-Nghiệm thu: ma trận route × (store đúng / store khác / chưa chọn) bằng test HTTP.
+Kèm #157 WJ-EXAM-001 (ID BA dùng lại — ledger thay entry 08/2026): danh sách Đăng ký thi chưa chọn cửa hàng ⇒ nhắc chọn,
+không truy vấn; nhãn chờ "Chờ xác nhận" cả PC + mobile (một nguồn); "Có kết quả" là thông tin riêng, không thay trạng thái
+Chờ xác nhận / Đã đăng ký / Từ chối / Đã hủy. Luật về wujia_exam (_portal_scope_domain / nhãn), portal_exam chỉ hiển thị.
+Nghiệm thu: ma trận route × (store đúng / store khác / chưa chọn) bằng test HTTP + 4 GIVEN của #157.
 ```
 
 ### Prompt I5 — #153 role theo cửa hàng đang chọn
@@ -209,13 +243,76 @@ Fork hỏi: inspection gọi helper cũ — như I4a.
 Nghiệm thu: ma trận role (owner/manager/staff) × store × route; menu khớp quyền backend.
 ```
 
+### Prompt I6 — #159 WJ-NOTI-001 (ID BA dùng lại)
+
+```text
+Làm phiên I6. Issue STT 159 WJ-NOTI-001 (High) — ledger đã có entry 08/2026 cùng ID ⇒ thay entry, không thêm.
+Luật sửa ở L2 wujia_notification (_portal_effective_domain / _portal_unread_count / wujia.notification.read._mark_read).
+1. Dấu đọc: thông báo toàn hệ ⇒ theo user (franchise rỗng), hiệu lực mọi cửa hàng; thông báo chỉ định ⇒ user + đúng cửa hàng nhận.
+   Đề xuất schema + migration dấu cũ (gộp dấu toàn hệ theo user, KHÔNG tạo dấu sai phạm vi) — HỎI trước khi code migration.
+2. Chưa chọn cửa hàng: chỉ thông báo toàn hệ, vẫn ghi nhận đọc; có cửa hàng: toàn hệ + current store (dùng luật store I4).
+3. MỘT domain chưa đọc: đã phát hành, đã tới giờ, đúng đối tượng, còn hiệu lực ⇒ Home, badge chuông, hộp chuông, danh sách,
+   lọc "Chưa đọc", "Đánh dấu tất cả" dùng chung. Lịch sử vẫn mở được thông báo hết hiệu lực.
+4. Perf 1500 user: đếm 1 query, index kép (user, notification[, franchise]).
+Nghiệm thu: 5 GIVEN của issue + test migration trên DB copy (đếm trước/sau) + mọi vị trí cùng một số.
+```
+
+### Prompt I7 — #62 WJ-PH-003 + #163 WJ-PH-009
+
+```text
+Làm phiên I7. Hai issue Lịch sử đặt hàng. Chủ dự án 07/10: Dev nhận #62 (sheet ghi Owner=BA/Tester).
+#62 (BA đổi yêu cầu 01/10 — Lịch sử phải gồm đơn Đã hủy):
+1. Đọc commit cũ (git log --all -S"WJ-PH-003") — làm theo yêu cầu cũ, đối chiếu lại.
+2. SALE_STATE_META (portal_base/controllers/utils.py) + domain Lịch sử: thêm Đã hủy (StatusBadge theo bảng BA), filter
+   "Đã hủy", mở được chi tiết đơn hủy. Home dùng chung SALE_STATE_META ⇒ Home không hiện đơn hủy nếu BA không yêu cầu.
+#163: chi tiết đơn PC hiện "Ghi chú khi đặt hàng" như mobile, phân biệt với "Ghi chú giao hàng"; rỗng ⇒ trạng thái rỗng thống nhất.
+Nghiệm thu: test đếm theo trạng thái, đơn hủy store khác → 404/redirect; đo PC + mobile cùng nội dung ghi chú.
+```
+
+### Prompt I8 — #160 + #162 + #166 (lệch PC↔mobile nhỏ)
+
+```text
+Làm phiên I8. Ba issue UI nhỏ, mỗi cái một module:
+- #160 WJ-ORD-032 (portal_sale): /portal/order/product/<id> mobile 360/390/430 — hàng Số lượng / Thêm vào giỏ / Xem giỏ nằm
+  trong viewport (xuống hàng hoặc chia cột), PC giữ nguyên. Đo bbox nút Xem giỏ, overflow ngang 0.
+- #162 WJ-SUPPORT-002 (portal_support): chi tiết phiếu mobile thêm khối Nội dung yêu cầu (thu gọn nếu dài); kiểm nhiều dòng,
+  URL dài, đính kèm; không bị bottom nav che; PC không đổi.
+- #166 WJ-EXAM-008 (portal_exam JS): modal Thêm người — trạng thái chưa chọn ảnh / đã chọn ảnh loại trừ nhau; chọn ⇒ preview,
+  xoá ⇒ về chưa chọn; validation không làm hiện lại nhãn sai.
+Nghiệm thu: đo máy 3 khổ mobile + 2 khổ PC, ảnh trước/sau; test JS qua tour hoặc Playwright.
+```
+
+### Prompt I9 — #167 + #164 (ngôn ngữ trên header)
+
+```text
+Làm phiên I9.
+- #167 WJ-LANG-002 (portal_layout): cờ ngôn ngữ đang chọn trên header PC giữ ~20×15 px, không co (min-width / flex-shrink 0),
+  căn giữa với nhãn; mọi locale (en/vi/th/zh) × 1440/1920 (+ khoảng 992–1199 của phiên top bar); dropdown + mobile không đổi.
+- #164 WJ-INSPECT-001: /portal/inspection* hiện English khi phiên vi_VN. Tìm gốc TRƯỚC: header lấy lang từ đâu trên route
+  Khảo sát (route không qua _pre_dispatch / lang của request khác). Gốc ở khung portal_layout ⇒ sửa khung; gốc trong module
+  anh Thái ⇒ DỪNG, chỉ ghi bàn giao (không sửa code của họ) và báo chủ dự án.
+Nghiệm thu: đo kích thước cờ từng locale; vi_VN đi qua Home → Khảo sát list/detail/remediation cờ + nhãn nhất quán.
+```
+
+### Prompt I10 — #168 UI-LISTCARD-002 + H2
+
+```text
+Làm phiên I10. #168 + H2 (StatusBadge sót) cùng đụng badge trong ListCard.
+1. H2 trước: trạng thái bù hàng (Đổi trả), trạng thái + ưu tiên Yêu cầu cập nhật → .wj-status-badge; mở guard
+   test_scan_e2_status_badge ra mọi module portal của mình (giữ loại trừ BA).
+2. #168: token ListCard ở component chung (không style theo route): title 15/600/20 · label 12/500/18 · value 13/500/18 ·
+   strong 13/600/18; StatusBadge compact 12/600 trong ListCard; CategoryBadge (wujia-badge) cùng line-height/căn giữa.
+3. Không tăng chiều cao card, không đổi bảng desktop; không cắt chữ ở 360/390/430.
+Nghiệm thu: đo computed style mọi ListCard 8 màn BA nêu + chiều cao card trước/sau (không tăng) + ảnh; bánh cóc H0 nếu đã có.
+```
+
 ### Prompt ★IR — Review cụm I
 
 ```text
-Review cụm I (I1–I5). KHÔNG làm tính năng mới.
+Review cụm I (I1–I10). KHÔNG làm tính năng mới.
 1. Ma trận role × store × route bằng test HTTP + ảnh 2 khổ trên DB copy giống UAT; đo UAT chỉ-đọc sau deploy.
 2. Rà diff toàn cụm: code thừa, comment sử ký, bump version/?v= sót, chạm nhầm module anh Thái.
-3. Lỗi nhỏ <30 dòng ⇒ sửa; lớn hơn ⇒ ghi nợ. Ghi docs/i-review.md + ledger đủ 5 issue ở Ready for Retest.
+3. Lỗi nhỏ <30 dòng ⇒ sửa; lớn hơn ⇒ ghi nợ. Ghi docs/i-review.md + ledger đủ 15 issue ở Ready for Retest.
 ```
 
 ### Prompt H0 — Công cụ kiểm kê + bánh cóc
@@ -238,7 +335,7 @@ HỎI chủ dự án giữ (tài liệu chuẩn đang ghi "hợp đồng ở cla
 Nghiệm thu: wj_measure --diff 0 lệch pixel 5 khổ; css_owner không còn nhóm mồ côi.
 ```
 
-### Prompt H2 — StatusBadge sót
+### Prompt H2 — StatusBadge sót (đã gộp vào I10 — giữ để tham chiếu)
 
 ```text
 Làm phiên H2. Trạng thái bù hàng (Đổi trả list+detail), trạng thái + ưu tiên Yêu cầu cập nhật

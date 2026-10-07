@@ -2768,7 +2768,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   trỏ `wujia_franchise.*` đã sang `wujia_franchise_inspection` ⇒ rơi xuống khớp câu nguồn. Xuất `.po` module lõi (`web`) lệch nhẹ
   (3 bản theo DB) ⇒ chỉ commit zip module team.
 - Bài học: `next-session-clusters-J.md` §6 "J-T4".
-- Commit: `ca198ace` — feat(i18n): J-T4 nhập/xuất bản dịch CSV + zip .po/.pot (đã push, chờ deploy — chủ dự án để deploy sau)
+- Commit: `ca198ace` — feat(i18n): J-T4 nhập/xuất bản dịch CSV + zip .po/.pot (đã lên UAT 07/10 cùng J-T5)
 - Lệnh deploy đề xuất: `-u wujia_i18n` + restart; kiểm version DB 19.0.1.2.0; menu Translation Tool có Import / Export.
 - Dọn: đã xoá DB `wujia_t4`, `wujia_t4b` + filestore; giữ `wujia_t1`/`wujia_vr` chờ chủ dự án.
 - Phiên kế: **J-T5** — dịch tự động (DeepL), xem §6b; dịch máy chỉ điền chỗ trống, không đè bản sửa tay.
@@ -2808,8 +2808,41 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   key. Fallback thuật ngữ cho cặp không có glossary là thay chữ thô (ngữ pháp có thể gượng). "Khảo sát" (module Thái) vẫn tiếng Việt
   trên portal th — đúng phạm vi mặc định. Chuỗi code dịch máy chỉ có hiệu lực sau xuất `.po` + commit + restart (đường J-T4).
 - Bài học: `next-session-clusters-J.md` §6 "J-T5".
-- Commit: `78a68ea5` — feat(i18n): J-T5 dịch tự động DeepL (đã push, chờ deploy)
+- Commit: `78a68ea5` — feat(i18n): J-T5 dịch tự động DeepL (đã lên UAT 07/10: wujia_i18n 19.0.1.3.0, kiểm chỉ-đọc qua JSON-RPC — menu, cron, glossary seed, field, view, ACL đủ)
 - Lệnh deploy đề xuất: `-u wujia_i18n` + restart; kiểm version 19.0.1.3.0, menu Translation Tool có Machine translate / Glossary /
   Settings, cron "Translation Tool: machine translation queue" active. Có key ⇒ Settings → wizard th_TH 1 module nhỏ → rà.
 - Dọn: đã xoá DB `wujia_t5`, `wujia_t5t` + filestore; giữ `wujia_t1`/`wujia_vr`.
 - Phiên kế: **J-O0** nếu BA đã trả lời câu hỏi Vận hành; chưa thì Issue List cụm I (I1 #155). Khi có key DeepL: 1 phiên ngắn smoke thật.
+
+## J-T5b Smoke DeepL thật trên UAT (trình duyệt) · 07/10/2026 · Mac
+- Kết quả: ✅ dịch máy chạy thật — key DeepL (gói Free) chủ dự án đã nhập ở UAT; không sửa code, không commit.
+- Đã làm (Playwright Chromium có giao diện, chỉ đọc + 1 lần bấm "Kiểm tra hạn mức"):
+  - Wizard Dịch máy: Thai + `wujia_portal_exam` ⇒ 0 chuỗi còn thiếu; hạn mức 67 293 / 1 000 000 ký tự (chủ dự án đã chạy dịch
+    trước đó, cron OdooBot 16:52). Không bấm Dịch lại.
+  - JSON-RPC chỉ-đọc: th_TH machine 1 774 (13 module portal) · zh_CN machine 1 850 · hàng đợi 0 · lỗi 2 (zh exam QWeb "HTML tags
+    changed", th sale `On %s` "empty translation" — bộ kiểm chặn đúng). Placeholder `{name}` `{limit}` `{brand}` giữ nguyên.
+    th machine: model_terms 1 496 + model 2 đã áp; code_python **276 chờ xuất `.po`**.
+  - Portal `anh.owner` th_TH × 1440/390 × 6 route (Home, Exam, Đăng ký thi, Đặt hàng, Hỗ trợ, Thông báo): HTTP 200, 0 tràn, 0 lỗi
+    JS, chữ Thái hiện ngay không restart. Còn tiếng Anh = chuỗi `_()` (nhãn trạng thái, "Store owner", "Month 10 2026", "Mo") chờ
+    `.po`; chữ Việt = dữ liệu + "Ngô Gia" (giữ nguyên theo glossary) + menu Khảo sát (Thái). User trả về vi_VN.
+  - Cùng 6 route × 1440/390 ở en_US và vi_VN: 0 tràn, 0 lỗi JS. en: chữ Việt chỉ còn dữ liệu (tên cửa hàng/SP/thông báo) +
+    "Khảo sát" (Thái); vi: tiếng Anh chỉ còn tên SP "Matcha Latte size M", "Topping". Ghi chú ngoài i18n: giá portal hiện "$"
+    ở CẢ vi lẫn en (tiền tệ bảng giá dữ liệu UAT, không phải dịch); cột "Thành tiền" giỏ PC bị cắt mép ở cả 2 ngôn ngữ.
+- Phiên kế: xuất `.po` th/zh (nút "Export .po for code strings") → commit → `-u` + restart nếu chủ dự án muốn chuỗi `_()` ra Thái/Trung;
+  sửa tay 2 câu lỗi. Sau đó Issue List cụm I (I1 #155).
+
+## END-SPRINT 66 — chốt sổ cụm J (B + T + V) + plan Issue List cụm I mở rộng · 07/10/2026 · Mac
+- Kết quả: ✅ chapter 80 + PDF + docs; **0 dòng code**, 0 ghi sheet, không deploy.
+- Đầu phiên: `git pull` (up to date). `issue_queue --dev` = 15 Ready for Dev; reconcile `git log -S` + `custom/` + ledger: 0 issue đã fix.
+  Kiểm chỉ-đọc UAT (XML-RPC): `wujia_core` 19.0.2.1.1 · `portal_layout` 19.0.60.4.0 · `portal_base` 19.0.7.37.1 · `portal_sale` 19.0.5.1.1 ·
+  `wujia_i18n` 19.0.1.3.0 — khớp repo ⇒ J-B, J-T, J-V và top bar 992 (I0) đều đã lên UAT.
+- Chủ dự án chốt: **Phần O pend theo ý BA**; sang Issue List cụm I + cụm H + 10 issue mới; chapter 80 riêng cho B + T; **#62 Dev nhận**.
+- Đã làm:
+  - `chapters/80-sprint66-cluster-j-branding-i18n-tool.tex` + `\include` master; `build-doc.sh` rc=0 (PDF chương 79, tr. 328–330).
+  - Phân cụm 10 issue mới, gộp vào cụm I: I1 #155 → I2 #156 → I3 #154 → I4a #152 → I4b #152+#157 → I5 #153 → I6 #159 →
+    I7 #62+#163 → I8 #160+#162+#166 → I9 #167+#164 → I10 #168+H2 → ★IR. Prompt từng phiên + bảng §1.D: `next-session-clusters-H.md`.
+  - Compact summary (tiêu đề, §4 dòng 66, §5 State, §13 bảng cụm I mở rộng) · `pending-backlog.md` §1/§2/§3 · `next-session-clusters-J.md` (O ⏸).
+- Lệch / LIMIT: BA dùng lại ID `WJ-EXAM-001` (#157) và `WJ-NOTI-001` (#159) — ledger có entry 08/2026 cùng key ⇒ phiên I4b/I6 thay entry
+  và kiểm `qa_sync --dry-run`. #164 WJ-INSPECT-001 có thể nằm trong module anh Thái ⇒ I9 chỉ bàn giao nếu gốc ở đó.
+- Nợ để lại: xuất `.po` th/zh chuỗi code (276 th) + sửa 2 câu máy lỗi · gửi `docs/i18n-review/` cho BA/Thái · câu hỏi Vận hành chờ BA.
+- Phiên kế: **I1 #155 WJ-ORD-031** — danh mục Portal bắt buộc khi công khai SP (`next-session-clusters-H.md` §3 Prompt I1).

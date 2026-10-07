@@ -1,0 +1,129 @@
+\chapter{Sprint 66 --- Cụm J Phần B + T: thương hiệu cấu hình được và tool Bản dịch (2026-10-04 $\to$ 10-07)}
+
+\emph{Chapter này ghi lại hai phần còn lại của cụm J: Phần B cho đổi thương hiệu (tên, màu, logo, favicon, nền đăng nhập) ngay
+trong Settings, và Phần T là tool Bản dịch trong backend (sửa, nhập/xuất, dịch máy). Phần V (Việt hoá source) ở chapter 79.
+Phần O (Portal Vận hành) \textbf{tạm dừng theo ý BA} (07/10). Nhật ký từng phiên ở \texttt{docs/f-progress.md}; bài học ở
+\texttt{docs/next-session-clusters-J.md} §3, §3b, §6.}
+
+\section{Vì sao có cụm J}
+
+Ngày 04/10 chủ dự án giao ba việc mới và chốt làm \textbf{trước} Issue List:
+(1) thương hiệu cấu hình được trong Settings, để cùng source dùng cho thương hiệu khác;
+(2) tool dịch đầy đủ trong backend, thay cho việc tự sửa và upload file \texttt{.po};
+(3) portal Vận hành nhượng quyền trên backend \texttt{wujia\_franchise\_operations} sẵn có.
+Ngày 05/10 cụm J gộp còn 7 phiên: J-T1 và J-T2 gộp, bỏ J-T3 (chuỗi trong code đổi thì xuất \texttt{.po} rồi restart), O3 và O4 gộp.
+Phần V chen vào trước J-T4 sau khi máy quét đếm được 2\,659 chuỗi tiếng Việt viết cứng.
+
+\section{Các phiên}
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{1.3cm}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.1cm}}
+\toprule
+Phiên & Commit & Nội dung & Ngày \\
+\midrule
+J-B1 & \texttt{de64704c} & \texttt{wujia\_core}: 5 field brand trên \texttt{res.company}, tab Settings ``Thương hiệu'', route ảnh, bộ màu & 04/10 \\
+J-B2 & \texttt{12c2baa9} + \texttt{3aa974ac} & Áp brand vào portal (head, logo, CSS) và backend (favicon, tiêu đề tab) & 04/10 \\
+J-T1+T2 & \texttt{ba08698e} & Module mới \texttt{wujia\_i18n}: danh mục chuỗi, màn sửa, Áp dụng không restart, giữ bản sửa qua \texttt{-u} & 05/10 \\
+J-T4 & \texttt{ca198ace} & Nhập/xuất CSV kiểu file Thái, zip \texttt{.po}/\texttt{.pot}, CLI \texttt{scripts/i18n\_tool.py} & 07/10 \\
+J-T5 & \texttt{78a68ea5} & Dịch máy DeepL: hàng đợi cron, trạng thái ``Dịch máy'', bảng thuật ngữ, Settings & 07/10 \\
+J-T5b & --- & Chạy DeepL bằng key thật trên UAT (chỉ đọc + 1 lần kiểm hạn mức) & 07/10 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Trên UAT (kiểm chỉ đọc 07/10, khớp repo): \texttt{wujia\_core} 19.0.2.1.1 · \texttt{wujia\_portal\_layout} 19.0.60.4.0 ·
+\texttt{wujia\_i18n} 19.0.1.3.0.
+
+\section{Phần B --- thương hiệu}
+
+\subsection*{Gì đã làm}
+Quản trị vào Settings $\to$ ``Thương hiệu'' đặt tên, màu chính, logo PC/mobile, favicon và ảnh nền trang đăng nhập. Portal và
+backend đổi theo ngay: tiêu đề tab ``\ldots{} · <tên brand>'', logo, favicon, màu nút/viền/nền nhạt. 25 câu ``Ngô Gia'' trong
+QWeb và 15 chuỗi Python đọc tên từ cấu hình. Cấu hình mặc định giữ đúng giao diện cũ: đo 26 route $\times$ 3 khổ, 0 lệch pixel thật.
+
+\begin{itemize}[nosep]
+\item \texttt{wujia\_core}: \texttt{wj\_brand\_name}, \texttt{wj\_primary\_color}, \texttt{wj\_logo\_mobile}, \texttt{wj\_favicon},
+  \texttt{wj\_login\_background}; logo PC dùng lại \texttt{res.company.logo}. \texttt{\_wj\_brand\_info()} có ormcache, ghi field brand
+  thì xoá cache. Route \texttt{/wj/brand/<cid>/<kind>} public, có \texttt{?v=} nên cache \texttt{immutable}.
+\item \texttt{tools/brand\_palette.py}: màu mặc định trả đúng bộ token BA với CSS rỗng; màu khác sinh dải HSL, nút CTA tự làm đậm tới
+  tương phản chữ trắng $\geq$ 4.5:1; \texttt{retint()} xoay sắc 12 token xanh còn sót (gradient, nền ô).
+\item \texttt{wujia\_portal\_layout}: biến QWeb \texttt{wj\_brand} chèn ở \texttt{ir.qweb.\_prepare\_environment} (route portal không
+  \texttt{website=True}); logo qua URL thay base64 nên HTML 26 trang nhẹ đi 36\% (\texttt{/portal/login} 46 KB $\to$ 13 KB).
+\item Câu có tên brand: mẫu \texttt{<t t-set="wj\_txt">\ldots\{brand\}\ldots</t>} + \texttt{.replace()} để vẫn là một term dịch được.
+\end{itemize}
+
+\subsection*{Lý do / trade-off}
+Không dùng \texttt{res.company.primary\_color} sẵn có vì đó là màu báo cáo PDF, wizard Document Layout tự đổi theo logo. Tên brand
+mặc định ``Ngô Gia'' tự điền khi cài hoặc nâng cấp (data \texttt{noupdate} cho \texttt{-i} cộng migration cho \texttt{-u}), không
+ghi đè tên đã đặt. Biểu đồ màn Khảo sát (code anh Thái) vẫn màu cứng, để nhóm đó chỉnh.
+
+\section{Phần T --- tool Bản dịch}
+
+\subsection*{Gì đã làm}
+Người dịch có app ``Translation Tool'' trong backend. Bấm Quét để gom mọi chuỗi của module team theo ngôn ngữ, sửa ngay trên màn,
+bấm Áp dụng thì nhãn, menu, view, QWeb portal đổi \textbf{ngay, không restart}. Bản sửa tay giữ được qua các lần nâng cấp module.
+Có thể nhập/xuất CSV (đúng định dạng file anh Thái đang dùng) và xuất zip \texttt{.po}/\texttt{.pot} cho chuỗi trong code. Dịch máy
+DeepL: chọn ngôn ngữ và module, hệ thống dịch hàng loạt theo lô, áp ngay, người rà sau bấm ``Mark reviewed''.
+
+\begin{itemize}[nosep]
+\item Model: \texttt{wujia.i18n.term} (chuỗi) $\times$ \texttt{wujia.i18n.value} (bản dịch theo ngôn ngữ, trạng thái
+  \texttt{synced | override | machine | missing}), \texttt{wujia.i18n.coverage} (view SQL độ phủ), \texttt{wujia.i18n.glossary}.
+\item Áp dụng = \texttt{TranslationImporter} ghi đè + xoá đúng loại cache. Override \texttt{ir.module.module.\_update\_translations}
+  áp lại bản sửa tay sau mỗi \texttt{-u}.
+\item \texttt{tools/po\_writer.py} (không import odoo) dùng chung cho wizard, CLI \texttt{scripts/i18n\_tool.py} và
+  \texttt{scripts/sync\_translations.py}. \texttt{tools/mt\_deepl.py}: bảo vệ placeholder/thẻ HTML, mất placeholder thì loại câu.
+\item Cron hàng đợi dịch máy: lô 50 câu/30\,000 ký tự, đọc lại trạng thái trước khi ghi (người sửa giữa chừng thắng), hết hạn mức
+  hoặc sai key thì dừng và giữ hàng đợi.
+\end{itemize}
+
+\subsection*{Lý do / trade-off}
+\begin{itemize}[nosep]
+\item Bỏ J-T3 (lớp phủ chuỗi Python/JS không restart): chuỗi trong code chỉ có hiệu lực sau khi xuất \texttt{.po}, commit và restart.
+  Đơn giản hơn, không rủi ro trên nhiều worker.
+\item Nhập CSV và dịch máy \textbf{không đè bản sửa tay}; dòng chỉ khớp theo câu nguồn chỉ điền chỗ trống. Đo thử chế độ ``đè hết''
+  làm đổi 90 + 162 bản vi\_VN đã chốt ở Phần V.
+\item Dịch máy ``áp ngay, rà sau'' (chủ dự án chốt): nhanh có giao diện th/zh, đổi lại có thể có câu gượng tới khi được rà.
+\end{itemize}
+
+\subsection*{Số đo chính}
+Quét 29 module $\times$ 3 ngôn ngữ: 4\,839 chuỗi trong 3,1 s nên chạy đồng bộ, không cần cron. Suite \texttt{wujia\_i18n} 55/0
+(DB trắng và DB copy), mutation T1 7/7, T4 6/6, T5 8/8. Nhập glossary 2\,195 dòng trong 0,2 s. Smoke DeepL thật trên UAT:
+th\_TH 1\,774 và zh\_CN 1\,850 chuỗi dịch máy, 2 câu bị bộ kiểm chặn đúng, portal th 6 route $\times$ 2 khổ: 0 tràn, 0 lỗi JS,
+chữ Thái hiện ngay không restart.
+
+\section{Tổng kết cụm J}
+
+\begin{itemize}[nosep]
+\item \textbf{Phần B} xong: đổi thương hiệu không cần sửa code.
+\item \textbf{Phần V} xong (chapter 79): câu gốc source team là tiếng Anh, vi\_VN qua \texttt{.po}.
+\item \textbf{Phần T} xong: dịch tay, nhập/xuất, dịch máy đều chạy trên UAT.
+\item \textbf{Phần O} (J-O0 \ldots{} ★JR) \textbf{tạm dừng theo ý BA}. Câu hỏi treo: chấm công/nghỉ phép, ai duyệt ca, Staff xem gì,
+  gắn nhân viên với tài khoản portal, spec Model Field mục G lệch backend, Figma.
+\end{itemize}
+Việc kế: Issue List cụm I mở rộng (I1 \ldots{} I10 + ★IR, 15 issue), rồi cụm H. Lộ trình ở \texttt{docs/next-session-clusters-H.md}.
+
+\section{Bài học}
+
+\begin{itemize}[nosep]
+\item zsh không tách biến không ngoặc: một lệnh copy DB chạy \texttt{rm -rf data/filestore/} và mất filestore local. Lệnh nhiều tham số
+  viết bằng file \texttt{\#!/bin/bash} + \texttt{set -u}; không \texttt{rm -rf} đường dẫn ghép biến khi chưa kiểm biến khác rỗng.
+  Khôi phục: \texttt{scripts/dev/filestore\_pack.py} + \texttt{filestore\_restore.py}.
+\item \texttt{res.lang.\_activate\_lang} chỉ bật ngôn ngữ, không nạp \texttt{.po}; phải gọi \texttt{\_update\_translations}.
+\item \texttt{<function>} trong data \texttt{noupdate} chỉ chạy lúc \texttt{-i}; cần migration cho \texttt{-u}.
+\item Glossary dùng chung khớp theo câu nguồn sẽ đè bản dịch riêng của module, nên mọi đường nhập/dịch máy chỉ điền chỗ trống.
+\item Người dịch không phải admin không đọc được \texttt{ir.module.module}: cần quyền chỉ đọc, nếu không mọi wizard có ô Module lỗi.
+\item \texttt{\_commit\_progress} ngoài cron là commit thật, chỉ gọi khi context có \texttt{cron\_id}.
+\item Test chống lùi phải chọn dữ liệu bắt được đột biến: chuỗi code (DB không lưu bản dịch) chứ không phải nhãn; câu nguồn duy nhất
+  chứ không phải câu lặp ở menu/action/view.
+\end{itemize}
+
+\section{Nợ để lại}
+
+\begin{itemize}[nosep]
+\item Xuất \texttt{.po} th/zh cho chuỗi trong code (th còn 276 chuỗi \texttt{\_()} chờ), commit rồi \texttt{-u wujia\_i18n} + restart;
+  sửa tay 2 câu dịch máy bị chặn (zh exam ``HTML tags changed'', th sale \texttt{On \%s}).
+\item Gửi BA 1\,361 cặp câu và gửi anh Thái 284 chuỗi + lỗi \texttt{.po} \texttt{web\_survey\_ui} (\texttt{docs/i18n-review/}).
+\item Biểu đồ Khảo sát chưa theo màu brand (code anh Thái).
+\item Phần O chờ BA.
+\end{itemize}

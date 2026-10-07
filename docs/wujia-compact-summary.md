@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-07 · **CỤM J — J-T5 XONG (dịch máy DeepL: wizard + hàng đợi cron + state `machine` áp ngay + bảng thuật ngữ, `wujia_i18n` 19.0.1.3.0, `78a68ea5` ĐÃ PUSH, CHỜ DEPLOY; chưa có key DeepL ⇒ test giả lập)** · trước đó: J-T4 nhập/xuất `.po` (`ca198ace` đã push, chờ deploy), ★J-VR khép Phần V. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-O0** (nếu BA đã trả lời câu hỏi Vận hành) hoặc nhảy Issue List cụm I.
+**Cập nhật:** 2026-10-07 · **END-SPRINT 66 — CỤM J PHẦN B + T + V XONG, ĐÃ LÊN UAT** (branding Settings · tool Bản dịch `wujia_i18n` 19.0.1.3.0 + DeepL key thật chạy trên UAT · Việt hoá source; chapter 79 + **80**). **Phần O (Vận hành) PEND theo ý BA.** Việc kế: **Issue List cụm I mở rộng** — 15 issue / 11 phiên I1→I10 + ★IR (§13, `next-session-clusters-H.md`), rồi cụm H. Tồn đọng: **`docs/pending-backlog.md`**.
 
 ---
 
@@ -83,6 +83,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 | Sprint | Date | Outcome (1 dòng) |
 |---|---|---|
+| 66 | 10-04..10-07 | **Cụm J Phần B + T — thương hiệu cấu hình được + tool Bản dịch** (J-B1 `de64704c` → J-B2 `12c2baa9`+`3aa974ac` → J-T1+T2 `ba08698e` → J-T4 `ca198ace` → J-T5 `78a68ea5` → J-T5b smoke DeepL thật): tên/màu/logo/favicon/nền login trong Settings, mặc định 0 lệch pixel, HTML −36 %; app Translation Tool sửa + Áp dụng không restart, giữ bản sửa qua `-u`, nhập/xuất CSV + `.po`, dịch máy DeepL theo lô (không đè bản sửa tay). Tất cả đã lên UAT. Phần O pend theo BA. → ch.80 |
 | 65 | 10-05..10-07 | **Cụm J Phần V — Việt hoá source** (V0 → V1…V8b → ★VR): câu gốc code team 2 375 chuỗi tiếng Việt → tiếng Anh, vi_VN qua glossary ⇒ user vi thấy y cũ, en/th/zh hết lẫn tiếng Việt; V3–V8b đã lên UAT; ★VR bỏ nhánh tra ngược badge VN, danh sách BA/Thái `docs/i18n-review/`. → ch.79 |
 | 64 | 09-26..09-30 | **Cụm G — Issue List lứa 140–151** (G1 → G2 → G3a/b → H150/151 → review UAT → G5 → G6; G4 ⏸): mật độ mobile 143/145/144 `fcce811` · dải cửa hàng + top bar PC 141/140 `6745671` · Home PC V4 142 `160d13e`+`d8f89bf` · Home giống Lịch sử 150/151 `0cd1f0a` · hộp xác nhận gửi đơn 148 + lọc gửi lại 11 màn 147 `887da0a` · Ngày xác nhận 149 `9efa67f`. Mỗi lượt deploy UAT + đo chỉ-đọc, 11 ID → Ready for Retest. Chapter 78. |
 | 63 | 09-25..09-26 | **Cụm F khối A — tách 7 phân hệ khỏi `wujia_portal_*` thành module nghiệp vụ L2 + controller mỏng** (F6 → F7 → ★FR-P → F8–F13 → ★FR-A), mỗi phiên 1 deploy UAT, 0 lệch dữ liệu: `wujia_order_window` · `_info_request` · `_knowledge` · `_support` · `_notification` · `_exam` · `_return`; luật portal một nguồn ở model (Home dùng chung); hook đổi chủ `wujia_core/tools/module_split.py`; `check_layers` 0 vi phạm Dev; query Δ0; suite 822 → **914/0/0**. **ADR-027 chốt.** → ch.77 |
@@ -124,6 +125,8 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-10-07 · END-SPRINT 66) — CỤM J PHẦN B + T + V CHỐT SỔ; PHẦN O PEND THEO BA; 0 dòng code.** Chapter 80 `chapters/80-sprint66-cluster-j-branding-i18n-tool.tex` (PDF đánh số 79, tr. 328–330): vì sao có cụm J · bảng 6 phiên · Phần B · Phần T · tổng kết cụm J · bài học · nợ. Kiểm chỉ-đọc UAT 07/10 khớp repo: `wujia_core` 19.0.2.1.1 · `portal_layout` 19.0.60.4.0 (gồm top bar 992 ⇒ **I0 xong**) · `portal_base` 19.0.7.37.1 · `portal_sale` 19.0.5.1.1 · `wujia_i18n` 19.0.1.3.0. J-T5b (cùng ngày): DeepL key thật trên UAT, th 1 774 / zh 1 850 chuỗi máy, portal th 6 route × 2 khổ 0 tràn/0 JS. Chủ dự án chốt: Phần O pend theo BA · sang Issue List · #62 Dev nhận. `issue_queue --dev` = 15 (reconcile 0 đã fix; **BA dùng lại ID `WJ-EXAM-001` #157, `WJ-NOTI-001` #159** ⇒ thay entry ledger 08/2026 khi đóng). Plan: **cụm I mở rộng I1 #155 → I2 #156 → I3 #154 → I4a/b #152(+#157) → I5 #153 → I6 #159 → I7 #62+#163 → I8 #160+#162+#166 → I9 #167+#164 → I10 #168+H2 → ★IR**, rồi H (§13). **Pending:** xuất `.po` th/zh chuỗi code (276 th) + sửa 2 câu máy lỗi · gửi BA/Thái `docs/i18n-review/` · câu hỏi Vận hành chờ BA. **Phiên kế: I1 #155 WJ-ORD-031.**
 
 **State (2026-10-07 · J-T4) — NHẬP/XUẤT BẢN DỊCH XONG; `ca198ace` ĐÃ PUSH, CHỜ DEPLOY.** `wujia_i18n` 19.0.1.2.0: menu Import / Export + nút "Export .po for code strings"; logic một nguồn `wujia.i18n.transfer` + `tools/po_writer.py` (babel, không import odoo) dùng chung cho wizard, `scripts/i18n_tool.py` (mới, qua `odoo-bin shell`) và `scripts/sync_translations.py` (dry-run trước/sau 15/15 file giống hệt). Luật nhập (chủ dự án chốt 07/10): giữ bản sửa tay; dòng chỉ khớp câu nguồn chỉ điền chỗ trống (đè hết sẽ đổi 90 + 162 bản vi_VN đã chốt). Nghiệm thu zh_CN: QWeb + nhãn đổi ngay; `_()` + JS đổi sau xuất `.po` + restart; còn sau `-u`. Suite 28/0 (DB copy + DB trắng), mutation 6/6, nhập glossary/file Thái 0,2–0,3 s. Deploy: `-u wujia_i18n` + restart.
 
@@ -542,6 +545,27 @@ Chủ dự án chốt 26/09: tên **cụm G**; **chuẩn hoá component làm tr�
 | **G2** ✅ 29/09 | UI-MOB-STORE-SWITCHER-001 (141) + UI-PC-TOPBAR-REG-001 (140) | `wujia_portal_base` + `wujia_portal_layout` | Strip mobile `store_picker_navbar.xml:45–72` (chỉ bấm được khi >1 cửa hàng) → chip mã · tên · pill · chevron; PC `:83–113` pill vai trò là anh em của `<a>` ⇒ đưa vào block; badge giỏ `header_cart_inherit.xml:16` vs circle 40×40 `_pc_account.css:241+` |
 | **G3a/b** | UI-PC-HOME-REDESIGN-001 (142) | `wujia_portal_base` | `portal_home.xml` khối desktop; dữ liệu đúng nguồn Home mobile qua 7 seam `hasattr` (cấm thêm depend); mockup V4 ở `docs/mockups/` |
 | **G4** | WJ-PORTAL-ROUTING-001 (146) | `wujia_portal_base` | Chưa có route `/`; `website` giữ `/` trên UAT; AC4 nối `portal_post_login_redirect` (`portal_layout/controllers/auth.py:79`); fork cách giành `/` hỏi đầu phiên |
+
+### Bảng cụm I mở rộng (15 issue Ready for Dev, sắp 2026-10-07 — STT 62, 152–168)
+
+📌 **Prompt từng phiên: `docs/next-session-clusters-H.md` §3** (bảng §2, chi tiết 10 issue mới §1.D). Cách dùng: `/wujia-start` → "làm I<n>".
+Chủ dự án chốt 07/10: Phần O cụm J pend theo BA ⇒ Issue List; **#62 Dev nhận**. Nguyên tắc: High độc lập sớm · issue cần luật
+"một cửa hàng đang chọn" sau I4 · gom module, mỗi phiên 1 lần `-u` · issue trước H. ⚠ ID dùng lại: `WJ-EXAM-001` (#157), `WJ-NOTI-001` (#159).
+
+| Phiên | Issue (STT, Sev) | Module `-u` | Gốc / fork |
+|---|---|---|---|
+| **I1** | #155 WJ-ORD-031 (Med) | wujia_sale, portal_sale | SP công khai thiếu danh mục Portal; fork SP trong giỏ/đơn nháp |
+| **I2** | #156 WJ-RETURN-001 (High) | wujia_return, portal_return | Hạn 10 ngày từ **giao hoàn tất toàn bộ** (xác minh mốc picking); bỏ Lưu nháp |
+| **I3** | #154 WJ-ORD-030 (High) | order_window, portal_sale, portal_base | `area_id` → M2M + migration; fork area rỗng |
+| **I4a** | #152 WJ-PORTAL-SCOPE-001 (High) | base, delivery, report | Helper scope một nguồn; fork helper dùng chung với Khảo sát |
+| **I4b** | #152 + #157 WJ-EXAM-001 (Med) | return, info_request, support, notification, debt, portal_exam | Màn còn lại; Thi: nhắc chọn cửa hàng, "Chờ xác nhận", tách "Có kết quả" |
+| **I5** | #153 WJ-PORTAL-ROLE-001 (High) | base, report, debt, info_request, layout | Role tại cửa hàng đang chọn |
+| **I6** | #159 WJ-NOTI-001 (High) | wujia_notification, portal_notification, portal_base | Đã đọc toàn hệ theo user / riêng theo user+store; một luật số chưa đọc; migration |
+| **I7** | #62 WJ-PH-003 + #163 WJ-PH-009 (Med) | portal_purchase_history, portal_base | Lịch sử có đơn Đã hủy; PC hiện ghi chú đặt hàng |
+| **I8** | #160 · #162 · #166 | portal_sale, portal_support, portal_exam | Lệch PC↔mobile nhỏ |
+| **I9** | #167 WJ-LANG-002 + #164 WJ-INSPECT-001 (Low) | portal_layout (+ bàn giao Thái) | Cờ ngôn ngữ PC co; Khảo sát sai ngôn ngữ — gốc ở module Thái ⇒ chỉ bàn giao |
+| **I10** | #168 UI-LISTCARD-002 (Low) + H2 | layout + module màn | Typography ListCard + badge |
+| **★IR** | Review | — | Ma trận role × store × route, ledger đủ 15 |
 
 ### Chuẩn nghiệm thu mỗi issue — khớp ≥90% acceptance BA (chủ dự án yêu cầu 08-10)
 

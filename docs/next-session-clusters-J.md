@@ -5,6 +5,8 @@
 > Chi tiết Phần T + Phần O: §5 Phụ lục cuối file. **05/10: gộp còn 7 phiên** (T1+T2 gộp, bỏ T3, O3+O4 gộp).
 > **05/10 (sau T1+T2): thêm Phần V — Việt hoá source (V0–V8 + ★VR), làm TRƯỚC J-T4** (chủ dự án: "ưu tiên xử lý trước").
 > Thứ tự: V0 → V1…V8 → ★VR → J-T4 → J-O0…O4 → ★JR → Issue List. Tồn đọng toàn dự án: `docs/pending-backlog.md`.
+> **07/10 — END-SPRINT 66: Phần B + T + V XONG, đã lên UAT (chapter 79 + 80). Phần O (J-O0…★JR) TẠM DỪNG theo ý BA**
+> (chờ BA trả lời câu hỏi Vận hành, `pending-backlog.md` §3) ⇒ việc kế là Issue List cụm I mở rộng (`next-session-clusters-H.md`).
 
 ## 0. Luật áp suốt cụm
 
@@ -62,13 +64,13 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V8a | purchase_history (99) + portal_delivery (93) + delivery (15) + fleet (11) — chủ dự án tách J-V8 làm đôi 07/10 | 4 module | ✅ 07/10 — `dbd4335b` đã lên UAT 07/10 |
 | J-V8b | info_request (85+7) + report (69) + core (9) + metabase (1). `wujia_core` sửa câu **không bump version** (tránh `-u wujia_core` kéo dây chuyền module Thái); `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét | 5 module | ✅ 07/10 — `02e363fc` đã lên UAT 07/10 |
 | ★J-VR | Review Phần V: quét = 0, vi_VN 0 lệch, en/th 156 trang sạch, bỏ nhánh tra ngược badge VN, danh sách BA (1 361 cặp) + Thái (284) ở `docs/i18n-review/`, chapter 79 | portal_base, sale, purchase_history, delivery | ✅ 07/10 — `457ff953` đã lên UAT 07/10 |
-| J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; `po_writer` dùng chung + CLI `scripts/i18n_tool.py`; dòng chỉ khớp câu nguồn chỉ điền chỗ trống (chủ dự án 07/10) | wujia_i18n, scripts | ✅ 07/10 — `ca198ace` đã push, chờ deploy |
-| J-T5 | Dịch tự động (DeepL): wizard chọn ngôn ngữ → hàng đợi + cron theo lô → state `machine` áp ngay, rà sau · bảng thuật ngữ · khoá ở Settings (chủ dự án 07/10: chưa có key ⇒ giả lập) | wujia_i18n | ✅ 07/10 — `78a68ea5` đã push, chờ deploy |
-| J-O0 | Bảng đối chiếu CT-059…067 ↔ backend + danh sách màn + câu hỏi BA (0 code) | docs | ☐ |
-| J-O1 | Luật portal ở L2 (file mới `portal_rules.py`, báo Thái) | franchise_operations (thêm file) | ☐ |
-| J-O2 | Hub + Nhân viên + Lịch ca (chỉ đọc) | wujia_portal_operations (mới) | ☐ |
-| J-O3+O4 | Chi phí + Doanh thu ngày: danh sách + tạo/khai nháp (gộp 05/10) | portal_operations | ☐ |
-| ★JR | Review: ma trận role × cửa hàng × route, ảnh, query, mutation, quét chuỗi mới vào tool dịch | — | ☐ |
+| J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; `po_writer` dùng chung + CLI `scripts/i18n_tool.py`; dòng chỉ khớp câu nguồn chỉ điền chỗ trống (chủ dự án 07/10) | wujia_i18n, scripts | ✅ 07/10 — `ca198ace` đã lên UAT (cùng 19.0.1.3.0) |
+| J-T5 | Dịch tự động (DeepL): wizard chọn ngôn ngữ → hàng đợi + cron theo lô → state `machine` áp ngay, rà sau · bảng thuật ngữ · khoá ở Settings (chủ dự án 07/10: chưa có key ⇒ giả lập) | wujia_i18n | ✅ 07/10 — `78a68ea5` đã lên UAT 07/10 |
+| J-O0 | Bảng đối chiếu CT-059…067 ↔ backend + danh sách màn + câu hỏi BA (0 code) | docs | ⏸ pend theo BA (07/10) |
+| J-O1 | Luật portal ở L2 (file mới `portal_rules.py`, báo Thái) | franchise_operations (thêm file) | ⏸ pend theo BA (07/10) |
+| J-O2 | Hub + Nhân viên + Lịch ca (chỉ đọc) | wujia_portal_operations (mới) | ⏸ pend theo BA (07/10) |
+| J-O3+O4 | Chi phí + Doanh thu ngày: danh sách + tạo/khai nháp (gộp 05/10) | portal_operations | ⏸ pend theo BA (07/10) |
+| ★JR | Review: ma trận role × cửa hàng × route, ảnh, query, mutation, quét chuỗi mới vào tool dịch | — | ⏸ pend theo BA (07/10) |
 
 ## 3. Đã làm ở J-B1 (để B2 dùng)
 
