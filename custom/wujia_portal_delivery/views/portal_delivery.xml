@@ -24,29 +24,29 @@
                 <!-- CMP-SH-001 variant meta (BA chỉ đích danh trang này). Chips lọc KHÔNG vào
                      right slot: chúng là CMP-FC-001, và spec cấm 2 right slot cùng lúc. -->
                 <t t-call="wujia_portal_layout.wj_section_header">
-                    <t t-set="sh_title">Danh sách chuyến giao</t>
+                    <t t-set="sh_title">Delivery trips</t>
                     <t t-set="sh_level" t-value="3"/>
                     <t t-set="sh_platform" t-value="'pc'"/>
                     <t t-set="sh_class" t-value="'wj-section-header--inline'"/>
                     <t t-set="sh_meta">
                         <!-- view_state 'error' cố ý KHÔNG có meta, y như trước C8 -->
                         <span t-if="view_state in ('loading', 'list', 'empty')" class="wj-section-header__meta">
-                            <t t-if="view_state == 'loading'">Đang tải dữ liệu...</t>
-                            <t t-elif="view_state == 'list'"><t t-out="len(batches)"/> chuyến · Mới nhất trước</t>
-                            <t t-else="">0 chuyến</t>
+                            <t t-if="view_state == 'loading'">Loading data...</t>
+                            <t t-elif="view_state == 'list'"><t t-set="_dlv_n" t-value="len(batches)"/><t t-out="_dlv_n"/> <t t-if="_dlv_n == 1">trip · Newest first</t><t t-else="">trips · Newest first</t></t>
+                            <t t-else="">0 trips</t>
                         </span>
                     </t>
                 </t>
                 <!-- Chips số đếm (clickable filter, luôn hiện màu status) -->
                 <div t-if="view_state == 'list'" class="wj-pc-dlv-chips">
                     <a t-attf-href="/portal/delivery?bs=#{_dq}"
-                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--going #{'is-active' if not bs else ''}">Tất cả <t t-out="chip_counts.get('all', 0)"/></a>
+                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--going #{'is-active' if not bs else ''}">All <t t-out="chip_counts.get('all', 0)"/></a>
                     <a t-attf-href="/portal/delivery?bs=going#{_dq}"
-                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--going #{'is-active' if bs == 'going' else ''}">Đang giao <t t-out="chip_counts.get('going', 0)"/></a>
+                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--going #{'is-active' if bs == 'going' else ''}">Delivering <t t-out="chip_counts.get('going', 0)"/></a>
                     <a t-attf-href="/portal/delivery?bs=soon#{_dq}"
-                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--soon #{'is-active' if bs == 'soon' else ''}">Sắp giao <t t-out="chip_counts.get('soon', 0)"/></a>
+                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--soon #{'is-active' if bs == 'soon' else ''}">Delivering soon <t t-out="chip_counts.get('soon', 0)"/></a>
                     <a t-attf-href="/portal/delivery?bs=done#{_dq}"
-                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--done #{'is-active' if bs == 'done' else ''}">Đã giao <t t-out="chip_counts.get('done', 0)"/></a>
+                       t-attf-class="wj-pc-dlv-chip wj-state-surface wj-pc-dlv-chip--done #{'is-active' if bs == 'done' else ''}">Delivered <t t-out="chip_counts.get('done', 0)"/></a>
                 </div>
             </div>
 
@@ -57,14 +57,14 @@
                     <t t-set="dl_table_class" t-value="'wj-pc-table wj-pc-dlv-table'"/>
                     <thead>
                         <tr>
-                            <th scope="col">Mã chuyến</th>
-                            <th scope="col">Giờ xuất phát</th>
-                            <th scope="col">Đơn liên quan</th>
-                            <th scope="col">Trạng thái</th>
-                            <th scope="col">Xe · tài xế</th>
-                            <th scope="col">Biển số</th>
-                            <th scope="col">Cập nhật</th>
-                            <th scope="col" class="text-end">Thao tác</th>
+                            <th scope="col">Trip code</th>
+                            <th scope="col">Departs at</th>
+                            <th scope="col">Related orders</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Vehicle · driver</th>
+                            <th scope="col">License plate</th>
+                            <th scope="col">Updated on</th>
+                            <th scope="col" class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,7 +74,7 @@
                             </td>
                             <td>
                                 <t t-out="b['departure_full']"/>
-                                <span t-if="b['departure_actual']" class="wj-count-meta"> (thực tế)</span>
+                                <span t-if="b['departure_actual']" class="wj-count-meta"> (actual)</span>
                             </td>
                             <td t-out="b['orders']"/>
                             <td><span t-attf-class="wj-status-badge #{b['pc_modifier']}" t-out="b['pc_label']"/></td>
@@ -83,7 +83,7 @@
                             <td class="wj-pc-td--muted" t-out="b['updated']"/>
                             <td class="text-end">
                                 <a t-attf-href="/portal/delivery/#{b['id']}"
-                                   class="wj-btn wj-btn--secondary wj-btn--sm">Xem</a>
+                                   class="wj-btn wj-btn--secondary wj-btn--sm">View</a>
                             </td>
                         </tr>
                     </tbody>
@@ -110,31 +110,31 @@
             <!-- STATE: empty -->
             <div t-if="view_state == 'empty'" class="wj-pc-dlv-inner">
                 <span class="wj-pc-dlv-inner__icon"><i class="feather icon-truck"/></span>
-                <h3 class="wj-pc-dlv-inner__title">Không có chuyến giao</h3>
-                <p class="wj-pc-dlv-inner__sub">Không tìm thấy chuyến giao trong khoảng ngày đã chọn.</p>
-                <a href="/portal/delivery" class="wj-btn wj-btn--secondary">Đổi bộ lọc</a>
+                <h3 class="wj-pc-dlv-inner__title">No delivery trips</h3>
+                <p class="wj-pc-dlv-inner__sub">No delivery trips found in the selected date range.</p>
+                <a href="/portal/delivery" class="wj-btn wj-btn--secondary">Change filters</a>
             </div>
 
             <!-- STATE: error -->
             <div t-if="view_state == 'error'" class="wj-pc-dlv-inner">
                 <span class="wj-pc-dlv-inner__icon wj-pc-dlv-inner__icon--error"><i class="feather icon-alert-circle"/></span>
-                <h3 class="wj-pc-dlv-inner__title">Không tải được dữ liệu giao hàng</h3>
-                <p class="wj-pc-dlv-inner__sub">Vui lòng thử tải lại hoặc kiểm tra kết nối.</p>
+                <h3 class="wj-pc-dlv-inner__title">Could not load delivery data</h3>
+                <p class="wj-pc-dlv-inner__sub">Please try reloading or check your connection.</p>
                 <a href="/portal/delivery"
-                   class="wj-btn wj-btn--primary"><i class="feather icon-refresh-cw"/>Tải lại</a>
+                   class="wj-btn wj-btn--primary"><i class="feather icon-refresh-cw"/>Reload</a>
             </div>
         </t>
 
         <!-- ===== Mobile: chips trạng thái (nằm trong form lọc) ===== -->
         <div t-if="part == 'mchips'" id="wj-dlv-mchips" class="wj-filter-chips">
             <a t-attf-href="/portal/delivery?bs=#{_dq}"
-               t-attf-class="wj-filter-chip #{'is-active' if not bs else ''}">Tất cả</a>
+               t-attf-class="wj-filter-chip #{'is-active' if not bs else ''}">All</a>
             <a t-attf-href="/portal/delivery?bs=soon#{_dq}"
-               t-attf-class="wj-filter-chip #{'is-active' if bs == 'soon' else ''}">Sắp giao</a>
+               t-attf-class="wj-filter-chip #{'is-active' if bs == 'soon' else ''}">Delivering soon</a>
             <a t-attf-href="/portal/delivery?bs=going#{_dq}"
-               t-attf-class="wj-filter-chip #{'is-active' if bs == 'going' else ''}">Đang giao</a>
+               t-attf-class="wj-filter-chip #{'is-active' if bs == 'going' else ''}">Delivering</a>
             <a t-attf-href="/portal/delivery?bs=done#{_dq}"
-               t-attf-class="wj-filter-chip #{'is-active' if bs == 'done' else ''}">Đã giao</a>
+               t-attf-class="wj-filter-chip #{'is-active' if bs == 'done' else ''}">Delivered</a>
         </div>
 
         <!-- ===== Mobile: thân kết quả (list/empty/error/loading + pager) =====
@@ -144,8 +144,8 @@
             <!-- STATE: list -->
             <t t-if="view_state == 'list'">
                 <div class="wujia-mdelivery-resulthead">
-                    <span class="cnt"><t t-out="len(batches)"/> chuyến</span>
-                    <span class="sort">Mới nhất trước</span>
+                    <span class="cnt"><t t-set="_dlv_n" t-value="len(batches)"/><t t-out="_dlv_n"/> <t t-if="_dlv_n == 1">trip</t><t t-else="">trips</t></span>
+                    <span class="sort">Newest first</span>
                 </div>
                 <t t-call="wujia_portal_layout.wj_data_list">
                     <t t-set="dl_variant" t-value="'detail-card'"/>
@@ -169,7 +169,7 @@
                                 <t t-call="wujia_portal_layout.wj_list_card_row">
                                     <t t-set="lcr_label">
                                         <i class="feather icon-file-text wj-lc__icon"/>
-                                        Đơn liên quan
+                                        Related orders
                                     </t>
                                     <t t-set="lcr_value" t-value="b['orders'] or '—'"/>
                                 </t>
@@ -183,24 +183,24 @@
             <!-- STATE: empty (no-data chung Figma 4788:974 — lọc rỗng → Xóa lọc) -->
             <div t-if="view_state == 'empty'" class="wj-empty-state wj-empty-state--rich">
                 <span class="wj-empty-state-icon"/>
-                <p class="wj-empty-state-title">Không có chuyến giao</p>
-                <p class="wj-empty-state-sub">Không tìm thấy chuyến giao trong khoảng ngày đã chọn.</p>
-                <p class="wj-empty-state-sub">Hãy đổi bộ lọc hoặc kiểm tra lại sau.</p>
-                <a href="/portal/delivery" class="wj-btn wj-btn--secondary">Xóa lọc</a>
+                <p class="wj-empty-state-title">No delivery trips</p>
+                <p class="wj-empty-state-sub">No delivery trips found in the selected date range.</p>
+                <p class="wj-empty-state-sub">Change the filters or check again later.</p>
+                <a href="/portal/delivery" class="wj-btn wj-btn--secondary">Clear filters</a>
             </div>
 
             <!-- STATE: error (semantic — giữ icon cảnh báo qua dual-mode) -->
             <div t-if="view_state == 'error'" class="wj-empty-state wj-empty-state--rich">
                 <span class="wj-empty-state-icon wujia-mdelivery-icon-danger"><i class="feather icon-alert-triangle"/></span>
-                <p class="wj-empty-state-title">Không tải được dữ liệu</p>
-                <p class="wj-empty-state-sub">Vui lòng kiểm tra kết nối hoặc thử tải lại.</p>
-                <button type="button" class="wj-btn wj-btn--primary" onclick="window.location.reload()">Tải lại</button>
+                <p class="wj-empty-state-title">Could not load data</p>
+                <p class="wj-empty-state-sub">Please check your connection or try reloading.</p>
+                <button type="button" class="wj-btn wj-btn--primary" onclick="window.location.reload()">Reload</button>
             </div>
 
             <!-- STATE: loading (skeleton — UI-only, QA ?_preview=loading) -->
             <t t-if="view_state == 'loading'">
                 <div class="wujia-mdelivery-resulthead">
-                    <span class="cnt">Đang tải dữ liệu…</span>
+                    <span class="cnt">Loading data…</span>
                 </div>
                 <t t-call="wujia_portal_layout.wj_data_list">
                     <t t-set="dl_variant" t-value="'detail-card'"/>
@@ -255,7 +255,13 @@
     <template id="portal_delivery_tracking" name="Wujia Portal — Delivery Tracking List">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_gutter" t-value="'list'"/>
-            <t t-set="title">Theo dõi giao hàng</t>
+            <t t-set="title">Delivery tracking</t>
+            <t t-set="_dlv_t_search_ph">Search trip code / SO code</t>
+            <t t-set="_dlv_t_status">Status</t>
+            <t t-set="_dlv_t_all_status">All statuses</t>
+            <t t-set="_dlv_t_going">Delivering</t>
+            <t t-set="_dlv_t_soon">Delivering soon</t>
+            <t t-set="_dlv_t_done">Delivered</t>
             <t t-call="wujia_portal_base.wj_ajax_list_config">
                 <t t-set="wjl_path" t-value="'/portal/delivery'"/>
                 <t t-set="wjl_slots"
@@ -267,13 +273,13 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Giao hàng</t>
+                    <t t-set="ph_title">Delivery</t>
                 </t>
 
                 <div t-if="no_franchise" class="wj-pc-empty">
                     <span class="wj-pc-empty__icon"><i class="feather icon-alert-circle"/></span>
-                    <h3 class="wj-pc-empty__title">Chưa có cửa hàng</h3>
-                    <p class="wj-pc-empty__sub">Bạn chưa được gán vào cửa hàng nào.</p>
+                    <h3 class="wj-pc-empty__title">No store yet</h3>
+                    <p class="wj-pc-empty__sub">You have not been assigned to any store.</p>
                 </div>
 
                 <t t-else="">
@@ -283,16 +289,16 @@
                         <t t-set="fb_action" t-value="'/portal/delivery'"/>
                         <t t-set="fb_search"
                            t-value="{'name': 'q', 'value': q,
-                                     'placeholder': 'Tìm mã chuyến / mã SO'}"/>
+                                     'placeholder': _dlv_t_search_ph}"/>
                         <t t-set="fb_dates"
                            t-value="{'from': date_from, 'to': date_to}"/>
                         <t t-set="fb_selects"
                            t-value="[{'name': 'bs', 'value': bs,
-                                      'label': 'Trạng thái',
-                                      'all_label': 'Tất cả trạng thái',
-                                      'options': [('going', 'Đang giao'),
-                                                  ('soon', 'Sắp giao'),
-                                                  ('done', 'Đã giao')]}]"/>
+                                      'label': _dlv_t_status,
+                                      'all_label': _dlv_t_all_status,
+                                      'options': [('going', _dlv_t_going),
+                                                  ('soon', _dlv_t_soon),
+                                                  ('done', _dlv_t_done)]}]"/>
                         <t t-set="fb_reset_url" t-value="'/portal/delivery'"/>
                         <t t-set="fb_error">
                             <t t-call="wujia_portal_delivery.portal_delivery_results_part">
@@ -312,12 +318,12 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Giao hàng</t>
+                    <t t-set="ph_title">Delivery</t>
                 </t>
 
                 <div t-if="no_franchise" class="wj-empty-state wj-empty-state--card">
                     <i class="feather icon-alert-circle"/>
-                    <p>Bạn chưa được gán vào cửa hàng nào.</p>
+                    <p>You have not been assigned to any store.</p>
                 </div>
 
                 <t t-else="">
@@ -326,7 +332,7 @@
                         <t t-set="fb_action" t-value="'/portal/delivery'"/>
                         <t t-set="fb_id" t-value="'wj-dlv-mform'"/>
                         <t t-set="fb_search"
-                           t-value="{'name': 'q', 'value': q, 'placeholder': 'Tìm mã chuyến / mã SO'}"/>
+                           t-value="{'name': 'q', 'value': q, 'placeholder': _dlv_t_search_ph}"/>
                         <t t-set="fb_dates" t-value="{'from': date_from, 'to': date_to}"/>
                         <!-- Luôn render (kể cả rỗng) để JS đồng bộ khi bấm chip AJAX. -->
                         <t t-set="fb_hidden">
@@ -363,8 +369,8 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Giao hàng / Chi tiết chuyến giao</t>
-                    <t t-set="ph_title">Chi tiết giao hàng</t>
+                    <t t-set="ph_crumb">Delivery / Trip details</t>
+                    <t t-set="ph_title">Delivery details</t>
                     <t t-set="ph_back_url" t-value="'/portal/delivery'"/>
                 </t>
 
@@ -375,7 +381,7 @@
                              trailing) ⇒ trailing của header là badge trạng thái. -->
                         <t t-call="wujia_portal_layout.wj_card_header">
                             <t t-set="ch_title" t-value="batch.name or '—'"/>
-                            <t t-set="ch_subtitle">Chuyến giao cho <t t-out="store_label"/></t>
+                            <t t-set="ch_subtitle">Trip for <t t-out="store_label"/></t>
                             <t t-set="ch_level" t-value="2"/>
                             <t t-set="ch_platform" t-value="'pc'"/>
                             <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
@@ -390,11 +396,11 @@
                             <span class="wj-pc-kv__value" t-out="pc_departure"/>
                         </div>
                         <div class="wj-pc-kv">
-                            <span class="wj-pc-kv__label">Đơn liên quan</span>
+                            <span class="wj-pc-kv__label">Related orders</span>
                             <span class="wj-pc-kv__value" t-out="pc_orders"/>
                         </div>
                         <div class="wj-pc-kv">
-                            <span class="wj-pc-kv__label">Cập nhật</span>
+                            <span class="wj-pc-kv__label">Updated on</span>
                             <span class="wj-pc-kv__value" t-out="pc_updated"/>
                         </div>
                     </div>
@@ -405,30 +411,30 @@
                     <t t-call="wujia_portal_layout.wj_surface_card">
                         <t t-set="sc_class" t-value="'wj-pc-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Thông tin vận chuyển</t>
+                            <t t-set="ch_title">Transport information</t>
                             <t t-set="ch_platform" t-value="'pc'"/>
                         </t>
                         <div class="wj-pc-kv-grid">
                             <div class="wj-pc-kv">
-                                <span class="wj-pc-kv__label">Xe / tài xế</span>
+                                <span class="wj-pc-kv__label">Vehicle / driver</span>
                                 <span class="wj-pc-kv__value">
                                     <t t-if="batch.vehicle_id"><t t-out="batch.vehicle_id.name or '—'"/><t t-if="batch.vehicle_id.driver_name"> · <t t-out="batch.vehicle_id.driver_name"/></t></t>
                                     <t t-else="">—</t>
                                 </span>
                             </div>
                             <div class="wj-pc-kv">
-                                <span class="wj-pc-kv__label">Biển số</span>
+                                <span class="wj-pc-kv__label">License plate</span>
                                 <span class="wj-pc-kv__value" t-out="batch.vehicle_id.license_plate or '—'"/>
                             </div>
                         </div>
                         <hr class="wj-pc-dlv-divider"/>
                         <div class="wj-pc-kv-grid">
                             <div class="wj-pc-kv">
-                                <span class="wj-pc-kv__label">Kho xuất</span>
+                                <span class="wj-pc-kv__label">Source warehouse</span>
                                 <span class="wj-pc-kv__value" t-out="src_location"/>
                             </div>
                             <div class="wj-pc-kv">
-                                <span class="wj-pc-kv__label">Trạng thái</span>
+                                <span class="wj-pc-kv__label">Status</span>
                                 <span class="wj-pc-kv__value wj-pc-kv__value--primary" t-out="pc_badge[0]"/>
                             </div>
                         </div>
@@ -437,7 +443,7 @@
                     <t t-call="wujia_portal_layout.wj_surface_card">
                         <t t-set="sc_class" t-value="'wj-pc-card'"/>
                         <t t-call="wujia_portal_layout.wj_card_header">
-                            <t t-set="ch_title">Đơn liên quan</t>
+                            <t t-set="ch_title">Related orders</t>
                             <t t-set="ch_platform" t-value="'pc'"/>
                         </t>
                         <div class="wj-pc-dlv-so-chips">
@@ -449,19 +455,19 @@
                             <div class="wj-pc-dlv-tl-step">
                                 <span class="wj-pc-dlv-tl-time" t-out="tl_times[0]"/>
                                 <span t-attf-class="wj-pc-dlv-tl-dot wj-pc-dlv-tl-dot--#{tl_steps[0]}"/>
-                                <span class="wj-pc-dlv-tl-label">Xuất kho</span>
+                                <span class="wj-pc-dlv-tl-label">Dispatched</span>
                             </div>
                             <span class="wj-pc-dlv-tl-line"/>
                             <div class="wj-pc-dlv-tl-step">
                                 <span class="wj-pc-dlv-tl-time" t-out="tl_times[1]"/>
                                 <span t-attf-class="wj-pc-dlv-tl-dot wj-pc-dlv-tl-dot--#{tl_steps[1]}"/>
-                                <span class="wj-pc-dlv-tl-label">Đang giao</span>
+                                <span class="wj-pc-dlv-tl-label">Delivering</span>
                             </div>
                             <span class="wj-pc-dlv-tl-line"/>
                             <div class="wj-pc-dlv-tl-step">
                                 <span class="wj-pc-dlv-tl-time" t-out="tl_times[2]"/>
                                 <span t-attf-class="wj-pc-dlv-tl-dot wj-pc-dlv-tl-dot--#{tl_steps[2]}"/>
-                                <span class="wj-pc-dlv-tl-label">Hoàn tất</span>
+                                <span class="wj-pc-dlv-tl-label">Finished</span>
                             </div>
                         </div>
                     </t>
@@ -473,20 +479,20 @@
                     <!-- Nút "Tải danh sách" đi vào slot `control` (bề mặt bấm nhìn thấy
                          được) chứ không phải `action` dạng chữ. -->
                     <t t-call="wujia_portal_layout.wj_card_header">
-                        <t t-set="ch_title">Sản phẩm trong chuyến</t>
-                        <t t-set="ch_subtitle">Dạng bảng để đối chiếu nhanh tên sản phẩm, số lượng và đơn vị tính.</t>
+                        <t t-set="ch_title">Products in trip</t>
+                        <t t-set="ch_subtitle">Table view to quickly check product names, quantities and units.</t>
                         <t t-set="ch_platform" t-value="'pc'"/>
                         <t t-set="ch_control">
-                            <a href="#" class="wj-btn wj-btn--secondary wj-btn--sm wj-card-header__control"><i class="feather icon-download"/>Tải danh sách</a>
+                            <a href="#" class="wj-btn wj-btn--secondary wj-btn--sm wj-card-header__control"><i class="feather icon-download"/>Download list</a>
                         </t>
                     </t>
                     <table class="wj-pc-table wj-pc-dlv-table">
                         <thead>
                             <tr>
-                                <th style="width:56px;">STT</th>
-                                <th>Tên sản phẩm</th>
-                                <th class="text-end">Số lượng</th>
-                                <th class="text-end">ĐVT</th>
+                                <th style="width:56px;">No.</th>
+                                <th>Product name</th>
+                                <th class="text-end">Quantity</th>
+                                <th class="text-end">UoM</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -497,7 +503,7 @@
                                 <td class="text-end wj-pc-td--muted" t-out="p['uom']"/>
                             </tr>
                             <tr t-if="not products">
-                                <td colspan="4" class="text-center wj-pc-td--muted">Chưa có sản phẩm trong chuyến.</td>
+                                <td colspan="4" class="text-center wj-pc-td--muted">No products in this trip yet.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -509,7 +515,7 @@
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Chi tiết giao hàng</t>
+                    <t t-set="ph_title">Delivery details</t>
                     <t t-set="ph_back_url" t-value="'/portal/delivery'"/>
                 </t>
 
@@ -518,7 +524,7 @@
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wujia-mdelivery-inf-top">
-                        <span class="wujia-mdelivery-row-label">Chuyến xe</span>
+                        <span class="wujia-mdelivery-row-label">Vehicle trip</span>
                         <span t-attf-class="wj-status-badge #{m_badge[1]}" t-out="m_badge[0]"/>
                     </div>
                     <div class="wujia-mdelivery-inf-id" t-out="batch.name"/>
@@ -530,41 +536,41 @@
                             <span class="wujia-mdelivery-inf-depval" t-out="m_departure_full"/>
                         </span>
                     </div>
-                    <div class="wujia-mdelivery-inf-updated">Cập nhật: <t t-out="m_updated"/></div>
+                    <div class="wujia-mdelivery-inf-updated">Updated: <t t-out="m_updated"/></div>
                 </t>
 
                 <!-- Thông tin chuyến -->
-                <div class="wujia-mdelivery-sectiontop">Thông tin chuyến</div>
+                <div class="wujia-mdelivery-sectiontop">Trip information</div>
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
                     <div class="wujia-mdelivery-inforow">
-                        <span class="lbl">Đơn liên quan</span>
+                        <span class="lbl">Related orders</span>
                         <span class="val" t-out="m_orders"/>
                     </div>
                     <div class="wujia-mdelivery-inforow">
-                        <span class="lbl">Xe / tài xế</span>
+                        <span class="lbl">Vehicle / driver</span>
                         <span class="val">
                             <t t-if="batch.vehicle_id"><t t-out="batch.vehicle_id.name or '—'"/><t t-if="batch.vehicle_id.driver_name"> · <t t-out="batch.vehicle_id.driver_name"/></t></t>
                             <t t-else="">—</t>
                         </span>
                     </div>
                     <div class="wujia-mdelivery-inforow">
-                        <span class="lbl">Biển số</span>
+                        <span class="lbl">License plate</span>
                         <span class="val" t-out="batch.vehicle_id.license_plate or '—'"/>
                     </div>
                 </t>
 
                 <!-- Sản phẩm trong chuyến -->
-                <div class="wujia-mdelivery-sectiontop">Sản phẩm trong chuyến</div>
+                <div class="wujia-mdelivery-sectiontop">Products in trip</div>
                 <t t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_body" t-value="'flush'"/>
                     <t t-set="sc_class" t-value="'wujia-mdelivery-prodcard'"/>
                     <div class="wujia-mdelivery-prodrow wujia-mdelivery-prodrow--head">
-                        <span class="nm">Tên sản phẩm</span>
+                        <span class="nm">Product name</span>
                         <span class="qt">SL</span>
-                        <span class="um">ĐVT</span>
+                        <span class="um">UoM</span>
                     </div>
                     <t t-if="products" t-foreach="products" t-as="p">
                         <div class="wujia-mdelivery-prodrow">
@@ -573,7 +579,7 @@
                             <span class="um" t-out="p['uom']"/>
                         </div>
                     </t>
-                    <div t-if="not products" class="wujia-mdelivery-prodempty">Chưa có sản phẩm trong chuyến.</div>
+                    <div t-if="not products" class="wujia-mdelivery-prodempty">No products in this trip yet.</div>
                 </t>
             </div>
         </t>

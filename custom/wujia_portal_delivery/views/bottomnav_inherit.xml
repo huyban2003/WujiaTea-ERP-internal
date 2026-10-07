@@ -5,7 +5,7 @@
     <template id="mobile_bottomnav_delivery"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="30"
-              name="Wujia Mobile — tab Giao hàng">
+              name="Wujia Mobile — Delivery tab">
         <xpath expr="//button[@data-wujia-more='toggle']" position="before">
             <t t-set="_bn_on" t-value="_bnav_path.startswith('/portal/delivery')"/>
             <t t-set="_bnav_hit" t-value="_bnav_hit or bool(_bn_on)"/>
@@ -13,7 +13,7 @@
                 <t t-set="bn_active" t-value="_bn_on"/>
                 <t t-set="bn_href" t-value="'/portal/delivery'"/>
                 <t t-set="bn_icon" t-value="'feather icon-truck'"/>
-                <t t-set="bn_label">Giao hàng</t>
+                <t t-set="bn_label">Delivery</t>
             </t>
         </xpath>
     </template>

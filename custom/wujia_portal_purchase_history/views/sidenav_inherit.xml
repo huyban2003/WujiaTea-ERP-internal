@@ -6,14 +6,14 @@
     <template id="layout_sidenav_history"
               inherit_id="wujia_portal_layout.layout_sidenav"
               priority="40"
-              name="Wujia Sidenav — Lịch sử đặt hàng">
+              name="Wujia Sidenav — Order history">
         <xpath expr="//li[@id='nav_header_finance']" position="before">
             <t t-set="ni_active" t-value="_p.startswith('/portal/purchase-history')"/>
             <li t-attf-class="nav-item #{ni_active and 'active' or ''}" id="nav_item_history">
                 <t t-call="wujia_portal_layout.wj_nav_item">
                     <t t-set="ni_href" t-value="'/portal/purchase-history'"/>
                     <t t-set="ni_icon" t-value="'feather icon-clock'"/>
-                    <t t-set="ni_label">Lịch sử đặt hàng</t>
+                    <t t-set="ni_label">Order history</t>
                 </t>
             </li>
         </xpath>

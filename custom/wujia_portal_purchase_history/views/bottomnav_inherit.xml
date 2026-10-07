@@ -7,7 +7,7 @@
     <template id="mobile_bottomnav_history_alias"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="15"
-              name="Wujia Mobile — Lịch sử đặt hàng sáng tab Đặt hàng">
+              name="Wujia Mobile — Order history highlights the Order tab">
         <xpath expr="//button[@data-wujia-more='toggle']" position="before">
             <t t-set="_bnav_order_extra"
                t-value="(_bnav_order_extra or []) + ['/portal/purchase-history']"/>

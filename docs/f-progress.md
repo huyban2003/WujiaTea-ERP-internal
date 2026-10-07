@@ -2570,3 +2570,54 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   nhìn bằng trình duyệt trên UAT (đã đo trên DB copy + HttpCase). Ghi nhận: form tạo mobile có 2 chip "Gấp"/"Khẩn cấp" cùng map
   `urgent` (BA, có từ trước) ⇒ chi tiết hiện "Khẩn" — ngoài phạm vi.
 - Phiên kế: **J-V8** — purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21).
+
+## J-V8a Việt hoá source lịch sử đặt hàng + giao hàng + đội xe · 07/10/2026 · Mac
+- Phạm vi (chủ dự án chốt 07/10 tách J-V8 làm đôi): `wujia_portal_purchase_history` (99) · `wujia_portal_delivery` (93) ·
+  `wujia_delivery` (15) · `wujia_fleet` (11) = 218 chuỗi. Gom vì cùng nhãn trạng thái chuyến giao. Không đụng module Thái.
+  **Chưa commit** (chờ lệnh chủ dự án), nền HEAD `5dc1c1a0`.
+- Đã làm:
+  - `vn_to_en_pairs` draft → check → apply cho 4 module (`docs/i18n-pairs/*.csv` CRLF, 4 file mới); glossary +101 dòng (chỉ nối thêm).
+    4 key EN của phiên đổi cho cụ thể vì đụng msgid field backend module khác: "Shipping status" (không "Delivery status"),
+    "Vehicle trip", "Departs at", "Total drop".
+  - purchase_history: `BATCH_STATUS_LABELS` (6 nhãn) / `ERR_NO_STORE` / `ERR_NOT_FOUND` → `_lt`, dịch lúc render (`_batch_status_labels()`,
+    `_error_message()`); `BACKEND_REQUESTER_LABEL = _lt('Created by {brand}')` dịch TRƯỚC rồi `_wj_brand_text`; pager dùng nhãn chung
+    `records`. QWeb: 7 t-set `_ph_t_*` (câu dự phòng "Not delivered yet", "No delivery information yet", "No notes(.)", placeholder,
+    "All statuses", "Order details"); số ít/nhiều order(s), latest order(s), product(s).
+  - portal_delivery: `MOBILE_BATCH_BADGE` → nhãn `_lt` + helper `_batch_badge()` (màu ghim cứng theo trạng thái, không đổi); pager
+    `_lt('trips')`; file ICS `env._('Delivery %s')` / `env._('Batch: %s')`; t-set `_dlv_t_*` cho filter/placeholder; trip(s).
+    Module chưa có `i18n/` ⇒ sinh mới `vi_VN.po` + `.pot`.
+  - delivery: 10 `sum=` + `title="Overloaded"` ở report/view; manifest + log migration → EN. fleet: 4 constraint + 4 câu `_()` + log +
+    manifest → EN.
+  - Tên template nav (attr `name`) → EN. Chữ không dấu máy quét bỏ sót: "Xem" → View, "STT" → No., "· SL: x" → "· Qty: x".
+  - Bump: purchase_history / portal_delivery 19.0.3.22.0 → **19.0.4.0.0**, delivery 19.0.1.1.0 → **19.0.1.2.0**, fleet 19.0.1.0.1 →
+    **19.0.1.1.0**. Không có seed `noupdate` tiếng Việt ⇒ không migration.
+  - `.po` vi_VN tái sinh + `.pot` cho 4 module; khôi phục 6 msgstr fleet bị glossary chung ghi đè (Active, Archive, Coverage,
+    Identification, Priority, Reset to draft) bằng sửa text + `i18n import -w`; `msgfmt -c` sạch.
+  - Test: `test_f5_nav_item` delivery/purchase_history kiểm nhãn EN ở arch en + VN ở arch vi (không xoá assert). Mới `test_jv8_i18n.py`
+    ×3 (purchase_history, portal_delivery, fleet): bảng VN TRƯỚC phiên (6 nhãn chuyến, 6 badge + màu, lỗi, "{brand} tạo đơn", pager
+    "chuyến"), arch en không còn chữ Việt / câu dự phòng không nằm trong biểu thức; HttpCase vi/en số ít "1 order/1 trip/1 product",
+    câu dự phòng, placeholder, badge chi tiết, "Loading goods"/"Đang chất hàng", lỗi không tìm thấy, ICS "Delivery/Batch:" ↔
+    "Giao hàng/Mã lô:"; constraint + `_()` fleet theo ngôn ngữ.
+- Số đo:
+  - `vn_hardcode_scan --fail-on-any`: 4 module **0** (trước 218).
+  - `-u fleet,delivery,portal_delivery,portal_purchase_history,portal_sale,portal_base,portal_layout --test-enable` (DB copy
+    `wujia_v8r` từ mốc HEAD): **985 test**; HEAD 966 / 0. Lần chạy đủ còn 2 đỏ do chính regex test mới bắt nhầm `or '—'` ⇒ siết regex
+    chỉ bắt chữ có dấu, chạy lại `wujia_jv8,wujia_f5,wujia_delivery_c5`: **37/37 xanh**.
+  - Mutation trên bản snapshot (code thật không đụng): đổi câu EN badge, bỏ t-set, ICS không qua `_()`, bỏ `_lt`, đổi câu constraint
+    ⇒ **6 đỏ + 1 lỗi**, đủ 5/5 đột biến bị bắt.
+  - So vi_VN DB HEAD ↔ mới: 32 chỗ khác, đều EN → VN, **0 VN → EN**. Arch vi các view backend không đổi.
+  - `wj_text_probe` vi_VN 54 trang: mới 2 lần, mỗi lần so mốc HEAD **0/54 lệch**.
+  - Playwright `anh.owner` chỉ-đọc (chặn POST trừ đăng nhập) en_US/th_TH × 1440/390 × 4 trang (home, lịch sử danh sách/chi tiết
+    `/1799`, giao hàng danh sách): **16/16 0 tràn, 0 lỗi JS, 0 HTTP ≥400** (2 lỗi console mỗi trang chỉ do script chặn 2 POST đếm
+    badge chuông/giỏ). Chữ VN còn lại trên trang en = dữ liệu (cửa hàng, người dùng, thương hiệu "Ngô Gia"), tên ngôn ngữ "Tiếng Việt",
+    menu "Báo cáo"/"Khảo sát" (thuộc V8b).
+- Lệch / LIMIT: `anh.owner` không có chuyến giao nào ⇒ chi tiết chuyến chưa nhìn bằng trình duyệt (đã phủ HttpCase badge + ICS).
+  zh/th chưa có bản dịch câu mới ⇒ thấy EN (chờ J-T5). Câu EN chi tiết đơn tạo từ backend từng đọc "Ordered by Created by Ngô Gia"
+  ⇒ chủ dự án chốt 07/10 `BACKEND_REQUESTER_LABEL = _lt('{brand} (backend)')` ("Ordered by Ngô Gia (backend)"), vi y cũ; `wujia_jv8` 10/10.
+- Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V8a".
+- Lệnh deploy: `-u wujia_fleet,wujia_delivery,wujia_portal_delivery,wujia_portal_purchase_history` + **restart sau `-u`**; kiểm version
+  DB = 19.0.1.1.0 / 19.0.1.2.0 / 19.0.4.0.0 / 19.0.4.0.0.
+- Dọn sau: DB `wujia_v8h`/`wujia_v8t`/`wujia_v8b`/`wujia_v8r` + filestore, worktree `scratchpad/v8/head` (`git worktree remove`).
+  Giữ `wujia_t1` tới hết Phần V.
+- Phiên kế: **J-V8b** — `wujia_portal_info_request` (85) + `wujia_info_request` (7) + `wujia_portal_report` (69) + `wujia_core` (9,
+  sửa câu **không bump version**; `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét) + `wujia_metabase_connector` (1).

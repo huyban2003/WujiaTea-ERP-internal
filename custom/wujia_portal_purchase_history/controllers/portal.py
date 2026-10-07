@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 
 from werkzeug.exceptions import NotFound
 
-from odoo import http
+from odoo import _lt, http
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_id
@@ -25,21 +25,21 @@ PAGE_SIZE_OPTIONS = (10, 20, 50)
 _state_meta = portal_order_state_meta
 _order_status = portal_order_status
 
-# Nhãn VN của stock.picking.batch.delivery_batch_status. Pin cứng tại đây vì source
-# wujia_delivery đã chuyển sang tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
+# Nhãn portal của stock.picking.batch.delivery_batch_status — câu portal riêng, KHÔNG đọc selection
+# của field (nhãn backend khác chữ). `_lt` dịch lúc render theo ngôn ngữ người xem (J-V8a).
 # Key phải khớp DELIVERY_BATCH_STATUS trong wujia_delivery/models/stock_picking_batch.py.
 BATCH_STATUS_LABELS = {
-    'draft': 'Nháp',
-    'assigned': 'Đã gán xe',
-    'loading': 'Đang chất hàng',
-    'delivering': 'Đang giao',
-    'done': 'Đã giao xong',
-    'cancelled': 'Hủy chuyến',
+    'draft': _lt('Draft'),
+    'assigned': _lt('Vehicle assigned'),
+    'loading': _lt('Loading goods'),
+    'delivering': _lt('Delivering'),
+    'done': _lt('Delivery completed'),
+    'cancelled': _lt('Trip cancelled'),
 }
-BACKEND_REQUESTER_LABEL = '{brand} tạo đơn'
+BACKEND_REQUESTER_LABEL = _lt('{brand} (backend)')
 
-ERR_NO_STORE = 'Không xác định được cửa hàng đang thao tác. Vui lòng chọn lại cửa hàng.'
-ERR_NOT_FOUND = 'Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.'
+ERR_NO_STORE = _lt('Cannot determine the active store. Please select the store again.')
+ERR_NOT_FOUND = _lt('Order not found or you are not allowed to view this order.')
 
 
 def _parse_date(value):
@@ -80,7 +80,9 @@ def _status_domain(key):
 def _requester_display(order):
     # BA: đơn portal → tên user tạo; đơn backend (không có requester) → nhãn chung,
     # KHÔNG lộ create_uid.name nội bộ lên portal.
-    return order.portal_requester_user_id.name or order.env.company._wj_brand_text(BACKEND_REQUESTER_LABEL)
+    # Dịch TRƯỚC rồi mới thay {brand} (_wj_brand_text chỉ .replace).
+    return order.portal_requester_user_id.name or order.env.company._wj_brand_text(
+        order.env._(BACKEND_REQUESTER_LABEL))
 
 
 def _confirm_date(order, tz):
@@ -191,10 +193,14 @@ def _history_detail_vals(order, batch_status_labels, tz):
 class WujiaPortalHistory(http.Controller):
 
     def _batch_status_labels(self):
-        # Nhãn VN cố định cho portal — KHÔNG đọc selection của field nữa: từ sprint 44 nhãn
-        # backend là tiếng Anh (source English + vi_VN.po), còn portal luôn tiếng Việt bất kể
-        # ngôn ngữ user. Cùng pattern SALE_STATE_META/STATE_LABELS ở các controller khác.
-        return BATCH_STATUS_LABELS
+        # Nhãn portal cố định (không đọc selection của field — nhãn backend khác chữ), dịch theo
+        # ngôn ngữ người xem. Cùng pattern SALE_STATE_META/STATE_LABELS ở các controller khác.
+        env = request.env
+        return {key: env._(label) for key, label in BATCH_STATUS_LABELS.items()}
+
+    @staticmethod
+    def _error_message(msg):
+        return request.env._(msg)
 
     def _state_options(self, sale_order):
         # Option lọc trạng thái = selection sale.order.state trừ 'cancel' (đơn huỷ ẩn khỏi lịch sử)
@@ -222,7 +228,7 @@ class WujiaPortalHistory(http.Controller):
 
         fid = get_active_franchise_id()
         if not fid:
-            return dict(base_ctx, no_store=True, error=ERR_NO_STORE, rows=[], pgn=None)
+            return dict(base_ctx, no_store=True, error=self._error_message(ERR_NO_STORE), rows=[], pgn=None)
 
         # Preset shortcut → khoảng create_date.
         today = date.today()
@@ -287,7 +293,7 @@ class WujiaPortalHistory(http.Controller):
         rows = [_history_row_vals(o, line_count_map, batch_status_labels, tz) for o in orders]
 
         pgn = build_pager(total, page, page_size, path='/portal/purchase-history',
-                          item_label='bản ghi', page_size_options=PAGE_SIZE_OPTIONS,
+                          page_size_options=PAGE_SIZE_OPTIONS,
                           size_param='page_size')
 
         return dict(base_ctx, no_store=False, error='', rows=rows, pgn=pgn,
@@ -312,7 +318,7 @@ class WujiaPortalHistory(http.Controller):
         if not order:
             # Cùng 1 message cho "không tồn tại" và "khác cửa hàng" — không lộ tồn tại (BA).
             return request.render('wujia_portal_purchase_history.portal_history_detail',
-                                  {'error': ERR_NOT_FOUND, 'detail': None,
+                                  {'error': self._error_message(ERR_NOT_FOUND), 'detail': None,
                                    'money': portal_money})
         detail = _history_detail_vals(order, self._batch_status_labels(), portal_tz())
         return request.render('wujia_portal_purchase_history.portal_history_detail',

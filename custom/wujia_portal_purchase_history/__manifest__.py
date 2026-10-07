@@ -1,8 +1,8 @@
 {
     'name': 'Wujia Portal — Purchase History',
-    'version': '19.0.3.22.0',
+    'version': '19.0.4.0.0',
     'category': 'Wujia',
-    'summary': 'Lịch sử đặt hàng portal — list + detail (controller BA CT-024/025)',
+    'summary': 'Portal order history — list + detail (BA controller CT-024/025)',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': ['wujia_sale', 'wujia_portal_base', 'wujia_delivery'],

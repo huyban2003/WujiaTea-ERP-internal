@@ -43,7 +43,7 @@ class WujiaFleetType(models.Model):
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',
-        'Mã loại xe phải duy nhất.',
+        'Vehicle type code must be unique.',
     )
 
     @api.depends('payload_capacity_ton')
@@ -55,4 +55,4 @@ class WujiaFleetType(models.Model):
     def _check_payload(self):
         for rec in self:
             if rec.payload_capacity_ton < 0:
-                raise ValidationError(_("Tải trọng phải >= 0."))
+                raise ValidationError(_("Capacity must be >= 0."))

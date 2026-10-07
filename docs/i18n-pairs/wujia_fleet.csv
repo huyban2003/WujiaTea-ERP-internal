@@ -1,0 +1,12 @@
+file,line,category,attr,vn,en,mode,note
+custom/wujia_fleet/__manifest__.py,5,py_literal,,Quản lý đội xe / nhà xe / loại xe / xe / bảng giá vận chuyển,Fleet / carrier / vehicle type / vehicle / freight pricelist management,manual,
+custom/wujia_fleet/__manifest__.py,7,py_literal,,"Master data đội xe (BA spec mục B): - wujia.fleet.provider: nhà xe / đội xe (company / outsource). - wujia.fleet.type: loại xe (xe tải, bán tải, đông lạnh...) + payload chuẩn. - wujia.fleet.management: xe cụ thể (license_plate, driver, status), gắn provider + type. - wujia.fleet.pricelist: bảng giá vận chuyển theo loại xe + nhà xe + scope (city/interprovince). - wujia.fleet.pricelist.line: dòng giá theo khu vực (res.area), drop_fee per điểm. Module này KHÔNG đụng stock.picking / stock.picking.batch — phần điều phối nằm ở wujia_delivery để tránh circular dep với wujia_sale.",,manual,
+custom/wujia_fleet/models/wujia_fleet_management.py,13,py_literal,,qrcode python package not installed — wujia.fleet.management.qr_code sẽ trả về False.,qrcode python package not installed — wujia.fleet.management.qr_code will return False.,manual,
+custom/wujia_fleet/models/wujia_fleet_management.py,116,py_literal,,Mã xe phải duy nhất.,Vehicle code must be unique.,manual,
+custom/wujia_fleet/models/wujia_fleet_pricelist.py,95,py_literal,,Mã bảng giá phải duy nhất.,Pricelist code must be unique.,manual,
+custom/wujia_fleet/models/wujia_fleet_pricelist.py,102,py_gettext,,Hiệu lực đến phải >= hiệu lực từ.,Valid to must be >= valid from.,auto,
+custom/wujia_fleet/models/wujia_fleet_provider.py,67,py_literal,,Mã đội xe phải duy nhất.,Fleet code must be unique.,manual,
+custom/wujia_fleet/models/wujia_fleet_provider.py,79,py_gettext,,Email '%s' không đúng định dạng.,Email '%s' has an invalid format.,auto,
+custom/wujia_fleet/models/wujia_fleet_provider.py,85,py_gettext,,Xe của %s,Vehicles of %s,auto,
+custom/wujia_fleet/models/wujia_fleet_type.py,46,py_literal,,Mã loại xe phải duy nhất.,Vehicle type code must be unique.,manual,
+custom/wujia_fleet/models/wujia_fleet_type.py,58,py_gettext,,Tải trọng phải >= 0.,Capacity must be >= 0.,auto,

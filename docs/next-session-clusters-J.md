@@ -59,7 +59,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) + khối `_debt_copy_msgs` câu JS + đơn vị số rút gọn theo ngôn ngữ | debt | ✅ 06/10 — `2f9f5695` đã push, chờ deploy |
 | J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) + `_ret_line_msgs` câu JS + migration seed loại lỗi | return ×2 | ✅ 06/10 — `b78c4568` đã push, chờ deploy |
 | J-V7 | support (112+2) + knowledge (46+2) + notification (86+27) + migration seed loại thông báo + WJ-SUPPORT-003 | 6 module | ✅ 07/10 — `351932a8` đã push, chờ deploy |
-| **J-V8** | **Phiên kế.** purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21) | 9 module | ☐ |
+| J-V8a | purchase_history (99) + portal_delivery (93) + delivery (15) + fleet (11) — chủ dự án tách J-V8 làm đôi 07/10 | 4 module | ✅ 07/10 — chưa commit, chờ lệnh |
+| **J-V8b** | **Phiên kế.** info_request (85+7) + report (69) + core (9) + metabase (1). `wujia_core` sửa câu **không bump version** (tránh `-u wujia_core` kéo dây chuyền module Thái); `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét | 5 module | ☐ |
 | ★J-VR | Review Phần V: quét lại = 0 (code team), vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi danh sách 284 chuỗi cho Thái | — | ☐ |
 | J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; script CLI gọi lại module | wujia_i18n, scripts | ☐ |
 | J-T5 | **Dịch tự động (DeepL)**: chọn ngôn ngữ (tự bật nếu chưa có) → dịch hàng loạt chuỗi chưa dịch → BA rà → Áp dụng (xem §6b) | wujia_i18n | ☐ |
@@ -328,6 +329,17 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
 - HttpCase đổi `user.lang` giữa test ⇒ `authenticate` lại (ngôn ngữ phiên cố định lúc đăng nhập).
 - Lệch PC/mobile do một bên đọc `_fields[x].selection` thô (WJ-SUPPORT-003) ⇒ mọi nhãn selection ở portal đi qua một dict `_lt` chung
   cho PC + mobile; test arch cấm `_fields['…'].selection` trong template.
+
+**J-V8a — ✅ 07/10: bài học cho V8b**
+- Key EN mới có thể trùng msgid field backend của module KHÁC (vd "Delivery status" ở `wujia_delivery`) ⇒ `sync` ghi đè msgstr
+  backend. Trước `apply`: grep mọi key EN mới trong `custom/*/i18n/vi_VN.po`; trùng mà nghĩa khác ⇒ đặt key cụ thể hơn
+  ("Shipping status", "Vehicle trip", "Departs at", "Total drop").
+- `odoo-bin i18n import` KHÔNG nhận `--logfile`.
+- Test gọi `_lt('x')` / `_('x')` bằng literal ⇒ extractor kéo file test vào `#:` của `.po`/`.pot` ⇒ trong test gán biến trước.
+- Regex kiểm "câu dự phòng còn trong biểu thức" phải bắt chữ CÓ DẤU tiếng Việt, không bắt mọi ký tự ngoài ASCII (`or '—'` hợp lệ).
+- Mutation làm trên bản snapshot (`rsync custom/ → snap/`) rồi rsync lại ⇒ code thật không bao giờ bị đụng, khỏi backup.
+- Playwright chặn POST ⇒ 2 lỗi console `ERR_FAILED` mỗi trang (đếm chuông/giỏ) là do script; ghi URL bị chặn và lọc riêng.
+- Ghép nhãn + giá trị có sẵn động từ ("Ordered by" + "Created by {brand}") ra câu lủng củng ở en ⇒ soát chỗ dùng hằng trước khi chọn câu EN.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

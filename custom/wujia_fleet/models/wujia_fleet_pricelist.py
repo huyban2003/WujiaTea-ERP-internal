@@ -92,14 +92,14 @@ class WujiaFleetPricelist(models.Model):
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',
-        'Mã bảng giá phải duy nhất.',
+        'Pricelist code must be unique.',
     )
 
     @api.constrains('date_from', 'date_to')
     def _check_dates(self):
         for rec in self:
             if rec.date_from and rec.date_to and rec.date_to < rec.date_from:
-                raise ValidationError(_("Hiệu lực đến phải >= hiệu lực từ."))
+                raise ValidationError(_("Valid to must be >= valid from."))
 
     def action_activate(self):
         for rec in self:

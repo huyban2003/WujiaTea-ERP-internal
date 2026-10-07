@@ -13,11 +13,11 @@
                 <field name="batch_id" optional="show"/>
                 <field name="vehicle_id" optional="show"/>
                 <field name="provider_id" optional="show"/>
-                <field name="planned_weight" sum="Tổng dự kiến"/>
-                <field name="done_weight" sum="Tổng thực xuất"/>
-                <field name="shipping_cost_allocated" sum="Tổng cước phân bổ" widget="monetary"/>
-                <field name="drop_fee_allocated" sum="Tổng drop phân bổ" widget="monetary"/>
-                <field name="total_cost_allocated" sum="Tổng phân bổ" widget="monetary"/>
+                <field name="planned_weight" sum="Total planned"/>
+                <field name="done_weight" sum="Total shipped"/>
+                <field name="shipping_cost_allocated" sum="Total allocated freight" widget="monetary"/>
+                <field name="drop_fee_allocated" sum="Total allocated drop fee" widget="monetary"/>
+                <field name="total_cost_allocated" sum="Total allocated" widget="monetary"/>
                 <field name="currency_id" column_invisible="True"/>
             </list>
         </field>

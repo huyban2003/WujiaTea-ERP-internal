@@ -17,7 +17,7 @@ def migrate(cr, version):
            AND p.franchise_id IS NULL
            AND s.franchise_id IS NOT NULL
     """)
-    _logger.info('C1: điền franchise từ đơn bán cho %s phiếu kho cũ', cr.rowcount)
+    _logger.info('C1: filled franchise from sales order for %s old pickings', cr.rowcount)
 
     cr.execute("""
         WITH m AS (
@@ -33,4 +33,4 @@ def migrate(cr, version):
            AND u.partner_id IN (p.id, p.commercial_partner_id)
            AND sp.franchise_id IS NULL
     """)
-    _logger.info('C1: điền franchise từ partner cho %s phiếu kho cũ', cr.rowcount)
+    _logger.info('C1: filled franchise from partner for %s old pickings', cr.rowcount)

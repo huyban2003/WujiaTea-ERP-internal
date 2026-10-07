@@ -1,8 +1,8 @@
 {
     'name': 'Wujia Portal — Delivery Tracking',
-    'version': '19.0.3.22.0',
+    'version': '19.0.4.0.0',
     'category': 'Wujia',
-    'summary': 'Theo dõi chuyến giao hàng portal — list batch + detail (desktop + mobile Figma 4731)',
+    'summary': 'Portal delivery trip tracking — batch list + detail (desktop + mobile Figma 4731)',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': ['wujia_delivery', 'wujia_portal_base'],

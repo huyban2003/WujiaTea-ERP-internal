@@ -10,7 +10,7 @@ try:
     import qrcode
 except ImportError:
     qrcode = None
-    _logger.info("qrcode python package not installed — wujia.fleet.management.qr_code sẽ trả về False.")
+    _logger.info("qrcode python package not installed — wujia.fleet.management.qr_code will return False.")
 
 
 VEHICLE_STATUS = [
@@ -113,7 +113,7 @@ class WujiaFleetManagement(models.Model):
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',
-        'Mã xe phải duy nhất.',
+        'Vehicle code must be unique.',
     )
 
     @api.depends('code')

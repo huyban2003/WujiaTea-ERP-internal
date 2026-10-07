@@ -64,7 +64,7 @@ class WujiaFleetProvider(models.Model):
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',
-        'Mã đội xe phải duy nhất.',
+        'Fleet code must be unique.',
     )
 
     @api.depends('vehicle_ids.active')
@@ -76,13 +76,13 @@ class WujiaFleetProvider(models.Model):
     def _check_email_format(self):
         for rec in self:
             if rec.email and not EMAIL_RE.match(rec.email):
-                raise ValidationError(_("Email '%s' không đúng định dạng.", rec.email))
+                raise ValidationError(_("Email '%s' has an invalid format.", rec.email))
 
     def action_view_vehicles(self):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Xe của %s', self.name),
+            'name': _('Vehicles of %s', self.name),
             'res_model': 'wujia.fleet.management',
             'view_mode': 'list,kanban,form',
             'domain': [('provider_id', '=', self.id)],

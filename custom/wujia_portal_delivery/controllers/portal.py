@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 
 from werkzeug.exceptions import NotFound
 
-from odoo import http
+from odoo import _lt, http
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
@@ -43,13 +43,14 @@ PAGE_SIZE = 20
 # Batch badge (label, class modifier) theo delivery_batch_status.
 # E2 CMP-SB-001: PC và mobile dùng CHUNG variant, hết hai họ .wujia-mdelivery-badge--*
 # và .wj-pc-badge--dlv-*. Variant theo ĐÚNG bậc BA ghi ("Chuẩn bị giao" = processing).
+# Nhãn `_lt` dịch lúc render (`_batch_badge`) theo ngôn ngữ người xem; variant ghim cứng, không tra theo nhãn.
 MOBILE_BATCH_BADGE = {
-    'draft': ('Sắp giao', status_badge('processing')),
-    'assigned': ('Sắp giao', status_badge('processing')),
-    'loading': ('Sắp giao', status_badge('processing')),
-    'delivering': ('Đang giao', status_badge('processing')),
-    'done': ('Đã giao', status_badge('success')),
-    'cancelled': ('Đã hủy', status_badge('danger')),
+    'draft': (_lt('Delivering soon'), status_badge('processing')),
+    'assigned': (_lt('Delivering soon'), status_badge('processing')),
+    'loading': (_lt('Delivering soon'), status_badge('processing')),
+    'delivering': (_lt('Delivering'), status_badge('processing')),
+    'done': (_lt('Delivered'), status_badge('success')),
+    'cancelled': (_lt('Cancelled'), status_badge('danger')),
 }
 PC_BATCH_BADGE = MOBILE_BATCH_BADGE  # một nguồn cho cả hai khổ
 
@@ -59,6 +60,15 @@ BATCH_STATUS_GROUP = {
     'going': ['delivering'],
     'done': ['done'],
 }
+
+
+def _batch_badge(status):
+    """(nhãn đã dịch, class badge) của 1 chuyến; trạng thái lạ ⇒ in thô + neutral."""
+    meta = MOBILE_BATCH_BADGE.get(status)
+    if not meta:
+        return status or '—', status_badge('neutral')
+    label, modifier = meta
+    return request.env._(label), modifier
 
 
 def _chip_counts(Batch, base_domain):
@@ -168,8 +178,7 @@ class WujiaPortalDelivery(http.Controller):
                                 order='planned_departure desc, id desc')
             for b in recs:
                 own = own_pickings(b, franchise_ids)
-                label, modifier = MOBILE_BATCH_BADGE.get(
-                    b.delivery_batch_status, (b.delivery_batch_status or '—', status_badge('neutral')))
+                label, modifier = _batch_badge(b.delivery_batch_status)
                 v = b.vehicle_id
                 vehicle_str = ('%s · %s' % (v.name, v.driver_name)) if v and v.driver_name else (v.name if v else '—')
                 upd = b.actual_departure or b.write_date
@@ -190,7 +199,7 @@ class WujiaPortalDelivery(http.Controller):
                     'updated': _hhmm(upd, tz),
                 })
             pgn = build_pager(total, page, size, path='/portal/delivery',
-                              item_label='chuyến',
+                              item_label=_lt('trips'),
                               page_size_options=PAGE_SIZE_OPTIONS)
             if not batches:
                 view_state = 'empty'
@@ -262,8 +271,7 @@ class WujiaPortalDelivery(http.Controller):
                 products.append(row)
             row['qty'] += mv.product_uom_qty or 0.0
 
-        label, modifier = MOBILE_BATCH_BADGE.get(
-            batch.delivery_batch_status, (batch.delivery_batch_status or '—', status_badge('neutral')))
+        label, modifier = _batch_badge(batch.delivery_batch_status)
         updated = batch.actual_departure or batch.write_date
         tz = portal_tz()
 
@@ -332,8 +340,9 @@ class WujiaPortalDelivery(http.Controller):
         dt_start = batch.scheduled_date or datetime.now()
         dt_end = dt_start + timedelta(hours=2)
         pickings = own_pickings(batch, franchise_ids)
-        summary = f'Giao hàng {batch.name or batch.id}'
-        description_parts = [f'Mã lô: {batch.name or batch.id}']
+        env = request.env
+        summary = env._('Delivery %s', batch.name or batch.id)
+        description_parts = [env._('Batch: %s', batch.name or batch.id)]
         for p in pickings:
             description_parts.append(f'- {p.name}: {p.origin or ""}')
         description = '\n'.join(description_parts)
