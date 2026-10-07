@@ -62,8 +62,8 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V8a | purchase_history (99) + portal_delivery (93) + delivery (15) + fleet (11) — chủ dự án tách J-V8 làm đôi 07/10 | 4 module | ✅ 07/10 — `dbd4335b` đã lên UAT 07/10 |
 | J-V8b | info_request (85+7) + report (69) + core (9) + metabase (1). `wujia_core` sửa câu **không bump version** (tránh `-u wujia_core` kéo dây chuyền module Thái); `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét | 5 module | ✅ 07/10 — `02e363fc` đã lên UAT 07/10 |
 | ★J-VR | Review Phần V: quét = 0, vi_VN 0 lệch, en/th 156 trang sạch, bỏ nhánh tra ngược badge VN, danh sách BA (1 361 cặp) + Thái (284) ở `docs/i18n-review/`, chapter 79 | portal_base, sale, purchase_history, delivery | ✅ 07/10 — `457ff953` đã lên UAT 07/10 |
-| **J-T4** | **Phiên kế.** Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; script CLI gọi lại module | wujia_i18n, scripts | ☐ |
-| J-T5 | **Dịch tự động (DeepL)**: chọn ngôn ngữ (tự bật nếu chưa có) → dịch hàng loạt chuỗi chưa dịch → BA rà → Áp dụng (xem §6b) | wujia_i18n | ☐ |
+| J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; `po_writer` dùng chung + CLI `scripts/i18n_tool.py`; dòng chỉ khớp câu nguồn chỉ điền chỗ trống (chủ dự án 07/10) | wujia_i18n, scripts | ✅ 07/10 — chưa commit |
+| **J-T5** | **Phiên kế.** **Dịch tự động (DeepL)**: chọn ngôn ngữ (tự bật nếu chưa có) → dịch hàng loạt chuỗi chưa dịch → BA rà → Áp dụng (xem §6b) | wujia_i18n | ☐ |
 | J-O0 | Bảng đối chiếu CT-059…067 ↔ backend + danh sách màn + câu hỏi BA (0 code) | docs | ☐ |
 | J-O1 | Luật portal ở L2 (file mới `portal_rules.py`, báo Thái) | franchise_operations (thêm file) | ☐ |
 | J-O2 | Hub + Nhân viên + Lịch ca (chỉ đọc) | wujia_portal_operations (mới) | ☐ |
@@ -360,6 +360,20 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
 - msgid chưa dịch phải so với trước Phần V (`git show <mốc>:…/vi_VN.po`), nếu không 463 dòng backend tiếng Anh có từ trước che mất chỗ lùi thật.
 - DB đo chép từ DB đã từng quét bằng `wujia_i18n` ⇒ `test_scan_reads_db_and_code_terms` đỏ (đếm cả kết quả quét cũ) — không phải lỗi code.
 - Mốc `docs/i18n-baseline/vi_VN.json` cập nhật sau Phần V (54 trang, DB `wujia_vr`).
+
+**J-T4 — ✅ 07/10: bài học cho J-T5 / ★JR**
+- Glossary chung khớp theo câu nguồn ở MỌI module sẽ đè bản vi_VN đã chốt riêng (đo: glossary 90, file Thái 162 bản đổi, vd exam
+  "Ca thi" → "Khung giờ") ⇒ dòng không ref/ref cũ chỉ điền chỗ trống; J-T5 (dịch máy) cũng phải theo luật này.
+- File glossary của Thái đã cũ: 773/1 004 ref `wujia_franchise.*` đã chuyển sang `wujia_franchise_inspection` ⇒ khớp theo ref chỉ
+  211; đừng coi "khớp ref" là thước đo độ đúng của file đó.
+- Code ghi `.po` để trong module phải tránh `import odoo` ở đầu file (script ngoài nạp theo đường dẫn) và tránh chữ Việt trong
+  `print` (quét Phần V tính cả `tools/`).
+- `.pot` lấy từ `trans_export(None, …)` (polib) = đúng file `odoo-bin i18n export`; `.po` qua babel ⇒ module chưa sửa xuất ra trùng
+  repo (exam 0 dòng, core chỉ thêm 3 bản dịch DB đang có). Module lõi (`web`) xuất ra lệch nhẹ vì ưu tiên "bản đang chạy" ⇒ chỉ commit
+  zip của module team.
+- `dict(defaultdict)` mất giá trị mặc định ⇒ thống kê phải khởi tạo đủ khoá (test wizard bắt được KeyError).
+- Runner mutation đọc log: `wujia_core` ghi log vào `<dir>/<năm>/<tháng>/<ngày>.log`, DB trắng thì ghi đúng `--logfile` ⇒ gom mọi
+  file `*.log` và kiểm đường dẫn snapshot có trong log, nếu không mọi đột biến "sống" giả.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

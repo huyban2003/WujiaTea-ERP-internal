@@ -26,7 +26,7 @@ class TestI18nTool(TransactionCase):
         self.assertTrue({'model', 'model_terms', 'code_python'} <= kinds, kinds)
         # Mỗi term có đúng 1 dòng cho mỗi ngôn ngữ quét.
         terms = self.Term.search([('module', '=', MOD)])
-        self.assertEqual(self.Value.search_count([('term_id', 'in', terms.ids)]), len(terms))
+        self.assertEqual(self.Value.search_count([('term_id', 'in', terms.ids), ('lang', '=', LANG)]), len(terms))
 
     def test_scan_js_terms(self):
         self.Term._wj_scan(['web'], [LANG])

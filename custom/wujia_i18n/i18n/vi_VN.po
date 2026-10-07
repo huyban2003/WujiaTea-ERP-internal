@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 17:38+0000\n"
-"PO-Revision-Date: 2026-10-04 17:38+0000\n"
+"POT-Creation-Date: 2026-10-07 08:30+0000\n"
+"PO-Revision-Date: 2026-10-07 08:30+0000\n"
 "Last-Translator: \n"
 "Language: vi_VN\n"
 "Language-Team: \n"
@@ -16,6 +16,13 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/transfer_wizard.py
+#, python-format
+msgid "%(n)s Python/JavaScript strings wait for .po export."
+msgstr "%(n)s chuỗi Python/JavaScript chờ xuất .po."
 
 #. module: wujia_i18n
 #. odoo-python
@@ -32,6 +39,19 @@ msgstr ""
 #, python-format
 msgid "%(n)s translation(s) applied."
 msgstr "Đã áp dụng %(n)s bản dịch."
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/transfer_wizard.py
+#, python-format
+msgid ""
+"%(rows)s rows: %(by_ref)s matched by reference, %(by_src)s by source text, "
+"%(unmatched)s not found. %(updated)s translations changed, %(unchanged)s "
+"already identical, %(kept)s existing ones kept."
+msgstr ""
+"%(rows)s dòng: %(by_ref)s khớp theo tham chiếu, %(by_src)s khớp theo câu "
+"nguồn, %(unmatched)s không tìm thấy. %(updated)s bản dịch thay đổi, "
+"%(unchanged)s đã giống sẵn, %(kept)s bản đã có được giữ nguyên."
 
 #. module: wujia_i18n
 #. odoo-python
@@ -60,9 +80,47 @@ msgstr "Áp dụng tất cả bản chờ"
 
 #. module: wujia_i18n
 msgid ""
+"Apply labels, menus and views immediately. Python/JavaScript strings need "
+".po export + restart."
+msgstr ""
+"Áp ngay nhãn, menu và giao diện. Chuỗi Python/JavaScript cần xuất .po + khởi"
+" động lại."
+
+#. module: wujia_i18n
+msgid "Apply now"
+msgstr "Áp dụng ngay"
+
+#. module: wujia_i18n
+msgid ""
 "Archived when the term is no longer found by a scan (source text changed or "
 "removed)."
 msgstr "Tự lưu trữ khi lần quét không còn thấy chuỗi (câu gốc đã đổi hoặc bị xoá)."
+
+#. module: wujia_i18n
+msgid ""
+"By default, translations edited in this tool are kept when the file has a "
+"different value."
+msgstr ""
+"Mặc định, bản dịch đã sửa trong công cụ này được giữ nguyên khi file có giá "
+"trị khác."
+
+#. module: wujia_i18n
+msgid "CSV file"
+msgstr "File CSV"
+
+#. module: wujia_i18n
+msgid "CSV glossary (key,option,VN,CN,TH)"
+msgstr "Bảng thuật ngữ CSV (key,option,VN,CN,TH)"
+
+#. module: wujia_i18n
+msgid ""
+"CSV with columns key,option,VN,CN,TH (the option column may be missing). "
+"Rows are matched by reference, otherwise by source text. Identical "
+"translations are skipped."
+msgstr ""
+"CSV gồm các cột key,option,VN,CN,TH (có thể thiếu cột option). Dòng được "
+"khớp theo tham chiếu, không có thì theo câu nguồn. Bản dịch giống hệt được "
+"bỏ qua."
 
 #. module: wujia_i18n
 msgid "Cancel"
@@ -70,7 +128,21 @@ msgstr "Hủy"
 
 #. module: wujia_i18n
 #. odoo-python
+#: code:addons/wujia_i18n/models/i18n_transfer.py
+#, python-format
+msgid "Cannot read the CSV file: %s"
+msgstr "Không đọc được file CSV: %s"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/transfer_wizard.py
+msgid "Choose a CSV file."
+msgstr "Hãy chọn một file CSV."
+
+#. module: wujia_i18n
+#. odoo-python
 #: code:addons/wujia_i18n/wizard/scan_wizard.py
+#: code:addons/wujia_i18n/wizard/transfer_wizard.py
 msgid "Choose at least one module and one language."
 msgstr "Chọn ít nhất một module và một ngôn ngữ."
 
@@ -112,11 +184,23 @@ msgstr "Đã sửa tay"
 
 #. module: wujia_i18n
 msgid ""
-"Edited but not applied yet. Code strings take effect after .po export + "
-"restart."
+"Edited but not applied yet. Python/JavaScript strings: export .po, commit "
+"into the module, deploy, then restart."
 msgstr ""
-"Đã sửa nhưng chưa áp dụng. Chuỗi trong code có hiệu lực sau khi xuất .po + "
-"khởi động lại."
+"Đã sửa nhưng chưa áp dụng. Chuỗi Python/JavaScript: xuất .po, commit vào "
+"module, triển khai rồi khởi động lại."
+
+#. module: wujia_i18n
+msgid "Export"
+msgstr "Xuất"
+
+#. module: wujia_i18n
+msgid "Export .po for code strings"
+msgstr "Xuất .po cho chuỗi code"
+
+#. module: wujia_i18n
+msgid "Export translations"
+msgstr "Xuất bản dịch"
 
 #. module: wujia_i18n
 msgid "External ID of the record, or file:line for code strings."
@@ -127,12 +211,38 @@ msgid "Field value"
 msgstr "Giá trị field"
 
 #. module: wujia_i18n
+msgid "Filename"
+msgstr "Tên file"
+
+#. module: wujia_i18n
+msgid "Format"
+msgstr "Định dạng"
+
+#. module: wujia_i18n
 msgid "From module"
 msgstr "Theo module"
 
 #. module: wujia_i18n
 msgid "ID"
 msgstr ""
+
+#. module: wujia_i18n
+msgid "Import"
+msgstr "Nhập"
+
+#. module: wujia_i18n
+msgid "Import / export translations"
+msgstr "Nhập / xuất bản dịch"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/transfer_wizard.py
+msgid "Import finished"
+msgstr "Nhập xong"
+
+#. module: wujia_i18n
+msgid "Import translations"
+msgstr "Nhập bản dịch"
 
 #. module: wujia_i18n
 msgid "Incomplete"
@@ -175,6 +285,10 @@ msgid "Missing"
 msgstr "Chưa dịch"
 
 #. module: wujia_i18n
+msgid "Mode"
+msgstr "Chế độ"
+
+#. module: wujia_i18n
 msgid "Model,field (e.g. ir.ui.view,arch_db) or source file for code strings."
 msgstr "Model,field (vd ir.ui.view,arch_db) hoặc file nguồn với chuỗi trong code."
 
@@ -185,6 +299,20 @@ msgstr ""
 #. module: wujia_i18n
 msgid "Modules"
 msgstr "Module"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_value.py
+msgid "No Python/JavaScript string is waiting for export."
+msgstr "Không có chuỗi Python/JavaScript nào đang chờ xuất."
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/transfer_wizard.py
+msgid ""
+"No language column of the file is active (columns VN, CN, TH or language "
+"codes)."
+msgstr "File không có cột ngôn ngữ nào đang bật (cột VN, CN, TH hoặc mã ngôn ngữ)."
 
 #. module: wujia_i18n
 msgid "No terms yet"
@@ -205,6 +333,18 @@ msgstr "Chưa dịch"
 #. module: wujia_i18n
 msgid "One translation per term and language."
 msgstr "Mỗi chuỗi chỉ có một bản dịch cho mỗi ngôn ngữ."
+
+#. module: wujia_i18n
+msgid "Only edited terms"
+msgstr "Chỉ chuỗi đã sửa tay"
+
+#. module: wujia_i18n
+msgid "Only fill untranslated"
+msgstr "Chỉ điền chỗ chưa dịch"
+
+#. module: wujia_i18n
+msgid "Overwrite edited translations"
+msgstr "Ghi đè bản đã sửa tay"
 
 #. module: wujia_i18n
 msgid "Python / JavaScript code"
@@ -229,6 +369,28 @@ msgstr "Bản ghi"
 #. module: wujia_i18n
 msgid "Reference"
 msgstr "Tham chiếu"
+
+#. module: wujia_i18n
+msgid "Result File"
+msgstr "File kết quả"
+
+#. module: wujia_i18n
+msgid "Result Filename"
+msgstr "Tên file kết quả"
+
+#. module: wujia_i18n
+msgid ""
+"Rows with no \"option\" column (or whose reference is not found) are matched"
+" by source text in every module. \"Only fill untranslated\" leaves existing "
+"translations of those terms unchanged."
+msgstr ""
+"Dòng không có cột \"option\" (hoặc tham chiếu không còn) được khớp theo câu "
+"nguồn ở mọi module. \"Chỉ điền chỗ chưa dịch\" giữ nguyên bản dịch đang có "
+"của các chuỗi đó."
+
+#. module: wujia_i18n
+msgid "Rows without reference"
+msgstr "Dòng không có tham chiếu"
 
 #. module: wujia_i18n
 msgid "Scan"
@@ -289,6 +451,15 @@ msgid "Terms"
 msgstr "Chuỗi"
 
 #. module: wujia_i18n
+msgid ""
+"The .po zip is for developers: copy each module's i18n folder into the "
+"source, commit, deploy, then restart so Python/JavaScript strings take "
+"effect."
+msgstr ""
+"File zip .po dành cho dev: chép thư mục i18n của từng module vào source, "
+"commit, triển khai rồi khởi động lại để chuỗi Python/JavaScript có hiệu lực."
+
+#. module: wujia_i18n
 msgid "Total"
 msgstr "Tổng"
 
@@ -313,12 +484,20 @@ msgid "Translation coverage"
 msgstr "Độ phủ bản dịch"
 
 #. module: wujia_i18n
+msgid "Translation import / export"
+msgstr "Nhập / xuất bản dịch"
+
+#. module: wujia_i18n
 msgid "Translations"
 msgstr "Bản dịch"
 
 #. module: wujia_i18n
 msgid "Translator"
 msgstr "Người dịch"
+
+#. module: wujia_i18n
+msgid "Update every match"
+msgstr "Cập nhật mọi chỗ khớp"
 
 #. module: wujia_i18n
 msgid "Use <b>Scan terms</b> to read the strings of the modules into the catalog."
@@ -331,4 +510,8 @@ msgstr "Giao diện / template"
 #. module: wujia_i18n
 msgid "Waiting to apply"
 msgstr "Chờ áp dụng"
+
+#. module: wujia_i18n
+msgid "Zip of .po + .pot per module"
+msgstr "Zip .po + .pot từng module"
 

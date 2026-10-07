@@ -24,15 +24,12 @@ Ví dụ:
 
 import argparse
 import configparser
-import csv
+import importlib.util
 import os
-import re
 import shutil
 import subprocess
 import sys
 import tempfile
-
-from babel.messages.pofile import read_po, write_po
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CUSTOM_DIR = os.path.join(BASE_DIR, 'custom')
@@ -40,8 +37,17 @@ ODOO_BIN = os.path.join(BASE_DIR, 'odoo19', 'odoo-bin')
 DEFAULT_CONFIG = os.path.join(BASE_DIR, 'config', 'odoo.conf')
 DEFAULT_GLOSSARY = os.path.join(BASE_DIR, 'docs', 'i18n-glossary.csv')
 
-# Cột trong glossary CSV ↔ mã ngôn ngữ Odoo
-LANG_COLUMN = {'vi_VN': 'VN', 'zh_CN': 'CN', 'th_TH': 'TH', 'en_US': 'EN'}
+# Đọc glossary / ghi .po dùng chung với module wujia_i18n (J-T4) — một bản code duy nhất.
+# Nạp theo đường dẫn để không kéo theo odoo (custom/wujia_i18n/__init__.py import models).
+_spec = importlib.util.spec_from_file_location(
+    'wj_po_writer', os.path.join(CUSTOM_DIR, 'wujia_i18n', 'tools', 'po_writer.py'))
+po_writer = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(po_writer)
+LANG_COLUMN = po_writer.LANG_COLUMN
+load_glossary = po_writer.load_glossary
+existing_msgstr = po_writer.existing_msgstr
+build_po = po_writer.build_po
+msgfmt_ok = po_writer.msgfmt_ok
 
 
 def die(msg):
@@ -62,21 +68,6 @@ def all_custom_modules():
     )
 
 
-def load_glossary(path):
-    """{msgid_hoặc_key: {'VN': ..., 'CN': ..., 'TH': ...}} — map cả 2 chiều key và VN."""
-    if not os.path.exists(path):
-        print(f"  (không có glossary {path} — chỉ sinh khung .po/.pot, giữ nguyên msgstr cũ)")
-        return {}
-    out = {}
-    with open(path, encoding='utf-8') as f:
-        for row in csv.DictReader(f):
-            vals = {c: (row.get(c) or '').strip() for c in ('VN', 'CN', 'TH', 'EN')}
-            for k in ((row.get('key') or '').strip(), vals['VN']):
-                if k:
-                    out.setdefault(k, {}).update({c: v for c, v in vals.items() if v})
-    return out
-
-
 def export_pot(module, python, config, db, out_path):
     cmd = [python, ODOO_BIN, 'i18n', 'export', '-c', config, '-d', db,
            '-l', 'pot', '-o', out_path, module]
@@ -84,90 +75,6 @@ def export_pot(module, python, config, db, out_path):
     if res.returncode != 0 or not os.path.exists(out_path):
         die(f"export .pot cho {module} thất bại:\n{res.stderr[-2000:]}")
     return out_path
-
-
-def existing_msgstr(po_path):
-    """msgid → msgstr đã dịch của file .po hiện có (nguồn để KHÔNG đạp bản dịch cũ)."""
-    if not os.path.exists(po_path):
-        return {}
-    with open(po_path, 'rb') as f:
-        cat = read_po(f)
-    return {m.id: m.string for m in cat if m.id and m.string}
-
-
-def build_po(pot_path, po_path, glossary, lang, bridge=None):
-    """Ghi .po cho `lang`. Ưu tiên: glossary > msgstr cũ > rỗng. KHÔNG bao giờ dùng msgid.
-
-    `bridge` = {msgid tiếng Anh: bản dịch tiếng Việt}. Glossary của BA đánh khoá theo
-    tiếng Việt, nhưng từ S44 msgid trong code là tiếng Anh ⇒ phải bắc cầu qua vi_VN.po,
-    không thì mọi nhãn field/menu tiếng Anh đều trượt glossary.
-    """
-    col = LANG_COLUMN.get(lang)
-    keep = existing_msgstr(po_path)
-    bridge = bridge or {}
-    with open(pot_path, 'rb') as f:
-        cat = read_po(f, locale=lang)
-    cat.locale = lang
-
-    def lookup(text):
-        entry = (glossary.get(text) or glossary.get(text.strip())
-                 or glossary.get(bridge.get(text, '')) or {})
-        v = entry.get(col, '') if col else ''
-        # glossary cũ có nhiều ô chép lại chính chuỗi nguồn — đó không phải bản dịch
-        return '' if v == text else v
-
-    n_gloss = n_keep = n_markup = 0
-    for msg in cat:
-        if not msg.id or not isinstance(msg.id, str):
-            continue
-        val = lookup(msg.id) if col else ''
-        if not val and col:
-            val = translate_markup(msg.id, lookup)
-            n_markup += 1 if val else 0
-        if val:
-            n_gloss += 1
-        elif keep.get(msg.id):
-            val, n_keep = keep[msg.id], n_keep + 1
-        msg.string = val
-
-    os.makedirs(os.path.dirname(po_path), exist_ok=True)
-    with open(po_path, 'wb') as f:
-        write_po(f, cat, width=79, omit_header=False)
-    return n_gloss, n_keep, sum(1 for m in cat if m.id)
-
-
-TAG_SPLIT = re.compile(r'(<[^>]+>)')
-
-
-def translate_markup(msgid, lookup):
-    """Chuỗi QWeb hay dính cả thẻ (`<i class="fa"/> Back`) nên tra thẳng là trượt.
-    Dịch từng đoạn CHỮ giữa các thẻ, đoạn nào không có trong glossary thì giữ nguyên."""
-    parts = TAG_SPLIT.split(msgid)
-    if len(parts) == 1:
-        return ''
-    out, hit = [], False
-    for p in parts:
-        text = p.strip()
-        val = lookup(text) if text and not p.startswith('<') else ''
-        if val:
-            hit = True
-            out.append(p.replace(text, val, 1))
-        else:
-            out.append(p)
-    return ''.join(out) if hit else ''
-
-
-def msgfmt_ok(path):
-    if not shutil.which('msgfmt'):
-        print("  (không có msgfmt — bỏ qua bước kiểm cú pháp)")
-        return True
-    res = subprocess.run(['msgfmt', '-c', '-o', os.devnull, path],
-                         capture_output=True, text=True)
-    errs = [l for l in res.stderr.splitlines() if ': warning:' not in l]
-    if res.returncode != 0 or errs:
-        print(f"  ✗ {os.path.basename(path)} hỏng cú pháp:\n    " + "\n    ".join(errs[:8]))
-        return False
-    return True
 
 
 def ensure_langs(langs, python, config, db):

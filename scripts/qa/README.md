@@ -122,3 +122,19 @@ Quy ước + lý do: `docs/next-session-clusters-J.md` §6. Python env Odoo (c�
    term Odoo gom cả thẻ inline (`<span>…</span>`) ⇒ thêm glossary đúng msgid đó rồi chạy lại.
 6. `-u X` + **restart** (server đang chạy giữ cache template ⇒ probe ra chữ cũ) ⇒ `vn_hardcode_scan.py --module X --fail-on-any` = 0 · `wj_text_probe.py --diff before after` = 0 trang lệch ·
    chụp en_US/th_TH không vỡ layout · suite module 0 đỏ mới · app "Bản dịch" độ phủ vi_VN ≈100%.
+
+## Bản dịch — nhập/xuất (J-T4, `scripts/i18n_tool.py`)
+
+Một bản code duy nhất: logic ở model `wujia.i18n.transfer` (module `wujia_i18n`), phần đọc glossary / ghi `.po` ở
+`custom/wujia_i18n/tools/po_writer.py` (babel, không import odoo) — màn backend (menu Translation Tool → Import / Export),
+`scripts/i18n_tool.py` (chạy qua `odoo-bin shell`) và `scripts/sync_translations.py` cùng gọi vào đó.
+
+- `i18n_tool.py import-csv FILE --db X [--scan]` — CSV `key,option,VN,CN,TH` (cột `option` có thể thiếu, ô = key bỏ qua).
+  Có ref ⇒ khớp đúng term; không ref / ref cũ ⇒ khớp theo câu nguồn ở mọi module và **chỉ điền chỗ chưa dịch**
+  (`--update-all-matches` để đè). Bản sửa tay trong tool giữ nguyên (`--overwrite-edited` để đè). Nhãn/menu/view áp ngay.
+- `i18n_tool.py export-csv --modules … --langs … -o F` — cùng định dạng Thái (`--only-edited`).
+- `i18n_tool.py export-po --modules … --langs … -o Z.zip | --write-source` — `.pot` + `.po` từng module; msgstr = bản sửa tay >
+  bản đang chạy (DB / `.po` đã nạp) > `.po` trong source. `--write-source` ghi vào `custom/<mod>/i18n/`, từ chối module Thái.
+  Chuỗi Python/JS chỉ có hiệu lực sau commit + deploy + `-u` + **restart**.
+- Đo 07/10 (DB copy): `docs/i18n-glossary.csv` 2 195 dòng / file Thái 1 280 dòng nạp 0,3 s; file Thái có 773 ref cũ
+  (`wujia_franchise.*` đã sang `wujia_franchise_inspection`) ⇒ rơi xuống khớp câu nguồn.

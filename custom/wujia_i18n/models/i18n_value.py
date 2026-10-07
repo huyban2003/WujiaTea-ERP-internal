@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 from odoo.tools.translate import TranslationImporter
 
 from .i18n_term import DB_KINDS
@@ -23,7 +24,7 @@ class WujiaI18nValue(models.Model):
     value = fields.Text(string='Translation')
     state = fields.Selection(STATES, required=True, default='missing', readonly=True)
     pending = fields.Boolean(string='Waiting to apply', readonly=True,
-                             help='Edited but not applied yet. Code strings take effect after .po export + restart.')
+                             help='Edited but not applied yet. Python/JavaScript strings: export .po, commit into the module, deploy, then restart.')
     module = fields.Char(related='term_id.module', store=True, index=True)
     kind = fields.Selection(related='term_id.kind', store=True)
     term_active = fields.Boolean(related='term_id.active', store=True, string='Term found')
@@ -62,6 +63,21 @@ class WujiaI18nValue(models.Model):
     @api.model
     def action_apply_all_pending(self):
         return self.search([('pending', '=', True), ('kind', 'in', DB_KINDS)]).action_apply()
+
+    @api.model
+    def action_export_pending_code(self):
+        """Mở wizard xuất .po cho các module có chuỗi Python/JS sửa tay đang chờ."""
+        pending = self.search([('pending', '=', True), ('kind', 'not in', DB_KINDS)])
+        if not pending:
+            raise UserError(_('No Python/JavaScript string is waiting for export.'))
+        modules = self.env['ir.module.module'].search([('name', 'in', list(set(pending.mapped('module'))))])
+        langs = self.env['res.lang'].search([('code', 'in', list(set(pending.mapped('lang'))))])
+        action = self.env['ir.actions.act_window']._for_xml_id('wujia_i18n.action_wujia_i18n_export_wizard')
+        action['context'] = {
+            'default_mode': 'export', 'default_export_format': 'po_zip',
+            'default_module_ids': modules.ids, 'default_lang_ids': langs.ids,
+        }
+        return action
 
     def _wj_apply(self):
         """Ghi bản dịch vào DB bằng đúng đường Odoo import .po, ép ghi đè (kể cả bản ghi noupdate)."""

@@ -2732,3 +2732,43 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   layout; DB `wujia_t1` + `wujia_vr` còn giữ (chờ chủ dự án cho xoá).
 - Bài học: `next-session-clusters-J.md` §6 "★J-VR".
 - Phiên kế: **J-T4** — nhập/xuất CSV kiểu Thái + zip `.po`/`.pot` (`wujia_i18n`, scripts).
+
+## J-T4 Nhập/xuất bản dịch (CSV kiểu Thái + zip `.po`/`.pot`) · 07/10/2026 · Mac
+- Kết quả: ✅ xong — `wujia_i18n` 19.0.1.1.0 → **19.0.1.2.0**. Chưa commit/push/deploy.
+- Chủ dự án chốt trong phiên: (1) nhập CSV **giữ bản sửa tay** (ô tick riêng để đè); (2) thêm CLI `scripts/i18n_tool.py`;
+  (3) dòng chỉ khớp theo câu nguồn (không ref / ref cũ) **chỉ điền chỗ chưa dịch** — đo thử chế độ "đè hết" làm đổi 90 (glossary)
+  + 162 (file Thái) bản vi_VN đã chốt ở Phần V.
+- Đã làm:
+  - `wujia_i18n/tools/po_writer.py` (babel + csv, không import odoo): chuyển nguyên `load_glossary`/`existing_msgstr`/`build_po`/
+    `translate_markup`/`msgfmt_ok` từ `scripts/sync_translations.py` + thêm `fill_po`, `read_glossary_rows` (nhận `key,option,VN,CN,TH`
+    lẫn `key,VN,CN,TH`, ô = key bỏ qua), `write_glossary_csv`, `parse_option`/`format_option`. `sync_translations.py` nạp lại file này
+    theo đường dẫn — dry-run 3 module trước/sau **15/15 file giống hệt** (trừ dòng ngày giờ).
+  - AbstractModel `wujia.i18n.transfer`: `_wj_import_csv` (khớp ref → câu nguồn; giống ⇒ bỏ qua; khác ⇒ override + áp ngay nhãn/menu/
+    view; chuỗi code chờ xuất), `_wj_export_csv` (định dạng Thái), `_wj_export_po_zip` (`.pot` từ `trans_export(None)` + `.po` babel;
+    msgstr = sửa tay > bản đang chạy > `.po` source; xung đột cùng msgid ghi README trong zip; xuất xong hết "chờ").
+  - Wizard `wujia.i18n.transfer.wizard` + menu Import / Export + nút "Export .po for code strings" trên list Translations; help
+    `pending` sửa theo đường mới. ACL nhóm translator.
+  - `scripts/i18n_tool.py` `import-csv | export-csv | export-po [--write-source]` qua `odoo-bin shell`; `--write-source` từ chối module Thái.
+    Hướng dẫn: `scripts/qa/README.md` §Bản dịch — nhập/xuất.
+  - Glossary +34 dòng (chỉ nối thêm); `vi_VN.po` + `.pot` `wujia_i18n` sinh lại: 0 bản cũ đổi, 34 câu mới có bản vi, `msgfmt -c` sạch.
+  - Test cũ `test_scan_reads_db_and_code_terms` đếm theo đúng ngôn ngữ vừa quét (hết đỏ giả trên DB đã từng quét; giữ assert).
+- Số đo (DB `wujia_t4` = copy `wujia_vr`):
+  - Suite `/wujia_i18n` **28/0** (trước 15 test, 1 đỏ giả); DB trắng `-i wujia_i18n` **28/0**. Mutation trên snapshot 6/6 bị bắt đúng test
+    (bỏ ưu tiên sửa tay · ô = key thành bản dịch · đè sửa tay khi không tick · `.pot` có msgstr · không bỏ "chờ" sau xuất · khớp câu
+    nguồn đè bản đã dịch). `vn_hardcode_scan --module wujia_i18n --fail-on-any` = 0.
+  - Nhập thật (mặc định): `docs/i18n-glossary.csv` 2 195 dòng → 1 469 khớp câu nguồn, 726 không thấy, 675 bản đổi (633 áp ngay, 42 code
+    chờ), giữ 103 bản đã dịch, **0,2 s**; file Thái 1 280 dòng → 225 khớp ref, 894 khớp câu nguồn, 161 không thấy, 1 939 bản đổi, giữ 164,
+    **0,3 s** (đo rồi rollback, DB đo không giữ).
+  - Xuất `.po` module chưa sửa trùng repo: exam `.pot`/`vi_VN.po` 0 dòng khác; core `vi_VN.po` thêm 3 bản dịch DB đang có.
+  - Nghiệm thu §5 T4 (zh_CN): sửa QWeb `wujia_portal_exam.layout_sidenav_exam` "Exam registration" + nhãn `wujia.exam.course.active` +
+    `_()` "Monday" (portal_exam) + JS "Unsaved changes" (web — team không còn chuỗi `_t`) ⇒ Áp dụng: QWeb + nhãn đổi ngay; xuất zip qua
+    CLI 9,5 s → giải vào bản copy module ở scratchpad → `-u` + restart ⇒ `_()` "ZH-T4 PY", JS "ZH-T4 JS" (`/web/webclient/translations`),
+    QWeb + nhãn vẫn còn sau `-u`; vi "Thứ 2" không đổi; JSON-RPC chỉ-đọc `fields_get` lang zh_CN = "ZH-T4 LABEL".
+- Lệch / LIMIT: chưa nhìn wizard bằng trình duyệt (view nạp sạch khi `-i`/`-u`, wizard chạy qua test). File glossary Thái cũ: 773/1 004 ref
+  trỏ `wujia_franchise.*` đã sang `wujia_franchise_inspection` ⇒ rơi xuống khớp câu nguồn. Xuất `.po` module lõi (`web`) lệch nhẹ
+  (3 bản theo DB) ⇒ chỉ commit zip module team.
+- Bài học: `next-session-clusters-J.md` §6 "J-T4".
+- Commit: chưa (chờ lệnh).
+- Lệnh deploy đề xuất: `-u wujia_i18n` + restart; kiểm version DB 19.0.1.2.0; menu Translation Tool có Import / Export.
+- Dọn: đã xoá DB `wujia_t4`, `wujia_t4b` + filestore; giữ `wujia_t1`/`wujia_vr` chờ chủ dự án.
+- Phiên kế: **J-T5** — dịch tự động (DeepL), xem §6b; dịch máy chỉ điền chỗ trống, không đè bản sửa tay.

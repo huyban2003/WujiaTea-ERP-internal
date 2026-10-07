@@ -10,6 +10,7 @@
                 <header>
                     <button name="action_apply" type="object" string="Apply"/>
                     <button name="action_apply_all_pending" type="object" string="Apply all waiting" display="always"/>
+                    <button name="action_export_pending_code" type="object" string="Export .po for code strings" display="always"/>
                 </header>
                 <field name="module" optional="show"/>
                 <field name="kind" optional="hide"/>
@@ -203,4 +204,8 @@
               action="action_wujia_i18n_coverage" sequence="30"/>
     <menuitem id="menu_wujia_i18n_scan" name="Scan terms" parent="menu_wujia_i18n_root"
               action="action_wujia_i18n_scan_wizard" sequence="40"/>
+    <menuitem id="menu_wujia_i18n_import" name="Import" parent="menu_wujia_i18n_root"
+              action="action_wujia_i18n_import_wizard" sequence="50"/>
+    <menuitem id="menu_wujia_i18n_export" name="Export" parent="menu_wujia_i18n_root"
+              action="action_wujia_i18n_export_wizard" sequence="60"/>
 </odoo>

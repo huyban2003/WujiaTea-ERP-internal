@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-07 · **CỤM J — PHẦN V KHÉP (★J-VR xong, chapter 79; V3–V8b đã lên UAT, ★VR `457ff953` đã lên UAT)** · trước đó: J-V0…V8b Việt hoá source; J-T1+T2 TOOL DỊCH `wujia_i18n`. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-T4** (nhập/xuất CSV + zip `.po`).
+**Cập nhật:** 2026-10-07 · **CỤM J — J-T4 XONG (nhập/xuất bản dịch CSV + zip `.po`/`.pot`, `wujia_i18n` 19.0.1.2.0, CHƯA COMMIT)** · trước đó: ★J-VR khép Phần V (chapter 79, `457ff953` đã lên UAT). Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-T5** (dịch tự động DeepL).
 
 ---
 
@@ -124,6 +124,8 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-10-07 · J-T4) — NHẬP/XUẤT BẢN DỊCH XONG; CHƯA COMMIT/DEPLOY.** `wujia_i18n` 19.0.1.2.0: menu Import / Export + nút "Export .po for code strings"; logic một nguồn `wujia.i18n.transfer` + `tools/po_writer.py` (babel, không import odoo) dùng chung cho wizard, `scripts/i18n_tool.py` (mới, qua `odoo-bin shell`) và `scripts/sync_translations.py` (dry-run trước/sau 15/15 file giống hệt). Luật nhập (chủ dự án chốt 07/10): giữ bản sửa tay; dòng chỉ khớp câu nguồn chỉ điền chỗ trống (đè hết sẽ đổi 90 + 162 bản vi_VN đã chốt). Nghiệm thu zh_CN: QWeb + nhãn đổi ngay; `_()` + JS đổi sau xuất `.po` + restart; còn sau `-u`. Suite 28/0 (DB copy + DB trắng), mutation 6/6, nhập glossary/file Thái 0,2–0,3 s. Deploy: `-u wujia_i18n` + restart.
 
 **State (2026-10-07 · ★J-VR) — PHẦN V KHÉP; `457ff953` ĐÃ LÊN UAT 07/10 (144 trang vi/en/th sạch, badge cùng màu 3 ngôn ngữ).** Review cả Phần V trên DB `wujia_vr` (copy `wujia_t1` + `-u` 26 module team): quét code team 0 (Thái 284); vi_VN 54 trang 0 lệch ngoài 2 sửa có chủ đích (mốc `docs/i18n-baseline/vi_VN.json` cập nhật); DB 0 VN → EN; Playwright vi/en/th × 1440/390 156 trang 0 tràn/0 JS/0 ≥400; độ phủ vi portal 96,6–100 %. Sửa: cột "SL" chi tiết chuyến mobile → "Qty"; **bỏ nhánh tra ngược nhãn VN của `status_badge_for`** — Lịch sử + màn Đặt hàng thành công còn tô màu từ nhãn đã dịch (th/zh sau J-T5 sẽ ra xám) ⇒ `portal_order_badge` / helper mới `portal_order_state_badge`; đáp án test = `tests/common.py::legacy_vn_badge`. Version portal_base 19.0.7.37.1 · portal_sale 19.0.5.1.1 · purchase_history 19.0.4.0.1 · portal_delivery 19.0.4.0.1. Suite 1 185 test (2 đỏ: 1 sửa, 1 do DB đo) → nhóm liên quan 544/0; mutation 4/4. Danh sách `docs/i18n-review/` (BA 1 361 cặp, Thái 284 + lỗi `.po` `web_survey_ui`) — chưa gửi. Chapter 79 `chapters/79-sprint65-cluster-j-part-v.tex`. **Pending:** gửi 2 danh sách · backend L2 thiếu bản vi (có từ trước) → J-T5 · **J-T4** → J-T5 → J-O → ★JR → Issue List (10 Ready for Dev, STT 156–168).
 
