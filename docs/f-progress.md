@@ -2559,4 +2559,14 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V7".
 - Lệnh deploy: `-u wujia_support,wujia_portal_support,wujia_knowledge,wujia_portal_knowledge,wujia_notification,wujia_portal_notification`
   + **restart sau `-u`** (migration seed loại thông báo). Kiểm tra version DB sau upgrade (bài học UAT V6).
+- UAT (07/10, `fa6a6835`): đã deploy + **đã upgrade** sẵn (6 module DB = code: support 19.0.1.1.0 / portal 19.0.5.0.0, knowledge
+  19.0.1.1.0 / 19.0.5.0.0, notification 19.0.2.0.0 / 19.0.4.0.0) ⇒ không cần upgrade tay. Migration seed chạy: loại thông báo en
+  "Emergency, General notice, Promotion, System, Other", vi giữ "Khẩn cấp, Thông báo chung, Khuyến mãi, Hệ thống, Khác"; constraint
+  en/vi đúng; template chi tiết hỗ trợ không còn `_fields['priority'].selection` (dùng `priority_labels` ×3).
+  Playwright `anh.owner` chỉ-đọc (chặn POST trừ đăng nhập + `/portal/notification/recent`) vi/en/th × 1440/390 × 7 trang (hỗ trợ
+  danh sách/tạo, kiến thức danh sách/chi tiết, thông báo danh sách/chi tiết, home): **42/42 0 tràn, 0 lỗi JS, 0 HTTP ≥400**; popup
+  chuông vi "2 thông báo • 1 chưa đọc", en "2 notifications • 1 unread", th tên loại tiếng Thái có sẵn. Ngôn ngữ `anh.owner` trả vi_VN.
+  LIMIT: `anh.owner` (HN-01) 0 phiếu hỗ trợ, `dung.multi` (HN-02) không đăng nhập được bằng mật khẩu test ⇒ phiếu WJ-TK/26/00006 chưa
+  nhìn bằng trình duyệt trên UAT (đã đo trên DB copy + HttpCase). Ghi nhận: form tạo mobile có 2 chip "Gấp"/"Khẩn cấp" cùng map
+  `urgent` (BA, có từ trước) ⇒ chi tiết hiện "Khẩn" — ngoài phạm vi.
 - Phiên kế: **J-V8** — purchase_history (99) + delivery (93+15) + info_request (85+7) + report (69) + fleet/core/metabase (21).
