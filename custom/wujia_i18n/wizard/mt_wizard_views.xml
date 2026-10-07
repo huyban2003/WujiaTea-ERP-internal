@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wujia_i18n_mt_wizard_form" model="ir.ui.view">
+        <field name="name">wujia.i18n.mt.wizard.form</field>
+        <field name="model">wujia.i18n.mt.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Machine translate">
+                <p class="text-muted">Translates the strings of the selected modules with DeepL in the background. Labels, menus and views change right away; translations are marked "Machine translated" so they can be reviewed. Translations edited by people are never replaced.</p>
+                <div class="alert alert-warning" role="alert" invisible="not warning">
+                    <field name="warning" nolabel="1"/>
+                </div>
+                <group>
+                    <group>
+                        <field name="lang_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="scope" widget="radio"/>
+                    </group>
+                    <group>
+                        <field name="count" invisible="not lang_active"/>
+                        <field name="chars" invisible="not lang_active"/>
+                        <field name="queued" invisible="not queued"/>
+                        <field name="quota_info" invisible="not quota_info"/>
+                        <field name="lang_active" invisible="1"/>
+                    </group>
+                </group>
+                <group>
+                    <field name="module_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                </group>
+                <footer>
+                    <button name="action_translate" type="object" string="Translate" class="btn-primary"/>
+                    <button name="action_check" type="object" string="Check DeepL quota" class="btn-secondary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wujia_i18n_mt_wizard" model="ir.actions.act_window">
+        <field name="name">Machine translate</field>
+        <field name="res_model">wujia.i18n.mt.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

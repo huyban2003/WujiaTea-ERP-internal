@@ -103,7 +103,8 @@ class WujiaI18nTransfer(models.AbstractModel):
                 stats['unchanged'] += 1
             elif cur['state'] == 'override' and not overwrite_edited:
                 stats['kept_edited'] += 1
-            elif src_mode == 'missing' and not exact and cur['value']:
+            elif src_mode == 'missing' and not exact and cur['value'] and cur['state'] != 'machine':
+                # Bản dịch máy coi như chưa có người dịch ⇒ glossary của người được điền đè (J-T5).
                 stats['kept_translated'] += 1
             else:
                 to_write[value].append(cur['id'])
@@ -150,15 +151,20 @@ class WujiaI18nTransfer(models.AbstractModel):
     @api.model
     def _wj_export_po_zip(self, modules, langs):
         """Zip `<module>/i18n/<module>.pot` + `<module>/i18n/<lang>.po`.
-        msgstr = bản sửa tay của tool > bản dịch đang chạy (DB / .po đã nạp) > msgstr .po trong source > rỗng."""
+        msgstr = bản sửa tay của tool > bản dịch máy > bản dịch đang chạy (DB / .po đã nạp) > msgstr .po trong source > rỗng."""
         Value = self.env['wujia.i18n.value']
         Value.check_access('read')
         langs = [lang for lang in langs if lang != 'en_US']
         overrides = defaultdict(dict)  # (module, lang) -> {msgid: value}
+        machine = defaultdict(dict)
         conflicts = []
-        for v in Value.search_read([('module', 'in', list(modules)), ('lang', 'in', langs), ('state', '=', 'override'),
+        for v in Value.search_read([('module', 'in', list(modules)), ('lang', 'in', langs),
+                                    ('state', 'in', ('override', 'machine')),
                                     ('value', '!=', False), ('term_active', '=', True)],
-                                   ['module', 'lang', 'src', 'value'], order='module, lang, id'):
+                                   ['module', 'lang', 'src', 'value', 'state'], order='module, lang, id'):
+            if v['state'] == 'machine':
+                machine[(v['module'], v['lang'])].setdefault(v['src'], v['value'])
+                continue
             seen = overrides[(v['module'], v['lang'])]
             if v['src'] in seen and seen[v['src']] != v['value']:
                 conflicts.append(f"{v['module']} {v['lang']}: {v['src']!r} → kept {seen[v['src']]!r}, dropped {v['value']!r}")
@@ -185,7 +191,9 @@ class WujiaI18nTransfer(models.AbstractModel):
                         if value and value != src
                     }
                     edits = overrides.get((module, lang), {})
-                    po = po_writer.fill_po(pot_bytes, lang, lambda m: edits.get(m) or current.get(m) or keep.get(m))
+                    mt = machine.get((module, lang), {})
+                    po = po_writer.fill_po(pot_bytes, lang,
+                                           lambda m: edits.get(m) or mt.get(m) or current.get(m) or keep.get(m))
                     errs = po_writer.msgfmt_bytes_errors(po)
                     if errs:
                         notes.append(f'{module}/{lang}.po msgfmt: ' + ' | '.join(errs[:3]))

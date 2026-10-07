@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-07 08:30+0000\n"
-"PO-Revision-Date: 2026-10-07 08:30+0000\n"
+"POT-Creation-Date: 2026-10-07 09:08+0000\n"
+"PO-Revision-Date: 2026-10-07 09:08+0000\n"
 "Last-Translator: \n"
 "Language: vi_VN\n"
 "Language-Team: \n"
@@ -28,10 +28,29 @@ msgstr "%(n)s chuỗi Python/JavaScript chờ xuất .po."
 #. odoo-python
 #: code:addons/wujia_i18n/models/i18n_value.py
 #, python-format
+msgid "%(n)s machine translation(s) marked as reviewed."
+msgstr "%(n)s bản dịch máy đã được đánh dấu đã duyệt."
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_value.py
+#, python-format
 msgid "%(n)s skipped (code strings need .po export + restart, or nothing edited)."
 msgstr ""
 "Bỏ qua %(n)s dòng (chuỗi trong code cần xuất .po + khởi động lại, hoặc chưa "
 "sửa gì)."
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+#, python-format
+msgid ""
+"%(n)s strings (%(chars)s characters) queued for %(lang)s. They are "
+"translated in the background; labels, menus and views change as soon as each"
+" batch is done."
+msgstr ""
+"Đã đưa %(n)s chuỗi (%(chars)s ký tự) vào hàng đợi dịch sang %(lang)s. Hệ "
+"thống dịch chạy nền; nhãn, menu và giao diện đổi ngay khi xong từng lô."
 
 #. module: wujia_i18n
 #. odoo-python
@@ -67,8 +86,34 @@ msgstr ""
 "%(seconds)s giây."
 
 #. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+#, python-format
+msgid ""
+"%(used)s / %(limit)s characters used this period (%(left)s left, %(plan)s "
+"plan)"
+msgstr "Đã dùng %(used)s / %(limit)s ký tự kỳ này (còn %(left)s, gói %(plan)s)"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+#, python-format
+msgid ""
+"%s is not active: it will be enabled and its strings scanned before "
+"translating."
+msgstr "%s chưa bật: hệ thống sẽ bật ngôn ngữ và quét chuỗi trước khi dịch."
+
+#. module: wujia_i18n
+msgid "A language that is not active yet is enabled and scanned first."
+msgstr "Ngôn ngữ chưa bật sẽ được bật và quét chuỗi trước."
+
+#. module: wujia_i18n
 msgid "Active"
 msgstr "Kích hoạt (Active)"
+
+#. module: wujia_i18n
+msgid "Already in queue"
+msgstr "Đang chờ trong hàng đợi"
 
 #. module: wujia_i18n
 msgid "Apply"
@@ -95,6 +140,10 @@ msgid ""
 "Archived when the term is no longer found by a scan (source text changed or "
 "removed)."
 msgstr "Tự lưu trữ khi lần quét không còn thấy chuỗi (câu gốc đã đổi hoặc bị xoá)."
+
+#. module: wujia_i18n
+msgid "Brand or product name: never translated."
+msgstr "Tên thương hiệu hoặc sản phẩm: không bao giờ dịch."
 
 #. module: wujia_i18n
 msgid ""
@@ -134,6 +183,14 @@ msgid "Cannot read the CSV file: %s"
 msgstr "Không đọc được file CSV: %s"
 
 #. module: wujia_i18n
+msgid "Characters"
+msgstr "Số ký tự"
+
+#. module: wujia_i18n
+msgid "Check DeepL quota"
+msgstr "Kiểm tra hạn mức DeepL"
+
+#. module: wujia_i18n
 #. odoo-python
 #: code:addons/wujia_i18n/wizard/transfer_wizard.py
 msgid "Choose a CSV file."
@@ -147,12 +204,22 @@ msgid "Choose at least one module and one language."
 msgstr "Chọn ít nhất một module và một ngôn ngữ."
 
 #. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+msgid "Choose at least one module."
+msgstr "Chọn ít nhất một module."
+
+#. module: wujia_i18n
 msgid ""
 "Code string: the edit takes effect after exporting the .po file and "
 "restarting the server."
 msgstr ""
 "Chuỗi trong code: bản sửa có hiệu lực sau khi xuất file .po và khởi động lại"
 " server."
+
+#. module: wujia_i18n
+msgid "Config Settings"
+msgstr "Cài đặt cấu hình"
 
 #. module: wujia_i18n
 msgid "Coverage"
@@ -175,6 +242,32 @@ msgid "Current terms"
 msgstr "Chuỗi hiện hành"
 
 #. module: wujia_i18n
+msgid "DeepL"
+msgstr ""
+
+#. module: wujia_i18n
+msgid "DeepL API key"
+msgstr "Khoá API DeepL"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+#, python-format
+msgid "DeepL does not translate into %s."
+msgstr "DeepL không dịch được sang %s."
+
+#. module: wujia_i18n
+msgid "DeepL quota"
+msgstr "Hạn mức DeepL"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+#, python-format
+msgid "DeepL: %s"
+msgstr ""
+
+#. module: wujia_i18n
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -189,6 +282,16 @@ msgid ""
 msgstr ""
 "Đã sửa nhưng chưa áp dụng. Chuỗi Python/JavaScript: xuất .po, commit vào "
 "module, triển khai rồi khởi động lại."
+
+#. module: wujia_i18n
+msgid "Empty = every language."
+msgstr "Để trống = mọi ngôn ngữ."
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_mt.py
+msgid "Enter the DeepL API key in Settings → Translation Tool first."
+msgstr "Hãy nhập khoá API DeepL ở Cài đặt → Bản dịch trước."
 
 #. module: wujia_i18n
 msgid "Export"
@@ -215,12 +318,32 @@ msgid "Filename"
 msgstr "Tên file"
 
 #. module: wujia_i18n
+msgid ""
+"Fixed translations of business terms (milk tea, franchise, product names) "
+"used by machine translation. Tick <b>Keep as is</b> for brand names."
+msgstr ""
+"Bản dịch cố định cho thuật ngữ nghiệp vụ (trà sữa, nhượng quyền, tên sản "
+"phẩm) dùng khi dịch máy. Tick <b>Giữ nguyên</b> cho tên thương hiệu."
+
+#. module: wujia_i18n
 msgid "Format"
 msgstr "Định dạng"
 
 #. module: wujia_i18n
+msgid ""
+"Free plan keys end with \":fx\" (api-free.deepl.com); other keys use the Pro"
+" API."
+msgstr ""
+"Khoá gói Free kết thúc bằng \":fx\" (api-free.deepl.com); khoá khác dùng API"
+" Pro."
+
+#. module: wujia_i18n
 msgid "From module"
 msgstr "Theo module"
+
+#. module: wujia_i18n
+msgid "Glossary"
+msgstr "Thuật ngữ"
 
 #. module: wujia_i18n
 msgid "ID"
@@ -245,12 +368,28 @@ msgid "Import translations"
 msgstr "Nhập bản dịch"
 
 #. module: wujia_i18n
+msgid "In machine translation queue"
+msgstr "Trong hàng đợi dịch máy"
+
+#. module: wujia_i18n
 msgid "Incomplete"
 msgstr "Chưa đủ"
 
 #. module: wujia_i18n
+msgid ""
+"Interface strings of the selected modules are sent to DeepL. Free plan keys "
+"end with :fx."
+msgstr ""
+"Chuỗi giao diện của các module được chọn sẽ được gửi sang DeepL. Khoá gói "
+"Free kết thúc bằng :fx."
+
+#. module: wujia_i18n
 msgid "JavaScript code"
 msgstr "Code JavaScript"
+
+#. module: wujia_i18n
+msgid "Keep as is"
+msgstr "Giữ nguyên"
 
 #. module: wujia_i18n
 msgid "Key Hash"
@@ -269,6 +408,12 @@ msgid "Language"
 msgstr "Ngôn ngữ"
 
 #. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_mt.py
+msgid "Language not supported by DeepL"
+msgstr "DeepL không hỗ trợ ngôn ngữ này"
+
+#. module: wujia_i18n
 msgid "Languages"
 msgstr "Ngôn ngữ"
 
@@ -279,6 +424,53 @@ msgstr "Người cập nhật"
 #. module: wujia_i18n
 msgid "Last Updated on"
 msgstr "Cập nhật lúc"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+#, python-format
+msgid "Last run stopped: %s"
+msgstr "Lần chạy trước bị dừng: %s"
+
+#. module: wujia_i18n
+msgid "Machine (to review)"
+msgstr "Dịch máy (chờ rà)"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+msgid "Machine translate"
+msgstr "Dịch máy"
+
+#. module: wujia_i18n
+msgid "Machine translated"
+msgstr "Dịch máy"
+
+#. module: wujia_i18n
+msgid "Machine translated (to review)"
+msgstr "Dịch máy (chờ rà)"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+msgid "Machine translation"
+msgstr "Dịch máy"
+
+#. module: wujia_i18n
+msgid "Machine translation error"
+msgstr "Lỗi dịch máy"
+
+#. module: wujia_i18n
+msgid "Machine translation glossary"
+msgstr "Thuật ngữ dịch máy"
+
+#. module: wujia_i18n
+msgid "Machine translation provider"
+msgstr "Nhà cung cấp dịch máy"
+
+#. module: wujia_i18n
+msgid "Mark reviewed"
+msgstr "Đánh dấu đã duyệt"
 
 #. module: wujia_i18n
 msgid "Missing"
@@ -302,9 +494,21 @@ msgstr "Module"
 
 #. module: wujia_i18n
 #. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+msgid ""
+"No DeepL API key yet: an administrator enters it in Settings → Translation "
+"Tool."
+msgstr "Chưa có khoá API DeepL: quản trị viên nhập ở Cài đặt → Bản dịch."
+
+#. module: wujia_i18n
+#. odoo-python
 #: code:addons/wujia_i18n/models/i18n_value.py
 msgid "No Python/JavaScript string is waiting for export."
 msgstr "Không có chuỗi Python/JavaScript nào đang chờ xuất."
+
+#. module: wujia_i18n
+msgid "No glossary term yet"
+msgstr "Chưa có thuật ngữ"
 
 #. module: wujia_i18n
 #. odoo-python
@@ -331,6 +535,17 @@ msgid "Not translated"
 msgstr "Chưa dịch"
 
 #. module: wujia_i18n
+msgid "Note"
+msgstr "Ghi chú"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py
+#, python-format
+msgid "Nothing to translate for %s."
+msgstr "Không có chuỗi nào cần dịch sang %s."
+
+#. module: wujia_i18n
 msgid "One translation per term and language."
 msgstr "Mỗi chuỗi chỉ có một bản dịch cho mỗi ngôn ngữ."
 
@@ -343,8 +558,16 @@ msgid "Only fill untranslated"
 msgstr "Chỉ điền chỗ chưa dịch"
 
 #. module: wujia_i18n
+msgid "Only untranslated"
+msgstr "Chỉ chuỗi chưa dịch"
+
+#. module: wujia_i18n
 msgid "Overwrite edited translations"
 msgstr "Ghi đè bản đã sửa tay"
+
+#. module: wujia_i18n
+msgid "Provider"
+msgstr "Nhà cung cấp"
 
 #. module: wujia_i18n
 msgid "Python / JavaScript code"
@@ -377,6 +600,10 @@ msgstr "File kết quả"
 #. module: wujia_i18n
 msgid "Result Filename"
 msgstr "Tên file kết quả"
+
+#. module: wujia_i18n
+msgid "Reviewed %"
+msgstr "% đã duyệt"
 
 #. module: wujia_i18n
 msgid ""
@@ -415,6 +642,18 @@ msgid "Scan, edit and apply translations in the Translations tool."
 msgstr "Quét, sửa và áp dụng bản dịch trong tool Bản dịch."
 
 #. module: wujia_i18n
+msgid "Scope"
+msgstr "Phạm vi"
+
+#. module: wujia_i18n
+msgid "Service used by Translation Tool → Machine translate."
+msgstr "Dịch vụ dùng cho Bản dịch → Dịch máy."
+
+#. module: wujia_i18n
+msgid "Settings"
+msgstr "Cài đặt"
+
+#. module: wujia_i18n
 msgid "Source"
 msgstr "Câu gốc"
 
@@ -431,8 +670,30 @@ msgid "Status"
 msgstr "Trạng thái"
 
 #. module: wujia_i18n
+msgid "Strings"
+msgstr "Số chuỗi"
+
+#. module: wujia_i18n
 msgid "Term"
 msgstr "Chuỗi"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_glossary.py
+#, python-format
+msgid "Term \"%s\": enter a translation or tick \"Keep as is\"."
+msgstr "Thuật ngữ \"%s\": nhập bản dịch hoặc tick \"Giữ nguyên\"."
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_glossary.py
+#, python-format
+msgid "Term \"%s\": tabs and line breaks are not allowed."
+msgstr "Thuật ngữ \"%s\": không được chứa tab hoặc xuống dòng."
+
+#. module: wujia_i18n
+msgid "Term (English)"
+msgstr "Thuật ngữ (tiếng Anh)"
 
 #. module: wujia_i18n
 msgid "Term already exists in this module."
@@ -460,6 +721,10 @@ msgstr ""
 "commit, triển khai rồi khởi động lại để chuỗi Python/JavaScript có hiệu lực."
 
 #. module: wujia_i18n
+msgid "This term already exists for this language."
+msgstr "Thuật ngữ này đã có cho ngôn ngữ này."
+
+#. module: wujia_i18n
 msgid "Total"
 msgstr "Tổng"
 
@@ -468,8 +733,23 @@ msgid "Translatable term"
 msgstr "Chuỗi cần dịch"
 
 #. module: wujia_i18n
+msgid "Translate"
+msgstr "Dịch"
+
+#. module: wujia_i18n
 msgid "Translated"
 msgstr "Đã dịch"
+
+#. module: wujia_i18n
+msgid ""
+"Translates the strings of the selected modules with DeepL in the background."
+" Labels, menus and views change right away; translations are marked "
+"\"Machine translated\" so they can be reviewed. Translations edited by "
+"people are never replaced."
+msgstr ""
+"Dịch chuỗi của các module được chọn bằng DeepL, chạy nền. Nhãn, menu và giao"
+" diện đổi ngay; bản dịch được gắn \"Dịch máy\" để rà lại. Bản dịch người đã "
+"sửa không bao giờ bị thay."
 
 #. module: wujia_i18n
 msgid "Translation"
@@ -478,6 +758,10 @@ msgstr "Bản dịch"
 #. module: wujia_i18n
 msgid "Translation Tool"
 msgstr "Bản dịch"
+
+#. module: wujia_i18n
+msgid "Translation Tool: machine translation queue"
+msgstr "Bản dịch: hàng đợi dịch máy"
 
 #. module: wujia_i18n
 msgid "Translation coverage"
@@ -492,8 +776,29 @@ msgid "Translations"
 msgstr "Bản dịch"
 
 #. module: wujia_i18n
+msgid "Translations edited by people are never replaced."
+msgstr "Bản dịch người đã sửa không bao giờ bị thay."
+
+#. module: wujia_i18n
+msgid ""
+"Translations from modules or edited by people (machine translations "
+"excluded)."
+msgstr "Bản dịch từ module hoặc do người sửa (không tính bản dịch máy)."
+
+#. module: wujia_i18n
 msgid "Translator"
 msgstr "Người dịch"
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_mt.py
+#, python-format
+msgid "Unknown machine translation provider: %s"
+msgstr "Không rõ nhà cung cấp dịch máy: %s"
+
+#. module: wujia_i18n
+msgid "Untranslated + translations from modules / machine"
+msgstr "Chưa dịch + bản dịch từ module / dịch máy"
 
 #. module: wujia_i18n
 msgid "Update every match"
@@ -510,6 +815,10 @@ msgstr "Giao diện / template"
 #. module: wujia_i18n
 msgid "Waiting to apply"
 msgstr "Chờ áp dụng"
+
+#. module: wujia_i18n
+msgid "Warning"
+msgstr "Cảnh báo"
 
 #. module: wujia_i18n
 msgid "Zip of .po + .pot per module"

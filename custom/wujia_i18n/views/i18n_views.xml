@@ -9,6 +9,7 @@
                   decoration-muted="not term_active" decoration-warning="pending">
                 <header>
                     <button name="action_apply" type="object" string="Apply"/>
+                    <button name="action_mark_reviewed" type="object" string="Mark reviewed"/>
                     <button name="action_apply_all_pending" type="object" string="Apply all waiting" display="always"/>
                     <button name="action_export_pending_code" type="object" string="Export .po for code strings" display="always"/>
                 </header>
@@ -19,8 +20,10 @@
                 <field name="value"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'synced'" decoration-info="state == 'override'"
-                       decoration-danger="state == 'missing'"/>
+                       decoration-warning="state == 'machine'" decoration-danger="state == 'missing'"/>
                 <field name="pending" optional="show"/>
+                <field name="mt_queued" optional="hide"/>
+                <field name="mt_error" optional="show" invisible="not mt_error" class="text-danger"/>
                 <field name="term_active" column_invisible="1"/>
                 <field name="term_id" optional="hide"/>
             </list>
@@ -42,6 +45,10 @@
                 <filter name="missing" string="Not translated" domain="[('state', '=', 'missing')]"/>
                 <filter name="edited" string="Edited" domain="[('state', '=', 'override')]"/>
                 <filter name="pending" string="Waiting to apply" domain="[('pending', '=', True)]"/>
+                <separator/>
+                <filter name="mt_review" string="Machine translated (to review)" domain="[('state', '=', 'machine')]"/>
+                <filter name="mt_queued" string="In machine translation queue" domain="[('mt_queued', '=', True)]"/>
+                <filter name="mt_error" string="Machine translation error" domain="[('mt_error', '!=', False)]"/>
                 <separator/>
                 <filter name="kind_db" string="Labels, menus, views" domain="[('kind', 'in', ('model', 'model_terms'))]"/>
                 <filter name="kind_code" string="Python / JavaScript code" domain="[('kind', 'in', ('code_python', 'code_js'))]"/>
@@ -111,7 +118,7 @@
                             <field name="value"/>
                             <field name="state" widget="badge"
                                    decoration-success="state == 'synced'" decoration-info="state == 'override'"
-                                   decoration-danger="state == 'missing'"/>
+                                   decoration-warning="state == 'machine'" decoration-danger="state == 'missing'"/>
                             <field name="pending"/>
                             <button name="action_apply" type="object" string="Apply" icon="fa-check"
                                     invisible="not pending"/>
@@ -158,8 +165,10 @@
                 <field name="translated" sum="Total"/>
                 <field name="missing" sum="Total"/>
                 <field name="edited" sum="Total"/>
+                <field name="machine" sum="Total"/>
                 <field name="pending" sum="Total"/>
                 <field name="percent" widget="progressbar"/>
+                <field name="percent_reviewed" widget="progressbar" optional="show"/>
             </list>
         </field>
     </record>
@@ -172,6 +181,7 @@
                 <field name="module" type="row"/>
                 <field name="lang" type="col"/>
                 <field name="percent" type="measure"/>
+                <field name="percent_reviewed" type="measure"/>
             </pivot>
         </field>
     </record>
@@ -204,8 +214,14 @@
               action="action_wujia_i18n_coverage" sequence="30"/>
     <menuitem id="menu_wujia_i18n_scan" name="Scan terms" parent="menu_wujia_i18n_root"
               action="action_wujia_i18n_scan_wizard" sequence="40"/>
+    <menuitem id="menu_wujia_i18n_mt" name="Machine translate" parent="menu_wujia_i18n_root"
+              action="action_wujia_i18n_mt_wizard" sequence="45"/>
+    <menuitem id="menu_wujia_i18n_glossary" name="Glossary" parent="menu_wujia_i18n_root"
+              action="action_wujia_i18n_glossary" sequence="47"/>
     <menuitem id="menu_wujia_i18n_import" name="Import" parent="menu_wujia_i18n_root"
               action="action_wujia_i18n_import_wizard" sequence="50"/>
     <menuitem id="menu_wujia_i18n_export" name="Export" parent="menu_wujia_i18n_root"
               action="action_wujia_i18n_export_wizard" sequence="60"/>
+    <menuitem id="menu_wujia_i18n_settings" name="Settings" parent="menu_wujia_i18n_root"
+              action="action_wujia_i18n_settings" sequence="90" groups="base.group_system"/>
 </odoo>

@@ -9,8 +9,11 @@ from .i18n_term import DB_KINDS
 STATES = [
     ('synced', 'From module'),
     ('override', 'Edited'),
+    ('machine', 'Machine translated'),
     ('missing', 'Missing'),
 ]
+# Bản đang dùng do tool đặt (người sửa / máy dịch): quét lại không làm mới, áp lại sau mỗi -u.
+TOOL_STATES = ('override', 'machine')
 
 
 class WujiaI18nValue(models.Model):
@@ -31,6 +34,8 @@ class WujiaI18nValue(models.Model):
     src = fields.Text(related='term_id.src', string='Source')
     name = fields.Char(related='term_id.name')
     res_id = fields.Char(related='term_id.res_id')
+    mt_queued = fields.Boolean(string='In machine translation queue', readonly=True, index=True)
+    mt_error = fields.Char(string='Machine translation error', readonly=True)
 
     _term_lang_uniq = models.Constraint('UNIQUE(term_id, lang)', 'One translation per term and language.')
     _lang_state_idx = models.Index('(lang, state)')
@@ -42,12 +47,13 @@ class WujiaI18nValue(models.Model):
     def write(self, vals):
         # Người sửa tay ⇒ đánh dấu override + chờ áp dụng; lượt quét ghi qua context wj_i18n_scan.
         if 'value' in vals and not self.env.context.get('wj_i18n_scan'):
-            vals = dict(vals, state='override' if vals['value'] else 'missing', pending=bool(vals['value']))
+            vals = dict(vals, state='override' if vals['value'] else 'missing', pending=bool(vals['value']),
+                        mt_queued=False, mt_error=False)
         return super().write(vals)
 
     def action_apply(self):
         self.check_access('write')
-        todo = self.filtered(lambda v: v.state == 'override' and v.kind in DB_KINDS and v.value)
+        todo = self.filtered(lambda v: v.state in TOOL_STATES and v.kind in DB_KINDS and v.value)
         todo._wj_apply()
         todo.with_context(wj_i18n_scan=True).write({'pending': False})
         skipped = len(self) - len(todo)
@@ -58,6 +64,18 @@ class WujiaI18nValue(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {'message': msg, 'type': 'success', 'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'}},
+        }
+
+    def action_mark_reviewed(self):
+        """Duyệt bản dịch máy: giữ nguyên chữ, coi như người đã sửa (không bị dịch máy/nhập glossary đè)."""
+        self.check_access('write')
+        todo = self.filtered(lambda v: v.state == 'machine')
+        todo.with_context(wj_i18n_scan=True).write({'state': 'override', 'mt_error': False})
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {'message': _('%(n)s machine translation(s) marked as reviewed.', n=len(todo)), 'type': 'success',
+                       'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'}},
         }
 
     @api.model
@@ -109,8 +127,8 @@ class WujiaI18nValue(models.Model):
 
     @api.model
     def _wj_reapply_overrides(self, module_names, langs=None):
-        """Áp lại bản sửa tay sau khi module nạp .po (gọi từ ir.module.module._update_translations)."""
-        domain = [('module', 'in', list(module_names)), ('state', '=', 'override'),
+        """Áp lại bản sửa tay + bản dịch máy sau khi module nạp .po (gọi từ ir.module.module._update_translations)."""
+        domain = [('module', 'in', list(module_names)), ('state', 'in', TOOL_STATES),
                   ('kind', 'in', DB_KINDS), ('value', '!=', False)]
         if langs:
             domain.append(('lang', 'in', list(langs)))

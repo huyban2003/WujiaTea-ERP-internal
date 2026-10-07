@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Thuật ngữ cho dịch máy: gửi kèm DeepL glossary, "Keep as is" = không dịch -->
+    <record id="view_wujia_i18n_glossary_list" model="ir.ui.view">
+        <field name="name">wujia.i18n.glossary.list</field>
+        <field name="model">wujia.i18n.glossary</field>
+        <field name="arch" type="xml">
+            <list string="Glossary" editable="bottom">
+                <field name="src"/>
+                <field name="lang"/>
+                <field name="no_translate"/>
+                <field name="value" readonly="no_translate"/>
+                <field name="note" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wujia_i18n_glossary_search" model="ir.ui.view">
+        <field name="name">wujia.i18n.glossary.search</field>
+        <field name="model">wujia.i18n.glossary</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="src"/>
+                <field name="value"/>
+                <field name="lang"/>
+                <filter name="keep" string="Keep as is" domain="[('no_translate', '=', True)]"/>
+                <group>
+                    <filter name="group_lang" string="Language" context="{'group_by': 'lang'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wujia_i18n_glossary" model="ir.actions.act_window">
+        <field name="name">Glossary</field>
+        <field name="res_model">wujia.i18n.glossary</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No glossary term yet</p>
+            <p>Fixed translations of business terms (milk tea, franchise, product names) used by machine translation. Tick <b>Keep as is</b> for brand names.</p>
+        </field>
+    </record>
+</odoo>

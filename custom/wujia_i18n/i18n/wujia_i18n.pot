@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-07 08:30+0000\n"
-"PO-Revision-Date: 2026-10-07 08:30+0000\n"
+"POT-Creation-Date: 2026-10-07 09:08+0000\n"
+"PO-Revision-Date: 2026-10-07 09:08+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -24,8 +24,23 @@ msgstr ""
 #. module: wujia_i18n
 #. odoo-python
 #: code:addons/wujia_i18n/models/i18n_value.py:0
+msgid "%(n)s machine translation(s) marked as reviewed."
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_value.py:0
 msgid ""
 "%(n)s skipped (code strings need .po export + restart, or nothing edited)."
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+msgid ""
+"%(n)s strings (%(chars)s characters) queued for %(lang)s. They are "
+"translated in the background; labels, menus and views change as soon as each"
+" batch is done."
 msgstr ""
 
 #. module: wujia_i18n
@@ -53,8 +68,35 @@ msgid ""
 msgstr ""
 
 #. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+msgid ""
+"%(used)s / %(limit)s characters used this period (%(left)s left, %(plan)s "
+"plan)"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+msgid ""
+"%s is not active: it will be enabled and its strings scanned before "
+"translating."
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,help:wujia_i18n.field_wujia_i18n_mt_wizard__lang_id
+msgid "A language that is not active yet is enabled and scanned first."
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__lang_active
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_term__active
 msgid "Active"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__queued
+msgid "Already in queue"
 msgstr ""
 
 #. module: wujia_i18n
@@ -89,6 +131,11 @@ msgid ""
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,help:wujia_i18n.field_wujia_i18n_glossary__no_translate
+msgid "Brand or product name: never translated."
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields,help:wujia_i18n.field_wujia_i18n_transfer_wizard__overwrite_edited
 msgid ""
 "By default, translations edited in this tool are kept when the file has a "
@@ -114,6 +161,7 @@ msgid ""
 msgstr ""
 
 #. module: wujia_i18n
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_mt_wizard_form
 #: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_scan_wizard_form
 #: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_transfer_wizard_form
 msgid "Cancel"
@@ -123,6 +171,16 @@ msgstr ""
 #. odoo-python
 #: code:addons/wujia_i18n/models/i18n_transfer.py:0
 msgid "Cannot read the CSV file: %s"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__chars
+msgid "Characters"
+msgstr ""
+
+#. module: wujia_i18n
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_mt_wizard_form
+msgid "Check DeepL quota"
 msgstr ""
 
 #. module: wujia_i18n
@@ -139,10 +197,21 @@ msgid "Choose at least one module and one language."
 msgstr ""
 
 #. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+msgid "Choose at least one module."
+msgstr ""
+
+#. module: wujia_i18n
 #: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_term_form
 msgid ""
 "Code string: the edit takes effect after exporting the .po file and "
 "restarting the server."
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model,name:wujia_i18n.model_res_config_settings
+msgid "Config Settings"
 msgstr ""
 
 #. module: wujia_i18n
@@ -159,6 +228,8 @@ msgid "Coverage %"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__create_uid
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__create_uid
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_scan_wizard__create_uid
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_term__create_uid
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer_wizard__create_uid
@@ -167,6 +238,8 @@ msgid "Created by"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__create_date
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__create_date
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_scan_wizard__create_date
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_term__create_date
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer_wizard__create_date
@@ -180,9 +253,40 @@ msgid "Current terms"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields.selection,name:wujia_i18n.selection__res_config_settings__wj_mt_provider__deepl
+msgid "DeepL"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_res_config_settings__wj_deepl_api_key
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.res_config_settings_view_form
+msgid "DeepL API key"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+msgid "DeepL does not translate into %s."
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__quota_info
+msgid "DeepL quota"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+msgid "DeepL: %s"
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_ir_module_module__display_name
+#: model:ir.model.fields,field_description:wujia_i18n.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:wujia_i18n.field_res_lang__display_name
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_coverage__display_name
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__display_name
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__display_name
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_scan_wizard__display_name
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_term__display_name
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer__display_name
@@ -203,6 +307,17 @@ msgstr ""
 msgid ""
 "Edited but not applied yet. Python/JavaScript strings: export .po, commit "
 "into the module, deploy, then restart."
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,help:wujia_i18n.field_wujia_i18n_glossary__lang
+msgid "Empty = every language."
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_mt.py:0
+msgid "Enter the DeepL API key in Settings → Translation Tool first."
 msgstr ""
 
 #. module: wujia_i18n
@@ -239,8 +354,22 @@ msgid "Filename"
 msgstr ""
 
 #. module: wujia_i18n
+#: model_terms:ir.actions.act_window,help:wujia_i18n.action_wujia_i18n_glossary
+msgid ""
+"Fixed translations of business terms (milk tea, franchise, product names) "
+"used by machine translation. Tick <b>Keep as is</b> for brand names."
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer_wizard__export_format
 msgid "Format"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,help:wujia_i18n.field_res_config_settings__wj_deepl_api_key
+msgid ""
+"Free plan keys end with \":fx\" (api-free.deepl.com); other keys use the Pro"
+" API."
 msgstr ""
 
 #. module: wujia_i18n
@@ -249,9 +378,19 @@ msgid "From module"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.actions.act_window,name:wujia_i18n.action_wujia_i18n_glossary
+#: model:ir.ui.menu,name:wujia_i18n.menu_wujia_i18n_glossary
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_glossary_list
+msgid "Glossary"
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_ir_module_module__id
+#: model:ir.model.fields,field_description:wujia_i18n.field_res_config_settings__id
 #: model:ir.model.fields,field_description:wujia_i18n.field_res_lang__id
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_coverage__id
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__id
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__id
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_scan_wizard__id
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_term__id
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer__id
@@ -285,13 +424,32 @@ msgid "Import translations"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_value__mt_queued
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_value_search
+msgid "In machine translation queue"
+msgstr ""
+
+#. module: wujia_i18n
 #: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_coverage_search
 msgid "Incomplete"
 msgstr ""
 
 #. module: wujia_i18n
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.res_config_settings_view_form
+msgid ""
+"Interface strings of the selected modules are sent to DeepL. Free plan keys "
+"end with :fx."
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields.selection,name:wujia_i18n.selection__wujia_i18n_term__kind__code_js
 msgid "JavaScript code"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__no_translate
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_glossary_search
+msgid "Keep as is"
 msgstr ""
 
 #. module: wujia_i18n
@@ -314,9 +472,18 @@ msgstr ""
 
 #. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_coverage__lang
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__lang
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__lang_id
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_value__lang
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_glossary_search
 #: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_value_search
 msgid "Language"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_mt.py:0
+msgid "Language not supported by DeepL"
 msgstr ""
 
 #. module: wujia_i18n
@@ -327,6 +494,8 @@ msgid "Languages"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__write_uid
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__write_uid
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_scan_wizard__write_uid
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_term__write_uid
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer_wizard__write_uid
@@ -335,11 +504,72 @@ msgid "Last Updated by"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__write_date
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__write_date
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_scan_wizard__write_date
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_term__write_date
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer_wizard__write_date
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_value__write_date
 msgid "Last Updated on"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+msgid "Last run stopped: %s"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_coverage__machine
+msgid "Machine (to review)"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+#: model:ir.actions.act_window,name:wujia_i18n.action_wujia_i18n_mt_wizard
+#: model:ir.model,name:wujia_i18n.model_wujia_i18n_mt_wizard
+#: model:ir.ui.menu,name:wujia_i18n.menu_wujia_i18n_mt
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_mt_wizard_form
+msgid "Machine translate"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields.selection,name:wujia_i18n.selection__wujia_i18n_value__state__machine
+msgid "Machine translated"
+msgstr ""
+
+#. module: wujia_i18n
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_value_search
+msgid "Machine translated (to review)"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.res_config_settings_view_form
+msgid "Machine translation"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_value__mt_error
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_value_search
+msgid "Machine translation error"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model,name:wujia_i18n.model_wujia_i18n_glossary
+msgid "Machine translation glossary"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_res_config_settings__wj_mt_provider
+msgid "Machine translation provider"
+msgstr ""
+
+#. module: wujia_i18n
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_value_list
+msgid "Mark reviewed"
 msgstr ""
 
 #. module: wujia_i18n
@@ -370,6 +600,7 @@ msgid "Module"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__module_ids
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_scan_wizard__module_ids
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer_wizard__module_ids
 msgid "Modules"
@@ -377,8 +608,21 @@ msgstr ""
 
 #. module: wujia_i18n
 #. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+msgid ""
+"No DeepL API key yet: an administrator enters it in Settings → Translation "
+"Tool."
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
 #: code:addons/wujia_i18n/models/i18n_value.py:0
 msgid "No Python/JavaScript string is waiting for export."
+msgstr ""
+
+#. module: wujia_i18n
+#: model_terms:ir.actions.act_window,help:wujia_i18n.action_wujia_i18n_glossary
+msgid "No glossary term yet"
 msgstr ""
 
 #. module: wujia_i18n
@@ -410,6 +654,17 @@ msgid "Not translated"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__note
+msgid "Note"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/wizard/mt_wizard.py:0
+msgid "Nothing to translate for %s."
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.constraint,message:wujia_i18n.constraint_wujia_i18n_value_term_lang_uniq
 msgid "One translation per term and language."
 msgstr ""
@@ -425,8 +680,18 @@ msgid "Only fill untranslated"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields.selection,name:wujia_i18n.selection__wujia_i18n_mt_wizard__scope__missing
+msgid "Only untranslated"
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer_wizard__overwrite_edited
 msgid "Overwrite edited translations"
+msgstr ""
+
+#. module: wujia_i18n
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.res_config_settings_view_form
+msgid "Provider"
 msgstr ""
 
 #. module: wujia_i18n
@@ -466,6 +731,11 @@ msgstr ""
 #. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_transfer_wizard__result_filename
 msgid "Result Filename"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_coverage__percent_reviewed
+msgid "Reviewed %"
 msgstr ""
 
 #. module: wujia_i18n
@@ -510,6 +780,22 @@ msgid "Scan, edit and apply translations in the Translations tool."
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__scope
+msgid "Scope"
+msgstr ""
+
+#. module: wujia_i18n
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.res_config_settings_view_form
+msgid "Service used by Translation Tool → Machine translate."
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.actions.act_window,name:wujia_i18n.action_wujia_i18n_settings
+#: model:ir.ui.menu,name:wujia_i18n.menu_wujia_i18n_settings
+msgid "Settings"
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_term__src
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_value__src
 msgid "Source"
@@ -531,9 +817,31 @@ msgid "Status"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__count
+msgid "Strings"
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_value__term_id
 #: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_term_form
 msgid "Term"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_glossary.py:0
+msgid "Term \"%s\": enter a translation or tick \"Keep as is\"."
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_glossary.py:0
+msgid "Term \"%s\": tabs and line breaks are not allowed."
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__src
+msgid "Term (English)"
 msgstr ""
 
 #. module: wujia_i18n
@@ -567,6 +875,11 @@ msgid ""
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.constraint,message:wujia_i18n.constraint_wujia_i18n_glossary_src_lang_uniq
+msgid "This term already exists for this language."
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_coverage__total
 #: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_coverage_list
 msgid "Total"
@@ -578,18 +891,39 @@ msgid "Translatable term"
 msgstr ""
 
 #. module: wujia_i18n
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_mt_wizard_form
+msgid "Translate"
+msgstr ""
+
+#. module: wujia_i18n
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_coverage__translated
 msgid "Translated"
 msgstr ""
 
 #. module: wujia_i18n
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_mt_wizard_form
+msgid ""
+"Translates the strings of the selected modules with DeepL in the background."
+" Labels, menus and views change right away; translations are marked "
+"\"Machine translated\" so they can be reviewed. Translations edited by "
+"people are never replaced."
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_glossary__value
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_value__value
 msgid "Translation"
 msgstr ""
 
 #. module: wujia_i18n
 #: model:ir.ui.menu,name:wujia_i18n.menu_wujia_i18n_root
+#: model_terms:ir.ui.view,arch_db:wujia_i18n.res_config_settings_view_form
 msgid "Translation Tool"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.actions.server,name:wujia_i18n.ir_cron_wujia_i18n_mt_ir_actions_server
+msgid "Translation Tool: machine translation queue"
 msgstr ""
 
 #. module: wujia_i18n
@@ -611,8 +945,31 @@ msgid "Translations"
 msgstr ""
 
 #. module: wujia_i18n
+#: model:ir.model.fields,help:wujia_i18n.field_wujia_i18n_mt_wizard__scope
+msgid "Translations edited by people are never replaced."
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,help:wujia_i18n.field_wujia_i18n_coverage__percent_reviewed
+msgid ""
+"Translations from modules or edited by people (machine translations "
+"excluded)."
+msgstr ""
+
+#. module: wujia_i18n
 #: model:res.groups,name:wujia_i18n.group_wujia_translator
 msgid "Translator"
+msgstr ""
+
+#. module: wujia_i18n
+#. odoo-python
+#: code:addons/wujia_i18n/models/i18n_mt.py:0
+msgid "Unknown machine translation provider: %s"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields.selection,name:wujia_i18n.selection__wujia_i18n_mt_wizard__scope__refresh
+msgid "Untranslated + translations from modules / machine"
 msgstr ""
 
 #. module: wujia_i18n
@@ -636,6 +993,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_value__pending
 #: model_terms:ir.ui.view,arch_db:wujia_i18n.view_wujia_i18n_value_search
 msgid "Waiting to apply"
+msgstr ""
+
+#. module: wujia_i18n
+#: model:ir.model.fields,field_description:wujia_i18n.field_wujia_i18n_mt_wizard__warning
+msgid "Warning"
 msgstr ""
 
 #. module: wujia_i18n

@@ -189,6 +189,9 @@ DATA_FILES = {
 # Hằng tên riêng trong code (không phải chữ giao diện): (đường dẫn từ custom/, câu). J-V8b: thương hiệu mặc định.
 LITERAL_EXEMPT = {
     ('wujia_core/models/res_company.py', 'Ngô Gia'),
+    # J-T5: thuật ngữ "giữ nguyên" của dịch máy + bảng chữ nhận diện câu nguồn tiếng Việt (không phải chữ giao diện).
+    ('wujia_i18n/data/glossary_data.xml', 'Ngô Gia'),
+    ('wujia_i18n/tools/mt_deepl.py', '[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]'),
 }
 
 SCANNERS = {'.py': scan_python, '.js': scan_js, '.xml': scan_xml, '.css': scan_css, '.scss': scan_css}

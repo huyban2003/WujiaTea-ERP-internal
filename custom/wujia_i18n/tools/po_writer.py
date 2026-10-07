@@ -20,6 +20,10 @@ from babel.messages.pofile import read_po, write_po
 LANG_COLUMN = {'vi_VN': 'VN', 'zh_CN': 'CN', 'th_TH': 'TH', 'en_US': 'EN'}
 COLUMN_LANG = {'VN': 'vi_VN', 'CN': 'zh_CN', 'TH': 'th_TH'}
 CSV_KINDS = ('model', 'model_terms', 'code')
+# Module của anh Thái: không ghi đè source, dịch máy không chọn sẵn (cụm J §0). Giữ trùng scripts/i18n_tool.py
+# (script chạy bằng python hệ thống không có babel nên không nạp được file này).
+THAI_PREFIXES = ('wujia_franchise', 'wujia_portal_inspection', 'wujia_mobile_', 'wujia_fields_value',
+                 'dynamic_dashboard_ai_nexgen')
 
 TAG_SPLIT = re.compile(r'(<[^>]+>)')
 

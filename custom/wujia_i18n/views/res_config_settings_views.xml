@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.wujia_i18n</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Translation Tool" string="Translation Tool" name="wujia_i18n" groups="base.group_system">
+                    <block title="Machine translation" name="wujia_i18n_mt">
+                        <setting string="Provider" help="Service used by Translation Tool → Machine translate.">
+                            <field name="wj_mt_provider"/>
+                        </setting>
+                        <setting string="DeepL API key" invisible="wj_mt_provider != 'deepl'"
+                                 help="Interface strings of the selected modules are sent to DeepL. Free plan keys end with :fx.">
+                            <field name="wj_deepl_api_key" password="True"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_wujia_i18n_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'wujia_i18n', 'bin_size': False}</field>
+    </record>
+</odoo>

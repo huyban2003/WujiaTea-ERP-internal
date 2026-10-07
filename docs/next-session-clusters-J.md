@@ -63,7 +63,7 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V8b | info_request (85+7) + report (69) + core (9) + metabase (1). `wujia_core` sửa câu **không bump version** (tránh `-u wujia_core` kéo dây chuyền module Thái); `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét | 5 module | ✅ 07/10 — `02e363fc` đã lên UAT 07/10 |
 | ★J-VR | Review Phần V: quét = 0, vi_VN 0 lệch, en/th 156 trang sạch, bỏ nhánh tra ngược badge VN, danh sách BA (1 361 cặp) + Thái (284) ở `docs/i18n-review/`, chapter 79 | portal_base, sale, purchase_history, delivery | ✅ 07/10 — `457ff953` đã lên UAT 07/10 |
 | J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; `po_writer` dùng chung + CLI `scripts/i18n_tool.py`; dòng chỉ khớp câu nguồn chỉ điền chỗ trống (chủ dự án 07/10) | wujia_i18n, scripts | ✅ 07/10 — `ca198ace` đã push, chờ deploy |
-| **J-T5** | **Phiên kế.** **Dịch tự động (DeepL)**: chọn ngôn ngữ (tự bật nếu chưa có) → dịch hàng loạt chuỗi chưa dịch → BA rà → Áp dụng (xem §6b) | wujia_i18n | ☐ |
+| J-T5 | Dịch tự động (DeepL): wizard chọn ngôn ngữ → hàng đợi + cron theo lô → state `machine` áp ngay, rà sau · bảng thuật ngữ · khoá ở Settings (chủ dự án 07/10: chưa có key ⇒ giả lập) | wujia_i18n | ✅ 07/10 — chưa commit |
 | J-O0 | Bảng đối chiếu CT-059…067 ↔ backend + danh sách màn + câu hỏi BA (0 code) | docs | ☐ |
 | J-O1 | Luật portal ở L2 (file mới `portal_rules.py`, báo Thái) | franchise_operations (thêm file) | ☐ |
 | J-O2 | Hub + Nhân viên + Lịch ca (chỉ đọc) | wujia_portal_operations (mới) | ☐ |
@@ -374,6 +374,19 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
 - `dict(defaultdict)` mất giá trị mặc định ⇒ thống kê phải khởi tạo đủ khoá (test wizard bắt được KeyError).
 - Runner mutation đọc log: `wujia_core` ghi log vào `<dir>/<năm>/<tháng>/<ngày>.log`, DB trắng thì ghi đúng `--logfile` ⇒ gom mọi
   file `*.log` và kiểm đường dẫn snapshot có trong log, nếu không mọi đột biến "sống" giả.
+
+**J-T5 — ✅ 07/10: bài học cho ★JR / lần nhập key thật**
+- Nhiều dòng cùng câu nguồn (menu + action + view "Terms") ⇒ test "người sửa giữa chừng" phải chọn dòng có câu nguồn duy nhất,
+  nếu không hook chạy ở lô khác, dòng đã rời hàng đợi ⇒ đột biến sống.
+- Quét lại chỉ làm lộ lỗi "đè bản máy" ở **chuỗi code** (DB không lưu bản dịch code ⇒ quét đọc ra rỗng); nhãn/menu thì DB đã
+  chứa đúng bản máy nên không lộ ⇒ test phải kiểm chuỗi code.
+- 2 lớp bảo vệ (lọc theo state lúc xếp hàng + đọc lại state lúc ghi) ⇒ test từng lớp riêng (`queued` không chứa dòng `override`).
+- `ir.actions.act_window.target` Odoo 19 không còn `inline` ⇒ action Settings dùng `current`.
+- Người dịch không phải admin **không đọc được `ir.module.module`** ⇒ wizard có ô Module lỗi quyền (wizard Quét/Xuất từ T1–T4 cũng
+  dính, test cũ không bắt vì chỉ thử model value) ⇒ thêm quyền chỉ-đọc cho nhóm Translator.
+- `_commit_progress` ngoài cron = commit thật ⇒ chỉ gọi khi context có `cron_id` (TransactionCase cấm commit).
+- Portal chọn ngôn ngữ qua `/portal/set-lang/<code>`, không theo `res.users.lang`; Playwright backend không dùng `networkidle` (bus longpoll).
+- `scripts/i18n_tool.py` chạy bằng python hệ thống (không có babel) ⇒ không nạp được `po_writer`; hằng `THAI_PREFIXES` để trùng 2 nơi.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).

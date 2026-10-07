@@ -2772,3 +2772,44 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Lệnh deploy đề xuất: `-u wujia_i18n` + restart; kiểm version DB 19.0.1.2.0; menu Translation Tool có Import / Export.
 - Dọn: đã xoá DB `wujia_t4`, `wujia_t4b` + filestore; giữ `wujia_t1`/`wujia_vr` chờ chủ dự án.
 - Phiên kế: **J-T5** — dịch tự động (DeepL), xem §6b; dịch máy chỉ điền chỗ trống, không đè bản sửa tay.
+
+## J-T5 Dịch tự động (DeepL) trong tool Bản dịch · 07/10/2026 · Mac
+- Kết quả: ✅ xong — `wujia_i18n` 19.0.1.2.0 → **19.0.1.3.0**. Chưa commit/push/deploy.
+- Chủ dự án chốt đầu phiên: (1) **chưa có key DeepL** ⇒ code đủ + test giả lập HTTP, tạo key sau; (2) **áp ngay, rà sau**;
+  (3) **bảng thuật ngữ trong tool**; (4) mặc định module team, wizard cho tick thêm module Thái (chỉ ghi DB tool).
+- Đã làm:
+  - `tools/mt_deepl.py` (không import odoo): `DeepLClient` (key `:fx` ⇒ api-free; ngôn ngữ đích + cặp glossary hỏi động từ
+    `/v2/languages`, `/v2/glossary-language-pairs`; lỗi ⇒ `MTError` auth/quota/rate/other) + `PROVIDERS` chừa provider khác;
+    `protect`/`restore`/`check`: placeholder `%s %(x)s {x} {{x}} ${x}`, entity, thuật ngữ giữ nguyên ⇒ thẻ `<x i="n"/>`
+    (`tag_handling=xml`), chuỗi không phải HTML escape XML, khoảng trắng đầu/cuối tách riêng; mất placeholder/thẻ ⇒ loại.
+  - State mới **`machine`** (Dịch máy): quét lại không đè, áp lại sau `-u`, nhập CSV của người được đè, xuất `.po` lấy
+    sửa tay > máy > bản đang chạy; nút **Mark reviewed** (⇒ `override`); sửa tay ⇒ `override` như cũ. Field `mt_queued`, `mt_error`.
+  - `models/i18n_mt.py`: `_wj_mt_enqueue` + cron `_wj_mt_run_queue` (lô 50 câu / 30k ký tự, `_commit_progress` trong cron, đọc lại
+    state trước khi ghi ⇒ người sửa giữa chừng thắng, nhãn/menu/view `_wj_apply` ngay, chuỗi code ⇒ "chờ xuất .po");
+    hết hạn mức / key sai ⇒ dừng giữ hàng đợi + lưu lỗi; DeepL bận ⇒ hẹn lại 1 phút. Câu nguồn còn chữ Việt (module Thái) ⇒ không
+    gửi `source_lang`/glossary, DeepL tự nhận.
+  - `wujia.i18n.glossary` (EN → bản dịch theo ngôn ngữ / "Giữ nguyên"; seed "Ngô Gia", "Wujia") ⇒ DeepL glossary tạo lại khi nội
+    dung đổi (id lưu `ir.config_parameter`), cặp không hỗ trợ ⇒ thay thẳng bản đã chốt.
+  - Wizard **Machine translate** (ước số chuỗi/ký tự, cảnh báo thiếu key / ngôn ngữ DeepL không hỗ trợ / ngôn ngữ chưa bật ⇒
+    tự bật + quét; nút kiểm hạn mức) · menu Glossary + Settings · Settings app "Translation Tool" (provider + khoá, chỉ admin) ·
+    độ phủ thêm cột "Dịch máy" + "% đã duyệt" · filter Machine translated / In queue / Error.
+  - Quyền chỉ-đọc `ir.module.module` cho nhóm Translator (người dịch không phải admin trước đây lỗi quyền ở ô Module của mọi wizard).
+  - Glossary +56 dòng VN (chỉ nối thêm); `vi_VN.po` + `.pot` sinh lại: **0 bản cũ đổi**, 58 câu mới (2 câu = chính nó: "DeepL",
+    "DeepL: %s"), `msgfmt -c` sạch. `vn_hardcode_scan` miễn 2 chỗ (thuật ngữ "Ngô Gia", bảng chữ nhận diện tiếng Việt) ⇒ 0.
+- Số đo:
+  - Suite `/wujia_i18n` **55/0** trên DB trắng `-i` và DB copy `wujia_vr` `-u` (28 cũ + 27 mới). Mutation trên snapshot **8/8** bị bắt
+    (bỏ kiểm placeholder · không đọc lại override · quét đè machine · không áp DB kind · reapply bỏ machine · bỏ glossary_id ·
+    refresh lấy cả override · nhập CSV không đè machine) — 3 đột biến sống ở lượt đầu do test lỏng, đã siết.
+  - Smoke DeepL giả lập (trễ 0,3 s/request) trên DB copy: th_TH × 26 module team (0 module Thái) = **4 174 chuỗi / ~105 000 ký tự**
+    (≈ 21 % hạn mức Free/tháng), 85 request, 30,3 s (25,5 s là trễ giả lập), 0 lỗi, 452 chuỗi code chờ xuất `.po`.
+  - Trình duyệt (DB nháp): portal `/portal/set-lang/th_TH` ⇒ Home 45 + Order 32 chỗ chữ dịch máy hiện **ngay không restart**;
+    backend th wizard dịch máy hiện chữ máy; màn wizard / Settings / Bản dịch / Độ phủ (vi) đúng, 0 lỗi JS.
+- Lệch / LIMIT: chưa gọi DeepL thật (chưa có key) — chất lượng dịch, thẻ QWeb phức tạp, cặp glossary EN→th thật cần smoke khi có
+  key. Fallback thuật ngữ cho cặp không có glossary là thay chữ thô (ngữ pháp có thể gượng). "Khảo sát" (module Thái) vẫn tiếng Việt
+  trên portal th — đúng phạm vi mặc định. Chuỗi code dịch máy chỉ có hiệu lực sau xuất `.po` + commit + restart (đường J-T4).
+- Bài học: `next-session-clusters-J.md` §6 "J-T5".
+- Commit: chưa — chờ lệnh.
+- Lệnh deploy đề xuất: `-u wujia_i18n` + restart; kiểm version 19.0.1.3.0, menu Translation Tool có Machine translate / Glossary /
+  Settings, cron "Translation Tool: machine translation queue" active. Có key ⇒ Settings → wizard th_TH 1 module nhỏ → rà.
+- Dọn: đã xoá DB `wujia_t5`, `wujia_t5t` + filestore; giữ `wujia_t1`/`wujia_vr`.
+- Phiên kế: **J-O0** nếu BA đã trả lời câu hỏi Vận hành; chưa thì Issue List cụm I (I1 #155). Khi có key DeepL: 1 phiên ngắn smoke thật.

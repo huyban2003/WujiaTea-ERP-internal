@@ -138,3 +138,19 @@ Một bản code duy nhất: logic ở model `wujia.i18n.transfer` (module `wuji
   Chuỗi Python/JS chỉ có hiệu lực sau commit + deploy + `-u` + **restart**.
 - Đo 07/10 (DB copy): `docs/i18n-glossary.csv` 2 195 dòng / file Thái 1 280 dòng nạp 0,3 s; file Thái có 773 ref cũ
   (`wujia_franchise.*` đã sang `wujia_franchise_inspection`) ⇒ rơi xuống khớp câu nguồn.
+
+## Dịch máy (J-T5, menu Translation Tool → Machine translate)
+
+- Admin nhập khoá ở **Settings → Translation Tool** (khoá gói Free đuôi `:fx`). Người dịch không đọc được khoá.
+- Wizard: chọn ngôn ngữ (chưa bật ⇒ tự bật + quét), module (mặc định module team, không chọn sẵn module Thái), phạm vi
+  "Chỉ chuỗi chưa dịch" (mặc định) hoặc "Chưa dịch + bản từ module / dịch máy". Bản người sửa (`Edited`) **không bao giờ** bị thay.
+  Nút "Kiểm tra hạn mức DeepL" hỏi số ký tự đã dùng.
+- Cron "Translation Tool: machine translation queue" dịch nền theo lô 50 câu; nhãn/menu/view/QWeb **áp ngay**, chuỗi
+  Python/JS vào "Waiting to apply" ⇒ xuất `.po` (J-T4) + restart. Lọc **Machine translated (to review)** ⇒ sửa tay hoặc
+  **Mark reviewed** (⇒ `Edited`). Câu lỗi (mất `%s`, `{x}`, thẻ HTML) ⇒ không ghi, lọc **Machine translation error**.
+- **Thuật ngữ** (menu Glossary): câu EN → bản dịch theo ngôn ngữ (gửi kèm DeepL glossary; cặp DeepL không hỗ trợ glossary thì
+  thay thẳng), hoặc "Giữ nguyên" (thương hiệu — sẵn "Ngô Gia", "Wujia").
+- Hết hạn mức / khoá sai ⇒ dừng, giữ hàng đợi, lỗi hiện trên wizard; DeepL bận ⇒ tự thử lại sau 1 phút.
+- Đo 07/10 với DeepL giả lập: th_TH 26 module team = 4 174 chuỗi / ~105 000 ký tự (≈ 1/5 hạn mức Free 500k/tháng), 85 request,
+  ~5 s xử lý ngoài thời gian chờ DeepL.
+

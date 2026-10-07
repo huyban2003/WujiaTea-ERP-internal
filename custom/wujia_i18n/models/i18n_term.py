@@ -46,7 +46,7 @@ class WujiaI18nTerm(models.Model):
 
     @api.model
     def _wj_scan(self, module_names, langs):
-        """Quét chuỗi của các module cho các ngôn ngữ. Chỉ upsert; không đè bản sửa tay (state=override)."""
+        """Quét chuỗi của các module cho các ngôn ngữ. Chỉ upsert; không đè bản sửa tay / dịch máy (override, machine)."""
         started = time.monotonic()
         self.env.flush_all()
         found = {}                        # (module, key) -> vals term
@@ -91,7 +91,7 @@ class WujiaI18nTerm(models.Model):
                 current = existing.get((term_id, lang))
                 if not current:
                     to_create.append({'term_id': term_id, 'lang': lang, 'value': db_value, 'state': state})
-                elif current.state != 'override' and (current.value or '') != db_value:
+                elif current.state not in ('override', 'machine') and (current.value or '') != db_value:
                     current.write({'value': db_value, 'state': state})
                     updated += 1
         Value.create(to_create)
