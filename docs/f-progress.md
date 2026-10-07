@@ -2706,8 +2706,15 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
     (284, 18 có gợi ý EN), `README.md` (+ lỗi `.po` `#: web_survey_ui` + WJ-INSPECT-001). Chưa gửi.
   - Mốc `docs/i18n-baseline/vi_VN.json` cập nhật (54 trang, DB `wujia_vr`).
 - Commit: `457ff953` — feat(i18n): ★J-VR review Phần V (đã push, chờ deploy)
-- Deploy: chưa — lệnh: `-u wujia_portal_base,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery` + **restart**;
+- Deploy: ✅ UAT 07/10 (chủ dự án deploy) — lệnh: `-u wujia_portal_base,wujia_portal_sale,wujia_portal_purchase_history,wujia_portal_delivery` + **restart**;
   kiểm version DB 19.0.7.37.1 / 19.0.5.1.1 / 19.0.4.0.1 / 19.0.4.0.1.
+- UAT (07/10, `c72ae576`): 4 module DB = code (portal_base 19.0.7.37.1, portal_sale 19.0.5.1.1, purchase_history / portal_delivery
+  19.0.4.0.1), 0 module treo ⇒ không cần upgrade tay. JSON-RPC phiên web cần `db: wujia_tea_19` trong `/web/session/authenticate`.
+  Playwright `anh.owner` chỉ-đọc vi/en/th × 1440/390 × 24 route = **144 trang: 0 tràn, 0 lỗi JS, 0 HTTP ≥400**. Badge Home + Lịch sử
+  (list + chi tiết S00011/S00013) cùng màu ở 3 ngôn ngữ (Đã xác nhận/Confirmed = info, Chờ xác nhận/Awaiting confirmation = pending).
+  "Đặt hàng thành công" mobile S00045 (nháp) = pending, S00002 (đã xác nhận) = info ở vi/en/th. Arch chi tiết chuyến giao: vi "SL",
+  en/th "Qty". LIMIT: HN-01 không có chuyến giao ⇒ chi tiết chuyến chưa xem bằng trình duyệt (đã kiểm arch + test). Ngôn ngữ
+  `anh.owner` trả lại vi_VN.
 - Số đo (DB `wujia_vr` = copy `wujia_t1` + `-u` 26 module team):
   - `wj_text_probe` vi_VN 54 trang: 2 lần 0/54 lệch; so mốc trước Phần V chỉ thêm `data-wj-msg-*` + 2 sửa có chủ đích (khung giờ thi V4,
     danh mục hỗ trợ V7).
