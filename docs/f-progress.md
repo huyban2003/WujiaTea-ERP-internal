@@ -2768,7 +2768,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   trỏ `wujia_franchise.*` đã sang `wujia_franchise_inspection` ⇒ rơi xuống khớp câu nguồn. Xuất `.po` module lõi (`web`) lệch nhẹ
   (3 bản theo DB) ⇒ chỉ commit zip module team.
 - Bài học: `next-session-clusters-J.md` §6 "J-T4".
-- Commit: chưa (chờ lệnh).
+- Commit: `ca198ace` — feat(i18n): J-T4 nhập/xuất bản dịch CSV + zip .po/.pot (đã push, chờ deploy — chủ dự án để deploy sau)
 - Lệnh deploy đề xuất: `-u wujia_i18n` + restart; kiểm version DB 19.0.1.2.0; menu Translation Tool có Import / Export.
 - Dọn: đã xoá DB `wujia_t4`, `wujia_t4b` + filestore; giữ `wujia_t1`/`wujia_vr` chờ chủ dự án.
 - Phiên kế: **J-T5** — dịch tự động (DeepL), xem §6b; dịch máy chỉ điền chỗ trống, không đè bản sửa tay.
