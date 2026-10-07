@@ -2671,8 +2671,9 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `wujia_portal_info_request,wujia_portal_report` (+ `wujia_metabase_connector` nếu UAT có cài) + **restart sau `-u`**; kiểm version
   DB 19.0.1.1.0 / 19.0.1.2.0 / 19.0.4.0.0 / 19.0.4.0.0 / 19.0.1.1.0 / 19.0.3.0.0 / 19.0.3.0.0 (/ 19.0.1.0.1).
 - UAT (07/10, `6ef4db78`): 7/8 module DB = code (fleet 19.0.1.1.0, delivery 19.0.1.2.0, portal_delivery / purchase_history
-  19.0.4.0.0, info_request 19.0.1.1.0, portal_info_request / portal_report 19.0.3.0.0); **`wujia_metabase_connector` CHƯA upgrade**
-  (DB 19.0.1.0.0, đĩa 19.0.1.0.1) — không module nào phụ thuộc, chờ chủ dự án `-u wujia_metabase_connector` tay. Core đã restart ăn
+  19.0.4.0.0, info_request 19.0.1.1.0, portal_info_request / portal_report 19.0.3.0.0); `wujia_metabase_connector` lúc đầu chưa
+  upgrade (DB 19.0.1.0.0, đĩa 19.0.1.0.1, không module nào phụ thuộc) ⇒ chủ dự án duyệt, upgrade tay qua Apps (`button_immediate_upgrade`)
+  ⇒ DB 19.0.1.0.1, 0 module treo, placeholder en "e.g. Company Metabase BI" / vi "e.g. Ngô Gia Metabase BI". Core đã restart ăn
   `.po` mới (tiêu đề phường vi "Phường/Xã thuộc …", en "Wards of …"). XML-RPC `authenticate` trả Access Denied ⇒ đọc qua JSON-RPC
   phiên web (`/web/session/authenticate` + `/web/dataset/call_kw`).
   Playwright `anh.owner` chỉ-đọc (chặn mọi request không phải GET trừ đăng nhập) vi/en/th × 1440/390 × 7 trang (home, lịch sử
