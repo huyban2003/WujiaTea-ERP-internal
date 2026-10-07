@@ -2670,6 +2670,20 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Lệnh deploy (J-V8a + J-V8b): `-u wujia_fleet,wujia_delivery,wujia_portal_delivery,wujia_portal_purchase_history,wujia_info_request,`
   `wujia_portal_info_request,wujia_portal_report` (+ `wujia_metabase_connector` nếu UAT có cài) + **restart sau `-u`**; kiểm version
   DB 19.0.1.1.0 / 19.0.1.2.0 / 19.0.4.0.0 / 19.0.4.0.0 / 19.0.1.1.0 / 19.0.3.0.0 / 19.0.3.0.0 (/ 19.0.1.0.1).
+- UAT (07/10, `6ef4db78`): 7/8 module DB = code (fleet 19.0.1.1.0, delivery 19.0.1.2.0, portal_delivery / purchase_history
+  19.0.4.0.0, info_request 19.0.1.1.0, portal_info_request / portal_report 19.0.3.0.0); **`wujia_metabase_connector` CHƯA upgrade**
+  (DB 19.0.1.0.0, đĩa 19.0.1.0.1) — không module nào phụ thuộc, chờ chủ dự án `-u wujia_metabase_connector` tay. Core đã restart ăn
+  `.po` mới (tiêu đề phường vi "Phường/Xã thuộc …", en "Wards of …"). XML-RPC `authenticate` trả Access Denied ⇒ đọc qua JSON-RPC
+  phiên web (`/web/session/authenticate` + `/web/dataset/call_kw`).
+  Playwright `anh.owner` chỉ-đọc (chặn mọi request không phải GET trừ đăng nhập) vi/en/th × 1440/390 × 7 trang (home, lịch sử
+  danh sách/chi tiết `/45`, giao hàng, yêu cầu cập nhật danh sách/tạo, báo cáo): **42/42 0 tràn, 0 lỗi JS, 0 HTTP ≥400**, chữ mẫu
+  đúng ngôn ngữ ("All statuses"/"Tất cả trạng thái", "— Select type —"/"— Chọn loại —", "Total orders"/"Tổng đơn hàng",
+  `data-wj-msg-order` "%s order"/"%s đơn"); chi tiết đơn tạo từ backend en "Ngô Gia (backend)". Chữ VN còn trên trang en = dữ liệu +
+  "Tiếng Việt" + 2 mục menu Khảo sát (Thái). XLSX báo cáo: en "Order code … Total amount" + "Draft", vi "Mã đơn … Tổng tiền" + "Nháp".
+  Backend: selection info_request vi giữ "Người đại diện"/"Đang xem", en "Representative"/"Being reviewed"; constraint fleet vi
+  "Mã đội xe phải duy nhất." ↔ en "Fleet code must be unique.". Ngôn ngữ `anh.owner` trả vi_VN.
+  LIMIT: UAT 0 yêu cầu cập nhật thông tin và 3 chuyến giao không thuộc HN-01 ⇒ chi tiết yêu cầu + chi tiết chuyến chưa nhìn bằng trình
+  duyệt trên UAT (không tạo dữ liệu thật; đã phủ ở DB đo + HttpCase).
 - Dọn: DB `wujia_v8h`/`v8t`/`v8b`/`v8r`/`v8bh`/`v8bn`/`v8bm`/`v8bc` + filestore, worktree scratchpad. Giữ `wujia_t1` tới hết Phần V.
 - Phiên kế: **★J-VR** — review Phần V (quét lại = 0 code team, vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi Thái danh sách chuỗi module Thái
   + lỗi `.po` zh/th `web_survey_ui`).
