@@ -9,7 +9,7 @@ ghi `f-progress.md`. Nguồn gom: compact summary §5, `f-progress.md` (mục N�
 |---|---|---|---|---|
 | 1 | **Phần V — Việt hoá source** | 2 659 chuỗi VN viết cứng → tiếng Anh + `.po` (~~V0~~ ~~V1~~ ✅ 05/10 → **V2** … V8 → ★VR) | 8 còn lại | `next-session-clusters-J.md` §6 |
 | 2 | J-T4 | Tool dịch: nhập/xuất CSV kiểu Thái + zip `.po/.pot` | 1 | `next-session-clusters-J.md` §5 |
-| 2b | ~~J-T5~~ ✅ 07/10 | Tool dịch: dịch tự động DeepL — chọn ngôn ngữ → dịch hàng loạt → rà → Áp dụng (chưa commit; chưa có key thật) | 1 | `next-session-clusters-J.md` §6b |
+| 2b | ~~J-T5~~ ✅ 07/10 | Tool dịch: dịch tự động DeepL — chọn ngôn ngữ → dịch hàng loạt → rà → Áp dụng (`78a68ea5` đã push, chờ deploy; chưa có key thật) | 1 | `next-session-clusters-J.md` §6b |
 | 3 | J-O0…O4 + ★JR | Portal Vận hành nhượng quyền (O0 đối chiếu + câu hỏi BA → O1 luật → O2 → O3+O4 → review) — **tạm gác, chủ dự án hỏi BA trước (05/10)**; chưa có trả lời thì nhảy sang lô 4 | 5 | `next-session-clusters-J.md` §5 |
 | 4 | Issue List — cụm I | I1 #155 → I2 #62 → I3 #154 → I4a/b #152 → I5 #153 → ★IR | 6 | `next-session-clusters-H.md` §3 |
 | 5 | Issue List — 10 issue mới | STT 156, 157, 159, 160, 162–167 — **chưa phân cụm** (164, 167 dính ngôn ngữ ⇒ xem gộp vào Phần V) | ? | phân cụm ở đầu lô |
@@ -28,7 +28,7 @@ chủ dự án trước khi làm lô kế.
 - [ ] **Deploy UAT J-B2**: `-u wujia_core,wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_sale,wujia_portal_exam,`
       `wujia_portal_return,wujia_portal_support,wujia_portal_delivery,wujia_portal_notification,wujia_portal_purchase_history,wujia_return`.
 - [ ] **Deploy UAT J-T1+T2**: `-i wujia_i18n` → app "Bản dịch" → Quét chuỗi.
-- [ ] **Commit + deploy J-T5**: `-u wujia_i18n` (19.0.1.3.0) + restart; kiểm menu Translation Tool có Machine translate / Glossary /
+- [ ] **Deploy J-T5** (`78a68ea5` đã push): `-u wujia_i18n` (19.0.1.3.0) + restart; kiểm menu Translation Tool có Machine translate / Glossary /
       Settings, cron "machine translation queue" có mặt. Sau khi có key: nhập Settings → wizard th_TH 1 module nhỏ → rà.
 - [ ] **Top bar PC 992 (`bea5fa8`)**: đã push `origin/main`; **chưa xác nhận đã deploy UAT** ⇒ deploy `-u wujia_portal_layout,wujia_portal_base`
       + đo chỉ-đọc 992/993/1000/1199 với `em.hcm`.

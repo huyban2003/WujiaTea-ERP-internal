@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-07 · **CỤM J — J-T5 XONG (dịch máy DeepL: wizard + hàng đợi cron + state `machine` áp ngay + bảng thuật ngữ, `wujia_i18n` 19.0.1.3.0, CHƯA COMMIT; chưa có key DeepL ⇒ test giả lập)** · trước đó: J-T4 nhập/xuất `.po` (`ca198ace` đã push, chờ deploy), ★J-VR khép Phần V. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-O0** (nếu BA đã trả lời câu hỏi Vận hành) hoặc nhảy Issue List cụm I.
+**Cập nhật:** 2026-10-07 · **CỤM J — J-T5 XONG (dịch máy DeepL: wizard + hàng đợi cron + state `machine` áp ngay + bảng thuật ngữ, `wujia_i18n` 19.0.1.3.0, `78a68ea5` ĐÃ PUSH, CHỜ DEPLOY; chưa có key DeepL ⇒ test giả lập)** · trước đó: J-T4 nhập/xuất `.po` (`ca198ace` đã push, chờ deploy), ★J-VR khép Phần V. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-O0** (nếu BA đã trả lời câu hỏi Vận hành) hoặc nhảy Issue List cụm I.
 
 ---
 

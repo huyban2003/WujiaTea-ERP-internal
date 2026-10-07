@@ -63,7 +63,7 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V8b | info_request (85+7) + report (69) + core (9) + metabase (1). `wujia_core` sửa câu **không bump version** (tránh `-u wujia_core` kéo dây chuyền module Thái); `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét | 5 module | ✅ 07/10 — `02e363fc` đã lên UAT 07/10 |
 | ★J-VR | Review Phần V: quét = 0, vi_VN 0 lệch, en/th 156 trang sạch, bỏ nhánh tra ngược badge VN, danh sách BA (1 361 cặp) + Thái (284) ở `docs/i18n-review/`, chapter 79 | portal_base, sale, purchase_history, delivery | ✅ 07/10 — `457ff953` đã lên UAT 07/10 |
 | J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; `po_writer` dùng chung + CLI `scripts/i18n_tool.py`; dòng chỉ khớp câu nguồn chỉ điền chỗ trống (chủ dự án 07/10) | wujia_i18n, scripts | ✅ 07/10 — `ca198ace` đã push, chờ deploy |
-| J-T5 | Dịch tự động (DeepL): wizard chọn ngôn ngữ → hàng đợi + cron theo lô → state `machine` áp ngay, rà sau · bảng thuật ngữ · khoá ở Settings (chủ dự án 07/10: chưa có key ⇒ giả lập) | wujia_i18n | ✅ 07/10 — chưa commit |
+| J-T5 | Dịch tự động (DeepL): wizard chọn ngôn ngữ → hàng đợi + cron theo lô → state `machine` áp ngay, rà sau · bảng thuật ngữ · khoá ở Settings (chủ dự án 07/10: chưa có key ⇒ giả lập) | wujia_i18n | ✅ 07/10 — `78a68ea5` đã push, chờ deploy |
 | J-O0 | Bảng đối chiếu CT-059…067 ↔ backend + danh sách màn + câu hỏi BA (0 code) | docs | ☐ |
 | J-O1 | Luật portal ở L2 (file mới `portal_rules.py`, báo Thái) | franchise_operations (thêm file) | ☐ |
 | J-O2 | Hub + Nhân viên + Lịch ca (chỉ đọc) | wujia_portal_operations (mới) | ☐ |

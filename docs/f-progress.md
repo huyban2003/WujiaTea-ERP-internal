@@ -2808,7 +2808,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   key. Fallback thuật ngữ cho cặp không có glossary là thay chữ thô (ngữ pháp có thể gượng). "Khảo sát" (module Thái) vẫn tiếng Việt
   trên portal th — đúng phạm vi mặc định. Chuỗi code dịch máy chỉ có hiệu lực sau xuất `.po` + commit + restart (đường J-T4).
 - Bài học: `next-session-clusters-J.md` §6 "J-T5".
-- Commit: chưa — chờ lệnh.
+- Commit: `78a68ea5` — feat(i18n): J-T5 dịch tự động DeepL (đã push, chờ deploy)
 - Lệnh deploy đề xuất: `-u wujia_i18n` + restart; kiểm version 19.0.1.3.0, menu Translation Tool có Machine translate / Glossary /
   Settings, cron "Translation Tool: machine translation queue" active. Có key ⇒ Settings → wizard th_TH 1 module nhỏ → rà.
 - Dọn: đã xoá DB `wujia_t5`, `wujia_t5t` + filestore; giữ `wujia_t1`/`wujia_vr`.
