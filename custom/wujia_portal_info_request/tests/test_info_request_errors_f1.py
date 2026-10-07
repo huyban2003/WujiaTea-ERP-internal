@@ -6,6 +6,8 @@ from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
+from .common import load_vi
+
 
 @tagged('post_install', '-at_install', 'wujia_f1')
 class TestInfoRequestErrorsF1(HttpCase):
@@ -14,11 +16,12 @@ class TestInfoRequestErrorsF1(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         env = cls.env
+        load_vi(env)
         cls.franchise = env['wujia.franchise.management'].create({
             'code': 'F1IR', 'name': 'F1 ir store', 'franchise_end_date': '2030-01-01',
             'partner_id': env['res.partner'].create({'name': 'F1 ir partner'}).id})
         cls.user = env['res.users'].create({
-            'name': 'f1 ir', 'login': 'f1.ir', 'password': 'f1.ir',
+            'name': 'f1 ir', 'login': 'f1.ir', 'password': 'f1.ir', 'lang': 'vi_VN',
             'group_ids': [(6, 0, [env.ref('base.group_portal').id])]})
         env['wujia.franchise.member'].create({
             'user_id': cls.user.id, 'franchise_id': cls.franchise.id, 'role': 'owner'})

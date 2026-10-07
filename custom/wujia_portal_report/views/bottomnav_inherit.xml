@@ -5,14 +5,14 @@
     <template id="mobile_bottomnav_report"
               inherit_id="wujia_portal_layout.mobile_bottomnav"
               priority="50"
-              name="Wujia Mobile — sheet Thêm: Báo cáo">
+              name="Wujia Mobile — More sheet: Reports">
         <xpath expr="//span[@id='msheet_end']" position="before">
             <!-- Cùng điều kiện với controller /portal/reports/orders và mục sidebar PC. -->
             <t t-if="_nav_mgr_fids" t-call="wujia_portal_layout.wj_msheet_item">
                 <t t-set="mi_href" t-value="'/portal/reports/orders'"/>
                 <t t-set="mi_icon" t-value="'feather icon-bar-chart-2'"/>
-                <t t-set="mi_title">Báo cáo</t>
-                <t t-set="mi_sub">Thống kê đơn hàng</t>
+                <t t-set="mi_title">Reports</t>
+                <t t-set="mi_sub">Order statistics</t>
             </t>
         </xpath>
     </template>

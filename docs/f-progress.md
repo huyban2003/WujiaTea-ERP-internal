@@ -2574,7 +2574,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 ## J-V8a Việt hoá source lịch sử đặt hàng + giao hàng + đội xe · 07/10/2026 · Mac
 - Phạm vi (chủ dự án chốt 07/10 tách J-V8 làm đôi): `wujia_portal_purchase_history` (99) · `wujia_portal_delivery` (93) ·
   `wujia_delivery` (15) · `wujia_fleet` (11) = 218 chuỗi. Gom vì cùng nhãn trạng thái chuyến giao. Không đụng module Thái.
-  **Chưa commit** (chờ lệnh chủ dự án), nền HEAD `5dc1c1a0`.
+  Commit `dbd4335b` (push cùng J-V8b), nền HEAD `5dc1c1a0`.
 - Đã làm:
   - `vn_to_en_pairs` draft → check → apply cho 4 module (`docs/i18n-pairs/*.csv` CRLF, 4 file mới); glossary +101 dòng (chỉ nối thêm).
     4 key EN của phiên đổi cho cụ thể vì đụng msgid field backend module khác: "Shipping status" (không "Delivery status"),
@@ -2621,3 +2621,55 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   Giữ `wujia_t1` tới hết Phần V.
 - Phiên kế: **J-V8b** — `wujia_portal_info_request` (85) + `wujia_info_request` (7) + `wujia_portal_report` (69) + `wujia_core` (9,
   sửa câu **không bump version**; `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét) + `wujia_metabase_connector` (1).
+
+## J-V8b Việt hoá source yêu cầu cập nhật thông tin + báo cáo + core + metabase · 07/10/2026 · Mac
+- Phạm vi: `wujia_portal_info_request` (85) · `wujia_info_request` (7) · `wujia_portal_report` (69) · `wujia_core` (9) ·
+  `wujia_metabase_connector` (1) = 171 chuỗi. Không đụng module Thái. Nền HEAD `dbd4335b` (= commit J-V8a, push cùng phiên này).
+- Đã làm:
+  - `vn_to_en_pairs` draft → check → apply 5 module (`docs/i18n-pairs/*.csv` CRLF, 5 file mới); glossary +74 dòng (chỉ nối thêm).
+    Key EN đổi cho cụ thể vì trùng msgid module khác: "Withdraw request" / "Withdraw this request?" (trùng `wujia_return`),
+    "Orders cancelled" (trùng `wujia_sale`); "The request has been cancelled." (glossary đã có "Request cancelled." nghĩa khác).
+  - portal_info_request: `REQUEST_TYPE_LABELS` (7) + `STATE_LABELS` (5, màu badge giữ nhờ `status_badge_for(lazy)`) → `_lt`, dịch lúc
+    render (`_type_labels()`, `_type_options()`, `_state_labels()`); 6 câu lỗi `_()` → EN; pager `_lt('requests')`; QWeb t-set
+    `_inf_t_*` cho filter; confirm huỷ qua `data-wj-msg-confirm` (không còn câu trong `onclick`); result(s) số ít/nhiều.
+  - info_request: 3 câu `_()` + `_sql_constraints` + manifest → EN; refuse_reason "Cancelled by user" (vi "User huỷ").
+  - portal_report: `STATE_LABELS` (5 nhãn, màu giữ) → `_lt` + `_state_label(env, state)`; tiêu đề `_('Order report')`; 7 cột XLSX
+    `EXPORT_HEADERS` → `_lt`, dịch theo ngôn ngữ người xuất; câu JS ApexCharts (Revenue, Total, %s order(s), %sM/%sK, câu rỗng) →
+    khối `_rep_msgs` `data-wj-msg-*` ở cả gốc mobile + PC; số rút gọn theo `decimal_point` ngôn ngữ (payload); "Không xác định" → t-set;
+    order(s) in total, product(s); tên template nav → EN.
+  - core: 2 constraint (`res.area`, `res.ward`), `_('Wards of %s')`, log `__init__`/`module_split`, manifest → EN; **không bump version**;
+    `DEFAULT_BRAND_NAME = 'Ngô Gia'` khai miễn quét (`LITERAL_EXEMPT` trong `vn_hardcode_scan.py`).
+  - metabase: placeholder `e.g. Company Metabase BI` (chủ dự án chốt 07/10), vi_VN.po trả "e.g. Ngô Gia Metabase BI".
+  - Bump: portal_info_request 19.0.2.0.0 → **19.0.3.0.0**, info_request 19.0.1.0.0 → **19.0.1.1.0**, portal_report 19.0.2.7.0 →
+    **19.0.3.0.0**, metabase 19.0.1.0.0 → **19.0.1.0.1**; core giữ 19.0.2.1.1. Không seed `noupdate` tiếng Việt ⇒ không migration.
+  - `.po` vi_VN + `.pot` tái sinh 5 module (portal_report có `i18n/` mới); khôi phục 6 msgstr bị glossary chung ghi đè (Representative,
+    Submission date, Active ×2, Manager, help người phụ trách khu vực) + thêm "Revenue (" → "Doanh thu ("; `msgfmt -c` sạch.
+  - Test: `test_f5_nav_item` report đọc arch vi qua `load_vi` + thêm assert "Reports" ở en; `test_info_request_errors_f1` user vi_VN +
+    `load_vi` (không xoá assert). Mới `test_jv8b_i18n.py` ×3: report (bảng VN TRƯỚC phiên 5 nhãn + màu, 7 cột XLSX, tiêu đề,
+    `decimal_point`; arch en không chữ Việt; HttpCase vi/en "1 order in total"/"1 đơn hàng", "1 product", 7 `data-wj-msg-*` ×2 gốc,
+    file XLSX header + cột trạng thái theo ngôn ngữ), info_request (7 loại, 5 trạng thái + badge = badge tính từ nhãn VN cũ, 7 câu lỗi;
+    HttpCase "1 result", nhãn loại/trạng thái, confirm attr, lỗi "Invalid information type." ↔ "Loại thông tin không hợp lệ."), core
+    (2 constraint vi qua `_sql_error_to_message`, tiêu đề action phường) — test core chỉ chạy DB trắng.
+- Số đo:
+  - `vn_hardcode_scan --fail-on-any` 9 module V8a+V8b: **0** (trước 171 cho V8b).
+  - `-u info_request,portal_info_request,portal_report,metabase,portal_base,portal_layout --test-enable` trên DB đo `wujia_v8bn`:
+    **1014 test, 0 đỏ** (HEAD `wujia_v8bh` 992 / 0; +17 test mới, +5 test metabase vì metabase chỉ cài trên DB đo).
+  - Core trên DB trắng `-i wujia_core --test-tags wujia_jv8b,wujia_brand`: **19/19**.
+  - Mutation trên snapshot (8 đột biến: đổi câu EN trạng thái/loại, header XLSX không dịch, "Không xác định" về biểu thức, bỏ số ít,
+    đổi tên `data-wj-msg-*`, confirm viết cứng, đổi nhãn đổi màu badge) ⇒ **8/8 bị bắt**; bản gốc 22/22 xanh.
+  - So vi_VN DB HEAD ↔ mới: 18 chỗ khác = 12 field chung EN → VN + 6 arch view, **0 VN → EN**.
+  - `wj_text_probe` vi_VN (thêm 1 yêu cầu nháp cho `anh.owner` ở cả 2 DB đo để có trang chi tiết) 56 trang × 2 lần: chỉ lệch các
+    `data-wj-msg-*` mới (báo cáo 7 khoá × 2 gốc; chi tiết yêu cầu "Huỷ yêu cầu này?" = đúng câu `confirm` cũ); chữ hiện ra 0 lệch.
+  - Playwright `anh.owner` chỉ-đọc en_US/th_TH × 1440/390 × 4 trang (báo cáo, yêu cầu danh sách/tạo/chi tiết): **16/16 0 tràn,
+    0 lỗi JS, 0 HTTP ≥400**. Chữ VN còn lại = dữ liệu + "Khảo sát"/"Xem kết quả đánh giá & khảo sát cửa hàng" (module Thái).
+- Lệch / LIMIT: `-u wujia_core` kéo `wujia_franchise_inspection` (Thái) ⇒ 120 dòng ERROR "malformed po … unknown occurrence:
+  web_survey_ui" từ `.po` zh/th của module Thái (không do phiên này; báo Thái ở ★VR). Câu core: `_()` có hiệu lực sau restart,
+  constraint vi cần lần `-u wujia_core` tự nhiên sau này. zh/th chưa có bản dịch câu mới ⇒ thấy EN (chờ J-T5).
+- Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V8b".
+- Commit: J-V8a `dbd4335b` + J-V8b (hash ở commit ghi hash), push cùng phiên.
+- Lệnh deploy (J-V8a + J-V8b): `-u wujia_fleet,wujia_delivery,wujia_portal_delivery,wujia_portal_purchase_history,wujia_info_request,`
+  `wujia_portal_info_request,wujia_portal_report` (+ `wujia_metabase_connector` nếu UAT có cài) + **restart sau `-u`**; kiểm version
+  DB 19.0.1.1.0 / 19.0.1.2.0 / 19.0.4.0.0 / 19.0.4.0.0 / 19.0.1.1.0 / 19.0.3.0.0 / 19.0.3.0.0 (/ 19.0.1.0.1).
+- Dọn: DB `wujia_v8h`/`v8t`/`v8b`/`v8r`/`v8bh`/`v8bn`/`v8bm`/`v8bc` + filestore, worktree scratchpad. Giữ `wujia_t1` tới hết Phần V.
+- Phiên kế: **★J-VR** — review Phần V (quét lại = 0 code team, vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi Thái danh sách chuỗi module Thái
+  + lỗi `.po` zh/th `web_survey_ui`).

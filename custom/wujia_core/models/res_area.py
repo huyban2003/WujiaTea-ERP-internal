@@ -36,7 +36,7 @@ class ResArea(models.Model):
 
     _code_uniq = models.Constraint(
         'UNIQUE (code)',
-        'Mã khu vực phải duy nhất.',
+        'Area code must be unique.',
     )
 
     @api.depends('ward_ids.state_id')
@@ -48,7 +48,7 @@ class ResArea(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Phường/Xã thuộc %s', self.name),
+            'name': _('Wards of %s', self.name),
             'res_model': 'res.ward',
             'view_mode': 'list,form',
             'domain': [('id', 'in', self.ward_ids.ids)],

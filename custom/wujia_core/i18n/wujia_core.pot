@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 15:12+0000\n"
-"PO-Revision-Date: 2026-10-04 15:12+0000\n"
+"POT-Creation-Date: 2026-10-07 05:49+0000\n"
+"PO-Revision-Date: 2026-10-07 05:49+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -63,6 +63,11 @@ msgstr ""
 #. module: wujia_core
 #: model:ir.model.fields,field_description:wujia_core.field_res_area__code
 msgid "Area code"
+msgstr ""
+
+#. module: wujia_core
+#: model:ir.model.constraint,message:wujia_core.constraint_res_area_code_uniq
+msgid "Area code must be unique."
 msgstr ""
 
 #. module: wujia_core
@@ -162,6 +167,7 @@ msgid "Description"
 msgstr ""
 
 #. module: wujia_core
+#: model:ir.model.fields,field_description:wujia_core.field_ir_http__display_name
 #: model:ir.model.fields,field_description:wujia_core.field_res_area__display_name
 #: model:ir.model.fields,field_description:wujia_core.field_res_company__display_name
 #: model:ir.model.fields,field_description:wujia_core.field_res_config_settings__display_name
@@ -177,6 +183,11 @@ msgid "Favicon"
 msgstr ""
 
 #. module: wujia_core
+#: model:ir.model,name:wujia_core.model_ir_http
+msgid "HTTP Routing"
+msgstr ""
+
+#. module: wujia_core
 #: model:ir.model.fields,help:wujia_core.field_res_company__wj_primary_color
 #: model:ir.model.fields,help:wujia_core.field_res_config_settings__wj_primary_color
 msgid ""
@@ -185,6 +196,7 @@ msgid ""
 msgstr ""
 
 #. module: wujia_core
+#: model:ir.model.fields,field_description:wujia_core.field_ir_http__id
 #: model:ir.model.fields,field_description:wujia_core.field_res_area__id
 #: model:ir.model.fields,field_description:wujia_core.field_res_company__id
 #: model:ir.model.fields,field_description:wujia_core.field_res_config_settings__id
@@ -242,16 +254,6 @@ msgid "Mobile logo"
 msgstr ""
 
 #. module: wujia_core
-#: model:ir.model.constraint,message:wujia_core.constraint_res_area_code_uniq
-msgid "Mã khu vực phải duy nhất."
-msgstr ""
-
-#. module: wujia_core
-#: model:ir.model.constraint,message:wujia_core.constraint_res_ward_code_state_uniq
-msgid "Mã phường/xã phải duy nhất trong từng tỉnh/thành."
-msgstr ""
-
-#. module: wujia_core
 #: model:ir.model.fields,field_description:wujia_core.field_res_area__manager_user_id
 #: model_terms:ir.ui.view,arch_db:wujia_core.view_res_area_search
 msgid "Person in charge"
@@ -260,12 +262,6 @@ msgstr ""
 #. module: wujia_core
 #: model:ir.model.fields,help:wujia_core.field_res_area__manager_user_id
 msgid "Person responsible for running this area."
-msgstr ""
-
-#. module: wujia_core
-#. odoo-python
-#: code:addons/wujia_core/models/res_area.py:0
-msgid "Phường/Xã thuộc %s"
 msgstr ""
 
 #. module: wujia_core
@@ -331,6 +327,11 @@ msgid "Ward code"
 msgstr ""
 
 #. module: wujia_core
+#: model:ir.model.constraint,message:wujia_core.constraint_res_ward_code_state_uniq
+msgid "Ward code must be unique within each province."
+msgstr ""
+
+#. module: wujia_core
 #: model:ir.model.fields,field_description:wujia_core.field_res_ward__name
 msgid "Ward name"
 msgstr ""
@@ -347,6 +348,12 @@ msgstr ""
 #. module: wujia_core
 #: model:ir.model.fields,help:wujia_core.field_res_area__ward_ids
 msgid "Wards belonging to this area — picked from the res.ward catalog."
+msgstr ""
+
+#. module: wujia_core
+#. odoo-python
+#: code:addons/wujia_core/models/res_area.py:0
+msgid "Wards of %s"
 msgstr ""
 
 #. module: wujia_core

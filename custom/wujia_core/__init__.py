@@ -57,8 +57,8 @@ if logfile:
             # logfile trong odoo.conf từ giờ trống — để lại đường dẫn thật, không thì
             # người debug mở đúng file cấu hình mà chẳng thấy log nào.
             with open(logfile, 'a', encoding='utf-8') as f:
-                f.write(f"[wujia_core] log đã chuyển sang {base_log_dir}/<năm>/<tháng>/"
-                        f"<năm-tháng-ngày>.log\n")
+                f.write(f"[wujia_core] logs moved to {base_log_dir}/<year>/<month>/"
+                        f"<year-month-day>.log\n")
             break
 
 from . import controllers

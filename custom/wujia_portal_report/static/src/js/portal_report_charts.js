@@ -19,23 +19,33 @@
         return v || fallback;
     }
 
-    /* 2.800.000 → "2,8tr" · 700.000 → "700k". Mockup dùng đúng 2 mốc này. */
-    function shortMoney(v) {
+    function msg(node, key, fallback, arg) {
+        var text = window.wjMsg ? window.wjMsg(node, key, fallback) : fallback;
+        return arg === undefined ? text : text.replace("%s", arg);
+    }
+
+    function orderCount(node, c) {
+        return c === 1 ? msg(node, "order", "%s order", c) : msg(node, "orders", "%s orders", c);
+    }
+
+    /* 2.800.000 → "2,8tr" · 700.000 → "700k" ở vi_VN; đơn vị + dấu thập phân theo ngôn ngữ người xem. */
+    function shortMoney(node, payload, v) {
         var n = Number(v) || 0;
         if (Math.abs(n) >= 1e6) {
-            return String(Math.round(n / 1e5) / 10).replace(".", ",") + "tr";
+            var m = String(Math.round(n / 1e5) / 10).replace(".", payload.decimal_point || ".");
+            return msg(node, "million", "%sM", m);
         }
         if (Math.abs(n) >= 1e3) {
-            return Math.round(n / 1e3) + "k";
+            return msg(node, "thousand", "%sK", Math.round(n / 1e3));
         }
         return String(Math.round(n));
     }
 
     function fullMoney(v) {
-        return Number(v || 0).toLocaleString("vi-VN");
+        return Number(v || 0).toLocaleString(document.documentElement.lang || undefined);
     }
 
-    function monthsOptions(payload, mobile) {
+    function monthsOptions(payload, mobile, node) {
         var primary = wujiaColor("primary", "#28A9DF");
         /* 8 tháng "07/2026" không đủ chỗ trong 334px của mobile: để nguyên thì
            ApexCharts cắt thành "07/2…", ép trim:false thì các nhãn chồng lên nhau.
@@ -49,14 +59,14 @@
            không vẽ ra gì (canvas rỗng), nên phải bỏ hẳn khoá. */
         var yaxis = {
             labels: {
-                formatter: shortMoney,
+                formatter: function (v) { return shortMoney(node, payload, v); },
                 style: { fontSize: mobile ? "11px" : "12px" },
             },
         };
         if (!mobile) {
             /* Ký hiệu tiền lấy từ payload (currency công ty), không gõ 'đ' cứng. */
             yaxis.title = {
-                text: "Doanh thu" + (payload.currency ? " (" + payload.currency + ")" : ""),
+                text: msg(node, "revenue", "Revenue") + (payload.currency ? " (" + payload.currency + ")" : ""),
                 style: { fontWeight: 500 },
             };
         }
@@ -68,7 +78,7 @@
                 fontFamily: "inherit",
                 parentHeightOffset: 0,
             },
-            series: [{ name: "Doanh thu", data: payload.months_total || [] }],
+            series: [{ name: msg(node, "revenue", "Revenue"), data: payload.months_total || [] }],
             colors: [primary],
             plotOptions: {
                 bar: {
@@ -122,14 +132,14 @@
                     formatter: function (v, opt) {
                         var counts = payload.months_count || [];
                         var c = counts[opt.dataPointIndex];
-                        return fullMoney(v) + (c != null ? " · " + c + " đơn" : "");
+                        return fullMoney(v) + (c != null ? " · " + orderCount(node, c) : "");
                     },
                 },
             },
         };
     }
 
-    function stateOptions(payload) {
+    function stateOptions(payload, node) {
         return {
             chart: { type: "donut", height: 200, fontFamily: "inherit" },
             series: payload.state_count || [],
@@ -147,7 +157,7 @@
                             value: { fontSize: "26px", fontWeight: 700, offsetY: 2 },
                             total: {
                                 show: true,
-                                label: "Tổng",
+                                label: msg(node, "total", "Total"),
                                 fontSize: "13px",
                                 formatter: function (w) {
                                     return w.globals.seriesTotals.reduce(function (a, b) {
@@ -159,7 +169,7 @@
                     },
                 },
             },
-            tooltip: { y: { formatter: function (v) { return v + " đơn"; } } },
+            tooltip: { y: { formatter: function (v) { return orderCount(node, v); } } },
         };
     }
 
@@ -179,7 +189,10 @@
     }
 
     function emptyNote(node) {
-        node.innerHTML = '<p class="wj-rep-chart-empty">Chưa có dữ liệu trong khoảng đã chọn.</p>';
+        var p = document.createElement("p");
+        p.className = "wj-rep-chart-empty";
+        p.textContent = msg(node, "no-data", "No data in the selected range.");
+        node.replaceChildren(p);
     }
 
     function render() {
@@ -205,7 +218,7 @@
                 return;
             }
             if (payload.months_label && payload.months_label.length) {
-                renderInto(node, monthsOptions(payload, spec.mobile));
+                renderInto(node, monthsOptions(payload, spec.mobile, node));
             } else {
                 emptyNote(node);
             }
@@ -216,7 +229,7 @@
             var pcNode = document.getElementById("report-chart-months");
             var payload = pcNode ? readPayload(pcNode) : null;
             if (payload && payload.state_label && payload.state_label.length) {
-                renderInto(stateNode, stateOptions(payload));
+                renderInto(stateNode, stateOptions(payload, stateNode));
             } else {
                 emptyNote(stateNode);
             }

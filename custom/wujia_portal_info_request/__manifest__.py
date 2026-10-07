@@ -1,9 +1,9 @@
 {
     'name': 'Wujia Portal — Info Update Request',
-    'version': '19.0.2.0.0',
+    'version': '19.0.3.0.0',
     'category': 'Wujia',
-    'summary': 'Màn portal gửi yêu cầu cập nhật thông tin cửa hàng '
-               '(nghiệp vụ ở wujia_info_request).',
+    'summary': 'Portal screens to request store information updates '
+               '(business rules in wujia_info_request).',
     'author': 'WujiaTea',
     'license': 'LGPL-3',
     'depends': ['wujia_portal_base', 'wujia_info_request'],

@@ -98,7 +98,7 @@ class WujiaInfoUpdateRequest(models.Model):
     _sql_constraints = [
         ('check_submitted_has_date',
          "CHECK (state = 'draft' OR submitted_date IS NOT NULL)",
-         "submitted_date phải có khi state >= submitted."),
+         "submitted_date is required once the request is submitted."),
     ]
 
     @api.depends('franchise_id', 'request_type', 'field_target')
@@ -121,7 +121,7 @@ class WujiaInfoUpdateRequest(models.Model):
         for rec in self:
             if rec.request_type == 'other' and not rec.field_target:
                 raise ValidationError(_(
-                    "Khi chọn 'Khác' phải nhập tên field cần đổi."
+                    "Enter the field to change when choosing 'Other'."
                 ))
 
     @api.model_create_multi
@@ -165,7 +165,7 @@ class WujiaInfoUpdateRequest(models.Model):
                 'submitted_date': fields.Datetime.now(),
             })
             rec.message_post(
-                body=_("Yêu cầu cập nhật thông tin đã được gửi từ portal."),
+                body=_("Information update request submitted from the portal."),
                 subtype_xmlid='mail.mt_comment',
             )
 
@@ -195,6 +195,6 @@ class WujiaInfoUpdateRequest(models.Model):
         for rec in self:
             if rec.state not in ('draft', 'submitted'):
                 raise ValidationError(_(
-                    "Chỉ có thể huỷ yêu cầu ở trạng thái Nháp/Đã gửi."
+                    "Only draft or submitted requests can be cancelled."
                 ))
-            rec.write({'state': 'rejected', 'refuse_reason': _('User huỷ')})
+            rec.write({'state': 'rejected', 'refuse_reason': _('Cancelled by user')})

@@ -4,19 +4,19 @@
     <template id="portal_info_request_form" name="Wujia Portal — Info Request Form">
         <t t-call="wujia_portal_layout.app_layout">
             <t t-set="pc_width" t-value="'narrow'"/>
-            <t t-set="title">Tạo yêu cầu cập nhật thông tin</t>
+            <t t-set="title">Create information update request</t>
             <div class="content-wrapper">
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'pc'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_crumb">Yêu cầu cập nhật thông tin / Tạo yêu cầu</t>
-                    <t t-set="ph_title">Tạo yêu cầu cập nhật thông tin</t>
+                    <t t-set="ph_crumb">Information update requests / Create request</t>
+                    <t t-set="ph_title">Create information update request</t>
                     <t t-set="ph_back_url" t-value="'/portal/info-request'"/>
                 </t>
                 <t t-call="wujia_portal_layout.wj_page_header">
                     <t t-set="ph_platform" t-value="'m'"/>
                     <t t-set="ph_variant" t-value="'back'"/>
-                    <t t-set="ph_title">Tạo yêu cầu</t>
+                    <t t-set="ph_title">Create request</t>
                     <t t-set="ph_back_url" t-value="'/portal/info-request'"/>
                 </t>
 
@@ -31,10 +31,10 @@
                         <div class="wj-surface-card__body">
                             <div class="row g-2">
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="info-franchise-id">Cửa hàng <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="info-franchise-id">Store <span class="text-danger">*</span></label>
                                     <select name="franchise_id" id="info-franchise-id"
                                             class="form-select" required="required">
-                                        <option value="">— Chọn cửa hàng —</option>
+                                        <option value="">— Select store —</option>
                                         <t t-foreach="franchises" t-as="f">
                                             <option t-att-value="f.id"
                                                     t-att-selected="'selected' if str(values.get('franchise_id')) == str(f.id) else None"
@@ -43,10 +43,10 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="info-request-type">Loại thông tin <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="info-request-type">Information type <span class="text-danger">*</span></label>
                                     <select name="request_type" id="info-request-type"
                                             class="form-select" required="required">
-                                        <option value="">— Chọn loại —</option>
+                                        <option value="">— Select type —</option>
                                         <t t-foreach="request_type_options" t-as="rt">
                                             <option t-att-value="rt[0]"
                                                     t-att-selected="'selected' if values.get('request_type') == rt[0] else None"
@@ -57,63 +57,63 @@
 
                                 <div class="col-md-6 col-12" id="info-field-target-wrap"
                                      t-att-style="'' if values.get('request_type') == 'other' else 'display:none;'">
-                                    <label class="form-label" for="info-field-target">Tên field kỹ thuật (khi chọn "Khác")</label>
+                                    <label class="form-label" for="info-field-target">Technical field name (when "Other" is selected)</label>
                                     <input type="text" name="field_target" id="info-field-target"
                                            class="form-control"
-                                           placeholder="vd: tax_code, website, ..."
+                                           placeholder="e.g. tax_code, website, ..."
                                            t-att-value="values.get('field_target') or ''"/>
                                 </div>
                                 <div class="col-md-6 col-12">
-                                    <label class="form-label" for="info-priority">Mức độ</label>
+                                    <label class="form-label" for="info-priority">Severity</label>
                                     <select id="info-priority" name="priority" class="form-select">
                                         <option value="normal"
                                                 t-att-selected="'selected' if values.get('priority', 'normal') == 'normal' else None">
-                                            Bình thường
+                                            Normal
                                         </option>
                                         <option value="urgent"
                                                 t-att-selected="'selected' if values.get('priority') == 'urgent' else None">
-                                            Khẩn
+                                            Urgent
                                         </option>
                                     </select>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label" for="info-old-value">Giá trị hiện tại</label>
+                                    <label class="form-label" for="info-old-value">Current value</label>
                                     <textarea id="info-old-value" rows="2"
                                               class="form-control bg-light"
                                               readonly="readonly"
-                                              placeholder="Chọn cửa hàng + loại thông tin để xem giá trị hiện tại..."/>
+                                              placeholder="Select a store and information type to see the current value..."/>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label" for="info-new-value">Giá trị mới <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="info-new-value">New value <span class="text-danger">*</span></label>
                                     <textarea id="info-new-value" name="new_value" rows="3" class="form-control"
                                               required="required"
-                                              placeholder="Nhập giá trị mới cần cập nhật..."
+                                              placeholder="Enter the new value to update..."
                                               t-out="values.get('new_value') or ''"/>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label" for="info-note">Ghi chú</label>
+                                    <label class="form-label" for="info-note">Note</label>
                                     <textarea id="info-note" name="note" rows="3" class="form-control"
-                                              placeholder="Lý do, ngữ cảnh thêm cho HQ duyệt..."
+                                              placeholder="Reason or extra context for HQ review..."
                                               t-out="values.get('note') or ''"/>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label" for="info-attachments">Minh chứng (tuỳ chọn)</label>
+                                    <label class="form-label" for="info-attachments">Evidence (optional)</label>
                                     <input type="file" id="info-attachments" name="attachments" class="form-control"
                                            multiple="multiple"/>
-                                    <small class="text-muted">PDF / JPG / PNG, tối đa 5MB/file, tối đa 6 file.</small>
+                                    <small class="text-muted">PDF / JPG / PNG, up to 5MB per file, up to 6 files.</small>
                                 </div>
                             </div>
                         </div>
                         <div class="wj-surface-card__foot text-end">
-                            <a href="/portal/info-request" class="wj-btn wj-btn--secondary me-2">Hủy</a>
+                            <a href="/portal/info-request" class="wj-btn wj-btn--secondary me-2">Cancel</a>
                             <button type="submit" name="action" value="draft"
-                                    class="wj-btn wj-btn--outline me-2">Lưu nháp</button>
+                                    class="wj-btn wj-btn--outline me-2">Save draft</button>
                             <button type="submit" name="action" value="submit" class="wj-btn wj-btn--primary">
-                                <i class="fa fa-paper-plane me-1"/>Gửi yêu cầu
+                                <i class="fa fa-paper-plane me-1"/>Submit request
                             </button>
                         </div>
                     </form>
@@ -148,11 +148,7 @@
                     }).then(function (r) {
                         return r.json();
                     }).then(function (j) {
-                        // KHÔNG dùng toán tử AND/so-sánh-lớn-nhỏ của JS trong script
-                        // inline: QWeb serialize template bằng lxml nên các ký tự đó ra
-                        // HTML dưới dạng thực thể, mà HTML5 không giải mã thực thể bên
-                        // trong thẻ script ⇒ cả khối JS chết vì SyntaxError. Viết if
-                        // lồng như dưới, hoặc đưa hẳn ra static/src/js/.
+                        // nested ifs on purpose: QWeb escapes boolean operators inside inline scripts
                         var v = '';
                         if (j) {
                             if (j.result) {

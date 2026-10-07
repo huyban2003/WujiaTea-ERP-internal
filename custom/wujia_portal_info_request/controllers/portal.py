@@ -15,7 +15,7 @@ from urllib.parse import quote
 
 from werkzeug.exceptions import Forbidden
 
-from odoo import _, http
+from odoo import _, _lt, http
 from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
@@ -34,27 +34,43 @@ _logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 20
 
-# Nhãn VN của wujia.info.update.request.request_type. Pin cứng tại đây vì source đã chuyển
-# sang tiếng Anh (sprint 44) — portal phải giữ tiếng Việt.
-# Key phải khớp REQUEST_TYPE trong wujia_info_request (giữ đúng thứ tự).
+# Nhãn portal của request_type (khác nhãn backend), dịch lúc render. Key khớp REQUEST_TYPE của wujia_info_request.
 REQUEST_TYPE_LABELS = {
-    'address': 'Địa chỉ',
-    'phone': 'Số điện thoại',
-    'email': 'Email',
-    'owner_name': 'Tên chủ cửa hàng',
-    'bank_info': 'Thông tin ngân hàng',
-    'representative': 'Người đại diện',
-    'other': 'Khác',
+    'address': _lt('Address'),
+    'phone': _lt('Phone number'),
+    'email': _lt('Email'),
+    'owner_name': _lt('Store owner name'),
+    'bank_info': _lt('Bank information'),
+    'representative': _lt('Legal representative'),
+    'other': _lt('Other'),
 }
-REQUEST_TYPE_OPTIONS = [(code, REQUEST_TYPE_LABELS[code]) for code, _label in REQUEST_TYPE]
 
 STATE_LABELS = {k: (v, status_badge_for(v)) for k, v in {
-    'draft': 'Nháp',
-    'submitted': 'Đã gửi',
-    'reviewing': 'Đang xem',
-    'approved': 'Đã duyệt',
-    'rejected': 'Từ chối',
+    'draft': _lt('Draft'),
+    'submitted': _lt('Submitted'),
+    'reviewing': _lt('Viewing'),
+    'approved': _lt('Approved'),
+    'rejected': _lt('Rejected'),
 }.items()}
+
+
+def _type_labels():
+    result = {}
+    for code, label in REQUEST_TYPE_LABELS.items():
+        result[code] = request.env._(label)
+    return result
+
+
+def _type_options():
+    labels = _type_labels()
+    return [(code, labels[code]) for code, _label in REQUEST_TYPE]
+
+
+def _state_labels():
+    result = {}
+    for key, (label, css) in STATE_LABELS.items():
+        result[key] = (request.env._(label), css)
+    return result
 
 
 class WujiaPortalInfoRequest(http.Controller):
@@ -66,9 +82,9 @@ class WujiaPortalInfoRequest(http.Controller):
         if not franchise_ids:
             return request.render(
                 'wujia_portal_info_request.portal_info_request_list',
-                {'requests': [], 'pgn': None, 'state_labels': STATE_LABELS,
+                {'requests': [], 'pgn': None, 'state_labels': _state_labels(),
                  'no_franchise': True, 'state': '', 'request_type': '',
-                 'request_type_options': REQUEST_TYPE_OPTIONS},
+                 'request_type_options': _type_options()},
             )
         Model = request.env['wujia.info.update.request'].sudo()
         domain = Model._portal_scope_domain(franchise_ids)
@@ -83,7 +99,7 @@ class WujiaPortalInfoRequest(http.Controller):
         size = parse_page_size(page_size, PAGE_SIZE)
         total = Model.search_count(domain)
         pgn = build_pager(total, page, size, path='/portal/info-request',
-                          item_label='yêu cầu',
+                          item_label=_lt('requests'),
                           page_size_options=PAGE_SIZE_OPTIONS)
         recs = Model.search(domain, limit=size, offset=pgn['offset'],
                             order='request_date desc')
@@ -92,10 +108,10 @@ class WujiaPortalInfoRequest(http.Controller):
             {
                 'requests': recs,
                 'pgn': pgn,
-                'state_labels': STATE_LABELS,
+                'state_labels': _state_labels(),
                 'no_franchise': False,
                 'state': state, 'request_type': request_type,
-                'request_type_options': REQUEST_TYPE_OPTIONS,
+                'request_type_options': _type_options(),
             },
         )
 
@@ -109,7 +125,7 @@ class WujiaPortalInfoRequest(http.Controller):
         Model = request.env['wujia.info.update.request'].sudo()
         if not Model._portal_can_request(franchise_ids):
             raise Forbidden(description=_(
-                "Chỉ Owner / Manager mới được tạo yêu cầu cập nhật thông tin."
+                "Only owners or managers can create information update requests."
             ))
 
         if request.httprequest.method != 'POST':
@@ -133,7 +149,7 @@ class WujiaPortalInfoRequest(http.Controller):
         except Exception:
             _logger.exception('Info request create failed')
             return self._render_form(
-                error=_("Không thể gửi yêu cầu. Vui lòng kiểm tra lại thông tin và thử lại."),
+                error=_("Could not submit the request. Please check the information and try again."),
                 prefill=post)
         return request.redirect(
             f'/portal/info-request/{rec.id}?message=created'
@@ -149,8 +165,8 @@ class WujiaPortalInfoRequest(http.Controller):
             return request.redirect('/portal/info-request')
         return request.render(
             'wujia_portal_info_request.portal_info_request_detail',
-            {'rec': rec, 'state_labels': STATE_LABELS,
-             'request_type_labels': REQUEST_TYPE_LABELS,
+            {'rec': rec, 'state_labels': _state_labels(),
+             'request_type_labels': _type_labels(),
              'message': kw.get('message')},
         )
 
@@ -195,7 +211,7 @@ class WujiaPortalInfoRequest(http.Controller):
             'wujia_portal_info_request.portal_info_request_form',
             {
                 'franchises': franchises,
-                'request_type_options': REQUEST_TYPE_OPTIONS,
+                'request_type_options': _type_options(),
                 'error': error,
                 'values': prefill or {},
             },
@@ -205,21 +221,21 @@ class WujiaPortalInfoRequest(http.Controller):
         try:
             franchise_id = int(post.get('franchise_id') or 0)
         except (TypeError, ValueError):
-            raise ValidationError(_("Cửa hàng không hợp lệ."))
+            raise ValidationError(_("Invalid store."))
         if franchise_id not in set(accessible_fids):
-            raise ValidationError(_("Cửa hàng không truy cập được."))
+            raise ValidationError(_("You cannot access this store."))
 
         request_type = post.get('request_type') or ''
         if request_type not in dict(REQUEST_TYPE):
-            raise ValidationError(_("Loại thông tin không hợp lệ."))
+            raise ValidationError(_("Invalid information type."))
 
         new_value = (post.get('new_value') or '').strip()
         if not new_value:
-            raise ValidationError(_("Vui lòng nhập giá trị mới."))
+            raise ValidationError(_("Please enter the new value."))
 
         field_target = (post.get('field_target') or '').strip()
         if request_type == 'other' and not field_target:
-            raise ValidationError(_("Khi chọn 'Khác' phải nhập tên field."))
+            raise ValidationError(_("Enter the field name when choosing 'Other'."))
 
         action = (post.get('action') or 'draft').strip()
         if action not in ('draft', 'submit'):

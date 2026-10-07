@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-05 · **CỤM J — J-V0 XONG (quy ước Việt hoá + công cụ; J-T1+T2 đã push `ba08698e`)** · trước đó: J-T1+T2 TOOL DỊCH XONG + LẬP PHẦN V (VIỆT HOÁ SOURCE) — module `wujia_i18n` (app "Bản dịch"). Quét ra **2 659 chuỗi tiếng Việt viết cứng** ⇒ chủ dự án chốt làm **Phần V (V0–V8 + ★VR) TRƯỚC** J-T4 → J-O → Issue List. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **J-V1** (`wujia_portal_layout`).
+**Cập nhật:** 2026-10-07 · **CỤM J — PHẦN V XONG V1–V8b (J-V8a `dbd4335b` + J-V8b đã push, chờ deploy)** · trước đó: J-V0 quy ước Việt hoá + công cụ; J-T1+T2 TOOL DỊCH `wujia_i18n`. Tồn đọng toàn dự án: **`docs/pending-backlog.md`**. Phiên kế: **★J-VR** (review Phần V).
 
 ---
 
@@ -123,6 +123,8 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 ---
 
 ## §5 wujia-current-status
+
+**State (2026-10-07 · J-V8b) — PHẦN V (VIỆT HOÁ SOURCE) XONG V1–V8b, CHỈ CÒN ★J-VR.** Câu gốc source code team đã là tiếng Anh, vi_VN sinh từ `docs/i18n-glossary.csv` ⇒ user vi thấy y chữ cũ (`wj_text_probe` 0 lệch mỗi phiên), en/th/zh không lẫn tiếng Việt (th/zh thấy EN tới J-T5). Commit: V3 `baa5b547` (đã lên UAT) · V4 `359fe36c` (UAT) + `6129ca59` · V5 `2f9f5695` · V6 `b78c4568` · V7 `351932a8` (V3–V7 đã lên UAT, mốc `fa6a6835`) · V8a `dbd4335b` · V8b (07/10) — V8a + V8b đã push, **chờ deploy**. V8b: info_request + portal_info_request + portal_report (XLSX header theo ngôn ngữ, câu chart qua `data-wj-msg-*`) + core (không bump, `DEFAULT_BRAND_NAME` miễn quét) + metabase; suite 1014/0, mutation 8/8, 0 VN → EN. Bài học từng phiên: `next-session-clusters-J.md` §6. **Pending:** deploy V8a + V8b (lệnh ở mục J-V8b `f-progress.md`) · **★J-VR** (kèm báo Thái lỗi `.po` zh/th `web_survey_ui` của `wujia_franchise_inspection`) → J-T4 → J-T5 → J-O.
 
 **State (2026-10-05 · J-V0) — QUY ƯỚC VIỆT HOÁ CHỐT + CÔNG CỤ; CHƯA COMMIT/DEPLOY (J-T1+T2 đã push `ba08698e`).** Chốt: JS portal qua `data-wj-msg-*` (Odoo chỉ dịch attr `TRANSLATED_ATTRS` ⇒ câu trong `<t t-set>`); EN thấy EN, VN thấy VN, **khách `/portal` mặc định vi_VN** (`portal_layout` 19.0.60.1.0 `_pre_dispatch`, không theo Accept-Language); **bật vi/en/th/zh** (`wujia_i18n` 19.0.1.1.0 `_wj_enable_languages`, lúc `-i` + migration); BA không duyệt EN, ZH/TH qua DeepL, gửi BA 1 danh sách ở ★VR. Công cụ: `vn_hardcode_scan --module --fail-on-any` · `vn_to_en_pairs draft|check|apply` (thử copy layout: 204/205 thay, 0 file hỏng) · `wj_text_probe` (52 trang, mốc `docs/i18n-baseline/vi_VN.json`, 2 lần 0 lệch). Test 26/0, mutation đỏ đúng. Quy trình: `scripts/qa/README.md` §Phần V. **Pending:** commit J-V0 · deploy J-B2 + J-T + J-V0 · **J-V1**.
 

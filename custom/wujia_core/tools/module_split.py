@@ -55,7 +55,7 @@ def migrate_ownership(cr, old, new, names=None, models=None):
     cr.execute("SELECT id FROM ir_module_module WHERE name = %s", (new,))
     row = cr.fetchone()
     if not row:
-        raise ValueError(f"migrate_ownership: module {new!r} chưa có trong ir_module_module")
+        raise ValueError(f"migrate_ownership: module {new!r} is not in ir_module_module")
     new_id = row[0]
     if names is None:
         cr.execute("UPDATE ir_model_data SET module = %s WHERE module = %s", (new, old))

@@ -27,5 +27,5 @@ class ResWard(models.Model):
 
     _code_state_uniq = models.Constraint(
         'UNIQUE (state_id, code)',
-        'Mã phường/xã phải duy nhất trong từng tỉnh/thành.',
+        'Ward code must be unique within each province.',
     )

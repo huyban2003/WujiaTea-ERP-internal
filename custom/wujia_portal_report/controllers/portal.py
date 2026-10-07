@@ -13,7 +13,7 @@ from datetime import date, datetime, timedelta
 
 import xlsxwriter
 
-from odoo import _, fields, http
+from odoo import _, _lt, fields, http
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
@@ -29,12 +29,28 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 # bootstrap cũ #6c757d/#28a745/#dc3545 — Acceptance #5 đòi màu trạng thái đồng
 # nhất với component portal. Nhãn và khoá state giữ nguyên.
 STATE_LABELS = {
-    'draft': ('Nháp', '#8A939E'),
-    'sent': ('Đã gửi', '#20A0BC'),
-    'sale': ('Đã xác nhận', '#16A34A'),
-    'done': ('Hoàn thành', '#244B87'),
-    'cancel': ('Đã hủy', '#EF4444'),
+    'draft': (_lt('Draft'), '#8A939E'),
+    'sent': (_lt('Submitted'), '#20A0BC'),
+    'sale': (_lt('Confirmed'), '#16A34A'),
+    'done': (_lt('Done'), '#244B87'),
+    'cancel': (_lt('Cancelled'), '#EF4444'),
 }
+
+EXPORT_HEADERS = [
+    _lt('Order code'), _lt('Order date'), _lt('Store'), _lt('Customer'),
+    _lt('Status'), _lt('Lines'), _lt('Total amount'),
+]
+
+
+def _state_label(env, state):
+    if state not in STATE_LABELS:
+        return state or ''
+    label = STATE_LABELS[state][0]
+    return env._(label)
+
+
+def _decimal_point(env):
+    return env['res.lang']._get_data(code=env.lang).decimal_point or '.'
 
 
 def _parse_date(value, fallback=None):
@@ -54,7 +70,7 @@ class WujiaPortalReport(http.Controller):
         money = lambda amount: portal_money(                    # noqa: E731
             amount, currency.symbol or '', currency.decimal_places)
         return {
-            'title': _('Báo cáo đặt hàng'),
+            'title': _('Order report'),
             'date_from': date_from, 'date_to': date_to,
             'filter_error': filter_error,
             'money': money, 'currency_symbol': currency.symbol or '',
@@ -67,6 +83,7 @@ class WujiaPortalReport(http.Controller):
                 'months_label': [], 'months_count': [], 'months_total': [],
                 'state_label': [], 'state_count': [], 'state_color': [],
                 'currency': request.env.company.currency_id.symbol or '',
+                'decimal_point': _decimal_point(request.env),
             }),
             'max_role': max_role,
         }
@@ -168,10 +185,10 @@ class WujiaPortalReport(http.Controller):
 
         # ---- Block 4: Phân bố trạng thái (donut data + table) ----
         state_summary = []
-        for st, (label, color) in STATE_LABELS.items():
+        for st, (_label, color) in STATE_LABELS.items():
             d = state_data.get(st, {'count': 0, 'total': 0})
             state_summary.append({
-                'state': st, 'label': label, 'color': color,
+                'state': st, 'label': _state_label(request.env, st), 'color': color,
                 'count': d['count'], 'total': d['total'],
             })
         total_count_all = sum(s['count'] for s in state_summary)
@@ -188,6 +205,7 @@ class WujiaPortalReport(http.Controller):
             'state_color': [s['color'] for s in state_summary if s['count']],
             # Nhãn trục tiền của chart cũng phải theo currency công ty, không phải 'đ' cứng.
             'currency': request.env.company.currency_id.symbol or '',
+            'decimal_point': _decimal_point(request.env),
         }
 
         # Ký hiệu + số lẻ theo currency công ty, KHÔNG nối ' ₫' cứng trong template
@@ -197,7 +215,7 @@ class WujiaPortalReport(http.Controller):
             amount, currency.symbol or '', currency.decimal_places)
 
         return request.render('wujia_portal_report.portal_report_orders', {
-            'title': _('Báo cáo đặt hàng'),
+            'title': _('Order report'),
             'date_from': df.strftime('%Y-%m-%d'),
             'date_to': dt.strftime('%Y-%m-%d'),
             'filter_error': '',
@@ -253,10 +271,8 @@ class WujiaPortalReport(http.Controller):
         cell_fmt = wb.add_format({'border': 1})
 
         ws = wb.add_worksheet('Orders')
-        headers = ['Mã đơn', 'Ngày đặt', 'Cửa hàng', 'Khách hàng',
-                   'Trạng thái', 'Số dòng', 'Tổng tiền']
-        for c, h in enumerate(headers):
-            ws.write(0, c, h, header_fmt)
+        for c, header in enumerate(EXPORT_HEADERS):
+            ws.write(0, c, request.env._(header), header_fmt)
         widths = [16, 18, 24, 24, 14, 10, 16]
         for c, w in enumerate(widths):
             ws.set_column(c, c, w)
@@ -268,7 +284,7 @@ class WujiaPortalReport(http.Controller):
                 ws.write(r, 1, '', cell_fmt)
             ws.write(r, 2, o.franchise_id.name or '', cell_fmt)
             ws.write(r, 3, o.partner_id.display_name or '', cell_fmt)
-            ws.write(r, 4, STATE_LABELS.get(o.state, (o.state, ''))[0], cell_fmt)
+            ws.write(r, 4, _state_label(request.env, o.state), cell_fmt)
             ws.write_number(r, 5, len(o.order_line), cell_fmt)
             ws.write_number(r, 6, float(o.amount_total or 0), money_fmt)
 

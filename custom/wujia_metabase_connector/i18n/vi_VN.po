@@ -1,230 +1,362 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* wujia_metabase_connector
+# * wujia_metabase_connector
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-18 00:00+0000\n"
-"PO-Revision-Date: 2026-09-18 00:00+0000\n"
-"Last-Translator: Dev <dev@wujiatea.com>\n"
-"Language-Team: Vietnamese <vi@li.org>\n"
+"POT-Creation-Date: 2026-10-07 05:49+0000\n"
+"PO-Revision-Date: 2026-10-07 05:49+0000\n"
+"Last-Translator: \n"
 "Language: vi_VN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.10.3\n"
 
 #. module: wujia_metabase_connector
-#: model:ir.module.category,name:wujia_metabase_connector.module_category_metabase_connector
-msgid "Metabase BI Connector"
-msgstr "Bộ kết nối Metabase BI"
-
-#. module: wujia_metabase_connector
-#: model:res.groups.privilege,name:wujia_metabase_connector.res_groups_privilege_metabase_connector
-msgid "Metabase BI Connector Privileges"
-msgstr "Quyền hạn kết nối Metabase BI"
-
-#. module: wujia_metabase_connector
-#: model:res.groups,name:wujia_metabase_connector.group_metabase_user
-msgid "User"
-msgstr "Người dùng"
-
-#. module: wujia_metabase_connector
-#: model:res.groups,name:wujia_metabase_connector.group_metabase_manager
-msgid "Manager"
-msgstr "Quản trị viên"
-
-#. module: wujia_metabase_connector
-#: model:ir.model,name:wujia_metabase_connector.model_metabase_instance
-msgid "Metabase BI Instance Server"
-msgstr "Máy chủ Metabase BI Instance"
-
-#. module: wujia_metabase_connector
-#: model:ir.model,name:wujia_metabase_connector.model_metabase_dashboard
-msgid "Metabase BI Dashboard"
-msgstr "Dashboard Metabase BI"
-
-#. module: wujia_metabase_connector
-#: model:ir.ui.menu,name:wujia_metabase_connector.menu_metabase_root
-msgid "Metabase BI"
-msgstr "Metabase BI"
-
-#. module: wujia_metabase_connector
-#: model:ir.ui.menu,name:wujia_metabase_connector.menu_metabase_instance
-msgid "Metabase Instances"
-msgstr "Cấu hình Server Metabase"
-
-#. module: wujia_metabase_connector
-#: model:ir.ui.menu,name:wujia_metabase_connector.menu_metabase_dashboard_config
-msgid "Manage Dashboards"
-msgstr "Quản lý Dashboard"
-
-#. module: wujia_metabase_connector
-#: model:ir.actions.act_window,name:wujia_metabase_connector.action_metabase_instance
-msgid "Instances"
-msgstr "Cấu hình Server Metabase"
-
-#. module: wujia_metabase_connector
-#: model:ir.ui.menu,name:wujia_metabase_connector.menu_metabase_dashboard
-#: model:ir.actions.act_window,name:wujia_metabase_connector.action_metabase_dashboard
-msgid "Dashboards"
-msgstr "Danh sách Dashboard BI"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__name
-msgid "Connection Name"
-msgstr "Tên kết nối"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__base_url
-msgid "Metabase Server Base URL"
-msgstr "Địa chỉ Server Metabase (Base URL)"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__embedding_secret
-msgid "JWT Embedding Secret Key"
-msgstr "Mã bí mật JWT (Secret Key)"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__token_expiry_minutes
-msgid "Token Expiry (Minutes)"
-msgstr "Thời hạn Token (Phút)"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__company_ids
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__company_ids
-msgid "Allowed Companies"
-msgstr "Công ty được phép"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__dashboard_ids
-msgid "Dashboards"
-msgstr "Các Dashboard thuộc Instance"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__name
-msgid "Dashboard Name"
-msgstr "Tên Dashboard"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__instance_id
-msgid "Metabase Instance"
-msgstr "Server Instance Metabase"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__dashboard_id
-msgid "Metabase Dashboard ID"
-msgstr "ID Dashboard Metabase"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__sequence
-msgid "Sequence"
-msgstr "Thứ tự"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__active
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_instance__active
-msgid "Active"
-msgstr "Đang hoạt động"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__group_ids
-msgid "Allowed Security Groups"
-msgstr "Nhóm quyền được phép truy cập"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__height
-msgid "Iframe Height (px)"
-msgstr "Chiều cao Iframe (px)"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__allow_download
-msgid "Allow Downloads"
-msgstr "Cho phép tải dữ liệu"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__description
-msgid "Description"
-msgstr "Mô tả"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__show_under_menu_id
-msgid "Show Under Menu"
-msgstr "Hiển thị bên dưới Menu"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__menu_id
-msgid "Generated Menu"
-msgstr "Menu tự động sinh"
-
-#. module: wujia_metabase_connector
-#: model:ir.model.fields,field_description:wujia_metabase_connector.field_metabase_dashboard__action_id
-msgid "Generated Action"
-msgstr "Action tự động sinh"
-
-#. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/models/metabase_instance.py:0
-msgid "Token expiry minutes must be greater than 0."
-msgstr "Thời gian hết hạn token tính bằng phút phải lớn hơn 0."
-
-#. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/models/metabase_dashboard.py:0
-msgid "Dashboard ID must be a positive integer."
-msgstr "ID Dashboard phải là một số nguyên dương."
-
-#. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/models/metabase_dashboard.py:0
-msgid "Iframe height must be at least 200 pixels."
-msgstr "Chiều cao iframe phải đạt tối thiểu 200 pixel."
-
-#. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
 msgid "Access Denied"
 msgstr "Truy cập bị từ chối"
 
 #. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
-msgid "This dashboard is not available for your current company (%s)."
-msgstr "Dashboard này không có sẵn cho công ty hiện tại của bạn (%s)."
+msgid "Active"
+msgstr "Đang hoạt động"
 
 #. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
-msgid "The Metabase instance is not configured for your current company (%s)."
-msgstr "Server Metabase chưa được cấu hình cho công ty hiện tại của bạn (%s)."
+msgid "Add notes or description for this dashboard..."
+msgstr ""
 
 #. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
-msgid "You do not have permission to view this Metabase Dashboard."
-msgstr "Bạn không có quyền xem Dashboard Metabase này."
+msgid "Allow Downloads"
+msgstr "Cho phép tải dữ liệu"
 
 #. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
+msgid "Allowed Companies"
+msgstr "Công ty được phép"
+
+#. module: wujia_metabase_connector
+msgid "Allowed Security Groups"
+msgstr "Nhóm quyền được phép truy cập"
+
+#. module: wujia_metabase_connector
+msgid "Archived"
+msgstr "Lưu trữ"
+
+#. module: wujia_metabase_connector
+msgid "Automatically generated Client Action pointing to the Owl iframe renderer."
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Automatically generated sub-menu record."
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Base URL of the Metabase server, e.g., https://bi-wujia.tipscode.io"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Companies permitted to access this Metabase instance."
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Companies permitted to view this dashboard."
+msgstr ""
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
 msgid "Configuration Error"
 msgstr "Lỗi cấu hình"
 
 #. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
-msgid "The Metabase BI Instance is inactive or not configured."
-msgstr "Server Metabase BI đang tạm ngừng hoạt động hoặc chưa được cấu hình."
+msgid "Connection Details"
+msgstr ""
 
 #. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
-msgid "System Error"
-msgstr "Lỗi hệ thống"
+msgid "Connection Name"
+msgstr "Tên kết nối"
 
 #. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
-msgid "Python 'PyJWT' library is not installed on the server."
-msgstr "Thư viện Python 'PyJWT' chưa được cài đặt trên máy chủ."
+msgid "Created by"
+msgstr "Người tạo"
 
 #. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
+msgid "Created on"
+msgstr "Ngày tạo"
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/models/metabase_dashboard.py
+msgid "Dashboard ID must be a positive integer."
+msgstr "ID Dashboard phải là một số nguyên dương."
+
+#. module: wujia_metabase_connector
+msgid "Dashboard Name"
+msgstr "Tên Dashboard"
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
+msgid "Dashboard not found or inactive."
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Dashboards"
+msgstr "Danh sách Dashboard BI"
+
+#. module: wujia_metabase_connector
+msgid "Description"
+msgstr "Mô tả"
+
+#. module: wujia_metabase_connector
+msgid "Description & Notes"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Display & Features"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: wujia_metabase_connector
+msgid "Expiration time for generated JWT tokens in minutes."
+msgstr ""
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
+#, python-format
+msgid "Failed to sign JWT token: %s"
+msgstr "Không thể ký mã JWT token: %s"
+
+#. module: wujia_metabase_connector
+msgid "Generated Action"
+msgstr "Action tự động sinh"
+
+#. module: wujia_metabase_connector
+msgid "Generated Menu"
+msgstr "Menu tự động sinh"
+
+#. module: wujia_metabase_connector
+msgid "Height of the embedded iframe in pixels"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid ""
+"Hex secret key from Metabase Admin > Embedding > Embedding in other "
+"applications"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "ID"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "ID:"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Iframe Height (px)"
+msgstr "Chiều cao Iframe (px)"
+
+#. module: wujia_metabase_connector
+msgid "JWT Embedding Secret Key"
+msgstr "Mã bí mật JWT (Secret Key)"
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
 msgid "JWT Generation Error"
 msgstr "Lỗi tạo JWT Token"
 
 #. module: wujia_metabase_connector
-#: code:custom/wujia_metabase_connector/controllers/main.py:0
-msgid "Failed to sign JWT token: %s"
-msgstr "Không thể ký mã JWT token: %s"
+msgid "Last Updated by"
+msgstr "Người cập nhật"
+
+#. module: wujia_metabase_connector
+msgid "Last Updated on"
+msgstr "Cập nhật lúc"
+
+#. module: wujia_metabase_connector
+#. odoo-javascript
+#: code:addons/wujia_metabase_connector/static/src/metabase_dashboard_action/metabase_dashboard_action.xml
+msgid "Loading Metabase BI Dashboard..."
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Manage Dashboards"
+msgstr "Quản lý Dashboard"
+
+#. module: wujia_metabase_connector
+msgid "Manager"
+msgstr "Quản trị viên"
+
+#. module: wujia_metabase_connector
+msgid "Metabase BI"
+msgstr "Metabase BI"
+
+#. module: wujia_metabase_connector
+msgid "Metabase BI Connector"
+msgstr "Bộ kết nối Metabase BI"
+
+#. module: wujia_metabase_connector
+msgid "Metabase BI Connector Privileges"
+msgstr "Quyền hạn kết nối Metabase BI"
+
+#. module: wujia_metabase_connector
+msgid "Metabase BI Dashboard"
+msgstr "Dashboard Metabase BI"
+
+#. module: wujia_metabase_connector
+msgid "Metabase BI Dashboard Integration and Management"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Metabase BI Instance Server"
+msgstr "Máy chủ Metabase BI Instance"
+
+#. module: wujia_metabase_connector
+msgid "Metabase Connection"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Metabase Dashboard"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Metabase Dashboard ID"
+msgstr "ID Dashboard Metabase"
+
+#. module: wujia_metabase_connector
+msgid "Metabase Dashboards"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Metabase Instance"
+msgstr "Server Instance Metabase"
+
+#. module: wujia_metabase_connector
+msgid "Metabase Instances"
+msgstr "Cấu hình Server Metabase"
+
+#. module: wujia_metabase_connector
+msgid "Metabase Server Base URL"
+msgstr "Địa chỉ Server Metabase (Base URL)"
+
+#. module: wujia_metabase_connector
+msgid "Navigation & Menu"
+msgstr ""
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
+msgid "Not Found"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Numeric ID of the dashboard in Metabase (e.g., 2)"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Parent Menu"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Parent Odoo menu under which this dashboard menu will be dynamically created."
+msgstr ""
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
+msgid "Python 'PyJWT' library is not installed on the server."
+msgstr "Thư viện Python 'PyJWT' chưa được cài đặt trên máy chủ."
+
+#. module: wujia_metabase_connector
+msgid "Security & Organization"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Security & Restrictions"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "Sequence"
+msgstr "Thứ tự"
+
+#. module: wujia_metabase_connector
+msgid "Show Under Menu"
+msgstr "Hiển thị bên dưới Menu"
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
+msgid "System Error"
+msgstr "Lỗi hệ thống"
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
+msgid "The Metabase BI Instance is inactive or not configured."
+msgstr "Server Metabase BI đang tạm ngừng hoạt động hoặc chưa được cấu hình."
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
+#, python-format
+msgid "The Metabase instance is not configured for your current company (%s)."
+msgstr "Server Metabase chưa được cấu hình cho công ty hiện tại của bạn (%s)."
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
+#, python-format
+msgid "This dashboard is not available for your current company (%s)."
+msgstr "Dashboard này không có sẵn cho công ty hiện tại của bạn (%s)."
+
+#. module: wujia_metabase_connector
+msgid "Token Expiry (Minutes)"
+msgstr "Thời hạn Token (Phút)"
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/models/metabase_instance.py
+msgid "Token expiry minutes must be greater than 0."
+msgstr "Thời gian hết hạn token tính bằng phút phải lớn hơn 0."
+
+#. module: wujia_metabase_connector
+msgid "User"
+msgstr "Người dùng"
+
+#. module: wujia_metabase_connector
+msgid "User groups permitted to view this dashboard menu."
+msgstr ""
+
+#. module: wujia_metabase_connector
+#. odoo-python
+#: code:addons/wujia_metabase_connector/controllers/main.py
+msgid "You do not have permission to view this Metabase Dashboard."
+msgstr "Bạn không có quyền xem Dashboard Metabase này."
+
+#. module: wujia_metabase_connector
+msgid "e.g. Company Metabase BI"
+msgstr "e.g. Ngô Gia Metabase BI"
+
+#. module: wujia_metabase_connector
+msgid "e.g. Supervision Overview"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "https://bi-wujia.tipscode.io"
+msgstr ""
+
+#. module: wujia_metabase_connector
+msgid "mins expiry"
+msgstr ""
+

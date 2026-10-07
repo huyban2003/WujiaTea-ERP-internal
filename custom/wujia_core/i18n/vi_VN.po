@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 15:12+0000\n"
-"PO-Revision-Date: 2026-10-04 15:12+0000\n"
+"POT-Creation-Date: 2026-10-07 05:49+0000\n"
+"PO-Revision-Date: 2026-10-07 05:49+0000\n"
 "Last-Translator: \n"
 "Language: vi_VN\n"
 "Language-Team: \n"
@@ -56,6 +56,10 @@ msgstr "Khu vực"
 #. module: wujia_core
 msgid "Area code"
 msgstr "Mã khu vực"
+
+#. module: wujia_core
+msgid "Area code must be unique."
+msgstr "Mã khu vực phải duy nhất."
 
 #. module: wujia_core
 msgid "Area name"
@@ -119,7 +123,7 @@ msgstr "Người tạo"
 
 #. module: wujia_core
 msgid "Created on"
-msgstr ""
+msgstr "Ngày tạo"
 
 #. module: wujia_core
 msgid "Darker/lighter shades and the button color are generated from it."
@@ -131,11 +135,15 @@ msgstr "Mô tả"
 
 #. module: wujia_core
 msgid "Display Name"
-msgstr ""
+msgstr "Tên hiển thị"
 
 #. module: wujia_core
 msgid "Favicon"
 msgstr "Biểu tượng trang (favicon)"
+
+#. module: wujia_core
+msgid "HTTP Routing"
+msgstr ""
 
 #. module: wujia_core
 msgid ""
@@ -157,11 +165,11 @@ msgstr ""
 
 #. module: wujia_core
 msgid "Last Updated by"
-msgstr ""
+msgstr "Người cập nhật"
 
 #. module: wujia_core
 msgid "Last Updated on"
-msgstr ""
+msgstr "Cập nhật lúc"
 
 #. module: wujia_core
 msgid "Login background"
@@ -180,27 +188,12 @@ msgid "Mobile logo"
 msgstr "Logo điện thoại"
 
 #. module: wujia_core
-msgid "Mã khu vực phải duy nhất."
-msgstr ""
-
-#. module: wujia_core
-msgid "Mã phường/xã phải duy nhất trong từng tỉnh/thành."
-msgstr ""
-
-#. module: wujia_core
 msgid "Person in charge"
 msgstr "Người phụ trách"
 
 #. module: wujia_core
 msgid "Person responsible for running this area."
 msgstr "Người chịu trách nhiệm vận hành khu vực."
-
-#. module: wujia_core
-#. odoo-python
-#: code:addons/wujia_core/models/res_area.py
-#, python-format
-msgid "Phường/Xã thuộc %s"
-msgstr ""
 
 #. module: wujia_core
 msgid "Primary color"
@@ -247,6 +240,10 @@ msgid "Ward code"
 msgstr "Mã phường/xã"
 
 #. module: wujia_core
+msgid "Ward code must be unique within each province."
+msgstr "Mã phường/xã phải duy nhất trong từng tỉnh/thành."
+
+#. module: wujia_core
 msgid "Ward name"
 msgstr "Tên phường/xã"
 
@@ -257,6 +254,13 @@ msgstr "Phường/Xã"
 #. module: wujia_core
 msgid "Wards belonging to this area — picked from the res.ward catalog."
 msgstr "Danh sách phường/xã thuộc khu vực — chọn từ danh mục res.ward."
+
+#. module: wujia_core
+#. odoo-python
+#: code:addons/wujia_core/models/res_area.py
+#, python-format
+msgid "Wards of %s"
+msgstr "Phường/Xã thuộc %s"
 
 #. module: wujia_core
 msgid "e.g. HCMC districts 1-3"

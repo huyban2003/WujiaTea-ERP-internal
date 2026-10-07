@@ -186,6 +186,11 @@ DATA_FILES = {
     'wujia_notification/legacy_seed.py',  # J-V7: câu VN cũ của seed loại thông báo
 }
 
+# Hằng tên riêng trong code (không phải chữ giao diện): (đường dẫn từ custom/, câu). J-V8b: thương hiệu mặc định.
+LITERAL_EXEMPT = {
+    ('wujia_core/models/res_company.py', 'Ngô Gia'),
+}
+
 SCANNERS = {'.py': scan_python, '.js': scan_js, '.xml': scan_xml, '.css': scan_css, '.scss': scan_css}
 
 
@@ -208,7 +213,10 @@ def scan(only=None, raw=False):
                     continue
                 if os.path.relpath(path, CUSTOM).replace(os.sep, '/') in DATA_FILES:
                     continue
+                rel_custom = os.path.relpath(path, CUSTOM).replace(os.sep, '/')
                 for cat, line, text in SCANNERS[ext](path, is_test):
+                    if (rel_custom, text) in LITERAL_EXEMPT:
+                        continue
                     yield mod, owner(mod), cat, os.path.relpath(path, BASE), line, (text if raw else clip(text))
 
 

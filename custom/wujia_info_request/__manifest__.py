@@ -1,14 +1,14 @@
 {
     'name': 'Wujia Info Update Request',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Wujia',
-    'summary': 'Yêu cầu cập nhật thông tin cửa hàng nhượng quyền (địa chỉ, SĐT, người đại diện...) — HQ duyệt qua chatter.',
+    'summary': 'Franchise store information update requests (address, phone, representative...) — reviewed by HQ in the chatter.',
     'description': """
-Nghiệp vụ yêu cầu cập nhật thông tin cửa hàng. Tách từ wujia_portal_info_request (F8, ADR-027).
+Information update request business rules. Split out of wujia_portal_info_request (F8, ADR-027).
 
-- Model wujia.info.update.request: mã INF-, trạng thái nháp → đã gửi → đang xem → duyệt/từ chối, đính kèm, chatter.
-- Quyền: portal xem yêu cầu của cửa hàng mình, chỉ sửa yêu cầu mình tạo; nội bộ xem hết.
-- create_from_portal / _portal_can_request / _portal_scope_domain: luật dùng chung cho mọi kênh.
+- Model wujia.info.update.request: INF- code, states draft → submitted → reviewing → approved/rejected, attachments, chatter.
+- Access: portal users see their store's requests and edit only their own; internal users see everything.
+- create_from_portal / _portal_can_request / _portal_scope_domain: shared rules for every channel.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

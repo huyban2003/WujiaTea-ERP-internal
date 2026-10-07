@@ -1,0 +1,9 @@
+file,line,category,attr,vn,en,mode,note
+custom/wujia_core/__init__.py,60,py_literal,,[wujia_core] log đã chuyển sang,[wujia_core] logs moved to,manual,
+custom/wujia_core/__init__.py,60,py_literal,,/<năm>/<tháng>/<năm-tháng-ngày>.log,,manual,sửa tay
+custom/wujia_core/__manifest__.py,5,py_literal,,"Core master data dùng chung: khu vực, phường/xã, mixin, helpers","Shared core master data: areas, wards, mixins, helpers",manual,
+custom/wujia_core/__manifest__.py,6,py_literal,,"Module nền tảng cho mọi custom Wujia. Hiện chứa: - res.area: khu vực kinh doanh / vùng giao hàng (Many2many ward_ids) - res.ward: phường/xã, link tới res.country.state - Thương hiệu (res.company + Settings): tên, màu chính, logo PC/mobile, favicon, nền đăng nhập; favicon + title tab backend theo thương hiệu Các module khác (wujia_franchise, wujia_franchise_management, wujia_sale) chỉ depend lên wujia_core để dùng master data này, không cần biết franchise.","Base module for all Wujia customisations. Contains: - res.area: business area / delivery zone (Many2many ward_ids) - res.ward: ward, linked to res.country.state - Branding (res.company + Settings): name, primary colour, PC/mobile logo, favicon, login background; backend favicon + tab title follow the brand Other modules (wujia_franchise, wujia_franchise_management, wujia_sale) depend on wujia_core only for this master data, without knowing about franchises.",manual,
+custom/wujia_core/models/res_area.py,39,py_literal,,Mã khu vực phải duy nhất.,Area code must be unique.,manual,
+custom/wujia_core/models/res_area.py,51,py_gettext,,Phường/Xã thuộc %s,Wards of %s,auto,
+custom/wujia_core/models/res_ward.py,30,py_literal,,Mã phường/xã phải duy nhất trong từng tỉnh/thành.,Ward code must be unique within each province.,manual,
+custom/wujia_core/tools/module_split.py,58,py_literal,,chưa có trong ir_module_module,is not in ir_module_module,manual,

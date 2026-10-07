@@ -3,6 +3,8 @@ from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
+from .common import load_vi
+
 
 @tagged('post_install', '-at_install', 'wujia_info_request')
 class TestInfoRequest(TransactionCase):
@@ -10,7 +12,7 @@ class TestInfoRequest(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        env = cls.env
+        cls.env = env = load_vi(cls.env)
         cls.franchise = env['wujia.franchise.management'].create({
             'code': 'F8IR', 'name': 'F8 store', 'franchise_end_date': '2030-01-01',
             'partner_id': env['res.partner'].create({'name': 'F8 partner', 'phone': '0281'}).id})

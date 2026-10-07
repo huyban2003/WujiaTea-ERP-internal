@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Wujia Metabase BI Connector',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Wujia',
     'summary': 'Metabase BI Dashboard Connector with Signed JWT Iframe and Dynamic Menu Generation',
     'author': 'WujiaTea',

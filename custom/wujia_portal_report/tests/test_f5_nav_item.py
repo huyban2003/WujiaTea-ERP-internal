@@ -9,6 +9,8 @@ from lxml import etree
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
+from .common import load_vi
+
 
 @tagged('post_install', '-at_install', 'wujia_f5')
 class TestNavItemReport(TransactionCase):
@@ -16,11 +18,13 @@ class TestNavItemReport(TransactionCase):
     def test_item_is_declared_by_this_module(self):
         view = self.env.ref('wujia_portal_report.layout_sidenav_report')
         self.assertEqual(view.inherit_id, self.env.ref('wujia_portal_layout.layout_sidenav'))
-        arch = view.arch
+        arch = view.with_env(load_vi(self.env)).arch
         self.assertIn('<li', arch)
         self.assertIn('id="nav_item_report"', arch)
         self.assertIn('t-value="\'/portal/reports/orders\'"', arch)
         self.assertIn('<t t-set="ni_label">Báo cáo</t>', arch)
+        arch_en = view.with_context(lang='en_US').arch
+        self.assertIn('<t t-set="ni_label">Reports</t>', arch_en)
         # Nhóm theo BA: chèn trước neo của nhóm kế tiếp.
         self.assertIn("//li[@id='nav_end']", arch)
         # Cùng điều kiện sáng truyền vào wj_nav_item để có aria-current.

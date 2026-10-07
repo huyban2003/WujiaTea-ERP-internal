@@ -2,15 +2,15 @@
     'name': 'Wujia Core',
     'version': '19.0.2.1.1',
     'category': 'Wujia',
-    'summary': 'Core master data dùng chung: khu vực, phường/xã, mixin, helpers',
+    'summary': 'Shared core master data: areas, wards, mixins, helpers',
     'description': """
-Module nền tảng cho mọi custom Wujia. Hiện chứa:
-- res.area: khu vực kinh doanh / vùng giao hàng (Many2many ward_ids)
-- res.ward: phường/xã, link tới res.country.state
-- Thương hiệu (res.company + Settings): tên, màu chính, logo PC/mobile, favicon, nền đăng nhập; favicon + title tab backend theo thương hiệu
+Base module for all Wujia customisations. Contains:
+- res.area: business area / delivery zone (Many2many ward_ids)
+- res.ward: ward, linked to res.country.state
+- Branding (res.company + Settings): name, primary colour, PC/mobile logo, favicon, login background; backend favicon + tab title follow the brand
 
-Các module khác (wujia_franchise, wujia_franchise_management, wujia_sale)
-chỉ depend lên wujia_core để dùng master data này, không cần biết franchise.
+Other modules (wujia_franchise, wujia_franchise_management, wujia_sale)
+depend on wujia_core only for this master data, without knowing about franchises.
 """,
     'author': 'WujiaTea',
     'license': 'LGPL-3',

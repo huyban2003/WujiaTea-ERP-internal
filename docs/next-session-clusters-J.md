@@ -59,9 +59,9 @@ draft/confirmed/cancelled) · `.expense` (+category, draft/confirmed/cancelled) 
 | J-V5 | `wujia_portal_debt` (196) + `wujia_account` (4) + khối `_debt_copy_msgs` câu JS + đơn vị số rút gọn theo ngôn ngữ | debt | ✅ 06/10 — `2f9f5695` đã push, chờ deploy |
 | J-V6 | `wujia_portal_return` (168) + `wujia_return` (69) + `_ret_line_msgs` câu JS + migration seed loại lỗi | return ×2 | ✅ 06/10 — `b78c4568` đã push, chờ deploy |
 | J-V7 | support (112+2) + knowledge (46+2) + notification (86+27) + migration seed loại thông báo + WJ-SUPPORT-003 | 6 module | ✅ 07/10 — `351932a8` đã push, chờ deploy |
-| J-V8a | purchase_history (99) + portal_delivery (93) + delivery (15) + fleet (11) — chủ dự án tách J-V8 làm đôi 07/10 | 4 module | ✅ 07/10 — chưa commit, chờ lệnh |
-| **J-V8b** | **Phiên kế.** info_request (85+7) + report (69) + core (9) + metabase (1). `wujia_core` sửa câu **không bump version** (tránh `-u wujia_core` kéo dây chuyền module Thái); `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét | 5 module | ☐ |
-| ★J-VR | Review Phần V: quét lại = 0 (code team), vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi danh sách 284 chuỗi cho Thái | — | ☐ |
+| J-V8a | purchase_history (99) + portal_delivery (93) + delivery (15) + fleet (11) — chủ dự án tách J-V8 làm đôi 07/10 | 4 module | ✅ 07/10 — `dbd4335b` đã push, chờ deploy |
+| J-V8b | info_request (85+7) + report (69) + core (9) + metabase (1). `wujia_core` sửa câu **không bump version** (tránh `-u wujia_core` kéo dây chuyền module Thái); `DEFAULT_BRAND_NAME = 'Ngô Gia'` giữ + khai miễn quét | 5 module | ✅ 07/10 — đã push, chờ deploy |
+| **★J-VR** | **Phiên kế.** Review Phần V: quét lại = 0 (code team), vi_VN 0 lệch chữ/ảnh, ảnh en/th, gửi danh sách 284 chuỗi cho Thái | — | ☐ |
 | J-T4 | Nhập/xuất CSV kiểu Thái + zip `.po`/`.pot`; script CLI gọi lại module | wujia_i18n, scripts | ☐ |
 | J-T5 | **Dịch tự động (DeepL)**: chọn ngôn ngữ (tự bật nếu chưa có) → dịch hàng loạt chuỗi chưa dịch → BA rà → Áp dụng (xem §6b) | wujia_i18n | ☐ |
 | J-O0 | Bảng đối chiếu CT-059…067 ↔ backend + danh sách màn + câu hỏi BA (0 code) | docs | ☐ |
@@ -340,6 +340,17 @@ câu tiếng Anh (không còn tiếng Việt trong `.js`).
 - Mutation làm trên bản snapshot (`rsync custom/ → snap/`) rồi rsync lại ⇒ code thật không bao giờ bị đụng, khỏi backup.
 - Playwright chặn POST ⇒ 2 lỗi console `ERR_FAILED` mỗi trang (đếm chuông/giỏ) là do script; ghi URL bị chặn và lọc riêng.
 - Ghép nhãn + giá trị có sẵn động từ ("Ordered by" + "Created by {brand}") ra câu lủng củng ở en ⇒ soát chỗ dùng hằng trước khi chọn câu EN.
+
+**J-V8b — ✅ 07/10: bài học cho ★VR / J-T**
+- Constraint `models.Constraint` dịch qua `ir.model.constraint.message` (field translate), `.po` không cần dòng `#: model:` ⇒ kiểm bằng
+  `_sql_error_to_message(exc)` trong `savepoint()` (IntegrityError không tự đổi thành ValidationError ngoài RPC).
+- Màu badge tính theo nhãn ⇒ test so `css == status_badge_for(nhãn VN cũ)` bắt được đổi câu EN làm lệch màu.
+- File xuất (XLSX) cũng là chữ người dùng thấy ⇒ header `_lt` dịch theo ngôn ngữ người xuất; test mở file bằng `openpyxl`.
+- `wj_text_probe` chỉ đo trang chi tiết khi user đo có bản ghi ⇒ tạo cùng 1 bản ghi nháp trên cả 2 DB đo, rồi chuẩn hoá id trong key
+  trang trước khi `--diff`.
+- Log của `wujia_core` dời vào `<logfile dir>/<năm>/<tháng>/<ngày>.log` ⇒ đọc kết quả test ở đó, `--logfile=/dev/stderr` làm vỡ
+  `odoo-bin shell`; zsh không tách từ `$var` trong vòng `for` ⇒ gọi tường minh.
+- DB đo cài thêm module (metabase) ⇒ số test lệch mốc HEAD; luôn đối chiếu danh sách test chứ không chỉ tổng.
 
 **Công cụ (V0)** — quy trình 1 phiên V: `scripts/qa/README.md` §Phần V.
 - `vn_hardcode_scan.py --module X --fail-on-any` ⇒ exit 1 khi còn chuỗi (trừ test).
