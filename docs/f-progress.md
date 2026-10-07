@@ -2666,7 +2666,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   web_survey_ui" từ `.po` zh/th của module Thái (không do phiên này; báo Thái ở ★VR). Câu core: `_()` có hiệu lực sau restart,
   constraint vi cần lần `-u wujia_core` tự nhiên sau này. zh/th chưa có bản dịch câu mới ⇒ thấy EN (chờ J-T5).
 - Bài học: ghi ở `next-session-clusters-J.md` §6 "J-V8b".
-- Commit: J-V8a `dbd4335b` + J-V8b (hash ở commit ghi hash), push cùng phiên.
+- Commit: J-V8a `dbd4335b` + J-V8b `02e363fc`, push cùng phiên.
 - Lệnh deploy (J-V8a + J-V8b): `-u wujia_fleet,wujia_delivery,wujia_portal_delivery,wujia_portal_purchase_history,wujia_info_request,`
   `wujia_portal_info_request,wujia_portal_report` (+ `wujia_metabase_connector` nếu UAT có cài) + **restart sau `-u`**; kiểm version
   DB 19.0.1.1.0 / 19.0.1.2.0 / 19.0.4.0.0 / 19.0.4.0.0 / 19.0.1.1.0 / 19.0.3.0.0 / 19.0.3.0.0 (/ 19.0.1.0.1).
