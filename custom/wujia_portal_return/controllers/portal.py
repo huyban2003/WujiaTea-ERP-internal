@@ -22,7 +22,7 @@ from odoo.addons.wujia_return.models.wujia_return_request import (
     MIN_IMAGES_BEFORE_SEND as MIN_IMAGES, ORDER_WINDOW_DAYS, VIDEO_MIME,
 )
 from odoo.addons.wujia_portal_base.controllers.portal import (
-    get_active_franchise_ids_filter,
+    get_current_store_ids, get_store_scope_state,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     PAGE_SIZE_OPTIONS,
@@ -77,10 +77,10 @@ class WujiaPortalReturn(http.Controller):
     @http.route(['/portal/return'], type='http', auth='user', sitemap=False)
     def portal_return_list(self, page=1, state='', date_from='', date_to='', q='',
                            page_size=None, notice='', **kw):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
             return request.render('wujia_portal_return.portal_return_list',
-                                  self._list_ctx(no_franchise=True, notice='no_store'))
+                                  self._list_ctx(no_franchise=True, store_scope=get_store_scope_state()))
 
         Model = request.env['wujia.return.request'].sudo()
         domain = Model._portal_scope_domain(franchise_ids) + Model._portal_status_domain(state)
@@ -131,9 +131,9 @@ class WujiaPortalReturn(http.Controller):
     @http.route(['/portal/return/new'], type='http', auth='user',
                 methods=['GET', 'POST'], sitemap=False, csrf=True)
     def portal_return_new(self, **post):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
-            return request.redirect('/portal/return?notice=no_store')
+            return request.redirect('/portal/return')
 
         if request.httprequest.method != 'POST':
             return self._render_form()
@@ -157,9 +157,9 @@ class WujiaPortalReturn(http.Controller):
     @http.route(['/portal/return/<int:request_id>'], type='http',
                 auth='user', sitemap=False)
     def portal_return_detail(self, request_id, **kw):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
-            return request.redirect('/portal/return?notice=no_store')
+            return request.redirect('/portal/return')
         rr = self._scoped(request_id, franchise_ids)
         if not rr:
             # Không phân biệt "không có" với "của cửa hàng khác" (chống dò ID).
@@ -176,7 +176,7 @@ class WujiaPortalReturn(http.Controller):
                 type='http', auth='user', sitemap=False)
     def portal_return_attachment_download(self, request_id, att_id, **kw):
         """Stream attachment — ACL: chỉ user truy cập franchise của RR."""
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
             raise Forbidden()
         rr = self._scoped(request_id, franchise_ids)
@@ -330,7 +330,7 @@ class WujiaPortalReturn(http.Controller):
         return request.env._('Delivered %d/%d slips') % (done, total)
 
     def _render_form(self, error=None, prefill=None):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         franchises = request.env['wujia.franchise.management'].sudo().browse(
             franchise_ids)
         orders = request.env['sale.order'].sudo().search(

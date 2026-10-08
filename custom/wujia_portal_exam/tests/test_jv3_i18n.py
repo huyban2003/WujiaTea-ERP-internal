@@ -13,23 +13,21 @@ from odoo.addons.wujia_portal_base.controllers.utils import status_badge_for
 from odoo.addons.wujia_portal_base.tests.common import legacy_vn_badge
 from odoo.addons.wujia_portal_base.tests.css_probe import CUSTOM
 from odoo.addons.wujia_portal_exam.controllers.portal import (
-    M_REG_BADGE, PC_PUBLISH_STATES, PC_REG_STATES, SLOT_STATUS_LABELS, _WEEKDAYS, _course_meta,
+    PC_PUBLISH_STATES, REG_STATES, SLOT_STATUS_LABELS, _WEEKDAYS, _course_meta,
 )
 
 VI_MODULES = ('wujia_portal_layout', 'wujia_portal_base', 'wujia_exam', 'wujia_portal_exam')
 
 # Nhãn tiếng Việt viết cứng trong controller trước J-V3 (git 7e1d5abf).
 _BEFORE = {
-    'M_REG_BADGE': {'submitted': 'Chờ duyệt', 'confirmed': 'Đã đăng ký',
-                    'rejected': 'Từ chối', 'cancelled': 'Đã hủy'},
-    'PC_REG_STATES': {'submitted': 'Chờ xác nhận', 'confirmed': 'Đã đăng ký',
-                      'rejected': 'Từ chối', 'cancelled': 'Đã hủy'},
+    'REG_STATES': {'submitted': 'Chờ xác nhận', 'confirmed': 'Đã đăng ký',
+                   'rejected': 'Từ chối', 'cancelled': 'Đã hủy'},
     'PC_PUBLISH_STATES': {'published': 'Đã công bố', 'unpublished': 'Chưa công bố',
                           'none': 'Chưa có', 'na': 'Không áp dụng'},
 }
 # Trước J-V3 ba nhãn này đã là badge trung tính (không có trong bảng màu) — giữ nguyên.
 _NEUTRAL = ('unpublished', 'none', 'na')
-_TABLES = {'M_REG_BADGE': M_REG_BADGE, 'PC_REG_STATES': PC_REG_STATES,
+_TABLES = {'REG_STATES': REG_STATES,
            'PC_PUBLISH_STATES': PC_PUBLISH_STATES}
 
 JS_DIR = os.path.join(CUSTOM, 'wujia_portal_exam', 'static', 'src', 'js')

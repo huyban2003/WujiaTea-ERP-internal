@@ -257,9 +257,10 @@ class WujiaSupportTicket(models.Model):
     # Portal — luật dùng chung cho mọi kênh (ADR-027)
     # -----------------------------------------------------------------
     @api.model
-    def _portal_scope_domain(self, user):
-        """Portal chỉ thấy ticket do chính mình tạo và chưa bị HQ ẩn."""
-        return [('created_by_id', '=', user.id), ('portal_visible', '=', True)]
+    def _portal_scope_domain(self, user, franchise_ids):
+        """Ticket do chính mình tạo, tại cửa hàng đang chọn, chưa bị HQ ẩn."""
+        return [('created_by_id', '=', user.id), ('portal_visible', '=', True),
+                ('franchise_id', 'in', list(franchise_ids) or [-1])]
 
     @api.model
     def create_from_portal(self, vals, franchise_ids, attach=None):

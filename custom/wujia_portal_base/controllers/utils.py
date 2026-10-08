@@ -373,7 +373,7 @@ def group_counts(model, domain, field, groups=None, total_key='all'):
 # ---------------------------------------------------------------------------
 
 def check_attachment_access(att_id, allowed_models=None):
-    """Validate user có quyền xem attachment qua franchise membership.
+    """Attachment thuộc record của cửa hàng đang chọn.
 
     Returns:
         ir.attachment sudo recordset (browsed) nếu OK.
@@ -396,12 +396,12 @@ def check_attachment_access(att_id, allowed_models=None):
     record = Model.sudo().browse(att.res_id).exists()
     if not record:
         raise Forbidden()
-    accessible = set(request.env.user._get_accessible_franchise_ids())
+    from .portal import get_current_store_ids  # import trễ: portal.py đã import utils
     franchise_id = (
         getattr(record, 'franchise_id', False)
         and record.franchise_id.id
     )
-    if franchise_id and franchise_id not in accessible:
+    if franchise_id and franchise_id not in get_current_store_ids():
         raise Forbidden()
     return att
 

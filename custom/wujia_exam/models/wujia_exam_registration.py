@@ -1,5 +1,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.translate import LazyTranslate
+
+_lt = LazyTranslate(__name__)
 
 try:
     from psycopg2 import errors as pg_errors
@@ -24,6 +27,14 @@ REG_STATE = [
     ('rejected', 'Rejected'),
     ('cancelled', 'Cancelled'),
 ]
+
+# Nhãn trạng thái phiếu trên portal — một nguồn cho PC + mobile.
+PORTAL_STATE_LABELS = {
+    'submitted': _lt('Awaiting confirmation'),
+    'confirmed': _lt('Registered'),
+    'rejected': _lt('Rejected'),
+    'cancelled': _lt('Cancelled'),
+}
 
 
 class WujiaExamRegistration(models.Model):
@@ -174,6 +185,11 @@ class WujiaExamRegistration(models.Model):
     @api.model
     def _portal_scope_domain(self, franchise_id):
         return [('franchise_id', '=', franchise_id)]
+
+    def _portal_has_result(self):
+        """Có kết quả — thông tin riêng, không thay trạng thái phiếu."""
+        self.ensure_one()
+        return self.state == 'confirmed' and self.session_id.results_published
 
     def _portal_result_counts(self):
         """(số Đạt, số Không đạt) của phiếu — chỉ có nghĩa khi kỳ thi đã công bố."""

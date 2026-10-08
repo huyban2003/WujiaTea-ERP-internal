@@ -28,7 +28,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
-    get_active_franchise_id,
+    get_active_franchise_id, get_store_scope_state,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     build_pager,
@@ -37,7 +37,9 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
     status_badge,
     status_badge_for,
 )
-from odoo.addons.wujia_exam.models.wujia_exam_registration import ExamPortalError
+from odoo.addons.wujia_exam.models.wujia_exam_registration import (
+    PORTAL_STATE_LABELS, ExamPortalError,
+)
 
 _logger = logging.getLogger(__name__)
 _lt = LazyTranslate(__name__)
@@ -49,21 +51,7 @@ DEFAULT_TZ = 'Asia/Ho_Chi_Minh'
 _WEEKDAYS = [_lt('Monday'), _lt('Tuesday'), _lt('Wednesday'), _lt('Thursday'),
              _lt('Friday'), _lt('Saturday'), _lt('Sunday')]
 
-# Nhãn hiển thị — key trùng state của registration (mobile).
-M_REG_BADGE = {k: (v, status_badge_for(v)) for k, v in {
-    'submitted': _lt('Awaiting approval'),
-    'confirmed': _lt('Registered'),
-    'rejected': _lt('Rejected'),
-    'cancelled': _lt('Cancelled'),
-}.items()}
-
-# PC — dùng lại nhãn Figma WJ_Exam_PC (badge riêng cho trạng thái đăng ký).
-PC_REG_STATES = {k: (v, status_badge_for(v)) for k, v in {
-    'submitted': _lt('Awaiting confirmation'),
-    'confirmed': _lt('Registered'),
-    'rejected': _lt('Rejected'),
-    'cancelled': _lt('Cancelled'),
-}.items()}
+REG_STATES = {k: (v, status_badge_for(v)) for k, v in PORTAL_STATE_LABELS.items()}
 
 # Trạng thái công bố kết quả — LUÔN là badge riêng với trạng thái đăng ký.
 PC_PUBLISH_STATES = {k: (v, status_badge_for(v)) for k, v in {
@@ -237,7 +225,7 @@ class WujiaPortalExam(http.Controller):
         filter_error = date_range_error(date_from, date_to)
         if fid and not filter_error:
             domain = Reg._portal_scope_domain(fid)
-            if state in M_REG_BADGE:
+            if state in REG_STATES:
                 domain.append(('state', '=', state))
             q = (q or '').strip()
             if q:
@@ -269,7 +257,8 @@ class WujiaPortalExam(http.Controller):
                 pc_regs.append(_pc_list_item(reg))
         return request.render('wujia_portal_exam.portal_exam_schedule', {
             'm_exam_items': m_items,
-            'pc_regs': pc_regs, 'pc_reg_states': PC_REG_STATES,
+            'pc_regs': pc_regs, 'pc_reg_states': REG_STATES,
+            'store_scope': get_store_scope_state(),
             'pgn': pgn,
             'f_state': state, 'f_result': result, 'f_q': q,
             'f_date_from': date_from, 'f_date_to': date_to,
@@ -398,7 +387,7 @@ class WujiaPortalExam(http.Controller):
             'wujia_portal_exam.portal_exam_registration_detail', {
                 'reg_view': _m_detail(reg),
                 'pc_detail': _pc_detail(reg),
-                'pc_reg_states': PC_REG_STATES,
+                'pc_reg_states': REG_STATES,
                 'pc_publish_states': PC_PUBLISH_STATES,
             })
 
@@ -422,18 +411,20 @@ class WujiaPortalExam(http.Controller):
 # --------------------------------------------------------------------------- #
 # Mappers (record → dict template) — key trùng field thật.
 # --------------------------------------------------------------------------- #
+def _reg_state(reg):
+    status, badge = REG_STATES.get(reg.state, (reg.state, status_badge('neutral')))
+    return (reg.env._(status) if isinstance(status, LazyGettext) else status), badge
+
+
 def _m_list_item(reg):
-    label, kind = _result_summary(reg)
-    if reg.session_id.results_published:
-        status, badge, meta = reg.env._(RESULT_AVAILABLE), status_badge('success'), _m_result_meta(reg)
-    else:
-        status, badge = M_REG_BADGE.get(reg.state, (reg.state, status_badge('neutral')))
-        status = reg.env._(status) if isinstance(status, LazyGettext) else status
-        meta = reg.env._('%d participants', reg.participant_count)
+    status, badge = _reg_state(reg)
+    has_result = reg._portal_has_result()
     return {
         'title': reg.course_id.name or reg.session_id.name,
         'date_label': _session_day_label(reg.session_id),
-        'meta': meta, 'status': status, 'badge': badge,
+        'meta': _m_result_meta(reg) if has_result else reg.env._('%d participants', reg.participant_count),
+        'status': status, 'badge': badge,
+        'has_result': has_result, 'result_label': reg.env._(RESULT_AVAILABLE),
         'link': '/portal/exam/registration/%d' % reg.id,
     }
 
@@ -476,10 +467,8 @@ def _reg_lines(reg, published):
 def _m_detail(reg):
     """Chi tiết cho mobile — state-aware (thay demo DEMO_RESULT có 'điểm')."""
     published = reg.session_id.results_published
-    status, badge = M_REG_BADGE.get(reg.state, (reg.state, status_badge('neutral')))
-    status = reg.env._(status) if isinstance(status, LazyGettext) else status
-    if published:
-        status, badge = reg.env._(RESULT_AVAILABLE), status_badge('success')
+    has_result = reg._portal_has_result()
+    status, badge = _reg_state(reg)
     reason = ''
     if reg.state == 'rejected':
         reason = reg.reject_reason or ''
@@ -492,8 +481,9 @@ def _m_detail(reg):
         'location': reg.session_id.location or request.env.company._wj_brand_text(
             reg.env._('{brand} Training Center')),
         'summary': reg.env._('%d participants', reg.participant_count) + (
-            (' • ' + _result_summary(reg)[0]) if published else ''),
+            (' • ' + _result_summary(reg)[0]) if has_result else ''),
         'status': status, 'badge': badge,
+        'has_result': has_result, 'result_label': reg.env._(RESULT_AVAILABLE),
         'state': reg.state, 'is_published': published, 'reason': reason,
         # WJ-EXAM-006 — chỉ nhắc "đăng ký thi lại" khi thật sự có người trượt.
         'has_failed': published and any(l.result == 'failed' for l in reg.line_ids),

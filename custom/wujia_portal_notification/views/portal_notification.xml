@@ -224,6 +224,10 @@
                         </t>
                     </t>
                 </t>
+                <!-- Chưa chọn cửa hàng: danh sách chỉ còn thông báo toàn hệ. -->
+                <t t-if="store_scope != 'ok'" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
 
                 <!-- Bộ lọc — component CMP-FB-001; nhãn đi vào aria-label/placeholder
                      thay vì dòng label riêng (UI-PC-BASE-003) -->
@@ -283,6 +287,10 @@
                             <t t-set="part" t-value="'mcount'"/>
                         </t>
                     </t>
+                </t>
+                <!-- Chưa chọn cửa hàng: danh sách chỉ còn thông báo toàn hệ. -->
+                <t t-if="store_scope != 'ok'" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
                 </t>
 
                 <!-- Filter canonical 01-ChipSlide (Figma 4785:562) — keyword + chips (hidden unread) -->

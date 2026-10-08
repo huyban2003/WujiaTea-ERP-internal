@@ -8,7 +8,8 @@ from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
-    get_active_franchise_ids_filter,
+    get_current_store_ids,
+    get_store_scope_state,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     build_pager,
@@ -134,14 +135,14 @@ class WujiaPortalNotification(http.Controller):
                                size_param='limit'),
             'type_id': _parse_int(type_id), 'keyword': keyword, 'tab': tab,
             'total': 0,
-            'cnt_unread': self._unread_count(get_active_franchise_ids_filter(),
+            'cnt_unread': self._unread_count(get_current_store_ids(),
                                              get_active_franchise_id()),
             'unread': '1' if read_status == 'unread' else '',
             'read_status': read_status, 'filter_error': filter_error,
             'date_from': date_from, 'date_to': date_to, 'priority': priority,
             'page_size': lim,
             'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': _pc_priority_tags(),
-            'wj_dt': fmt_local_dt,
+            'wj_dt': fmt_local_dt, 'store_scope': get_store_scope_state(),
         }
 
     def _notification_list_values(self, page=1, type_id=None, keyword='',
@@ -149,7 +150,7 @@ class WujiaPortalNotification(http.Controller):
                                   date_from='', date_to='', priority='',
                                   limit=None, **kw):
         """Context danh sách thông báo — dùng chung cho trang đầy đủ và fragment AJAX."""
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         active_fid = get_active_franchise_id()
         Noti = _noti()
 
@@ -228,7 +229,7 @@ class WujiaPortalNotification(http.Controller):
             'date_from': date_from, 'date_to': date_to, 'priority': priority,
             'page_size': lim,
             'PC_TYPE_TONE': PC_TYPE_TONE, 'PC_PRIORITY_TAGS': _pc_priority_tags(),
-            'wj_dt': fmt_local_dt,
+            'wj_dt': fmt_local_dt, 'store_scope': get_store_scope_state(),
         }
 
     @http.route(['/portal/notification'], type='http', auth='user', sitemap=False)
@@ -245,7 +246,7 @@ class WujiaPortalNotification(http.Controller):
     @http.route(['/portal/notification/<int:notification_id>'],
                 type='http', auth='user', sitemap=False)
     def portal_notification_detail(self, notification_id, **kw):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         active_fid = get_active_franchise_id()
         Noti = _noti()
         # History domain → cho phép mở lại thông báo đã hết hiệu lực từ lịch sử.
@@ -267,7 +268,7 @@ class WujiaPortalNotification(http.Controller):
     def portal_notification_recent(self, **kw):
         """Popup chuông header — 5 thông báo CÒN HIỆU LỰC gần nhất + đếm chưa đọc.
         Perf: 1 search(limit=5) + 1 read-lookup + đếm effective; chỉ chạy khi user mở popup."""
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         active_fid = get_active_franchise_id()
         Noti = _noti()
         eff = Noti._portal_effective_domain(franchise_ids)
@@ -297,7 +298,7 @@ class WujiaPortalNotification(http.Controller):
     def portal_notification_mark_all_read(self, **kw):
         """BA row 6 — đánh dấu TẤT CẢ thông báo còn hiệu lực chưa đọc của user tại cửa hàng
         hiện tại. Không nhận ids/filter. Không set last_open_date (chưa thực sự mở nội dung)."""
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         active_fid = get_active_franchise_id()
         if not active_fid:
             # Spec F §8.11 + §18 — chưa chọn cửa hàng thì không ghi read status.
@@ -318,7 +319,7 @@ class WujiaPortalNotification(http.Controller):
             ids = [int(i) for i in notification_ids]
         except (TypeError, ValueError):
             return {'error': 'invalid_ids'}
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         active_fid = get_active_franchise_id()
         if not active_fid:
             # Spec F §8.11 + §18 — chưa chọn cửa hàng thì không ghi read status.
@@ -333,7 +334,7 @@ class WujiaPortalNotification(http.Controller):
                 auth='user', methods=['POST', 'GET'])
     def portal_notification_unread_count(self, **kw):
         """Badge realtime — thông báo còn hiệu lực chưa đọc của user tại cửa hàng hiện tại."""
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         active_fid = get_active_franchise_id()
         return {'count': self._unread_count(franchise_ids, active_fid)}
 
@@ -342,7 +343,7 @@ class WujiaPortalNotification(http.Controller):
     def portal_notification_attachment(self, notification_id, attachment_id, **kw):
         """BA row 7 — tải file đính kèm CÓ kiểm quyền: thông báo phải accessible + attachment
         phải thuộc đúng thông báo (đóng IDOR /web/content/ir.attachment/<id>)."""
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         Noti = _noti()
         noti = Noti.search(
             [('id', '=', notification_id)] + Noti._portal_history_domain(franchise_ids), limit=1)

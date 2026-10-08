@@ -45,7 +45,7 @@ DEAD_FAMILIES = (
 # không đếm chuỗi: một phần tử fallback chứa tên lớp hai lần.
 MIGRATED = {
     'wujia_portal_notification/views/portal_notification.xml': 6,
-    'wujia_portal_exam/views/portal_exam.xml': 11,
+    'wujia_portal_exam/views/portal_exam.xml': 13,
     'wujia_portal_debt/views/portal_debt.xml': 8,
     'wujia_portal_return/views/portal_return_list.xml': 4,
     'wujia_portal_return/views/portal_return_detail.xml': 4,
@@ -75,7 +75,7 @@ class TestStatusBadgeRemainder(TransactionCase):
             INVOICE_BADGE, STATE_BADGE,
         )
         from odoo.addons.wujia_portal_exam.controllers.portal import (
-            M_REG_BADGE, PC_PUBLISH_STATES, PC_REG_STATES,
+            PC_PUBLISH_STATES, REG_STATES,
         )
         from odoo.addons.wujia_portal_info_request.controllers.portal import (
             STATE_LABELS as INFO_STATES,
@@ -91,7 +91,7 @@ class TestStatusBadgeRemainder(TransactionCase):
         )
         maps = {
             'debt.state': STATE_BADGE, 'debt.invoice': INVOICE_BADGE,
-            'exam.mobile': M_REG_BADGE, 'exam.pc': PC_REG_STATES,
+            'exam.state': REG_STATES,
             'exam.publish': PC_PUBLISH_STATES, 'return.state': RETURN_STATES,
             'return.compensation': COMPENSATION_STATUS_LABELS,
             'info_request.state': INFO_STATES, 'support.state': SUPPORT_STATES,

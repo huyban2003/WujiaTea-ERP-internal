@@ -19,7 +19,10 @@
                     <t t-set="ph_create_url" t-value="'/portal/support/new'"/>
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
-                <div class="content-body">
+                <t t-if="no_franchise" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
+                <div t-else="" class="content-body">
                     <!-- Nhãn bộ lọc (dịch được, J-V7). -->
                     <t t-set="_sup_t_status">Status</t>
                     <t t-set="_sup_t_all_status">All statuses</t>
@@ -117,7 +120,10 @@
                 </t>
 
                 <!-- Empty state thật sự (chưa có ticket nào, không lọc/tìm) — no-data chung Figma 4788:974 -->
-                <t t-if="not tickets and not q and not state">
+                <t t-if="no_franchise" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
+                <t t-elif="not tickets and not q and not state">
                     <div class="wj-empty-state wj-empty-state--rich">
                         <span class="wj-empty-state-icon"/>
                         <p class="wj-empty-state-title">No support requests yet</p>

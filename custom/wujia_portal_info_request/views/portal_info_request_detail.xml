@@ -87,7 +87,7 @@
                                     <label class="small text-muted">Evidence</label>
                                     <ul class="list-unstyled mb-0">
                                         <li t-foreach="rec.attachment_ids" t-as="att">
-                                            <a t-attf-href="/web/content/#{att.id}?download=true"
+                                            <a t-attf-href="/portal/info-request/#{rec.id}/attachment/#{att.id}"
                                                class="text-decoration-none">
                                                 <i class="fa fa-paperclip me-1"/>
                                                 <t t-out="att.name"/>

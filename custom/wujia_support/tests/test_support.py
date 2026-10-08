@@ -101,10 +101,13 @@ class TestSupportTicket(SupportCommon, TransactionCase):
         mine = self._ticket()
         hidden = self._ticket(portal_visible=False)
         theirs = self._ticket(user=self.staff)
-        found = self.Ticket.search(self.Ticket._portal_scope_domain(self.owner))
+        other_store = self._ticket(franchise_id=self.other_franchise.id)
+        found = self.Ticket.search(self.Ticket._portal_scope_domain(self.owner, (self.franchise.id,)))
         self.assertIn(mine, found)
         self.assertNotIn(hidden, found)
         self.assertNotIn(theirs, found)
+        self.assertNotIn(other_store, found)
+        self.assertFalse(self.Ticket.search(self.Ticket._portal_scope_domain(self.owner, ())))
 
     def test_create_from_portal_ok(self):
         ticket, error = self.Ticket.create_from_portal(

@@ -28,7 +28,10 @@
                     <t t-set="ph_create_label">New registration</t>
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
-                <div class="content-body">
+                <t t-if="store_scope != 'ok'" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
+                <div t-else="" class="content-body">
                     <!-- Bộ lọc — component CMP-FB-001. t-att-selected/value: giữ bộ lọc
                          khi F5 hoặc chuyển trang. Ô ngày còn dạng chữ, E4c mới wire. -->
                     <t t-call="wujia_portal_layout.wj_filter_bar">
@@ -135,6 +138,10 @@
                     <t t-set="ph_variant" t-value="'title'"/>
                     <t t-set="ph_title">Exam registration</t>
                 </t>
+                <t t-if="store_scope != 'ok'" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
+                <t t-else="">
                 <p class="wj-count-meta" id="wj-exam-mcount"><t t-out="pgn['total_items']"/> registrations in the current store</p>
 
                 <!-- Filter canonical 04-DateRangeOnly (Figma 4785:862) — E4c: khối dựng tay
@@ -178,6 +185,8 @@
                             <t t-set="lc_state">
                                 <span t-attf-class="wj-status-badge wj-status-badge--compact #{item['badge']}"
                                       t-out="item['status']"/>
+                                <span t-if="item['has_result']" class="wj-status-badge wj-status-badge--compact wj-status-badge--success wj-exam-result-chip"
+                                      t-out="item['result_label']"/>
                             </t>
                             <t t-set="lc_rows">
                                 <t t-call="wujia_portal_layout.wj_list_card_row">
@@ -205,6 +214,7 @@
                     </t>
                 </t>
                 </div>
+                </t>
 
                 <a href="/portal/exam/register" class="wujia-mexam-fab">
                     <i class="feather icon-plus"/>
@@ -1146,6 +1156,8 @@
                             <t t-set="ch_meta">
                                 <span t-attf-class="wj-status-badge #{reg_view['badge']}"
                                       t-out="reg_view['status']"/>
+                                <span t-if="reg_view['has_result']" class="wj-status-badge wj-status-badge--success wj-exam-result-chip"
+                                      t-out="reg_view['result_label']"/>
                             </t>
                         </t>
                     </div>

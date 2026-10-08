@@ -7,11 +7,9 @@
             <t t-set="pc_gutter" t-value="'list'"/>
             <t t-set="title">Return requests</t>
             <!-- Câu chữ ở template, key ở controller (pattern C4/WJ-KNW-002). -->
-            <t t-set="_ret_t_no_store">Could not determine the current store. Please select a store again.</t>
             <t t-set="_ret_t_not_found">Request not found or you do not have access to it.</t>
             <t t-set="_ret_t_bad_filter">Invalid filter. Please check again.</t>
             <t t-set="notice_text" t-value="{
-                'no_store': _ret_t_no_store,
                 'not_found': _ret_t_not_found,
                 'bad_filter': _ret_t_bad_filter,
             }.get(notice)"/>
@@ -35,9 +33,9 @@
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
 
-                <div t-if="no_franchise" class="alert alert-warning m-3">
-                    You have not been assigned to any store.
-                </div>
+                <t t-if="no_franchise" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
 
                 <div t-if="notice_text" class="alert alert-warning m-3" t-out="notice_text"/>
 
@@ -150,10 +148,9 @@
                     <p t-out="notice_text"/>
                 </div>
 
-                <div t-if="no_franchise" class="wj-empty-state wj-empty-state--card">
-                    <i class="feather icon-alert-circle"/>
-                    <p>You have not been assigned to any store.</p>
-                </div>
+                <t t-if="no_franchise" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
 
                 <t t-else="">
                     <!-- Filter canonical 02-KeywordDateRange (Figma 4785:660) — q + dates wired sẵn -->

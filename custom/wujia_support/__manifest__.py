@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Support Tickets',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Wujia',
     'summary': 'Support requests from franchise stores — HQ receives, assigns, replies, closes.',
     'description': """

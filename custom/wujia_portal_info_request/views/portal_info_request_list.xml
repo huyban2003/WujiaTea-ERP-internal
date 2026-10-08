@@ -25,9 +25,9 @@
                     <t t-set="ph_can_create" t-value="True"/>
                 </t>
 
-                <div t-if="no_franchise" class="alert alert-warning m-3">
-                    You have not been assigned to any store.
-                </div>
+                <t t-if="no_franchise" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
 
                 <div t-if="not no_franchise" class="content-body">
                     <!-- Màn này KHÔNG tách PC/mobile ⇒ thanh lọc phải hợp cả hai khổ. -->

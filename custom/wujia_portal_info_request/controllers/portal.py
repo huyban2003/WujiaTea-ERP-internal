@@ -5,6 +5,7 @@ Routes:
 - GET, POST /portal/info-request/new                   create
 - GET  /portal/info-request/<int>                      detail
 - POST /portal/info-request/<int>/cancel               cancel (form)
+- GET  /portal/info-request/<int>/attachment/<int>     tải tệp (theo cửa hàng đang chọn)
 - GET  /portal/info-request/franchise/<int>/values     AJAX old_value lookup
 
 Role gate: chỉ Owner/Manager mới được tạo (BA spec — gửi cập nhật thông tin
@@ -13,13 +14,15 @@ là quyết định cấp shop, không phải Staff).
 import logging
 from urllib.parse import quote
 
-from werkzeug.exceptions import Forbidden
+from werkzeug.exceptions import Forbidden, NotFound
 
 from odoo import _, _lt, http
 from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
-from odoo.addons.wujia_portal_base.controllers.portal import get_active_franchise_ids_filter
+from odoo.addons.wujia_portal_base.controllers.portal import (
+    get_current_store_ids, get_store_scope_state,
+)
 from odoo.addons.wujia_portal_base.controllers.utils import (
     DEFAULT_DOC_MIME,
     PAGE_SIZE_OPTIONS,
@@ -78,12 +81,13 @@ class WujiaPortalInfoRequest(http.Controller):
     @http.route(['/portal/info-request'], type='http', auth='user', sitemap=False)
     def portal_info_request_list(self, page=1, state='', request_type='',
                                  page_size=None, **kw):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
             return request.render(
                 'wujia_portal_info_request.portal_info_request_list',
                 {'requests': [], 'pgn': None, 'state_labels': _state_labels(),
-                 'no_franchise': True, 'state': '', 'request_type': '',
+                 'no_franchise': True, 'store_scope': get_store_scope_state(),
+                 'state': '', 'request_type': '',
                  'request_type_options': _type_options()},
             )
         Model = request.env['wujia.info.update.request'].sudo()
@@ -118,7 +122,7 @@ class WujiaPortalInfoRequest(http.Controller):
     @http.route(['/portal/info-request/new'], type='http', auth='user',
                 methods=['GET', 'POST'], sitemap=False, csrf=True)
     def portal_info_request_new(self, **post):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
             return request.redirect('/portal/info-request')
 
@@ -158,7 +162,9 @@ class WujiaPortalInfoRequest(http.Controller):
     @http.route(['/portal/info-request/<int:req_id>'], type='http',
                 auth='user', sitemap=False)
     def portal_info_request_detail(self, req_id, **kw):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
+        if not franchise_ids:
+            return request.redirect('/portal/info-request')
         Model = request.env['wujia.info.update.request'].sudo()
         rec = Model.search([('id', '=', req_id)] + Model._portal_scope_domain(franchise_ids), limit=1)
         if not rec:
@@ -173,7 +179,9 @@ class WujiaPortalInfoRequest(http.Controller):
     @http.route(['/portal/info-request/<int:req_id>/cancel'], type='http',
                 auth='user', methods=['POST'], sitemap=False, csrf=True)
     def portal_info_request_cancel(self, req_id, **kw):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
+        if not franchise_ids:
+            return request.redirect('/portal/info-request')
         Model = request.env['wujia.info.update.request'].sudo()
         rec = Model.search([('id', '=', req_id), ('created_by_user_id', '=', request.env.uid)]
                            + Model._portal_scope_domain(franchise_ids), limit=1)
@@ -189,13 +197,23 @@ class WujiaPortalInfoRequest(http.Controller):
             f'/portal/info-request/{rec.id}?message=cancelled'
         )
 
+    @http.route(['/portal/info-request/<int:req_id>/attachment/<int:att_id>'],
+                type='http', auth='user', sitemap=False)
+    def portal_info_request_attachment(self, req_id, att_id, **kw):
+        Model = request.env['wujia.info.update.request'].sudo()
+        rec = Model.search([('id', '=', req_id)]
+                           + Model._portal_scope_domain(get_current_store_ids()), limit=1)
+        att = rec.attachment_ids.filtered(lambda a: a.id == att_id)
+        if not att:
+            raise NotFound()
+        return request.env['ir.binary']._get_stream_from(att).get_response(as_attachment=True)
+
     @http.route(['/portal/info-request/franchise/<int:fid>/values'],
                 type='json', auth='user', methods=['POST', 'GET'])
     def portal_info_request_get_current(self, fid, request_type=None,
                                         field_target=None, **kw):
         """AJAX: trả giá trị hiện tại trên franchise theo request_type."""
-        accessible = set(request.env.user._get_accessible_franchise_ids())
-        if int(fid) not in accessible:
+        if int(fid) not in get_current_store_ids():
             return {'error': 'forbidden'}
         franchise = request.env['wujia.franchise.management'].sudo().browse(int(fid))
         if not franchise.exists():
@@ -205,7 +223,7 @@ class WujiaPortalInfoRequest(http.Controller):
 
     # ============================================================== helpers
     def _render_form(self, error=None, prefill=None):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         franchises = request.env['wujia.franchise.management'].sudo().browse(franchise_ids)
         return request.render(
             'wujia_portal_info_request.portal_info_request_form',

@@ -5,7 +5,7 @@ from odoo.http import request
 from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
-    get_active_franchise_ids_filter,
+    get_current_store_ids, get_store_scope_state,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     DEFAULT_DOC_MIME,
@@ -74,7 +74,8 @@ def _categories():
 def _scoped_ticket(ticket_id):
     Ticket = request.env['wujia.support.ticket'].sudo()
     return Ticket.search(
-        [('id', '=', ticket_id)] + Ticket._portal_scope_domain(request.env.user), limit=1,
+        [('id', '=', ticket_id)] + Ticket._portal_scope_domain(request.env.user, get_current_store_ids()),
+        limit=1,
     )
 
 
@@ -82,8 +83,14 @@ class WujiaPortalSupport(http.Controller):
 
     @http.route(['/portal/support'], type='http', auth='user', sitemap=False)
     def portal_support_list(self, page=1, state='', q='', **kw):
+        franchise_ids = get_current_store_ids()
+        if not franchise_ids:
+            return request.render('wujia_portal_support.portal_support_list', {
+                'tickets': [], 'pgn': None, **_label_ctx(), 'state': '', 'q': '',
+                'no_franchise': True, 'store_scope': get_store_scope_state(),
+            })
         Ticket = request.env['wujia.support.ticket'].sudo()
-        domain = Ticket._portal_scope_domain(request.env.user) + [('state', '!=', 'cancelled')]
+        domain = Ticket._portal_scope_domain(request.env.user, franchise_ids) + [('state', '!=', 'cancelled')]
         if state and state in STATE_LABELS:
             domain.append(('state', '=', state))
         # Sprint 17 — tìm theo Mã (name) HOẶC Tiêu đề (title). ilike trigram-friendly.
@@ -111,7 +118,7 @@ class WujiaPortalSupport(http.Controller):
     @http.route(['/portal/support/new'], type='http', auth='user', sitemap=False,
                 methods=['GET'])
     def portal_support_new(self, **kw):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
             return request.redirect('/portal/support')
         franchises = request.env['wujia.franchise.management'].sudo().browse(franchise_ids)
@@ -139,7 +146,7 @@ class WujiaPortalSupport(http.Controller):
             'created_by_id': request.env.user.id,
             'category_id': category_id,
             'priority': post.get('priority', 'normal'),
-        }, get_active_franchise_ids_filter(), attach=lambda t: attach_files_to_record(
+        }, get_current_store_ids(), attach=lambda t: attach_files_to_record(
             t, files, allowed_mime=DEFAULT_DOC_MIME, max_size_mb=5, max_count=6,
         ))
         if error:

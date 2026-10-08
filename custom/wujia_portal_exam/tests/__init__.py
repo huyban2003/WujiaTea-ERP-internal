@@ -7,3 +7,4 @@ from . import test_list_card_e5b2
 from . import test_button_e6c
 from . import test_portal_exam_f12
 from . import test_jv3_i18n
+from . import test_i4b_exam
