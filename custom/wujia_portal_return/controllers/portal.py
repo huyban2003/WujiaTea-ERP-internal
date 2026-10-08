@@ -2,7 +2,7 @@
 
 Routes:
 - GET  /portal/return                              list (filter state/date/q)
-- GET, POST /portal/return/new                     create draft or submit
+- GET, POST /portal/return/new                     form + submit (no draft)
 - GET  /portal/return/<int>                        detail
 - GET  /portal/return/<int>/attachment/<int>       download attachment
 """
@@ -335,7 +335,7 @@ class WujiaPortalReturn(http.Controller):
             franchise_ids)
         orders = request.env['sale.order'].sudo().search(
             request.env['wujia.return.request']._portal_eligible_order_domain(franchise_ids),
-            order='date_order desc')
+            order='wj_delivery_done_date desc')
         issue_types = request.env['wujia.return.issue.type'].sudo().search(
             [('active', '=', True)])
         # Map order_id -> [{id, label}] cho cascade select sản phẩm.

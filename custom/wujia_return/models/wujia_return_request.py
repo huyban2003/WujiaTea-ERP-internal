@@ -24,7 +24,7 @@ RESOLUTION_SELECTION = [
 
 MIN_IMAGES_BEFORE_SEND = 3
 
-# Luật portal (BA STT3): đơn căn cứ trong 10 ngày (#4), minh chứng (#7).
+# Luật portal: 10 ngày kể từ khi đơn giao hoàn tất toàn bộ, minh chứng (#7).
 ORDER_WINDOW_DAYS = 10
 IMAGE_MIME = ('image/jpeg', 'image/jpg', 'image/png')
 VIDEO_MIME = ('video/mp4', 'video/quicktime')
@@ -386,11 +386,24 @@ class WujiaReturnRequest(models.Model):
         return []
 
     @api.model
+    def _portal_scope_order_domain(self, franchise_ids):
+        return [('franchise_id', 'in', list(franchise_ids)), ('state', 'in', ['sale', 'done'])]
+
+    @api.model
     def _portal_eligible_order_domain(self, franchise_ids):
-        """Đơn đã xác nhận trong 10 ngày; ``date_order`` = ngày xác nhận khi đã confirm."""
         cutoff = fields.Datetime.now() - timedelta(days=ORDER_WINDOW_DAYS)
-        return [('franchise_id', 'in', list(franchise_ids)),
-                ('state', 'in', ['sale', 'done']), ('date_order', '>=', cutoff)]
+        return self._portal_scope_order_domain(franchise_ids) + [('wj_delivery_done_date', '>=', cutoff)]
+
+    @api.model
+    def _portal_check_order_window(self, order):
+        done_date = order.wj_delivery_done_date
+        if not done_date:
+            raise ValidationError(_("This order has not been fully delivered yet, so a request cannot be created."))
+        if done_date < fields.Datetime.now() - timedelta(days=ORDER_WINDOW_DAYS):
+            local = fields.Datetime.context_timestamp(self, done_date)
+            raise ValidationError(_(
+                "More than %(days)s days have passed since the order was fully delivered (%(date)s).",
+                days=ORDER_WINDOW_DAYS, date=local.strftime('%d/%m/%Y')))
 
     @api.model
     def _portal_check_product_config(self, product):
@@ -411,9 +424,9 @@ class WujiaReturnRequest(models.Model):
         return None
 
     @api.model
-    def _portal_check_evidence(self, images, videos, require_min=True):
+    def _portal_check_evidence(self, images, videos):
         """``images``/``videos``: list ``(size_bytes, mime_thật)``; kênh tự đọc MIME từ nội dung."""
-        if len(images) > MAX_IMAGES or (require_min and len(images) < MIN_IMAGES_BEFORE_SEND):
+        if not MIN_IMAGES_BEFORE_SEND <= len(images) <= MAX_IMAGES:
             raise ValidationError(_("Please upload %(min)s to %(max)s evidence photos.",
                                     min=MIN_IMAGES_BEFORE_SEND, max=MAX_IMAGES))
         if len(videos) > MAX_VIDEOS:
@@ -429,7 +442,7 @@ class WujiaReturnRequest(models.Model):
 
     @api.model
     def _portal_prepare_vals(self, post, franchise_ids):
-        """Form portal → (vals, action); kiểm lại ở server mọi thứ client sửa được."""
+        """Form portal → vals; kiểm lại ở server mọi thứ client sửa được."""
         try:
             franchise_id = int(post.get('franchise_id') or 0)
         except (TypeError, ValueError):
@@ -444,9 +457,10 @@ class WujiaReturnRequest(models.Model):
         if not order_id or not line_id:
             raise ValidationError(_("Please select the original order and product."))
         order = self.env['sale.order'].sudo().search(
-            self._portal_eligible_order_domain([franchise_id]) + [('id', '=', order_id)], limit=1)
+            self._portal_scope_order_domain([franchise_id]) + [('id', '=', order_id)], limit=1)
         if not order:
-            raise ValidationError(_("The order is invalid or older than %s days.", ORDER_WINDOW_DAYS))
+            raise ValidationError(_("The original order is invalid."))
+        self._portal_check_order_window(order)
         line = order.order_line.filtered(lambda l: l.id == line_id)
         if not line or not line.product_id:
             raise ValidationError(_("The product must belong to the store's original order."))
@@ -476,7 +490,6 @@ class WujiaReturnRequest(models.Model):
                 continue
         if not opening_dt:
             raise ValidationError(_("Please enter a valid unboxing time."))
-        action = (post.get('action') or 'draft').strip()
         return {
             'franchise_id': franchise_id,
             'sale_order_id': order_id,
@@ -489,22 +502,21 @@ class WujiaReturnRequest(models.Model):
             'issue_type_id': issue_type.id,
             'note': (post.get('note') or '').strip()[:5000],
             'state': 'draft',
-        }, action if action in ('draft', 'send') else 'draft'
+        }
 
     @api.model
     def create_from_portal(self, post, franchise_ids, images=(), videos=(), attach=None):
-        """Kiểm → tạo nháp → đính kèm (``attach(rr)``) → gửi nếu ``action=send``, trong một savepoint.
+        """Kiểm → tạo → đính kèm (``attach(rr)``) → gửi, trong một savepoint; portal không có Lưu nháp.
 
         ``images``/``videos`` như ``_portal_check_evidence``. Lỗi nghiệp vụ ném ``ValidationError``.
         """
-        vals, action = self._portal_prepare_vals(post, franchise_ids)
-        self._portal_check_evidence(list(images), list(videos), require_min=action == 'send')
+        vals = self._portal_prepare_vals(post, franchise_ids)
+        self._portal_check_evidence(list(images), list(videos))
         with self.env.cr.savepoint():
             rr = self.sudo().create(vals)
             if attach:
                 attach(rr)
-            if action == 'send':
-                rr.action_submit()
+            rr.action_submit()
         return rr
 
     def _portal_compensation_view(self):

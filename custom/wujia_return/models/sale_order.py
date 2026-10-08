@@ -1,4 +1,4 @@
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 
 
 class SaleOrder(models.Model):
@@ -10,6 +10,20 @@ class SaleOrder(models.Model):
     """
 
     _inherit = 'sale.order'
+
+    wj_delivery_done_date = fields.Datetime(
+        string='Fully delivered on', compute='_compute_wj_delivery_done_date',
+        store=True, index=True, copy=False,
+        help='Last validated delivery slip, set only once every outgoing slip of the order is done or cancelled.',
+    )
+
+    @api.depends('picking_ids.state', 'picking_ids.date_done', 'picking_ids.picking_type_id')
+    def _compute_wj_delivery_done_date(self):
+        for order in self:
+            outgoing = order.picking_ids.filtered(lambda p: p.picking_type_id.code == 'outgoing')
+            done = outgoing.filtered(lambda p: p.state == 'done')
+            complete = done and all(p.state in ('done', 'cancel') for p in outgoing)
+            order.wj_delivery_done_date = max(filter(None, done.mapped('date_done')), default=False) if complete else False
 
     def _action_cancel(self):
         res = super()._action_cancel()

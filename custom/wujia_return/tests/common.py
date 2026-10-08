@@ -35,7 +35,7 @@ def _file(data, filename='a.jpg', content_type='image/jpeg', pad=0):
 
 
 class ReturnFixture:
-    """1 cửa hàng + 1 cửa hàng khác, sản phẩm có/không cấu hình bù, đơn trong/ngoài 10 ngày."""
+    """1 cửa hàng + 1 cửa hàng khác, sản phẩm có/không cấu hình bù, đơn giao xong trong/ngoài 10 ngày và chưa giao."""
 
     @classmethod
     def _setup_return_data(cls):
@@ -70,11 +70,16 @@ class ReturnFixture:
             'name': 'CT3 broken', 'active': True})
 
         cls.order_ok = cls._order(cls.franchise, cls.product, confirm=True)
+        cls._deliver(cls.order_ok, days_ago=2)
         cls.order_draft = cls._order(cls.franchise, cls.product, confirm=False)
         cls.order_old = cls._order(cls.franchise, cls.product, confirm=True)
-        cls.order_old.date_order = fields.Datetime.now() - timedelta(
-            days=ORDER_WINDOW_DAYS + 1)
+        cls.order_old.date_order = fields.Datetime.now() - timedelta(days=ORDER_WINDOW_DAYS * 2)
+        cls._deliver(cls.order_old, days_ago=3)
+        cls.order_undelivered = cls._order(cls.franchise, cls.product, confirm=True)
+        cls.order_expired = cls._order(cls.franchise, cls.product, confirm=True)
+        cls._deliver(cls.order_expired, days_ago=ORDER_WINDOW_DAYS + 1)
         cls.order_other = cls._order(cls.other, cls.product, confirm=True)
+        cls._deliver(cls.order_other, days_ago=1)
 
     @classmethod
     def _order(cls, franchise, product, confirm=False):
@@ -86,6 +91,18 @@ class ReturnFixture:
         if confirm:
             order.action_confirm()
         return order
+
+    @classmethod
+    def _deliver(cls, order, days_ago=0, qty=None, picking=None):
+        """Validate một phiếu xuất (``qty`` < SL đặt ⇒ Odoo tạo backorder) rồi lùi ``date_done``."""
+        picking = picking or order.picking_ids.filtered(
+            lambda p: p.picking_type_id.code == 'outgoing' and p.state not in ('done', 'cancel'))[:1]
+        for move in picking.move_ids:
+            move.quantity = move.product_uom_qty if qty is None else qty
+            move.picked = True
+        picking._action_done()
+        picking.date_done = fields.Datetime.now() - timedelta(days=days_ago)
+        return picking
 
     @classmethod
     def _request(cls, franchise=None, order=None, state='submitted', **kw):

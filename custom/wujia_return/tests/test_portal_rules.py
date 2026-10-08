@@ -1,6 +1,7 @@
 """F13 — luật portal trên model: trạng thái hiển thị, phạm vi, minh chứng, tạo phiếu một khối."""
 import base64
 
+from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
@@ -79,7 +80,6 @@ class TestPortalRules(TransactionCase, ReturnFixture):
         check = self.Req._portal_check_evidence
         img = (MB, 'image/jpeg')
         check([img] * 3, [])
-        check([img], [], require_min=False)
         for images, videos in (([img] * 2, []), ([img] * 6, []), ([img] * 3, [(MB, 'video/mp4')] * 2),
                                ([img] * 2 + [(MB, 'text/plain')], []), ([img] * 2 + [(6 * MB, 'image/png')], []),
                                ([img] * 3, [(11 * MB, 'video/mp4')]),
@@ -87,20 +87,43 @@ class TestPortalRules(TransactionCase, ReturnFixture):
             with self.assertRaises(ValidationError):
                 check(images, videos)
 
-    def test_create_draft_and_send(self):
-        draft = self.Req.create_from_portal(self._post(action='draft'), self.franchise.ids,
-                                            images=[(10, 'image/jpeg')], attach=self._attach(1))
-        self.assertEqual(draft.state, 'draft')
-        self.assertEqual(draft.request_uom_id, self.uom_kg)
-        sent = self.Req.create_from_portal(self._post(action='send'), self.franchise.ids,
+    def test_portal_never_creates_draft(self):
+        before = self.Req.search_count([])
+        for action in ('draft', 'send', None):
+            post = self._post() if action is None else self._post(action=action)
+            sent = self.Req.create_from_portal(post, self.franchise.ids,
+                                               images=[(10, 'image/jpeg')] * 3, attach=self._attach(3))
+            self.assertEqual(sent.state, 'submitted')
+            self.assertEqual(sent.request_uom_id, self.uom_kg)
+            self.assertIn('Yêu cầu đã được gửi', ' '.join(sent.message_ids.mapped('body')))
+        self.assertEqual(self.Req.search_count([]), before + 3)
+        with self.assertRaises(ValidationError):
+            self.Req.create_from_portal(self._post(action='draft'), self.franchise.ids,
+                                        images=[(10, 'image/jpeg')], attach=self._attach(1))
+        self.assertEqual(self.Req.search_count([]), before + 3)
+
+    def _post_order(self, order):
+        return self._post(sale_order_id=str(order.id), sale_order_line_id=str(order.order_line[0].id))
+
+    def test_window_counts_from_full_delivery(self):
+        sent = self.Req.create_from_portal(self._post_order(self.order_old), self.franchise.ids,
                                            images=[(10, 'image/jpeg')] * 3, attach=self._attach(3))
-        self.assertEqual(sent.state, 'submitted')
-        self.assertIn('Yêu cầu đã được gửi', ' '.join(sent.message_ids.mapped('body')))
+        self.assertEqual(sent.sale_order_id, self.order_old)
+        with self.assertRaises(ValidationError) as err:
+            self.Req.create_from_portal(self._post_order(self.order_undelivered), self.franchise.ids,
+                                        images=[(10, 'image/jpeg')] * 3)
+        self.assertEqual(str(err.exception), 'Đơn hàng chưa giao hoàn tất, chưa thể tạo yêu cầu.')
+        done = fields.Datetime.context_timestamp(self.Req, self.order_expired.wj_delivery_done_date)
+        with self.assertRaises(ValidationError) as err:
+            self.Req.create_from_portal(self._post_order(self.order_expired), self.franchise.ids,
+                                        images=[(10, 'image/jpeg')] * 3)
+        self.assertEqual(str(err.exception),
+                         f"Đã quá 10 ngày kể từ khi đơn hàng giao hoàn tất ({done.strftime('%d/%m/%Y')}).")
 
     def test_rejects_input_the_client_can_tamper(self):
         cases = {
             'Cửa hàng không truy cập được.': self._post(franchise_id=str(self.other.id)),
-            'Đơn hàng không hợp lệ hoặc đã quá thời hạn 10 ngày.': self._post(sale_order_id=str(self.order_old.id)),
+            'Đơn hàng gốc không hợp lệ.': self._post(sale_order_id=str(self.order_other.id)),
             'Sản phẩm phải thuộc đơn hàng gốc của cửa hàng.': self._post(
                 sale_order_line_id=str(self.order_other.order_line[0].id)),
             'Vui lòng chọn loại lỗi.': self._post(issue_type_id='abc'),

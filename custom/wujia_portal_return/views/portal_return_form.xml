@@ -55,12 +55,12 @@
                                         <option value="">— Select an order —</option>
                                         <t t-foreach="orders" t-as="o">
                                             <option t-att-value="o.id">
-                                                <t t-out="o.name"/> — <t t-out="wj_dt(o.date_order, '%d/%m/%Y')"/>
+                                                <t t-out="o.name"/> — delivered <t t-out="wj_dt(o.wj_delivery_done_date, '%d/%m/%Y')"/>
                                             </option>
                                         </t>
                                     </select>
                                     <small t-if="not orders" class="text-danger">
-                                        No eligible orders found in the last
+                                        No orders fully delivered in the last
                                         <t t-out="window_days"/> days.
                                     </small>
                                 </div>
@@ -114,7 +114,6 @@
                         </div>
                         <div class="wj-surface-card__foot text-end">
                             <a href="/portal/return" class="wj-btn wj-btn--secondary me-2">Cancel</a>
-                            <button type="submit" name="action" value="draft" class="wj-btn wj-btn--outline me-2">Save draft</button>
                             <button type="submit" name="action" value="send" class="wj-btn wj-btn--primary">
                                 <i class="fa fa-paper-plane"/>Submit request
                             </button>
@@ -167,12 +166,12 @@
                             <option value="">— Select an order —</option>
                             <t t-foreach="orders" t-as="o">
                                 <option t-att-value="o.id">
-                                    <t t-out="o.name"/> — <t t-out="wj_dt(o.date_order, '%d/%m/%Y')"/>
+                                    <t t-out="o.name"/> — delivered <t t-out="wj_dt(o.wj_delivery_done_date, '%d/%m/%Y')"/>
                                 </option>
                             </t>
                         </select>
                         <p t-if="not orders" class="wujia-mticket-hint text-danger">
-                            No eligible orders found in the last
+                            No orders fully delivered in the last
                             <t t-out="window_days"/> days.
                         </p>
                         <label class="wujia-mticket-label" for="wj-ret-m-line">Product (in the order)</label>

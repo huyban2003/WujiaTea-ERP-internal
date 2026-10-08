@@ -24,7 +24,11 @@ MESSAGES_VI = {
     'Select a resolution before approving.': 'Chọn phương án xử lý trước khi duyệt.',
     'Enter a rejection reason before rejecting.': 'Nhập lý do từ chối trước khi từ chối.',
     'Please select an issue type.': 'Vui lòng chọn loại lỗi.',
-    'The order is invalid or older than %s days.': 'Đơn hàng không hợp lệ hoặc đã quá thời hạn %s ngày.',
+    'The original order is invalid.': 'Đơn hàng gốc không hợp lệ.',
+    'This order has not been fully delivered yet, so a request cannot be created.':
+        'Đơn hàng chưa giao hoàn tất, chưa thể tạo yêu cầu.',
+    'More than %(days)s days have passed since the order was fully delivered (%(date)s).':
+        'Đã quá %(days)s ngày kể từ khi đơn hàng giao hoàn tất (%(date)s).',
     'Please upload %(min)s to %(max)s evidence photos.': 'Cần tải từ %(min)s đến %(max)s ảnh minh chứng.',
     'Compensation order cancelled — entitlement closed per request.':
         'Đơn bù bị huỷ — quyền lợi đóng theo yêu cầu.',

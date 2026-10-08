@@ -25,10 +25,10 @@ class TestEvidenceValidation(TransactionCase):
         self.ctrl = WujiaPortalReturn()
         self.Req = self.env['wujia.return.request']
 
-    def _validate(self, images, video, require_min=True):
+    def _validate(self, images, video):
         """Đường portal thật: controller đọc MIME từ nội dung, model áp luật."""
         self.Req._portal_check_evidence([self.ctrl._sniff(f) for f in images],
-                                        [self.ctrl._sniff(f) for f in video], require_min)
+                                        [self.ctrl._sniff(f) for f in video])
 
     def _images(self, n, data=JPEG, **kw):
         return [_file(data, filename=f'p{i}.jpg', **kw) for i in range(n)]
@@ -44,9 +44,6 @@ class TestEvidenceValidation(TransactionCase):
     def test_six_images_rejected(self):
         with self.assertRaises(ValidationError):
             self._validate(self._images(6), [])
-
-    def test_draft_may_have_fewer_images(self):
-        self._validate(self._images(1), [], require_min=False)
 
     def test_png_accepted(self):
         self._validate(
@@ -215,3 +212,48 @@ class TestPortalRoutes(HttpCase, ReturnFixture):
         self.assertTrue(rr, res.text[:500])
         self.assertEqual(rr.state, 'submitted')
         self.assertIn('Yêu cầu đã được gửi', ' '.join(rr.message_ids.mapped('body')))
+
+    def test_endpoint_cannot_create_draft(self):
+        self._login_portal()
+        line = self.order_ok.order_line[0]
+        Req = self.env['wujia.return.request']
+        drafts = Req.search_count([('state', '=', 'draft')])
+        base = {
+            'franchise_id': self.franchise.id, 'sale_order_id': self.order_ok.id,
+            'sale_order_line_id': line.id, 'issue_type_id': self.issue_type.id,
+            'request_qty': '3', 'opening_datetime': '2026-09-01T08:00',
+            'action': 'draft', 'csrf_token': http.Request.csrf_token(self),
+        }
+        self.url_open('/portal/return/new', data=dict(base, note='I2 one photo'),
+                      files=[('images', ('p.jpg', JPEG, 'image/jpeg'))], allow_redirects=False)
+        self.assertFalse(Req.search([('note', '=', 'I2 one photo')]))
+        self.url_open('/portal/return/new', data=dict(base, note='I2 draft action'),
+                      files=[('images', (f'p{i}.jpg', JPEG, 'image/jpeg')) for i in range(MIN_IMAGES)],
+                      allow_redirects=False)
+        self.assertEqual(Req.search([('note', '=', 'I2 draft action')]).mapped('state'), ['submitted'])
+        self.assertEqual(Req.search_count([('state', '=', 'draft')]), drafts)
+
+    def test_endpoint_rejects_undelivered_and_expired_orders(self):
+        self._login_portal()
+        Req = self.env['wujia.return.request']
+        for order, msg in ((self.order_undelivered, 'chưa giao hoàn tất'), (self.order_expired, 'Đã quá 10 ngày')):
+            res = self.url_open('/portal/return/new', data={
+                'franchise_id': self.franchise.id, 'sale_order_id': order.id,
+                'sale_order_line_id': order.order_line[0].id, 'issue_type_id': self.issue_type.id,
+                'request_qty': '3', 'opening_datetime': '2026-09-01T08:00', 'note': f'I2 {order.id}',
+                'csrf_token': http.Request.csrf_token(self),
+            }, files=[('images', (f'p{i}.jpg', JPEG, 'image/jpeg')) for i in range(MIN_IMAGES)],
+                allow_redirects=False)
+            self.assertIn(msg, res.text)
+            self.assertFalse(Req.search([('note', '=', f'I2 {order.id}')]))
+
+    def test_form_has_only_submit_and_lists_delivered_orders(self):
+        self._login_portal()
+        body = self.url_open('/portal/return/new').text
+        self.assertNotIn('value="draft"', body)
+        self.assertNotIn('Lưu nháp', body)
+        self.assertEqual(body.count('name="action" value="send"'), 2)
+        for order in (self.order_ok, self.order_old):
+            self.assertIn(order.name, body)
+        for order in (self.order_undelivered, self.order_expired, self.order_draft):
+            self.assertNotIn(order.name, body)

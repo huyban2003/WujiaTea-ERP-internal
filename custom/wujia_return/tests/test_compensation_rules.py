@@ -2,16 +2,20 @@
 
 Chạy: `--test-tags wujia_return_ct`.
 """
+from datetime import timedelta
+
 from odoo import fields
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
+
+from odoo.addons.wujia_return.models.wujia_return_request import ORDER_WINDOW_DAYS
 
 from .common import ReturnFixture, load_vi
 
 
 @tagged('post_install', '-at_install', 'wujia_return_ct')
 class TestEligibleOrders(TransactionCase, ReturnFixture):
-    """Acceptance #4 — chỉ đơn đã xác nhận, trong 10 ngày, đúng cửa hàng."""
+    """Đơn đã xác nhận, đúng cửa hàng, giao hoàn tất toàn bộ chưa quá 10 ngày (WJ-RETURN-001)."""
 
     @classmethod
     def setUpClass(cls):
@@ -22,17 +26,66 @@ class TestEligibleOrders(TransactionCase, ReturnFixture):
         domain = self.env['wujia.return.request']._portal_eligible_order_domain([franchise.id])
         return self.env['sale.order'].search(domain)
 
+    def _outgoing(self, order):
+        return order.picking_ids.filtered(lambda p: p.picking_type_id.code == 'outgoing')
+
     def test_confirmed_recent_order_is_eligible(self):
         self.assertIn(self.order_ok, self._eligible(self.franchise))
+
+    def test_old_order_delivered_recently_is_eligible(self):
+        self.assertLess(self.order_old.date_order, fields.Datetime.now() - timedelta(days=ORDER_WINDOW_DAYS))
+        self.assertIn(self.order_old, self._eligible(self.franchise))
+
+    def test_undelivered_order_excluded(self):
+        self.assertFalse(self.order_undelivered.wj_delivery_done_date)
+        self.assertNotIn(self.order_undelivered, self._eligible(self.franchise))
+
+    def test_delivered_beyond_window_excluded(self):
+        self.assertNotIn(self.order_expired, self._eligible(self.franchise))
 
     def test_draft_order_excluded(self):
         self.assertNotIn(self.order_draft, self._eligible(self.franchise))
 
-    def test_order_older_than_window_excluded(self):
-        self.assertNotIn(self.order_old, self._eligible(self.franchise))
-
     def test_other_store_order_excluded(self):
         self.assertNotIn(self.order_other, self._eligible(self.franchise))
+
+    def test_backorder_waits_for_last_delivery(self):
+        order = self._order(self.franchise, self.product, confirm=True)
+        first = self._deliver(order, days_ago=12, qty=2)
+        backorder = self._outgoing(order) - first
+        self.assertEqual(len(backorder), 1)
+        self.assertNotIn(backorder.state, ('done', 'cancel'))
+        self.assertFalse(order.wj_delivery_done_date)
+        self.assertNotIn(order, self._eligible(self.franchise))
+        self._deliver(order, days_ago=1, picking=backorder)
+        self.assertEqual(order.wj_delivery_done_date, backorder.date_done)
+        self.assertIn(order, self._eligible(self.franchise))
+
+    def test_cancelled_backorder_closes_delivery(self):
+        order = self._order(self.franchise, self.product, confirm=True)
+        first = self._deliver(order, days_ago=4, qty=2)
+        (self._outgoing(order) - first).action_cancel()
+        self.assertEqual(order.wj_delivery_done_date, first.date_done)
+        self.assertIn(order, self._eligible(self.franchise))
+
+    def test_fully_cancelled_delivery_has_no_mark(self):
+        order = self._order(self.franchise, self.product, confirm=True)
+        self._outgoing(order).action_cancel()
+        self.assertFalse(order.wj_delivery_done_date)
+        self.assertNotIn(order, self._eligible(self.franchise))
+
+    def test_pending_incoming_return_does_not_reopen_delivery(self):
+        order = self.order_ok
+        out = self._outgoing(order)
+        self.env['stock.picking'].create({
+            'picking_type_id': self.env.ref('stock.picking_type_in').id,
+            'partner_id': order.partner_id.id,
+            'sale_id': order.id,
+            'location_id': out.location_dest_id.id,
+            'location_dest_id': out.location_id.id,
+        })
+        self.assertEqual(order.wj_delivery_done_date, out.date_done)
+        self.assertIn(order, self._eligible(self.franchise))
 
 
 @tagged('post_install', '-at_install', 'wujia_return_ct')

@@ -990,8 +990,8 @@ msgstr "Tệp không đúng định dạng hoặc vượt quá dung lượng cho
 #. odoo-python
 #: code:addons/wujia_return/models/wujia_return_request.py
 #, python-format
-msgid "The order is invalid or older than %s days."
-msgstr "Đơn hàng không hợp lệ hoặc đã quá thời hạn %s ngày."
+msgid "The original order is invalid."
+msgstr "Đơn hàng gốc không hợp lệ."
 
 #. module: wujia_return
 #. odoo-python
@@ -1208,3 +1208,26 @@ msgstr ""
 "                    (không đủ điều kiện: chưa duyệt / không phải bù hàng / "
 "đã phân bổ đủ)."
 
+#. module: wujia_return
+#. odoo-python
+#: code:addons/wujia_return/models/wujia_return_request.py
+#, python-format
+msgid "This order has not been fully delivered yet, so a request cannot be created."
+msgstr "Đơn hàng chưa giao hoàn tất, chưa thể tạo yêu cầu."
+
+#. module: wujia_return
+#. odoo-python
+#: code:addons/wujia_return/models/wujia_return_request.py
+#, python-format
+msgid "More than %(days)s days have passed since the order was fully delivered (%(date)s)."
+msgstr "Đã quá %(days)s ngày kể từ khi đơn hàng giao hoàn tất (%(date)s)."
+
+#. module: wujia_return
+#: model:ir.model.fields,field_description:wujia_return.field_sale_order__wj_delivery_done_date
+msgid "Fully delivered on"
+msgstr "Ngày giao hoàn tất"
+
+#. module: wujia_return
+#: model:ir.model.fields,help:wujia_return.field_sale_order__wj_delivery_done_date
+msgid "Last validated delivery slip, set only once every outgoing slip of the order is done or cancelled."
+msgstr "Ngày phiếu xuất cuối cùng được xác nhận; chỉ có khi mọi phiếu xuất của đơn đã hoàn tất hoặc đã huỷ."
