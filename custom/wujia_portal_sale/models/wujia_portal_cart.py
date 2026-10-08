@@ -124,9 +124,9 @@ class WujiaPortalCart(models.Model):
         if not lines:
             raise PortalOrderError('CART_EMPTY')
 
-        # Chưa cấu hình khung giờ → helper dùng default (BA row 2: chỉ cảnh báo).
-        allowed, _w = self.env['res.config.settings']._is_within_order_window(
-            area_id=franchise.area_id.id or False)
+        allowed, window = self.env['res.config.settings']._is_within_order_window(franchise=franchise)
+        if window.get('tz_missing'):
+            raise PortalOrderError('STORE_TZ_NOT_CONFIGURED')
         if not allowed:
             raise PortalOrderError('ORDER_TIME_CLOSED')
 

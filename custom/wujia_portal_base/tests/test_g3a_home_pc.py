@@ -183,7 +183,7 @@ class TestHomePcRender(HttpCase):
         if window is None:
             res = self.url_open('/portal', timeout=30)
         else:
-            with patch.object(WujiaPortal, '_order_window_view', lambda self, area_id=None: window):
+            with patch.object(WujiaPortal, '_order_window_view', lambda self, franchise=None: window):
                 res = self.url_open('/portal', timeout=30)
         self.assertEqual(res.status_code, 200)
         doc = html.fromstring(res.text)
@@ -199,10 +199,13 @@ class TestHomePcRender(HttpCase):
         self.assertEqual(_text(store.xpath(f".//span[{_cls('wujia-home-store-role')}]")[0]), 'Quản lý')
 
     def test_window_three_states(self):
+        tz = 'Asia/Ho_Chi_Minh (UTC+07:00)'
         cases = [
-            ({'state': 'open', 'remaining_hhmm': '02:15', 'progress_pct': 40, 'to_hhmm': '17:00'},
-             'is-open', ['Đang mở', '02:15', 'Có thể đặt hàng đến 17:00 hôm nay'], True),
-            ({'state': 'closed', 'from_hhmm': '08:00'}, 'is-closed', ['Đã đóng', 'Mở lại lúc 08:00'], False),
+            ({'state': 'open', 'remaining_hhmm': '02:15', 'progress_pct': 40, 'to_hhmm': '17:00', 'tz_label': tz},
+             'is-open', ['Đang mở', '02:15', 'Có thể đặt hàng đến 17:00 hôm nay', tz], True),
+            ({'state': 'closed', 'from_hhmm': '08:00', 'tz_label': tz}, 'is-closed',
+             ['Đã đóng', 'Mở lại lúc 08:00', tz], False),
+            ({'state': 'tz_missing'}, 'is-closed', ['chưa cấu hình múi giờ'], False),
             ({'state': 'always'}, 'is-always', ['Đặt hàng 24/7', 'Đặt hàng mọi lúc trong ngày'], False),
         ]
         for window, cls, texts, bar in cases:

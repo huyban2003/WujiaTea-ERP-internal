@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 class WujiaOrderWindow(models.Model):
     _name = 'wujia.order.window'
     _description = 'Portal ordering time window (per area)'
-    _order = 'area_id, sequence, id'
+    _order = 'sequence, id'
 
     name = fields.Char(
         string='Window name',
@@ -14,13 +14,14 @@ class WujiaOrderWindow(models.Model):
         help='e.g. "Morning window HN" — shown in the portal UI when reporting that ordering is outside the window.',
     )
     active = fields.Boolean(default=True)
-    area_id = fields.Many2one(
+    area_ids = fields.Many2many(
         'res.area',
-        string='Area',
+        'wujia_order_window_res_area_rel',
+        'window_id',
+        'area_id',
+        string='Areas',
         required=True,
-        ondelete='cascade',
-        index=True,
-        help="The window applies only to franchises located in this area. An area can have several windows (e.g. morning + evening) — the controller checks them all and allows ordering while at least one is open.",
+        help="The window applies to franchises located in any of these areas, in each store's own local time. An area can have several windows (e.g. morning + evening) — ordering is allowed while at least one is open.",
     )
     order_time_from = fields.Float(
         string='Start time',
@@ -68,6 +69,27 @@ class WujiaOrderWindow(models.Model):
                 raise ValidationError(_(
                     "Window '%s' has From == To — no valid time.",
                     rec.display_name,
+                ))
+
+    @api.constrains('area_ids', 'order_time_from', 'order_time_to', 'active')
+    def _check_areas(self):
+        # M2M required không được ORM kiểm ⇒ kiểm ở đây, gắn vào giờ để create nào cũng chạy.
+        for rec in self:
+            if not rec.area_ids:
+                raise ValidationError(_("Window '%s' must apply to at least one area.", rec.display_name))
+            if not rec.active:
+                continue
+            dup = self.search([
+                ('id', '!=', rec.id),
+                ('area_ids', 'in', rec.area_ids.ids),
+                ('order_time_from', '=', rec.order_time_from),
+                ('order_time_to', '=', rec.order_time_to),
+            ], limit=1)
+            if dup:
+                raise ValidationError(_(
+                    "Window '%(name)s' duplicates '%(dup)s': same hours for area %(areas)s.",
+                    name=rec.display_name, dup=dup.display_name,
+                    areas=', '.join((rec.area_ids & dup.area_ids).mapped('name')),
                 ))
 
     def is_now_open(self, now_hours):

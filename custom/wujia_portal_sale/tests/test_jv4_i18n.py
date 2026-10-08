@@ -25,6 +25,7 @@ _BEFORE_ERRORS = {
     'MEMBERSHIP_INACTIVE': "Tài khoản của bạn hiện không còn hiệu lực tại cửa hàng này.",
     'ORDER_TIME_NOT_CONFIGURED': "Chưa có cấu hình thời gian đặt hàng. Vui lòng liên hệ {brand}.",
     'ORDER_TIME_CLOSED': "Hiện ngoài khung giờ đặt hàng. Vui lòng gửi đơn trong thời gian cho phép.",
+    'STORE_TZ_NOT_CONFIGURED': "Cửa hàng chưa cấu hình múi giờ nên chưa thể đặt hàng. Vui lòng liên hệ {brand}.",
     'PRODUCT_NOT_AVAILABLE': "Sản phẩm này hiện không còn được phép đặt hàng.",
     'MIN_QTY_NOT_CONFIGURED': "Sản phẩm chưa được cấu hình số lượng đặt tối thiểu. Vui lòng liên hệ {brand}.",
     'QTY_BELOW_MIN': "Số lượng thấp hơn mức tối thiểu của sản phẩm.",

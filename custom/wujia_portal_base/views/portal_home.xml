@@ -67,6 +67,7 @@
                                             Open now <small>· time left <t t-out="order_window['remaining_hhmm']"/></small>
                                         </span>
                                         <span t-elif="order_window['state'] == 'closed'" class="wujia-mhome-window-status is-closed">Closed</span>
+                                        <span t-elif="order_window['state'] == 'tz_missing'" class="wujia-mhome-window-status is-closed">Unavailable</span>
                                         <span t-else="" class="wujia-mhome-window-status is-always">Order 24/7</span>
                                     </t>
                                 </t>
@@ -74,10 +75,14 @@
                                     <div class="wujia-mhome-window-progress-bar" t-attf-style="width: #{order_window['progress_pct']}%"/>
                                 </div>
                                 <p t-if="order_window['state'] == 'open'" class="wujia-mhome-window-caption">
-                                    You can order until <t t-out="order_window['to_hhmm']"/> today
+                                    You can order until <t t-out="order_window['to_hhmm']"/> today<t t-out="' · ' + order_window['tz_label']"/>
                                 </p>
                                 <p t-elif="order_window['state'] == 'closed'" class="wujia-mhome-window-caption">
-                                    Reopens at <t t-out="order_window['from_hhmm']"/>
+                                    Reopens at <t t-out="order_window['from_hhmm'] + ' · ' + order_window['tz_label']"/>
+                                </p>
+                                <p t-elif="order_window['state'] == 'tz_missing'" class="wujia-mhome-window-caption">
+                                    <t t-set="wj_txt">The store's timezone is not configured, so ordering is unavailable. Please contact {brand}.</t>
+                                    <t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                                 </p>
                                 <p t-else="" class="wujia-mhome-window-caption">Order any time of the day</p>
                             </t>
@@ -489,6 +494,7 @@
                                         Open now <small>· time left <t t-out="order_window['remaining_hhmm']"/></small>
                                     </span>
                                     <span t-elif="order_window['state'] == 'closed'" class="wujia-mhome-window-status is-closed">Closed</span>
+                                    <span t-elif="order_window['state'] == 'tz_missing'" class="wujia-mhome-window-status is-closed">Unavailable</span>
                                     <span t-else="" class="wujia-mhome-window-status is-always">Order 24/7</span>
                                 </t>
                             </t>
@@ -496,10 +502,14 @@
                                 <div class="wujia-mhome-window-progress-bar" t-attf-style="width: #{order_window['progress_pct']}%"/>
                             </div>
                             <p t-if="order_window['state'] == 'open'" class="wujia-mhome-window-caption">
-                                You can order until <t t-out="order_window['to_hhmm']"/> today
+                                You can order until <t t-out="order_window['to_hhmm']"/> today<t t-out="' · ' + order_window['tz_label']"/>
                             </p>
                             <p t-elif="order_window['state'] == 'closed'" class="wujia-mhome-window-caption">
-                                Reopens at <t t-out="order_window['from_hhmm']"/>
+                                Reopens at <t t-out="order_window['from_hhmm'] + ' · ' + order_window['tz_label']"/>
+                            </p>
+                            <p t-elif="order_window['state'] == 'tz_missing'" class="wujia-mhome-window-caption">
+                                <t t-set="wj_txt">The store's timezone is not configured, so ordering is unavailable. Please contact {brand}.</t>
+                                <t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
                             </p>
                             <p t-else="" class="wujia-mhome-window-caption">Order any time of the day</p>
                         </section>

@@ -30,7 +30,7 @@ MIGRATED = [
       'btn-secondary', 'btn-sm', 'wj-empty-state-btn'), 'portal_support.css'),
     ('wujia_portal_return', 'portal_return_list.xml', 2, 1,
      ('btn-outline-primary', 'btn-sm', 'wj-empty-state-btn'), 'portal_return.css'),
-    ('wujia_portal_return', 'portal_return_form.xml', 5, 0,
+    ('wujia_portal_return', 'portal_return_form.xml', 4, 0,
      ('wujia-mreturn-btn-cancel', 'wujia-mreturn-btn-submit', 'wj-pc-btn',
       'wj-pc-btn--primary', 'wj-pc-btn--secondary'), 'portal_return.css'),
     ('wujia_portal_notification', 'portal_notification.xml', 4, 0,

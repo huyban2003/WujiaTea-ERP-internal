@@ -3,8 +3,11 @@
 Viết trước khi dời luật từ controller về model: mọi assert ở đây phải xanh
 cả trước lẫn sau F6.
 """
+from datetime import datetime
 from unittest.mock import patch
 from urllib.parse import urlsplit
+
+import pytz
 
 from odoo import http
 from odoo.exceptions import ValidationError
@@ -89,10 +92,13 @@ class TestF6CartSubmit(HttpCase):
 
     def submit(self, window=OPEN, **data):
         data['csrf_token'] = http.Request.csrf_token(self)
-        side = window if isinstance(window, list) else None
-        kw = {'side_effect': side} if side else {'return_value': window}
-        with patch.object(self.Settings, '_is_within_order_window', **kw):
+        if window is None:
             res = self.url_open('/portal/order/submit', data=data, allow_redirects=False)
+        else:
+            side = window if isinstance(window, list) else None
+            kw = {'side_effect': side} if side else {'return_value': window}
+            with patch.object(self.Settings, '_is_within_order_window', **kw):
+                res = self.url_open('/portal/order/submit', data=data, allow_redirects=False)
         self.assertIn(res.status_code, (302, 303))
         loc = urlsplit(res.headers['Location'])
         return loc.path + (f'?{loc.query}' if loc.query else '')
@@ -276,6 +282,51 @@ class TestF6CartSubmit(HttpCase):
                          '/portal/order/rejected?reason=ORDER_TIME_CLOSED')
         self.assertEqual(self.qty_of(self.p_free), 3)
         self.assertFalse(self.portal_orders())
+
+    def at_local(self, hours, tz='Asia/Ho_Chi_Minh'):
+        local = datetime(2026, 9, 25, int(hours), int(hours % 1 * 60))
+        utc = pytz.timezone(tz).localize(local).astimezone(pytz.UTC)
+        return patch.object(self.Settings, '_utc_now', return_value=utc)
+
+    def window_states(self):
+        html = {url: self.url_open(url, timeout=30).text for url in ('/portal', '/portal/order', '/portal/order/cart')}
+        states = set()
+        for text in html.values():
+            for marker, state in (('warnbar--open', 'open'), ('warnbar--closed', 'closed'),
+                                  ('window-status is-open', 'open'), ('window-status is-closed', 'closed')):
+                if marker in text:
+                    states.add(state)
+        return states, html
+
+    def test_banner_and_submit_share_store_local_time(self):
+        area = self.env['res.area'].create({'code': 'F6-A', 'name': 'F6 area'})
+        self.env['wujia.order.window'].create({
+            'name': 'F6 ngày', 'area_ids': [(6, 0, area.ids)], 'order_time_from': 8.0, 'order_time_to': 17.0})
+        self.franchise.area_id = area
+        self.partner.tz = 'Asia/Tokyo'
+        self.user.tz = 'America/New_York'
+        self.put(self.p_free, 3)
+        # 18:30 Tokyo = 16:30 HCM: giờ tài khoản/máy chủ không được lọt vào.
+        with self.at_local(18.5, 'Asia/Tokyo'):
+            states, html = self.window_states()
+            self.assertEqual(states, {'closed'})
+            self.assertIn('Asia/Tokyo (UTC+09:00)', html['/portal/order/cart'])
+            self.assertEqual(self.submit(window=None), '/portal/order/cart?error=ORDER_TIME_CLOSED')
+        self.assertFalse(self.portal_orders())
+        with self.at_local(9.0, 'Asia/Tokyo'):
+            self.assertEqual(self.window_states()[0], {'open'})
+            self.assertTrue(self.submit(window=None).startswith('/portal/purchase-history/'))
+        self.assertEqual(len(self.portal_orders()), 1)
+
+    def test_submit_store_without_timezone(self):
+        self.partner.tz = False
+        self.put(self.p_free, 3)
+        with self.at_local(12.0):
+            cart_html = self.url_open('/portal/order/cart', timeout=30).text
+            self.assertIn('chưa cấu hình múi giờ', cart_html)
+            self.assertEqual(self.submit(window=None), '/portal/order/cart?error=STORE_TZ_NOT_CONFIGURED')
+        self.assertFalse(self.portal_orders())
+        self.assertEqual(self.qty_of(self.p_free), 3)
 
     def test_submit_window_closes_during_create(self):
         self.put(self.p_free, 3)

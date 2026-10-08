@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal Base',
-    'version': '19.0.7.37.1',
+    'version': '19.0.7.38.0',
     'category': 'Wujia',
     'summary': 'Portal layer for franchise stores — dashboard, franchise profile, store picker, real-time updates',
     'author': 'WujiaTea',

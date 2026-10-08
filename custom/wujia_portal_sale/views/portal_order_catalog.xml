@@ -231,10 +231,6 @@
 
                         <div t-if="error" class="alert alert-danger" role="alert"><t t-esc="error"/></div>
                         <div t-if="message" class="alert alert-success" role="status"><t t-esc="message"/></div>
-                        <div t-if="order_window_not_configured" class="alert alert-warning" role="alert">
-                            <t t-set="wj_txt">Ordering hours are not configured yet. Please contact {brand}.</t>
-                            <t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/>
-                        </div>
 
                         <div class="wj-pc-order-grid">
                             <!-- LEFT: catalog -->
@@ -299,13 +295,12 @@
                         <div t-if="error" class="alert alert-danger" role="alert"><t t-esc="error"/></div>
                         <div t-if="message" class="alert alert-success" role="status"><t t-esc="message"/></div>
 
-                        <!-- Order warning bar — WJ-ORD-006: màu + nội dung theo trạng thái
-                             thực (order_window_open server-side theo store tz); WJ-ORD-015:
-                             label ghi rõ khung qua đêm + UTC+7. -->
+                        <!-- Order warning bar — cùng kết quả với chặn submit (giờ địa phương cửa hàng). -->
                         <div t-if="order_window_enabled"
                              t-attf-class="wujia-morder-warnbar #{'wujia-morder-warnbar--open' if order_window_open else 'wujia-morder-warnbar--closed'}">
                             <i t-attf-class="feather #{'icon-check-circle' if order_window_open else 'icon-alert-circle'}"/>
                             <span t-if="order_window_open">Within ordering hours: <t t-out="order_window_label"/></span>
+                            <span t-elif="order_window_tz_missing"><t t-set="wj_txt">The store's timezone is not configured, so ordering is unavailable. Please contact {brand}.</t><t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/></span>
                             <span t-else="">Outside ordering hours — reopens at <t t-out="order_window_reopen"/>. Window: <t t-out="order_window_label"/></span>
                         </div>
 

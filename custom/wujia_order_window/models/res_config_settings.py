@@ -61,118 +61,91 @@ class ResConfigSettings(models.TransientModel):
         }
 
     @api.model
-    def _user_now_hours(self):
-        """Current time in user's timezone, expressed as float hours."""
-        tz = self.env.user.tz or 'UTC'
-        try:
-            tz_obj = pytz.timezone(tz)
-        except pytz.UnknownTimeZoneError:
-            tz_obj = pytz.UTC
-        now = datetime.now(tz_obj)
-        return now.hour + now.minute / 60.0 + now.second / 3600.0
+    def _utc_now(self):
+        return datetime.now(pytz.UTC)
 
     @api.model
-    def _is_within_order_window(self, area_id=None):
-        """Kiểm tra giờ hiện tại có nằm trong khung giờ đặt hàng không.
+    def _store_tz(self, franchise):
+        tz_name = franchise and franchise.sudo().partner_id.tz
+        return tz_name if tz_name in pytz.all_timezones_set else False
 
-        Thứ tự ưu tiên:
-            1. Nếu global enabled=False → always allowed.
-            2. Nếu `area_id` truyền vào và khu vực có ít nhất 1 `wujia.order.window`
-               active → cho phép khi BẤT KỲ window nào đang mở.
-            3. Fallback: dùng global from/to trong `ir.config_parameter`.
+    @api.model
+    def _is_within_order_window(self, franchise=None):
+        """Khung giờ của cửa hàng, tính theo giờ địa phương của chính cửa hàng.
 
-        Return:
-            (allowed: bool, window: dict) — window LUÔN có các key:
-            'from', 'to', 'enabled', 'configured', 'source' ∈ {'global',
-            'area:<id>'}, 'windows' (list dict {name, from, to} — đủ khung giờ
-            áp dụng); nhánh area có thêm 'window_count', 'window_name'.
+        Tắt global ⇒ luôn mở · cửa hàng thiếu tz ⇒ chặn (`tz_missing`) · window active có
+        area của cửa hàng ⇒ mở khi BẤT KỲ window nào mở · không window nào khớp ⇒ khung chung.
+        Dict luôn có 'from', 'to', 'enabled', 'configured', 'source', 'windows', 'open_window',
+        'tz', 'tz_label', 'now' (giờ thập phân), 'today'.
         """
         global_cfg = self._get_portal_order_window()
         if not global_cfg['enabled']:
-            return True, dict(global_cfg, source='global', windows=[])
+            return True, dict(global_cfg, source='global', windows=[], open_window=None,
+                              tz=False, tz_label='', now=0.0, today=fields.Date.today())
 
-        now = self._user_now_hours()
+        tz_name = self._store_tz(franchise)
+        if not tz_name:
+            return False, dict(global_cfg, source='global', windows=[], open_window=None,
+                               tz=False, tz_label='', now=0.0, today=fields.Date.today(),
+                               tz_missing=True)
+        local = self._utc_now().astimezone(pytz.timezone(tz_name))
+        now = local.hour + local.minute / 60.0 + local.second / 3600.0
+        offset = local.strftime('%z')
+        base = {
+            'enabled': True,
+            'configured': global_cfg['configured'],
+            'tz': tz_name,
+            'tz_label': '%s (UTC%s:%s)' % (tz_name, offset[:3], offset[3:]),
+            'now': now,
+            'today': local.date(),
+        }
 
-        # 2. Per-area windows
-        if area_id:
-            Window = self.env['wujia.order.window'].sudo()
-            windows = Window.search([
-                ('area_id', '=', area_id),
-                ('active', '=', True),
-            ])
-            if windows:
-                allowed = any(w.is_now_open(now) for w in windows)
-                # Hiển thị window gần nhất (sequence nhỏ nhất) cho UI banner.
-                first = windows[0]
-                return allowed, {
-                    'from': first.order_time_from,
-                    'to': first.order_time_to,
-                    'enabled': True,
-                    'configured': True,
-                    'source': 'area:%s' % area_id,
-                    'window_count': len(windows),
-                    'window_name': first.name,
-                    # Đủ danh sách khung giờ cho banner (BA row 2 — area có thể nhiều khung).
-                    'windows': [
-                        {'name': w.name, 'from': w.order_time_from, 'to': w.order_time_to}
-                        for w in windows
-                    ],
-                }
+        area = franchise.sudo().area_id
+        windows = self.env['wujia.order.window'].sudo().search(
+            [('area_ids', 'in', area.ids)]) if area else []
+        if windows:
+            opened = windows.filtered(lambda w: w.is_now_open(now))[:1]
+            first = opened or windows[0]
+            return bool(opened), dict(
+                base,
+                configured=True,
+                source='area:%s' % area.id,
+                window_count=len(windows),
+                window_name=first.name,
+                **{'from': first.order_time_from, 'to': first.order_time_to},
+                windows=[
+                    {'name': w.name, 'from': w.order_time_from, 'to': w.order_time_to}
+                    for w in windows
+                ],
+                open_window=opened and {'name': opened.name, 'from': opened.order_time_from,
+                                        'to': opened.order_time_to},
+            )
 
-        # 3. Fallback global
         f, t = global_cfg['from'], global_cfg['to']
-        if f <= t:
-            allowed = (now >= f) and (now <= t)
-        else:
-            allowed = (now >= f) or (now <= t)
-        return allowed, dict(
-            global_cfg, source='global',
-            windows=[{'name': '', 'from': f, 'to': t}],
-        )
+        allowed = (f <= now <= t) if f <= t else (now >= f or now <= t)
+        win = {'name': '', 'from': f, 'to': t}
+        return allowed, dict(base, source='global', windows=[win],
+                             open_window=win if allowed else None, **{'from': f, 'to': t})
 
     @api.model
-    def _user_now_dt(self):
-        """Current datetime in user's timezone (naive, tz-local wall clock)."""
-        tz = self.env.user.tz or 'UTC'
-        try:
-            tz_obj = pytz.timezone(tz)
-        except pytz.UnknownTimeZoneError:
-            tz_obj = pytz.UTC
-        return datetime.now(tz_obj).replace(tzinfo=None)
+    def _next_order_window(self, franchise=None):
+        """Lần mở gần nhất (giờ + ngày địa phương cửa hàng) cho màn "ngoài khung giờ".
 
-    @api.model
-    def _next_order_window(self, area_id=None):
-        """Khung giờ đặt hàng SẮP TỚI (read-only, không đổi rule hiện có).
-
-        Dùng cho màn "ngoài khung giờ" trên portal: cần nói rõ mở lại lúc nào
-        và NGÀY nào. Lấy danh sách khung áp dụng từ `_is_within_order_window`
-        (đã xử lý ưu tiên area → global fallback) rồi chọn lần mở gần nhất:
-        `now < from` → mở hôm nay, ngược lại → mở ngày mai.
-
-        Return:
-            dict {'from': float, 'to': float, 'name': str, 'date': date,
-            'is_today': bool} — hoặc None khi tắt giới hạn khung giờ / không
-            có khung nào áp dụng.
+        Return dict {'from', 'to', 'name', 'date', 'is_today'} — hoặc None khi tắt giới hạn,
+        cửa hàng thiếu tz hoặc không có khung nào.
         """
-        _allowed, window = self._is_within_order_window(area_id=area_id)
-        if not window.get('enabled'):
-            return None
+        _allowed, window = self._is_within_order_window(franchise=franchise)
         windows = window.get('windows') or []
-        if not windows:
+        if not window.get('enabled') or not windows:
             return None
-
-        now = self._user_now_hours()
-        today = self._user_now_dt().date()
-        # (day_offset, from) nhỏ nhất = lần mở gần nhất kể từ bây giờ.
-        best = min(
-            windows,
-            key=lambda w: (0 if now < (w['from'] or 0.0) else 1, w['from'] or 0.0),
-        )
+        now = window['now']
+        best = min(windows, key=lambda w: (0 if now < (w['from'] or 0.0) else 1, w['from'] or 0.0))
         day_offset = 0 if now < (best['from'] or 0.0) else 1
         return {
             'from': best['from'] or 0.0,
             'to': best['to'] or 0.0,
             'name': best.get('name') or '',
-            'date': today + timedelta(days=day_offset),
+            'date': window['today'] + timedelta(days=day_offset),
             'is_today': day_offset == 0,
         }
+

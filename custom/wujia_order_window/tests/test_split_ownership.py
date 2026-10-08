@@ -34,9 +34,9 @@ class TestSplitOwnership(TransactionCase):
         everything = [r[0] for r in cr.fetchall()]
         cr.execute("SELECT name FROM ir_model_data WHERE module = %s AND model = 'ir.ui.menu'", (NEW_MODULE,))
         menus = [r[0] for r in cr.fetchall()]
-        by_model = imd_names(cr, NEW_MODULE, ['wujia.order.window', 'res.config.settings', 'sale.order'])
+        by_model = imd_names(cr, NEW_MODULE, ['wujia.order.window', 'res.config.settings', 'sale.order', 'wujia.franchise.management'])
         self.assertEqual(sorted(set(everything) - set(by_model)), sorted(menus), 'chỉ menu là phải liệt kê tay')
-        self.assertEqual(imd_names(cr, NEW_MODULE, ['wujia.order.window', 'res.config.settings', 'sale.order'],
+        self.assertEqual(imd_names(cr, NEW_MODULE, ['wujia.order.window', 'res.config.settings', 'sale.order', 'wujia.franchise.management'],
                                    extra=menus), everything)
         self.assertEqual(imd_names(cr, NEW_MODULE, ['sale.order']),
                          ['field_sale_order__display_name', 'field_sale_order__id', 'model_sale_order'])

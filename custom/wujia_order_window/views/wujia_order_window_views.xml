@@ -8,8 +8,8 @@
         <field name="arch" type="xml">
             <list string="Ordering time windows" multi_edit="1">
                 <field name="sequence" widget="handle"/>
-                <field name="area_id"/>
                 <field name="name"/>
+                <field name="area_ids" widget="many2many_tags"/>
                 <field name="order_time_from" widget="float_time"/>
                 <field name="order_time_to" widget="float_time"/>
                 <field name="is_overnight"/>
@@ -32,7 +32,7 @@
                     <group>
                         <group>
                             <field name="name"/>
-                            <field name="area_id"/>
+                            <field name="area_ids" widget="many2many_tags" options="{'no_create_edit': True}"/>
                             <field name="sequence"/>
                             <field name="active"/>
                         </group>
@@ -58,12 +58,9 @@
         <field name="arch" type="xml">
             <search string="Ordering time windows">
                 <field name="name"/>
-                <field name="area_id"/>
+                <field name="area_ids"/>
                 <filter name="active" string="In use" domain="[('active','=',True)]"/>
                 <filter name="overnight" string="Overnight" domain="[('is_overnight','=',True)]"/>
-                <group>
-                    <filter name="group_area" string="Area" context="{'group_by': 'area_id'}"/>
-                </group>
             </search>
         </field>
     </record>
@@ -74,12 +71,23 @@
         <field name="res_model">wujia.order.window</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_wujia_order_window_search"/>
-        <field name="context">{'search_default_active': 1, 'search_default_group_area': 1}</field>
+        <field name="context">{'search_default_active': 1}</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Create an ordering time window for an area</p>
+            <p class="o_view_nocontent_smiling_face">Create an ordering time window</p>
             <p>
-                An area can define several windows (e.g. Morning + Evening). The portal allows ordering while at least one window of the area is open. An area without any window falls back to the default configuration in Settings.
+                One window can apply to several areas, and an area can have several windows (e.g. Morning + Evening). Hours are checked in each store's own timezone; ordering is allowed while at least one matching window is open. An area without any window falls back to the default configuration in Settings.
             </p>
+        </field>
+    </record>
+
+    <record id="view_franchise_management_form_order_tz" model="ir.ui.view">
+        <field name="name">wujia.franchise.management.form.order.tz</field>
+        <field name="model">wujia.franchise.management</field>
+        <field name="inherit_id" ref="wujia_franchise.view_franchise_management_form"/>
+        <field name="arch" type="xml">
+            <field name="area_id" position="after">
+                <field name="tz"/>
+            </field>
         </field>
     </record>
 

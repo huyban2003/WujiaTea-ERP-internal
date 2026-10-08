@@ -63,6 +63,7 @@ ERROR_MESSAGES = {
     'MEMBERSHIP_INACTIVE': _lt("Your account is no longer active at this store."),
     'ORDER_TIME_NOT_CONFIGURED': _lt("Ordering hours are not configured yet. Please contact {brand}."),
     'ORDER_TIME_CLOSED': _lt("Outside ordering hours. Please submit your order during the allowed time."),
+    'STORE_TZ_NOT_CONFIGURED': _lt("The store's timezone is not configured, so ordering is unavailable. Please contact {brand}."),
     'PRODUCT_NOT_AVAILABLE': _lt("This product can no longer be ordered."),
     'MIN_QTY_NOT_CONFIGURED': _lt("The minimum order quantity of this product is not configured. Please contact {brand}."),
     'QTY_BELOW_MIN': _lt("The quantity is below the product's minimum."),
@@ -141,25 +142,16 @@ def _float_to_hhmm(value):
     return f'{h:02d}:{m:02d}'
 
 
-# Cửa hàng Ngô Gia đặt theo giờ Việt Nam (không DST) — nhãn timezone tường minh
-# cho banner khung giờ (WJ-ORD-015: người dùng cần biết 04:00 là ngày nào + TZ).
-ORDER_TZ_LABEL = 'UTC+7'
-
-
-def _window_phrase(from_f, to_f):
-    """1 khung giờ (float 0–24) → chuỗi người đọc, kèm timezone.
-
-    WJ-ORD-015: khung QUA ĐÊM (from >= to, ví dụ HN-01 10:00→04:00) phải ghi rõ
-    '10:00 hôm nay – 04:00 ngày mai (UTC+7)' để không hiểu nhầm 04:00 cùng ngày.
-    Khung trong ngày: '10:00 – 15:00 (UTC+7)'."""
+def _window_phrase(from_f, to_f, tz_label):
+    """1 khung giờ → chuỗi người đọc kèm múi giờ cửa hàng; khung qua đêm ghi rõ "ngày mai" (WJ-ORD-015)."""
     f, t = _float_to_hhmm(from_f), _float_to_hhmm(to_f)
     try:
         overnight = float(from_f or 0.0) >= float(to_f or 0.0)
     except (TypeError, ValueError):
         overnight = False
     if overnight:
-        return request.env._('%(start)s today – %(end)s tomorrow (%(tz)s)', start=f, end=t, tz=ORDER_TZ_LABEL)
-    return f'{f} – {t} ({ORDER_TZ_LABEL})'
+        return request.env._('%(start)s today – %(end)s tomorrow (%(tz)s)', start=f, end=t, tz=tz_label)
+    return f'{f} – {t} ({tz_label})'
 
 
 class WujiaPortalSale(http.Controller):
@@ -395,18 +387,12 @@ class WujiaPortalSale(http.Controller):
         return self._cart_fragments(fid, franchise, cart)
 
     def _order_window_context(self, franchise):
-        """Context khung giờ cho catalog + cart view (BA row 2: list windows + nguồn)."""
-        area_id = franchise.area_id.id if franchise and franchise.area_id else False
-        allowed, window = request.env['res.config.settings'].sudo()._is_within_order_window(area_id=area_id)
-        raw_windows = window.get('windows', []) or []
-        # WJ-ORD-015: label giàu thông tin (qua đêm + timezone). Fallback về
-        # from/to tổng khi helper chưa trả list windows chi tiết.
-        if raw_windows:
-            phrases = [_window_phrase(w['from'], w['to']) for w in raw_windows]
-            reopen = _float_to_hhmm(raw_windows[0]['from'])
-        else:
-            phrases = [_window_phrase(window['from'], window['to'])]
-            reopen = _float_to_hhmm(window['from'])
+        """Context khung giờ cho catalog + giỏ (PC + mobile) — cùng kết quả với chặn submit."""
+        Settings = request.env['res.config.settings'].sudo()
+        allowed, window = Settings._is_within_order_window(franchise=franchise or None)
+        raw_windows = window.get('windows') or [{'name': '', 'from': window['from'], 'to': window['to']}]
+        tz_label = window.get('tz_label') or ''
+        nxt = Settings._next_order_window(franchise=franchise or None) if not allowed else None
         return {
             'order_time_from': _float_to_hhmm(window['from']),
             'order_time_to': _float_to_hhmm(window['to']),
@@ -415,14 +401,12 @@ class WujiaPortalSale(http.Controller):
             'order_window_source': window.get('source', 'global'),
             'order_windows': [
                 {'name': w.get('name') or '', 'from': _float_to_hhmm(w['from']), 'to': _float_to_hhmm(w['to'])}
-                for w in raw_windows
+                for w in window.get('windows') or []
             ],
-            # WJ-ORD-006/015: chuỗi hiển thị chuẩn (dùng chung catalog/cart, PC+mobile)
-            # + giờ mở lại cho banner ngoài giờ. order_window_open đã có sẵn (server
-            # tính theo store tz) → template đổi màu/CTA theo trạng thái thực.
-            'order_window_label': ', '.join(phrases),
-            'order_window_reopen': reopen,
-            'order_window_not_configured': window['enabled'] and not window.get('configured', True),
+            'order_window_label': ', '.join(_window_phrase(w['from'], w['to'], tz_label) for w in raw_windows),
+            'order_window_reopen': _float_to_hhmm(nxt['from'] if nxt else raw_windows[0]['from']),
+            'order_window_tz_label': tz_label,
+            'order_window_tz_missing': bool(window.get('tz_missing')),
         }
 
     @staticmethod
@@ -879,8 +863,7 @@ class WujiaPortalSale(http.Controller):
         if gate_error:
             return request.redirect(f'/portal/order?error={gate_error}')
         franchise = self._get_franchise(fid)
-        area_id = franchise.area_id.id if franchise and franchise.area_id else False
-        nxt = request.env['res.config.settings'].sudo()._next_order_window(area_id=area_id)
+        nxt = request.env['res.config.settings'].sudo()._next_order_window(franchise=franchise or None)
         return request.render('wujia_portal_sale.portal_order_rejected', {
             'active_franchise_id': fid,
             'next_window_label': (

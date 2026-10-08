@@ -188,9 +188,7 @@ class WujiaPortal(CustomerPortal):
             # dùng chung hero mobile + hàng đầu PC (G3a) — một nguồn cho hai kênh
             'active_franchise': active_franchise,
             'active_role': active_role,
-            'order_window': self._order_window_view(
-                active_franchise.area_id.id if active_franchise else None
-            ),
+            'order_window': self._order_window_view(active_franchise),
             # Format tiền dùng chung — ký hiệu theo currency của đơn, không hardcode.
             'money': portal_money,
             'company_currency_symbol': request.env.company.currency_id.symbol or '',
@@ -204,46 +202,41 @@ class WujiaPortal(CustomerPortal):
         })
         return request.render('wujia_portal_base.portal_home_page', values)
 
-    def _order_window_view(self, area_id=None):
-        """Trạng thái khung giờ đặt hàng cho hero mobile home.
+    def _order_window_view(self, franchise=None):
+        """Trạng thái khung giờ cho Home — cùng một kết quả với chặn submit (giờ địa phương cửa hàng).
 
-        1 call `_is_within_order_window` (đọc config param / window set nhỏ) —
-        scalar, KHÔNG ORM trong loop → OK cho 1500 user.
-
-        Return dict `{state, from_hhmm, to_hhmm, remaining_hhmm, progress_pct}`:
-          - state='always' : khung giờ tắt global → "Đặt hàng 24/7".
-          - state='open'   : trong giờ → xanh "Đang mở" + còn HH:MM + progress.
-          - state='closed' : ngoài giờ → đỏ "Đã đóng" + mở lại lúc from_hhmm.
+        state: 'always' (tắt giới hạn) · 'open' (+ to_hhmm, remaining_hhmm, progress_pct) ·
+        'closed' (+ from_hhmm) · 'tz_missing' (cửa hàng chưa có múi giờ ⇒ không đặt được).
         """
         Settings = request.env['res.config.settings'].sudo()
-        # ADR-027: L3a cấm thêm depend `wujia_order_window`. Module tắt ⇒ coi
-        # như không đặt khung giờ, đừng để Home 500.
-        if not (hasattr(Settings, '_is_within_order_window')
-                and hasattr(Settings, '_user_now_hours')):
+        # ADR-027: L3a cấm thêm depend `wujia_order_window`. Module tắt ⇒ coi như không đặt khung giờ.
+        if not (hasattr(Settings, '_is_within_order_window') and hasattr(Settings, '_next_order_window')):
             return {'state': 'always'}
-        allowed, window = Settings._is_within_order_window(area_id=area_id)
+        allowed, window = Settings._is_within_order_window(franchise=franchise or None)
+        if window.get('tz_missing'):
+            return {'state': 'tz_missing'}
         if not window.get('enabled', True):
             return {'state': 'always'}
 
-        f = float(window.get('from') or 0.0) % 24.0
-        t = float(window.get('to') or 0.0) % 24.0
-        now = Settings._user_now_hours()
-        span = (t - f) % 24.0 or 24.0  # độ dài khung (xử lý qua nửa đêm)
-
-        if allowed:
-            elapsed = (now - f) % 24.0
-            remaining = max(0.0, span - elapsed)
-            progress = max(0, min(100, round(elapsed / span * 100))) if span else 0
+        tz_label = window.get('tz_label') or ''
+        opened = window.get('open_window')
+        if allowed and opened:
+            f = float(opened['from'] or 0.0) % 24.0
+            t = float(opened['to'] or 0.0) % 24.0
+            span = (t - f) % 24.0 or 24.0  # độ dài khung (xử lý qua nửa đêm)
+            elapsed = (window['now'] - f) % 24.0
             return {
                 'state': 'open',
                 'to_hhmm': _float_to_hhmm(t),
-                'remaining_hhmm': _float_to_hhmm(remaining),
-                'progress_pct': progress,
+                'remaining_hhmm': _float_to_hhmm(max(0.0, span - elapsed)),
+                'progress_pct': max(0, min(100, round(elapsed / span * 100))),
+                'tz_label': tz_label,
             }
+        nxt = Settings._next_order_window(franchise=franchise or None) or {}
         return {
             'state': 'closed',
-            'from_hhmm': _float_to_hhmm(f),
-            'to_hhmm': _float_to_hhmm(t),
+            'from_hhmm': _float_to_hhmm(nxt.get('from', window.get('from') or 0.0)),
+            'tz_label': tz_label,
         }
 
     def _dashboard_values(self, franchise_ids):

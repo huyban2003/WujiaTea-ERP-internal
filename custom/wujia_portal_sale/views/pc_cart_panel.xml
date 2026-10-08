@@ -20,11 +20,12 @@
             </t>
 
             <!-- Warning bar khung giờ — WJ-ORD-006: màu + nội dung theo order_window_open
-                 (server tính theo store tz); WJ-ORD-015: label khung qua đêm + UTC+7. -->
+                 (server tính theo store tz); WJ-ORD-015: label khung qua đêm + múi giờ cửa hàng. -->
             <div t-if="order_window_enabled"
                  t-attf-class="wj-pc-cart-warnbar #{'wj-pc-cart-warnbar--open' if order_window_open else 'wj-pc-cart-warnbar--closed'}">
                 <i t-attf-class="feather #{'icon-check-circle' if order_window_open else 'icon-alert-circle'}"/>
                 <span t-if="order_window_open">Within ordering hours: <t t-out="order_window_label"/></span>
+                <span t-elif="order_window_tz_missing"><t t-set="wj_txt">The store's timezone is not configured, so ordering is unavailable. Please contact {brand}.</t><t t-out="wj_txt.replace('{brand}', wj_brand['name'])"/></span>
                 <span t-else="">Outside hours — reopens at <t t-out="order_window_reopen"/>. Window: <t t-out="order_window_label"/></span>
             </div>
 
@@ -134,7 +135,7 @@
                             t-att-disabled="'disabled' if (order_window_enabled and not order_window_open) else None">
                         <i class="feather icon-shopping-cart"/> Submit order
                     </button>
-                    <p t-if="order_window_enabled and not order_window_open" class="wj-pc-cart-submit-hint">
+                    <p t-if="order_window_enabled and not order_window_open and not order_window_tz_missing" class="wj-pc-cart-submit-hint">
                         Outside hours — you can still edit the cart, submit again at <t t-out="order_window_reopen"/>.
                     </p>
                 </form>
