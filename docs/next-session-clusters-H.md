@@ -107,8 +107,8 @@ luôn chen trước H (Step 2b `/wujia-start`).
 | I1 | #155 WJ-ORD-031 danh mục Portal bắt buộc khi công khai | wujia_sale, portal_sale | Thấp | ✅ 08/10 `0b5834d2` (chờ deploy) |
 | I2 | #156 WJ-RETURN-001 hạn đổi trả tính từ giao hoàn tất + bỏ Lưu nháp | wujia_return (L2), portal_return | TB | ✅ 08/10 `8da0a983` (chờ deploy) |
 | I3 | #154 WJ-ORD-030 khung giờ nhiều khu vực (M2M + migration) + múi giờ cửa hàng | order_window, portal_sale, portal_base | Cao (schema) | ✅ 08/10 `2984550a` (chờ deploy) |
-| I4a | #152 helper scope một nguồn + Home · Giao hàng · Báo cáo (+ export) | base, delivery, report | Cao | ☐ |
-| I4b | #152 Đổi trả · Yêu cầu cập nhật · Hỗ trợ · Thông báo · Công nợ + bàn giao màn Khảo sát **+ #157 WJ-EXAM-001** | return, info_request, support, notification, debt, portal_exam | Cao | ☐ |
+| I4a | #152 helper scope một nguồn + Home · Giao hàng · Báo cáo (+ export) | base, delivery, report | Cao | ✅ 08/10 `58fcc113` |
+| I4b | #152 Đổi trả · Yêu cầu cập nhật · Hỗ trợ · Thông báo · Công nợ + bàn giao màn Khảo sát **+ #157 WJ-EXAM-001** | return, info_request, support, notification, debt, portal_exam | Cao | ✅ 08/10 `907035bf` (ledger #152 + #157) |
 | I5 | #153 role theo cửa hàng đang chọn, chặn backend + ẩn menu/nút | base, report, debt, info_request, layout (nav) | Cao | ☐ |
 | I6 | #159 WJ-NOTI-001 phạm vi đã đọc + một luật số chưa đọc (migration dấu đọc) | wujia_notification (L2), portal_notification, portal_base | Cao | ☐ |
 | I7 | #62 WJ-PH-003 Lịch sử gồm đơn Đã hủy (Dev nhận 07/10) + #163 WJ-PH-009 ghi chú đặt hàng PC | portal_purchase_history, portal_base | Thấp | ☐ |

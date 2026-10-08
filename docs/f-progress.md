@@ -2923,3 +2923,58 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ: chủ dự án deploy `-u wujia_order_window,wujia_portal_sale,wujia_portal_base` + test browser ⇒ sửa `build_override` →
   `qa_sync --only WJ-ORD-030 --apply` → verify CSV. BA rà múi giờ từng cửa hàng. Xoá DB `wujia_i1`, `wujia_i2`, `wujia_i3` + filestore khi xong.
 - Phiên kế: **I4a #152 WJ-PORTAL-SCOPE-001** (fork helper dùng chung với Khảo sát); phân cụm #142/#169/#170/#171.
+
+## I4a #152 WJ-PORTAL-SCOPE-001 — helper scope một nguồn + Home · Giao hàng · Báo cáo · 08/10/2026 · Mac
+- Kết quả: ✅ code + test + đo; commit `58fcc113` (đã push, đầu phiên I4b); sheet/ledger ghi chung với I4b.
+- Đầu phiên: `git pull` up to date. `issue_queue --dev` = 22 (cụm I + chưa phân cụm #142, #169, #170, #171). Reconcile WJ-PORTAL-SCOPE-001:
+  chỉ commit docs, `custom/` 0, ledger 0.
+- Chủ dự án chốt: (a) **helper mới**, helper cũ giữ nguyên cho nhóm Khảo sát + bàn giao; chưa chọn ⇒ **khối nhắc chọn** (không hiện số 0).
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.39.0: `get_current_store_ids()` · `get_store_scope_state()` · `get_active_franchise_id()` xoá cookie cửa hàng không còn
+    quyền · `get_active_franchise_ids_filter()` DEPRECATED · Home dùng helper mới, `must_pick` theo lựa chọn đã validate (cookie chết từng che modal) ·
+    template một nguồn `wj_store_scope_prompt` (`views/store_scope_prompt.xml`) thay 2 alert Home PC/mobile.
+  - `wujia_portal_delivery` 19.0.4.1.0: list/results/detail/ics dùng helper mới; 2 khối "chưa có cửa hàng" PC/mobile → prompt chung.
+  - `wujia_portal_report` 19.0.3.1.0: orders/export dùng helper mới; chưa chọn ⇒ trang + prompt (không lọc/KPI/biểu đồ), export ⇒ về trang báo cáo;
+    không cửa hàng nào ⇒ về Home như cũ; role check giữ nguyên (I5).
+  - i18n: `.pot` base + delivery sinh lại; vi_VN 4 câu prompt; xoá 2 câu chết ở delivery.
+  - Test: `test_i4a_store_scope.py` (base, 7) · `test_i4a_delivery_scope.py` (5) · `test_i4a_report_scope.py` (6) — tag `wujia_scope_i4a`.
+  - Docs: `docs/i4-scope-callers.md` (bảng route → helper → hành vi, dùng cho I4b) · `docs/handover-inspection-scope.md`.
+- Kiểm: DB `wujia_i4` (copy `wujia_i3`) `-u` 3 module `--test-tags` **379/379** · hồi quy purchase_history/debt/exam/return/sale/notification **332/332** ·
+  mutation **5/5** đỏ (helper trả mọi cửa hàng · bỏ xoá cookie · scope luôn ok · export không chặn · chi tiết chuyến không lọc) ·
+  Playwright admin 3 cửa hàng × 6 route × 1920/391 (`i4a_measure.py`, `i4a_prompt_shot.py`): chưa chọn ⇒ prompt + modal ở Home/Giao hàng/Báo cáo,
+  nút mở lại modal; HN-01 vs HN-02 mã đơn không giao nhau, KPI Đơn hàng 4/0 khớp SQL; 0 tràn, 0 JS · `check_layers` 0 mới (2 R7 cũ của `wujia_franchise`).
+- Đối chiếu "Kết quả mong muốn" phần I4a: Home/Giao hàng/Báo cáo chưa chọn · chọn A · đổi B · sửa ID · export · tự chọn 1 cửa hàng · xoá lựa chọn cũ ·
+  regression — Pass. Còn: Đổi trả · YC cập nhật (I4b) · Khảo sát (bàn giao) · ID tệp đính kèm (`utils.py:399`, I4b).
+- Ghi nhận ngoài phạm vi: chuông top bar vẫn đếm 42 khi chưa chọn cửa hàng (I4b Thông báo / I6).
+- Nợ: commit (chờ chủ dự án) · deploy `-u wujia_portal_base,wujia_portal_delivery,wujia_portal_report` · xoá DB `wujia_i1`…`wujia_i4` + filestore khi xong.
+- Phiên kế: **I4b #152 + #157 WJ-EXAM-001** (`next-session-clusters-H.md` §3 Prompt I4b) — dùng `get_current_store_ids()` + `wj_store_scope_prompt`.
+
+## I4b #152 WJ-PORTAL-SCOPE-001 (màn còn lại) + #157 WJ-EXAM-001 · 08/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `907035bf` (đã push); sheet chưa ghi (`--apply` sau deploy).
+- Chủ dự án chốt: Hỗ trợ = **người tạo + cửa hàng đang chọn** · Thông báo chưa chọn = **chỉ toàn hệ + khối nhắc chọn** · commit I4a riêng trước (`58fcc113`).
+- Đã làm:
+  - `wujia_portal_return` 19.0.5.2.0: 5 chỗ → `get_current_store_ids()`; list chưa chọn ⇒ prompt chung (PC + mobile), bỏ notice `no_store`.
+  - `wujia_portal_info_request` 19.0.3.1.0: list/new/detail/cancel/AJAX values theo cửa hàng đang chọn; **route tệp mới**
+    `/portal/info-request/<id>/attachment/<att>` thay `/web/content` (ir.rule cho mọi cửa hàng của user).
+  - `wujia_support` 19.0.1.2.0 `_portal_scope_domain(user, franchise_ids)` + `wujia_portal_support` 19.0.5.1.0 (list/new/detail/reply/tệp).
+  - `wujia_portal_notification` 19.0.4.1.0: 8 chỗ → helper mới; `_portal_history_domain(())` sẵn chỉ toàn hệ ⇒ không đổi L2; prompt trên list.
+  - `wujia_portal_base` 19.0.7.40.0: `utils.check_attachment_access` (0 lời gọi) theo cửa hàng đang chọn; test badge 11→13 call site exam.
+  - #157: `wujia_exam` 19.0.1.2.0 `PORTAL_STATE_LABELS` + `_portal_has_result()`; `wujia_portal_exam` 19.0.7.2.0 một map `REG_STATES`
+    (bỏ `M_REG_BADGE`/`PC_REG_STATES`), chip "Có kết quả" riêng (list + detail mobile), chưa chọn ⇒ prompt.
+  - i18n: `.pot` exam/portal_exam/info_request/return sinh lại; vi "Chờ xác nhận"/"Đã đăng ký"; xoá 8 câu chết.
+  - Test tag `wujia_scope_i4b`: return 6 · info_request 6 · support · notification · exam 4; sửa `test_support`, `test_jv3_i18n`, `test_scan_e2b_status_badge`.
+  - Docs: `i4-scope-callers.md` (I4b ✅, sau I4b chỉ Khảo sát còn helper cũ) · `handover-inspection-scope.md`.
+  - Dev tool: `qa_sync.py` nhận `stt:` trong entry ledger (BA dùng lại ID — `WJ-EXAM-001` #157, sắp tới `WJ-NOTI-001` #159).
+- Kiểm: DB `wujia_i4b` `-u` 8 module `--test-tags` 563 (4 đỏ do test, đã sửa) → lượt 2 exam/info_request/base + hồi quy purchase_history ·
+  debt · delivery · report · sale · knowledge **652/652**, RC=0 · mutation **6/6** đỏ (return gộp · support bỏ lọc store · notification gộp ·
+  exam đè trạng thái · AJAX values theo accessible · tệp YC theo accessible) · Playwright admin 3 cửa hàng × 9 route × 1920/391
+  (`i4b_measure.py`): chưa chọn ⇒ prompt 7 màn + nút mở modal, chuông 13 (toàn hệ) vs 42; HN-01/HCM-01 mã không giao nhau, khớp SQL;
+  0 tràn, 0 JS · `check_layers` 0 mới (2 R7 cũ `wujia_franchise`) · `vn_hardcode_scan` 0.
+- Đối chiếu "Kết quả mong muốn": #152 7 gạch — 6 Pass + gạch 1 Pass 5/6 màn (Khảo sát = LIMIT bàn giao) ⇒ ≥90%. #157 5/5 Pass.
+- Bài học: BA dùng lại ID ⇒ `qa_sync` khớp dòng đầu (Done) — dùng `stt:`. Form có modal chọn cửa hàng liệt kê mọi cửa hàng ⇒ test phạm vi
+  phải soi đúng khối `<select>`, không cả trang. `ExamCommon` dựng sẵn 1 phiếu chờ ở kỳ `full`.
+- Nợ: deploy `-u wujia_portal_base,wujia_portal_delivery,wujia_portal_report,
+  wujia_support,wujia_exam,wujia_portal_return,wujia_portal_info_request,wujia_portal_support,wujia_portal_notification,wujia_portal_exam` →
+  `qa_sync --only WJ-PORTAL-SCOPE-001 --apply` + `--only WJ-EXAM-001 --apply` · báo BA: Hỗ trợ/Thông báo nay theo cửa hàng · Khảo sát bàn giao ·
+  issue chưa phân cụm #142, #169–#174 · xoá DB `wujia_i1`…`wujia_i4b` + filestore khi xong.
+- Phiên kế: **I5 #153 WJ-PORTAL-ROLE-001** (role theo cửa hàng đang chọn; có Báo cáo + menu YC cập nhật).

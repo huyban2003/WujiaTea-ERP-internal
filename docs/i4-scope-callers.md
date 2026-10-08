@@ -22,16 +22,19 @@ Khối hiển thị khi chưa có cửa hàng (một nguồn): `wujia_portal_bas
 | `wujia_portal_base` | `/portal` (Home, KPI + 7 block) | `_filter` | cộng mọi cửa hàng | **I4a ✅** |
 | `wujia_portal_delivery` | `/portal/delivery`, `/results`, `/<id>`, `/<id>.ics` | `_filter` (3) | cộng; mở được chuyến của cửa hàng khác | **I4a ✅** |
 | `wujia_portal_report` | `/portal/reports/orders`, `/export.xlsx` | `_filter` (2) | cộng | **I4a ✅** |
-| `wujia_portal_return` | list, detail, create, cancel, đính kèm (`portal.py:80,134,160,179,333`) | `_filter` (5) | cộng | I4b |
-| `wujia_portal_info_request` | list, create, detail, cancel, values (`portal.py:81,121,161,176,208` + `accessible` `:197`) | `_filter` (5) + accessible | cộng | I4b |
-| `wujia_portal_support` | list, create (`portal.py:114,142`) | `_filter` (2) | cộng | I4b |
-| `wujia_portal_notification` | list, detail, đọc, đếm chưa đọc (`portal.py:137–345`) | `_filter` (8) | cộng | I4b (+ I6 luật đã đọc) |
-| `wujia_portal_base` | `utils.py:399` kiểm tệp đính kèm theo `accessible` | accessible | mọi cửa hàng | I4b |
+| `wujia_portal_return` | list, detail, create, đính kèm, form | `_filter` (5) | cộng | **I4b ✅** |
+| `wujia_portal_info_request` | list, create, detail, cancel, AJAX values, **tệp đính kèm (route mới thay `/web/content`)** | `_filter` (5) + accessible | cộng; tệp mở được qua `/web/content` theo mọi cửa hàng | **I4b ✅** |
+| `wujia_portal_support` + `wujia_support._portal_scope_domain` | list, create, detail, reply, tệp | `_filter` (2) | theo người tạo, mọi cửa hàng ⇒ nay **người tạo + cửa hàng đang chọn** | **I4b ✅** |
+| `wujia_portal_notification` | list, detail, đọc, đếm chưa đọc, chuông | `_filter` (8) | cộng | **I4b ✅** — chưa chọn ⇒ chỉ thông báo toàn hệ + khối nhắc chọn (luật đã đọc: I6) |
+| `wujia_portal_base` | `utils.check_attachment_access` (0 lời gọi) | accessible | mọi cửa hàng | **I4b ✅** (cửa hàng đang chọn) |
 | `wujia_portal_inspection` (nhóm Khảo sát) | `portal.py:51,207,355` | `_filter` (3) | cộng (rỗng ⇒ fail-closed, không nhắc chọn) | bàn giao — `docs/handover-inspection-scope.md` |
-| `wujia_portal_purchase_history` · `_debt` · `_exam` · `_sale` · franchise-information | — | `get_active_franchise_id` | đã theo 1 cửa hàng | regression (xanh I4a) |
+| `wujia_portal_exam` | list | `get_active_franchise_id` | chưa chọn ⇒ "Chưa có đăng ký thi" | **I4b ✅** khối nhắc chọn (#157) |
+| `wujia_portal_purchase_history` · `_debt` · `_sale` · franchise-information | — | `get_active_franchise_id` | đã theo 1 cửa hàng | regression (xanh I4a, I4b) |
 
-## Còn ngoài I4a (ghi lại để không mở lại)
+## Còn ngoài I4 (ghi lại để không mở lại)
 
 - Báo cáo vẫn kiểm role **cao nhất trên mọi cửa hàng** để vào trang — đổi theo role tại cửa hàng đang chọn là I5 (#153).
-- Chuông thông báo ở top bar vẫn đếm khi chưa chọn cửa hàng (đo 08/10: 42) — thuộc màn Thông báo (I4b) + luật đã đọc (I6).
+- Chuông thông báo khi chưa chọn cửa hàng: I4b đã về **chỉ thông báo toàn hệ**; luật đã đọc theo cửa hàng là I6.
 - Navbar (`store_picker_navbar.xml`) tự tính lại cửa hàng đang chọn bằng QWeb — cùng kết quả với helper, chưa gộp.
+- Sau I4b chỉ còn Khảo sát gọi `get_active_franchise_ids_filter()`. `_get_accessible_franchise_ids()` còn ở ir.rule, ảnh đại diện
+  (`portal_layout`), mặc định `wujia_exam` và chọn cửa hàng — không phải truy vấn dữ liệu màn portal.

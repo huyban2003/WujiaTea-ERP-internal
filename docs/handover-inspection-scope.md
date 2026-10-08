@@ -14,6 +14,7 @@ Sửa ID phiếu / ID tệp / tham số cửa hàng sang cửa hàng khác ⇒ k
 Helper này khi user nhiều cửa hàng **chưa chọn** trả **mọi** cửa hàng ⇒ danh sách/chi tiết Khảo sát gộp nhiều cửa hàng.
 
 Helper cũ **giữ nguyên hành vi** (chủ dự án chốt 08/10: không đổi màn của nhóm khác) và đã ghi DEPRECATED.
+Sau I4b (08/10) Khảo sát là **màn duy nhất** còn gọi helper này — mọi màn portal khác đã theo một cửa hàng đang chọn.
 
 ## Đề xuất chuyển
 
@@ -35,6 +36,7 @@ if not franchise_ids:
 ```
 
 - Chi tiết / khắc phục / tải tệp: kiểm `record.franchise_id.id in get_current_store_ids()` (không dùng danh sách mọi cửa hàng).
+- Tệp: phát qua route có lọc theo phiếu + cửa hàng (mẫu `/portal/info-request/<id>/attachment/<att>` ở I4b), không dùng `/web/content`.
 - Tham khảo cách làm ở `wujia_portal_delivery` (I4a): list + fragment AJAX + chi tiết + `.ics`, và test
   `wujia_portal_delivery/tests/test_i4a_delivery_scope.py` (ma trận chưa chọn / A / B / ID cửa hàng khác).
 - Bảng lời gọi đầy đủ: `docs/i4-scope-callers.md`.
