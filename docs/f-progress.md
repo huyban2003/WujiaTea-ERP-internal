@@ -2868,3 +2868,30 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   Xoá DB nháp `wujia_i1` + `data/filestore/wujia_i1` khi xong.
 - Phiên kế: **I2 #156 WJ-RETURN-001** (`next-session-clusters-H.md` §3 Prompt I2); phân cụm #169/#170.
 
+
+## I2 #156 WJ-RETURN-001 — hạn đổi trả từ giao hoàn tất + bỏ Lưu nháp · 08/10/2026 · Mac
+- Kết quả: ✅ code + test + đo; commit `8da0a983` **đã push**, chưa deploy; sheet chưa ghi (dry-run đúng 1 dòng). Chủ dự án: review test dồn một lần sau khi xong hết cụm I.
+- Đầu phiên: `git pull` (về `muk_mcp` của anh Thái, không đụng return). `issue_queue --dev` = 22: cụm I + **chưa phân cụm #142
+  UI-PC-HOME-REDESIGN-001, #169, #170, #171 WJ-HOME-001**. Reconcile WJ-RETURN-001: chỉ commit docs, `custom/` 0, ledger 0.
+- Dữ liệu thật (chỉ-đọc): UAT 15 đơn `sale`, **0 đơn validate phiếu xuất**; S00035 (HCM-01) chuyến `done` nhưng phiếu chưa validate.
+  `wujia_vr`: 1 đơn 2 phiếu xuất, 1 phiếu huỷ, 0 backorder ⇒ luật dựng theo Odoo + test tự tạo ca.
+- Chủ dự án chốt: mốc = **phiếu xuất validate** (không dùng trạng thái chuyến giao).
+- Đã làm:
+  - `wujia_return` 19.0.2.1.0: `sale.order.wj_delivery_done_date` (store, index) = max `date_done` outgoing khi mọi outgoing done/cancel, ≥1 done.
+    `_portal_scope_order_domain` + `_portal_eligible_order_domain` (theo mốc) + `_portal_check_order_window` (2 câu lý do);
+    `_portal_prepare_vals` trả `vals`; `create_from_portal` luôn `action_submit`; `_portal_check_evidence` bỏ `require_min`.
+  - `wujia_portal_return` 19.0.5.1.0: bỏ nút Lưu nháp PC; option đơn "— giao xong dd/mm/yyyy" PC + mobile; sắp theo mốc.
+  - vi_VN.po + `.pot` 2 module (`.pot` sinh bằng `odoo-bin i18n export -o`).
+  - Test: fixture `_deliver()`; ca 3 GIVEN + backorder chờ/xong, backorder huỷ, huỷ toàn bộ, phiếu trả incoming; POST thẳng `action=draft`,
+    đơn chưa giao / quá hạn; form không còn `value="draft"`; snapshot `test_jv6_i18n` thay câu cũ.
+- Kiểm: DB `wujia_i2` (copy `wujia_i1`) `-u wujia_return,wujia_portal_return --test-tags` **106/106**, RC=0 · mutation **5/5** đỏ (max→min ·
+  bỏ điều kiện mọi phiếu · quay lại `date_order` · để lọt draft · bỏ chặn quá hạn) · Playwright 1920/391 `/portal/return/new`: chỉ "Gửi yêu cầu",
+  option = S00012 (đặt 05/09, giao 06/10), không có đơn chưa giao / giao 26/09; gửi thật ⇒ Đã gửi; POST thẳng bị chặn đúng câu, `action=draft` ⇒
+  `submitted`; 2 phiếu Nháp cũ còn. Regression `/portal`, `/portal/return`, `/portal/purchase-history` × 2: 200, tràn 0, 0 JS. `check_layers` 0 mới.
+  Đối chiếu "Kết quả mong muốn" 7/7 Pass. Harness: scratchpad `i2_measure.py`, `i2_regr.py`, `i2_mutate.py`.
+- Bài học: Odoo đọc `.po` code **merge với `.pot`** ⇒ câu chưa có trong `.pot` bị bỏ (test ra tiếng Anh). DB copy chạy HttpCase cần
+  `--db-filter='^<db>$'` (config dbfilter chặn ⇒ 404 hàng loạt). Log thật ở `<logfile dir>/<năm>/<tháng>/<ngày>.log` (wujia_core dời log).
+- Nợ: chủ dự án deploy `-u wujia_return,wujia_portal_return` + test browser ⇒ sửa `build_override`
+  → `qa_sync --only WJ-RETURN-001 --apply` → verify CSV. Báo BA: kho phải validate phiếu xuất thì form đổi trả mới có đơn. Xoá DB `wujia_i1`, `wujia_i2`
+  + filestore khi xong.
+- Phiên kế: **I3 #154 WJ-ORD-030** (schema M2M); phân cụm #142/#169/#170/#171.
