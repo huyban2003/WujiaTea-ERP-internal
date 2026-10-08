@@ -2846,3 +2846,25 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   và kiểm `qa_sync --dry-run`. #164 WJ-INSPECT-001 có thể nằm trong module anh Thái ⇒ I9 chỉ bàn giao nếu gốc ở đó.
 - Nợ để lại: xuất `.po` th/zh chuỗi code (276 th) + sửa 2 câu máy lỗi · gửi `docs/i18n-review/` cho BA/Thái · câu hỏi Vận hành chờ BA.
 - Phiên kế: **I1 #155 WJ-ORD-031** — danh mục Portal bắt buộc khi công khai SP (`next-session-clusters-H.md` §3 Prompt I1).
+
+## I1 #155 WJ-ORD-031 — danh mục Portal bắt buộc khi công khai SP · 08/10/2026 · Mac
+- Kết quả: ✅ code + test + đo; commit `0b5834d2` **đã push**, chưa deploy; sheet chưa ghi (dry-run đúng 1 dòng) — chủ dự án deploy + test browser rồi mới ghi.
+- Đầu phiên: `git pull` up to date. `issue_queue --dev` = 17 (15 cụm I + **2 mới chưa phân cụm: #169 WJ-PORTAL-UI-005, #170 WJ-PORTAL-UI-006**).
+  Reconcile WJ-ORD-031: chỉ commit docs, `custom/` 0, ledger 0.
+- Chủ dự án chốt: SP thiếu danh mục **đang trong giỏ** ⇒ như SP bị tắt (`PRODUCT_NOT_AVAILABLE` trên dòng, chặn gửi, không xoá giỏ);
+  danh mục **lưu trữ** ⇒ không hợp lệ, chỉ ẩn, không chặn lưu trữ.
+- Đã làm:
+  - `wujia_sale` 19.0.4.8.0: `_portal_orderable_domain()` + `_portal_is_orderable()` (một nguồn) · constraint riêng `_check_portal_category`
+    (tách khỏi `_check_portal_qty_rules` để sửa min_qty SP cũ vẫn lưu được) · form `required="is_public_portal"` · vi_VN.po/.pot.
+  - `wujia_portal_sale` 19.0.5.2.0: catalog, `_read_group` chip, chi tiết, related, `cart/add`, `_portal_invalid_reason` gọi helper.
+  - Test: `wujia_sale/tests/test_portal_category.py` (4) + 2 ca trong `test_f6_cart_submit.py`; fixture SP công khai thêm danh mục.
+- Kiểm: DB copy `wujia_i1` (từ `wujia_vr`, phải `-u wujia_i18n` trước — copy còn trước J-T4/T5) · `-u wujia_sale,wujia_portal_sale --test-tags`
+  **85/85**, RC=0 · mutation bỏ điều kiện danh mục ⇒ 5 FAIL + 1 ERROR · Playwright 1920/391: Tất cả 55 = Σ chip 51+2+2 (trước sửa 61),
+  6 SP thiếu danh mục không ở list/tìm, chi tiết redirect `PRODUCT_NOT_AVAILABLE`, `cart/add` trả `PRODUCT_NOT_AVAILABLE`;
+  regression `/portal`, giỏ, chi tiết, lịch sử × 2 viewport: 200, tràn 0, 0 JS. Harness: scratchpad `i1_measure.py`.
+- UAT chỉ-đọc: 2/5 SP công khai thiếu danh mục — **TS-HONG, TS-MAT**, nằm trong giỏ **HN-01** + **HCM-01** ⇒ ghi LIMIT, BA gắn danh mục khi deploy.
+- Bài học: `qa_sync.py` mặc định là dry-run (không có cờ `--dry-run`), chạy bằng env `odoo19` (env `odoo` thiếu yaml).
+- Nợ: chủ dự án deploy `-u wujia_sale,wujia_portal_sale` + test browser ⇒ sửa `build_override` ledger (ĐÃ DEPLOY) → `qa_sync --only WJ-ORD-031 --apply` → verify `export?format=csv`.
+  Xoá DB nháp `wujia_i1` + `data/filestore/wujia_i1` khi xong.
+- Phiên kế: **I2 #156 WJ-RETURN-001** (`next-session-clusters-H.md` §3 Prompt I2); phân cụm #169/#170.
+

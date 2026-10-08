@@ -104,7 +104,7 @@ luôn chen trước H (Step 2b `/wujia-start`).
 | Phiên | Nội dung | Module `-u` | Rủi ro | Trạng thái |
 |---|---|---|---|---|
 | ~~I0~~ | Push `bea5fa8` + deploy top bar 992 — **đã có trên UAT** (portal_layout 19.0.60.4.0 khớp repo, đo chỉ-đọc 07/10) | layout, base | Thấp | ✅ |
-| I1 | #155 WJ-ORD-031 danh mục Portal bắt buộc khi công khai | wujia_sale, portal_sale | Thấp | ☐ |
+| I1 | #155 WJ-ORD-031 danh mục Portal bắt buộc khi công khai | wujia_sale, portal_sale | Thấp | ✅ 08/10 `0b5834d2` (chờ deploy) |
 | I2 | #156 WJ-RETURN-001 hạn đổi trả tính từ giao hoàn tất + bỏ Lưu nháp | wujia_return (L2), portal_return | TB | ☐ |
 | I3 | #154 WJ-ORD-030 khung giờ nhiều khu vực (M2M + migration) | order_window, portal_sale, portal_base | Cao (schema) | ☐ |
 | I4a | #152 helper scope một nguồn + Home · Giao hàng · Báo cáo (+ export) | base, delivery, report | Cao | ☐ |
