@@ -47,6 +47,10 @@
                     <t t-set="ph_title">Order report</t>
                 </t>
 
+                <t t-if="store_scope == 'need_pick'" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
+                <t t-else="">
                 <t t-call="wujia_portal_layout.wj_filter_bar">
                     <t t-set="fb_platform" t-value="'m'"/>
                     <t t-set="fb_action" t-value="'/portal/reports/orders'"/>
@@ -167,6 +171,7 @@
                         </div>
                     </section>
                 </div>
+                </t>
             </div>
 
             <!-- ============================================================
@@ -182,6 +187,10 @@
                     Track your store's orders, revenue and products.
                 </p>
 
+                <t t-if="store_scope == 'need_pick'" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
+                <t t-else="">
                 <t t-call="wujia_portal_layout.wj_filter_bar">
                     <t t-set="fb_platform" t-value="'pc'"/>
                     <t t-set="fb_action" t-value="'/portal/reports/orders'"/>
@@ -353,6 +362,7 @@
                         </div>
                     </section>
                 </div>
+                </t>
             </div>
         </t>
     </template>

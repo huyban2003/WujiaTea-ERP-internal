@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- sp_scope = get_store_scope_state() ('need_pick' | 'no_store') · sp_class tuỳ chọn. -->
+    <template id="wj_store_scope_prompt" name="Wujia Portal — Store scope prompt">
+        <div t-attf-class="wj-empty-state wj-empty-state--rich wj-store-scope-prompt #{sp_class or ''}"
+             t-att-data-store-scope="sp_scope">
+            <t t-if="sp_scope == 'need_pick'">
+                <span class="wj-empty-state-icon"><i class="feather icon-home"/></span>
+                <p class="wj-empty-state-title">Select a store</p>
+                <p class="wj-empty-state-sub">Data is shown for one store at a time. Select a store to continue.</p>
+                <a href="#" role="button" data-action="open-store-picker" class="wj-empty-state-btn">
+                    <i class="feather icon-repeat"/>Select store
+                </a>
+            </t>
+            <t t-else="">
+                <span class="wj-empty-state-icon"><i class="feather icon-alert-circle"/></span>
+                <p class="wj-empty-state-title">No store yet</p>
+                <p class="wj-empty-state-sub">You are not assigned to any store yet. Please contact an administrator to get access.</p>
+            </t>
+        </div>
+    </template>
+
+</odoo>

@@ -24,3 +24,4 @@ from . import test_g2_store_switcher
 from . import test_g3a_home_pc
 from . import test_g3b_home_pc
 from . import test_jv2_i18n
+from . import test_i4a_store_scope

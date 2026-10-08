@@ -22,9 +22,9 @@
                     </div>
                 </div>
 
-                <div t-if="not franchise_ids" class="alert alert-warning m-3" role="alert">
-                    You are not assigned to any store yet. Please contact an administrator to get access.
-                </div>
+                <t t-if="not franchise_ids" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
 
                 <div t-if="franchise_ids" class="content-body">
                     <!-- ============ G3a / UI-PC-HOME-REDESIGN-001 — khung Home PC theo mockup V4 ============
@@ -437,9 +437,9 @@
 
                 <!-- ======== MOBILE (<992px) — Figma BA Sprint 10 (frame 2474:2) ======== -->
                 <div class="wujia-mhome d-lg-none">
-                    <div t-if="not franchise_ids" class="alert alert-warning" role="alert">
-                        You are not assigned to any store yet. Please contact an administrator.
-                    </div>
+                    <t t-if="not franchise_ids" t-call="wujia_portal_base.wj_store_scope_prompt">
+                        <t t-set="sp_scope" t-value="store_scope"/>
+                    </t>
                     <t t-else="">
                         <!-- Hero: TỔNG QUAN CỬA HÀNG (nền tối) -->
                         <section class="wujia-mhome-hero">

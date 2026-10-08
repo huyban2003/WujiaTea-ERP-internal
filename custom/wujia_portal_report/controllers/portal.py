@@ -17,8 +17,9 @@ from odoo import _, _lt, fields, http
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
-    get_active_franchise_ids_filter,
+    get_current_store_ids,
     get_max_role_in_franchises,
+    get_store_scope_state,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     date_range_error, portal_money,
@@ -90,8 +91,9 @@ class WujiaPortalReport(http.Controller):
 
     @http.route(['/portal/reports/orders'], type='http', auth='user', sitemap=False)
     def portal_report_orders(self, date_from='', date_to='', **kw):
-        franchise_ids = get_active_franchise_ids_filter()
-        if not franchise_ids:
+        franchise_ids = get_current_store_ids()
+        store_scope = get_store_scope_state()
+        if store_scope == 'no_store':
             return request.redirect('/portal')
 
         # ---- Role check: Staff KHÔNG được vào (BA Phase 1) ----
@@ -102,6 +104,10 @@ class WujiaPortalReport(http.Controller):
         max_role = get_max_role_in_franchises(all_franchise_ids or franchise_ids)
         if max_role not in ('owner', 'manager'):
             return request.redirect('/portal')
+        if not franchise_ids:
+            return request.render('wujia_portal_report.portal_report_orders',
+                                  dict(self._empty_report_values(date_from, date_to, '', max_role),
+                                       store_scope=store_scope))
 
         # ---- Date range (default = năm hiện tại) ----
         today = date.today()
@@ -232,15 +238,17 @@ class WujiaPortalReport(http.Controller):
             'chart_payload_json': json.dumps(chart_payload),
             # role meta
             'max_role': max_role,
+            'store_scope': store_scope,
         })
 
     @http.route(['/portal/reports/orders/export.xlsx'], type='http',
                 auth='user', sitemap=False)
     def portal_report_export_xlsx(self, date_from='', date_to='', **kw):
         """Export báo cáo đặt hàng ra XLSX — 1 sheet KPI + 1 sheet detail."""
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
-            return request.redirect('/portal')
+            # Chưa chọn cửa hàng ⇒ không xuất file gộp; trang báo cáo hiện khối nhắc chọn.
+            return request.redirect('/portal/reports/orders')
         max_role = get_max_role_in_franchises(franchise_ids)
         if max_role not in ('owner', 'manager'):
             return request.redirect('/portal')

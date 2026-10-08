@@ -8,7 +8,7 @@ from odoo import _lt, http
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
-    get_active_franchise_ids_filter,
+    get_current_store_ids, get_store_scope_state,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     PAGE_SIZE_OPTIONS,
@@ -121,10 +121,11 @@ class WujiaPortalDelivery(http.Controller):
     def _delivery_list_values(self, page=1, bs='', date_from='', date_to='', q='',
                               page_size=None, **kw):
         """Context danh sách chuyến — dùng chung cho trang đầy đủ và fragment AJAX."""
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
             return {
-                'no_franchise': True, 'batches': [], 'view_state': 'empty',
+                'no_franchise': True, 'store_scope': get_store_scope_state(),
+                'batches': [], 'view_state': 'empty',
                 'pgn': None, 'chip_counts': {},
                 'date_from': '', 'date_to': '', 'bs': '', 'q': '',
                 'chip_qs': '', 'filter_error': '',
@@ -242,7 +243,7 @@ class WujiaPortalDelivery(http.Controller):
 
     @http.route(['/portal/delivery/<int:batch_id>'], type='http', auth='user', sitemap=False)
     def portal_delivery_detail(self, batch_id, **kw):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
             return request.redirect('/portal/delivery')
         Batch = request.env['stock.picking.batch'].sudo()
@@ -327,7 +328,7 @@ class WujiaPortalDelivery(http.Controller):
                 auth='user', sitemap=False)
     def portal_delivery_ics(self, batch_id, **kw):
         """Export lịch giao hàng dạng ICS — import vào Google/Outlook calendar."""
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
         if not franchise_ids:
             raise NotFound()
         Batch = request.env['stock.picking.batch'].sudo()

@@ -276,11 +276,9 @@
                     <t t-set="ph_title">Delivery</t>
                 </t>
 
-                <div t-if="no_franchise" class="wj-pc-empty">
-                    <span class="wj-pc-empty__icon"><i class="feather icon-alert-circle"/></span>
-                    <h3 class="wj-pc-empty__title">No store yet</h3>
-                    <p class="wj-pc-empty__sub">You have not been assigned to any store.</p>
-                </div>
+                <t t-if="no_franchise" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
 
                 <t t-else="">
                     <!-- Bộ lọc: search mã chuyến/SO + 2 date + trạng thái + Xóa lọc/Tìm kiếm -->
@@ -321,10 +319,9 @@
                     <t t-set="ph_title">Delivery</t>
                 </t>
 
-                <div t-if="no_franchise" class="wj-empty-state wj-empty-state--card">
-                    <i class="feather icon-alert-circle"/>
-                    <p>You have not been assigned to any store.</p>
-                </div>
+                <t t-if="no_franchise" t-call="wujia_portal_base.wj_store_scope_prompt">
+                    <t t-set="sp_scope" t-value="store_scope"/>
+                </t>
 
                 <t t-else="">
                     <t t-call="wujia_portal_layout.wj_filter_bar">

@@ -66,6 +66,10 @@ def get_active_franchise_id():
 
     accessible = request.env.user._get_accessible_franchise_ids()  # ormcached
     cookie_id = _read_active_franchise_cookie()
+    if cookie_id and cookie_id not in accessible:
+        # Cookie của cửa hàng đã mất quyền mà giữ lại sẽ che modal chọn cửa hàng.
+        request.future_response.set_cookie(
+            ACTIVE_FRANCHISE_COOKIE, '', max_age=0, expires=0, samesite='Lax')
     if cookie_id and cookie_id in accessible:
         result = cookie_id
     elif len(accessible) == 1:
@@ -78,11 +82,21 @@ def get_active_franchise_id():
     return result
 
 
-def get_active_franchise_ids_filter():
-    """Tuple cho domain `('franchise_id', 'in', ...)`.
+def get_current_store_ids():
+    """`()` hoặc `(fid,)` — không bao giờ nhiều cửa hàng; rỗng ⇒ màn hiện khối nhắc chọn."""
+    active = get_active_franchise_id()
+    return (active,) if active else ()
 
-    Đã chọn → tuple 1 phần tử. Chưa chọn (multi-franchise) → all accessible
-    (fallback an toàn — vẫn thấy data, chỉ là rộng hơn)."""
+
+def get_store_scope_state():
+    """'ok' · 'need_pick' (nhiều cửa hàng, chưa chọn) · 'no_store' (chưa được gán)."""
+    if get_active_franchise_id():
+        return 'ok'
+    return 'need_pick' if request.env.user._get_accessible_franchise_ids() else 'no_store'
+
+
+def get_active_franchise_ids_filter():
+    """DEPRECATED — chưa chọn trả MỌI cửa hàng; chỉ còn cho Khảo sát (docs/handover-inspection-scope.md)."""
     active = get_active_franchise_id()
     if active:
         return (active,)
@@ -127,7 +141,8 @@ class WujiaPortal(CustomerPortal):
     # ==================================================================
     @http.route(['/portal'], type='http', auth='user', website=False, sitemap=False)
     def portal_home(self, **kw):
-        franchise_ids = get_active_franchise_ids_filter()
+        franchise_ids = get_current_store_ids()
+        store_scope = get_store_scope_state()
         accessible_ids = request.env.user._get_accessible_franchise_ids()
         values = self._dashboard_values(franchise_ids)
 
@@ -177,10 +192,10 @@ class WujiaPortal(CustomerPortal):
             'title': _('Home - Portal'),
             'lang': request.env.lang or 'en',
             'role_labels': ROLE_LABELS,
-            # Cho modal store-picker render điều kiện
-            'must_pick_franchise': (
-                len(accessible_ids) > 1 and not _read_active_franchise_cookie()
-            ),
+            'store_scope': store_scope,
+            # Cho modal store-picker render điều kiện — theo lựa chọn ĐÃ validate, không theo
+            # cookie thô (cookie của cửa hàng đã mất quyền từng làm Home không bật picker).
+            'must_pick_franchise': store_scope == 'need_pick',
             'all_accessible_franchises': request.env['wujia.franchise.management']
                 .sudo().browse(list(accessible_ids)) if accessible_ids
                 else request.env['wujia.franchise.management'].browse(),
@@ -318,8 +333,9 @@ class WujiaPortal(CustomerPortal):
 
     # ==================================================================
     # Active-franchise (store picker) — cookie-based, no DB hit
-    # Module-level helpers: get_active_franchise_id(),
-    #     get_active_franchise_ids_filter(), get_max_role_in_franchises().
+    # Module-level helpers: get_active_franchise_id(), get_current_store_ids(),
+    #     get_store_scope_state(), get_max_role_in_franchises()
+    #     (get_active_franchise_ids_filter() DEPRECATED — chỉ còn cho Khảo sát).
     # ==================================================================
     @http.route(['/portal/franchise/switch'], type='http', auth='user',
                 methods=['POST'], website=False, csrf=True, sitemap=False)
