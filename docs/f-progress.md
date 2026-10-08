@@ -2895,3 +2895,31 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   → `qa_sync --only WJ-RETURN-001 --apply` → verify CSV. Báo BA: kho phải validate phiếu xuất thì form đổi trả mới có đơn. Xoá DB `wujia_i1`, `wujia_i2`
   + filestore khi xong.
 - Phiên kế: **I3 #154 WJ-ORD-030** (schema M2M); phân cụm #142/#169/#170/#171.
+
+## I3 #154 WJ-ORD-030 — khung giờ nhiều khu vực + múi giờ cửa hàng · 08/10/2026 · Mac
+- Kết quả: ✅ code + test + đo; commit `2984550a` **đã push**, chưa deploy; sheet chưa ghi (dry-run đúng 1 dòng).
+- Đầu phiên: `git pull` up to date. `issue_queue --dev` = 22 (cụm I + chưa phân cụm #142, #169, #170, #171). Reconcile WJ-ORD-030:
+  chỉ commit docs, `custom/` 0, ledger 0. Issue BA (01–02/10) rộng hơn prompt I3: thêm **múi giờ IANA theo cửa hàng**, chặn khu vực rỗng,
+  chặn cấu hình trùng, banner hiện tên múi giờ thay `UTC+7`.
+- Dữ liệu UAT (chỉ-đọc): 1 window active (HCM) + 1 lưu trữ "TEST DUPLICATE OP-05"; cấu hình chung đã lưu 10:00→04:00; partner tz trống 3/4 cửa hàng.
+- Chủ dự án chốt: tz = `partner_id.tz` · migration điền Asia/Ho_Chi_Minh cho cửa hàng trống · trùng = cùng giờ + chung ≥1 khu vực ⇒ chặn.
+- Đã làm:
+  - `wujia_order_window` 19.0.2.0.0: `area_ids` M2M + constraint rỗng/trùng; `tz` related trên `wujia.franchise.management` + xpath form cửa hàng;
+    `_is_within_order_window(franchise)` / `_next_order_window(franchise)` theo `_utc_now()` → tz cửa hàng; `sale.order.create` chặn thiếu tz;
+    `migrations/19.0.2.0.0/post-migrate.py` chép `area_id` (assert đếm) + điền tz; views, `.pot`/vi_VN.po.
+  - `wujia_portal_sale` 19.0.5.3.0: giỏ `STORE_TZ_NOT_CONFIGURED`; context/nhãn theo `tz_label`; warnbar PC/mobile cùng đọc `order_window_open` +
+    `order_window_tz_missing`; bỏ alert PC theo cờ `configured` (gốc lệch PC↔mobile đo 02/10).
+  - `wujia_portal_base` 19.0.7.38.0: Home state `tz_missing`, nhãn múi giờ, "mở lại" = window kế; guard `hasattr` cả `_next_order_window`.
+  - Test: viết lại `test_order_window.py` (HCM/Tokyo, tz user, DST New York, thiếu tz, A+B, OR, trùng, migration); 2 HttpCase trong
+    `test_f6_cart_submit.py` (banner = submit theo giờ Tokyo; thiếu tz); sửa `test_g3a_home_pc`, `test_fra3_layer_guard`, `test_jv4_i18n`,
+    `test_split_ownership`; `test_scan_e6_button` 5→4 nút form đổi trả (sót từ I2).
+- Kiểm: DB `wujia_i3` (copy `wujia_i2`, dựng 3 window kiểu UAT) `-u` RC=0, migration 3/3 + 4 partner tz, cột `area_id` đã drop ·
+  `--test-tags` 4 module **429/429** · lân cận purchase_history/return/delivery/report 51/51 · mutation **5/5** đỏ (bỏ OR · tz user · bỏ chặn thiếu tz ·
+  bỏ copy migration · bỏ chặn trùng) · Playwright 4 kịch bản × 1920/391 (`i3_measure.py`): Home = Đặt hàng = Giỏ = submit, 0 tràn, 0 JS ·
+  XML-RPC: view list/form/search có `area_ids`, form cửa hàng có `tz`, tạo trùng bị chặn · `check_layers` 0 mới. "Kết quả mong muốn" 9/9 Pass.
+- Bài học: M2M `required=True` ORM không kiểm, `@api.constrains` chỉ chạy với field có trong vals ⇒ gắn kiểm rỗng vào constraint của trường giờ
+  (luôn có default). Chạy test không `-u` vẫn vấp import `wujia_franchise` tests. `qa_sync` phải gọi bằng python env `odoo19` (python3 hệ thiếu yaml).
+- Bàn giao Thái: `wujia_mobile_sale/tests` tạo đơn portal cho cửa hàng không tz ⇒ sẽ đỏ (đề xuất thêm `'tz'` cho partner trong fixture).
+- Nợ: chủ dự án deploy `-u wujia_order_window,wujia_portal_sale,wujia_portal_base` + test browser ⇒ sửa `build_override` →
+  `qa_sync --only WJ-ORD-030 --apply` → verify CSV. BA rà múi giờ từng cửa hàng. Xoá DB `wujia_i1`, `wujia_i2`, `wujia_i3` + filestore khi xong.
+- Phiên kế: **I4a #152 WJ-PORTAL-SCOPE-001** (fork helper dùng chung với Khảo sát); phân cụm #142/#169/#170/#171.
