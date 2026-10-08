@@ -9,7 +9,7 @@ class ProductProduct(models.Model):
         string='Show on portal',
         default=False,
         index=True,
-        help="Turn on to publish the product on the ordering portal (/portal/order). A published product must have a minimum quantity > 0.",
+        help="Turn on to publish the product on the ordering portal (/portal/order). A published product must have a portal category and a minimum quantity > 0.",
     )
     min_qty = fields.Integer(
         string='Minimum quantity',
@@ -38,6 +38,15 @@ class ProductProduct(models.Model):
         ondelete='set null',
     )
 
+    @api.model
+    def _portal_orderable_domain(self):
+        return [('is_public_portal', '=', True), ('active', '=', True),
+                ('public_categ_id.active', '=', True)]
+
+    def _portal_is_orderable(self):
+        self.ensure_one()
+        return bool(self.active and self.is_public_portal and self.public_categ_id.active)
+
     def _portal_qty_error(self, qty):
         """Luật đặt hàng portal (bước = min_qty, max 0 = không giới hạn) → None hoặc (mã, ngưỡng)."""
         self.ensure_one()
@@ -51,6 +60,15 @@ class ProductProduct(models.Model):
         if self.max_qty and qty > self.max_qty:
             return 'QTY_ABOVE_MAX', self.max_qty
         return None
+
+    @api.constrains('is_public_portal', 'public_categ_id')
+    def _check_portal_category(self):
+        for product in self:
+            if product.is_public_portal and not product.public_categ_id:
+                raise ValidationError(_(
+                    "Portal product '%s' must have a portal category before it can be published.",
+                    product.display_name,
+                ))
 
     @api.constrains('is_public_portal', 'min_qty', 'max_qty')
     def _check_portal_qty_rules(self):

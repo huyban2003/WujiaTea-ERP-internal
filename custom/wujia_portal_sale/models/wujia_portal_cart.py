@@ -285,7 +285,7 @@ class WujiaPortalCartLine(models.Model):
         """Mã lỗi hiển thị per-line trên giỏ (BA row 11) — None khi dòng đặt được."""
         self.ensure_one()
         product = self.product_id
-        if not product.active or not product.is_public_portal:
+        if not product._portal_is_orderable():
             return 'PRODUCT_NOT_AVAILABLE'
         error = product._portal_qty_error(self.qty)
         if not error:

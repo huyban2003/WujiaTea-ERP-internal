@@ -99,7 +99,9 @@ class TestSaleI18nJV4(TransactionCase):
                          'Số lượng của F6 Max phải là số nguyên.')
 
     def test_sale_constraints_follow_lang(self):
-        product = self.env['product.product'].create({'name': 'JV4 P', 'type': 'consu'})
+        categ = self.env['wujia.product.category'].create({'name': 'JV4 C'})
+        product = self.env['product.product'].create(
+            {'name': 'JV4 P', 'type': 'consu', 'public_categ_id': categ.id})
         cases = (({'is_public_portal': True, 'min_qty': 0}, 'phải có số lượng tối thiểu > 0',
                   'must have a minimum quantity > 0'),
                  ({'min_qty': -1}, 'không thể âm', 'cannot be negative'))
@@ -150,7 +152,8 @@ class TestSaleErrorLangJV4(HttpCase):
                 'user_id': user.id, 'franchise_id': franchise.id, 'role': 'owner'})
         cls.p_max = cls.env['product.product'].create({
             'name': 'JV4 Max', 'type': 'consu', 'list_price': 1000,
-            'is_public_portal': True, 'min_qty': 2, 'max_qty': 10})
+            'is_public_portal': True, 'min_qty': 2, 'max_qty': 10,
+            'public_categ_id': cls.env['wujia.product.category'].create({'name': 'JV4 Categ'}).id})
         cls.hidden = cls.env['product.product'].create({'name': 'JV4 Hidden', 'type': 'consu'})
 
     def setUp(self):

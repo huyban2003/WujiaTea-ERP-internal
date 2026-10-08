@@ -45,15 +45,19 @@ class TestF6CartSubmit(HttpCase):
         cls.member = env['wujia.franchise.member'].create({
             'user_id': cls.user.id, 'franchise_id': cls.franchise.id, 'role': 'owner'})
         Product = env['product.product']
+        cls.categ = env['wujia.product.category'].create({'name': 'F6 Categ'})
         cls.p_max = Product.create({
             'name': 'F6 Max', 'type': 'consu', 'list_price': 10000,
-            'is_public_portal': True, 'min_qty': 2, 'max_qty': 10})
+            'is_public_portal': True, 'min_qty': 2, 'max_qty': 10,
+            'public_categ_id': cls.categ.id})
         cls.p_free = Product.create({
             'name': 'F6 Free', 'type': 'consu', 'list_price': 5000,
-            'is_public_portal': True, 'min_qty': 3})
+            'is_public_portal': True, 'min_qty': 3,
+            'public_categ_id': cls.categ.id})
         cls.p_one = Product.create({
             'name': 'F6 One', 'type': 'consu', 'list_price': 1000,
-            'is_public_portal': True, 'min_qty': 1})
+            'is_public_portal': True, 'min_qty': 1,
+            'public_categ_id': cls.categ.id})
         cls.Settings = type(env['res.config.settings'])
 
     def setUp(self):
@@ -140,6 +144,50 @@ class TestF6CartSubmit(HttpCase):
         self.assertEqual(res['message'], "Sản phẩm này hiện không còn được phép đặt hàng.")
         res = self.rpc('/portal/order/cart/add', product_id='x')
         self.assertEqual(res['error'], 'invalid_input')
+
+    def _uncategorized(self, name='F6 NoCat'):
+        product = self.env['product.product'].create({
+            'name': name, 'type': 'consu', 'list_price': 1000, 'min_qty': 1})
+        self.env.cr.execute('UPDATE product_product SET is_public_portal = TRUE WHERE id = %s',
+                            (product.id,))
+        self.env.invalidate_all()
+        return product
+
+    def test_catalog_hides_product_without_valid_category(self):
+        nocat = self._uncategorized()
+        archived = self.env['wujia.product.category'].create({'name': 'F6 Archived'})
+        in_archived = self.env['product.product'].create({
+            'name': 'F6 InArchived', 'type': 'consu', 'min_qty': 1,
+            'is_public_portal': True, 'public_categ_id': archived.id})
+        archived.active = False
+        for query in ('', '?keyword=F6', f'?category_id={self.categ.id}'):
+            with self.subTest(query=query):
+                html = self.url_open('/portal/order' + query).text
+                self.assertIn('F6 Max', html)
+                self.assertNotIn('F6 NoCat', html)
+                self.assertNotIn('F6 InArchived', html)
+        Product = self.env['product.product']
+        domain = Product._portal_orderable_domain()
+        groups = Product._read_group(domain, ['public_categ_id'], ['__count'])
+        self.assertEqual(Product.search_count(domain), sum(count for _c, count in groups))
+        for product in (nocat, in_archived):
+            res = self.url_open(f'/portal/order/product/{product.id}', allow_redirects=False)
+            self.assertIn('error=PRODUCT_NOT_AVAILABLE', res.headers['Location'])
+            res = self.rpc('/portal/order/cart/add', product_id=product.id)
+            self.assertEqual(res['error'], 'PRODUCT_NOT_AVAILABLE')
+        nocat.public_categ_id = self.categ
+        html = self.url_open(f'/portal/order?category_id={self.categ.id}').text
+        self.assertIn('F6 NoCat', html)
+        self.assertTrue(self.rpc('/portal/order/cart/add', product_id=nocat.id)['success'])
+
+    def test_cart_line_without_category_blocks_submit(self):
+        nocat = self._uncategorized()
+        self.put(self.p_free, 3)
+        line = self.put(nocat, 1)
+        self.assertEqual(line._portal_invalid_reason(), 'PRODUCT_NOT_AVAILABLE')
+        self.assertEqual(self.submit(), '/portal/order/cart?error=CART_HAS_INVALID_PRODUCT')
+        self.assertFalse(self.portal_orders())
+        self.assertEqual(self.qty_of(nocat), 1)
 
     def test_add_min_not_configured(self):
         self.env.cr.execute('UPDATE product_product SET min_qty = 0 WHERE id = %s', (self.p_one.id,))
@@ -326,7 +374,8 @@ class TestF6LineConstraint(HttpCase):
             'partner_id': partner.id})
         product = env['product.product'].create({
             'name': 'F6 C', 'type': 'consu', 'is_public_portal': True,
-            'min_qty': 2, 'max_qty': 6})
+            'min_qty': 2, 'max_qty': 6,
+            'public_categ_id': env['wujia.product.category'].create({'name': 'F6 C'}).id})
         Settings = type(env['res.config.settings'])
         cases = [
             (1, "Sản phẩm 'F6 C' yêu cầu số lượng tối thiểu 2, đang đặt 1.0."),

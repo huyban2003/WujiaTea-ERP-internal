@@ -392,6 +392,14 @@ msgid "Portal order '%s' must have a store partner (franchise_partner_id)."
 msgstr "Đơn '%s' từ portal phải có partner cửa hàng (franchise_partner_id)."
 
 #. module: wujia_sale
+#: code:addons/wujia_sale/models/product_product.py
+#, python-format
+msgid ""
+"Portal product '%s' must have a portal category before it can be published."
+msgstr ""
+"Sản phẩm public portal '%s' phải có danh mục Portal trước khi được public."
+
+#. module: wujia_sale
 #. odoo-python
 #: code:addons/wujia_sale/models/product_product.py
 #, python-format
@@ -625,10 +633,10 @@ msgstr "Lệnh chuyển hàng"
 #. module: wujia_sale
 msgid ""
 "Turn on to publish the product on the ordering portal (/portal/order). A "
-"published product must have a minimum quantity > 0."
+"published product must have a portal category and a minimum quantity > 0."
 msgstr ""
 "Bật để public sản phẩm lên portal đặt hàng (/portal/order). Sản phẩm public "
-"bắt buộc có số lượng tối thiểu > 0."
+"bắt buộc có danh mục Portal và số lượng tối thiểu > 0."
 
 #. module: wujia_sale
 msgid "Unit Price"

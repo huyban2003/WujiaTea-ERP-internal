@@ -455,7 +455,7 @@ class WujiaPortalSale(http.Controller):
         franchise = self._get_franchise(fid) if fid else None
 
         Product = request.env['product.product'].sudo()
-        domain = [('is_public_portal', '=', True), ('active', '=', True)]
+        domain = Product._portal_orderable_domain()
         if keyword:
             # BA row 4: tìm theo tên HOẶC mã sản phẩm.
             domain += ['|', ('name', 'ilike', keyword), ('default_code', 'ilike', keyword)]
@@ -478,9 +478,7 @@ class WujiaPortalSale(http.Controller):
 
         # Chỉ trả danh mục đang có sản phẩm public (BA row 3) — 1 read_group + 1 search.
         cat_groups = Product._read_group(
-            [('is_public_portal', '=', True), ('active', '=', True),
-             ('public_categ_id', '!=', False)],
-            ['public_categ_id'], [],
+            Product._portal_orderable_domain(), ['public_categ_id'], [],
         )
         categories = request.env['wujia.product.category'].sudo().search([
             ('id', 'in', [c.id for (c,) in cat_groups]),
@@ -526,17 +524,16 @@ class WujiaPortalSale(http.Controller):
     @http.route(['/portal/order/product/<int:product_id>'],
                 type='http', auth='user', sitemap=False)
     def portal_order_product_detail(self, product_id, **kw):
-        product = request.env['product.product'].sudo().browse(int(product_id)).exists()
-        if not product or not product.is_public_portal or not product.active:
+        Product = request.env['product.product'].sudo()
+        product = Product.browse(int(product_id)).exists()
+        if not product or not product._portal_is_orderable():
             # WJ-ORD-017: không im lặng — redirect an toàn về catalog kèm thông
             # báo (không lộ lý do tồn tại/quyền; mã đã whitelist trong catalog).
             return request.redirect('/portal/order?error=PRODUCT_NOT_AVAILABLE')
-        related = request.env['product.product'].sudo().search([
-            ('is_public_portal', '=', True), ('active', '=', True),
+        related = Product.search(Product._portal_orderable_domain() + [
             ('public_categ_id', '=', product.public_categ_id.id),
             ('id', '!=', product.id),
-        ], limit=6, order='name asc') if product.public_categ_id else \
-            request.env['product.product'].sudo().browse()
+        ], limit=6, order='name asc')
         fid, _gate_error = self._store_gate()
         franchise = self._get_franchise(fid) if fid else None
         pricelist = self._get_pricelist(franchise)
@@ -584,7 +581,7 @@ class WujiaPortalSale(http.Controller):
         except (TypeError, ValueError):
             return self._err('invalid_input')
         product = request.env['product.product'].sudo().browse(product_id).exists()
-        if not product or not product.active or not product.is_public_portal:
+        if not product or not product._portal_is_orderable():
             return self._err('PRODUCT_NOT_AVAILABLE')
         if product.min_qty <= 0:
             return self._err('MIN_QTY_NOT_CONFIGURED')

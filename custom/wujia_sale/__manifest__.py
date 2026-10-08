@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Sale',
-    'version': '19.0.4.7.0',
+    'version': '19.0.4.8.0',
     'category': 'Wujia',
     'summary': 'Sale order extension for franchise stores + weight calculation',
     'author': 'WujiaTea',

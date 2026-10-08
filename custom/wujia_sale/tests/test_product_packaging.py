@@ -12,6 +12,7 @@ class TestProductPackaging(TransactionCase):
         cls.product = cls.env['product.product'].create({
             'name': 'Hồng Trà Đài Loan KHÔNG Đường',
             'type': 'consu',
+            'public_categ_id': cls.env['wujia.product.category'].create({'name': 'Trà'}).id,
         })
 
     def test_write_edit_clear_packaging(self):
