@@ -3006,3 +3006,36 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ: deploy `-u wujia_portal_base,wujia_portal_layout,wujia_portal_report,wujia_portal_debt,wujia_portal_info_request` →
   `qa_sync --only WJ-PORTAL-ROLE-001 --apply` (cùng nợ I1–I4b) · xoá DB `wujia_i1`…`wujia_i5` + filestore khi xong.
 - Phiên kế: **I6 #159 WJ-NOTI-001** (`next-session-clusters-H.md` Prompt I6 — ledger đã có entry 08/2026 cùng ID ⇒ thay entry, dùng `stt: 159`).
+
+## I6 #159 WJ-NOTI-001 — phạm vi dấu đã đọc + một luật số chưa đọc · 09/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `76f5671d` (đã push); sheet chưa ghi (dry-run đúng 1 dòng, `--apply` sau deploy).
+- Đầu phiên: repo up to date với upstream. `issue_queue --dev` = 22 (cụm I + chưa phân cụm #142, #169–#174). Reconcile WJ-NOTI-001:
+  `custom/` chỉ còn comment timezone 08/2026 (`cc7570f`) ⇒ chưa fix; ledger có key cùng ID ⇒ thay entry, `stt: 159`.
+- UAT chỉ-đọc: 19 thông báo (10 toàn hệ), 22 dấu: toàn hệ+cửa hàng 10 · toàn hệ+NULL 2 · chỉ định đúng cửa hàng 6 · **chỉ định+NULL 4**
+  (admin, ANN/2026/0012–0015 gửi cửa hàng 1/2/3).
+- Chủ dự án chốt: 4 dấu chỉ định thiếu cửa hàng ⇒ **xoá** (không tự gán) · thống kê backend thông báo toàn hệ **đếm theo user**.
+- Đã làm:
+  - `wujia_notification` 19.0.3.0.0: `_portal_read_scope` (toàn hệ = dòng franchise NULL theo user; chỉ định = dòng cửa hàng đang chọn) ·
+    `_portal_read_domain` (domain trên thông báo, bền với dòng lệch) · **`_portal_unread_domain` = một luật** (hiệu lực + `read_ids not any`) ·
+    `_portal_unread_count` = 1 `search_count` (bỏ phép trừ đếm) · `_mark_read` tách toàn hệ/chỉ định, ghi cả khi chưa chọn, bỏ qua cửa hàng
+    không nhận · `_compute_read_stats` toàn hệ đếm user · migration `19.0.3.0.0/post-migrate.py` (gộp dấu toàn hệ min read/max open, xoá dấu
+    chỉ định NULL/sai cửa hàng, log từng id, assert đếm) · help field + `.pot`/vi_VN.
+  - `wujia_portal_notification` 19.0.5.0.0: lọc Chưa đọc/Đã đọc gọi L2 (bỏ query `read_noti_ids` tự dựng) · chi tiết/mark-read/mark-all bỏ chặn
+    `STORE_NOT_SELECTED`, mark-all = `_portal_unread_domain` + trả số thật · nút "Đánh dấu tất cả là đã đọc" + tooltip phạm vi theo `store_scope`.
+  - Home (`portal_base`) không sửa — đã gọi `_portal_unread_count`.
+  - Test tag `wujia_noti_i6`: `wujia_notification/tests/test_i6_read_scope.py` (5 GIVEN + dòng lệch + read stats + migration chạy lại idempotent) ·
+    `wujia_portal_notification/tests/test_i6_unread_one_rule.py` (Home = badge = popup = lọc; mark-all có/không cửa hàng; tooltip). Sửa
+    `test_portal_rules`, `test_portal_notification_read` (chưa chọn ⇒ ghi dòng NULL), `test_portal_notification_f11`, `test_jv7_i18n`.
+- Kiểm: DB `wujia_i6` (copy `wujia_i5`, dựng thêm dấu kiểu UAT): migration 18 → 11 dòng, 6 cặp toàn hệ, xoá 5 sai phạm vi · `-u` 3 module
+  `--test-tags` **435/435** · hồi quy 12 module portal (layout/sale/return/exam/support/info_request/delivery/report/debt/purchase_history/
+  knowledge/i18n) **737/737** · mutation **6/6** đỏ (`i6_mutate.py`) · EXPLAIN: 1 câu, subquery dấu đọc hashed 1 lần/requests, dùng
+  `uniq_noti_user_no_store` / `user_id` index ⇒ không thêm index · Playwright admin 3 cửa hàng × 1920/391 (`i6_measure.py`): Home = chuông =
+  hộp chuông = meta = số dòng lọc Chưa đọc ở mọi bước — 12/41/41 → mở 1 toàn hệ khi chưa chọn 11/40/40 → mark-all chưa chọn (11) 0/29/29 →
+  mark-all HN-01 0 / HCM-01 29; 0 tràn, 0 JS · `check_layers` 0 mới · `vn_hardcode_scan` notification 0.
+- Đối chiếu "Kết quả mong muốn": 6/6 gạch Pass. LIMIT: UAT xoá 4 dấu admin (thấy lại 4 bài chưa đọc) · mobile không có nút Đánh dấu tất cả (có
+  sẵn) · Home chưa chọn vẫn khối nhắc chọn (I4a) · thống kê backend toàn hệ đổi cách đếm.
+- Bài học: DB copy từ phiên trước mang user đo (`i5.mix`, `i5.mgr`) ⇒ test tạo cùng login vỡ setUpClass — đổi login trong DB nháp. BSD `sed`
+  không hiểu `\|` (tag test ghép sai). Gọi `count` giữa `cr.execute(EXPLAIN)` và `fetchall` làm mất kết quả.
+- Nợ: deploy `-u wujia_notification,wujia_portal_notification` (CÓ cập nhật dữ liệu — xem log `read scope`) →
+  `qa_sync --only WJ-NOTI-001 --apply` (cùng nợ I1–I5) · xoá DB `wujia_i1`…`wujia_i6` + filestore khi xong.
+- Phiên kế: **I7 #62 WJ-PH-003 + #163 WJ-PH-009** (`next-session-clusters-H.md` Prompt I7).
