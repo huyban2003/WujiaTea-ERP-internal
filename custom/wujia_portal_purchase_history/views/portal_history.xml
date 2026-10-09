@@ -92,6 +92,9 @@
                t-attf-class="wj-filter-chip #{'is-active' if preset == 'last_month' else ''}">Previous month</a>
             <a href="/portal/purchase-history?state=sale"
                t-attf-class="wj-filter-chip #{'is-active' if state == 'sale' else ''}">Confirmed</a>
+            <!-- WJ-PH-003: mobile không có ô chọn trạng thái ⇒ chip riêng để tra cứu đơn huỷ. -->
+            <a href="/portal/purchase-history?state=cancel"
+               t-attf-class="wj-filter-chip #{'is-active' if state == 'cancel' else ''}">Cancelled</a>
             <a href="/portal/purchase-history" class="wj-filter-chip wj-filter-chip--clear">Clear filters</a>
         </div>
 
@@ -295,8 +298,8 @@
             <t t-set="_ph_t_detail">Order details</t>
             <t t-set="_ph_t_not_delivered">Not delivered yet</t>
             <t t-set="_ph_t_no_delivery_info">No delivery information yet</t>
+            <!-- WJ-PH-009: MỘT chuỗi rỗng cho mọi ghi chú (đặt hàng / giao hàng) ở cả PC và mobile. -->
             <t t-set="_ph_t_no_note">No notes</t>
-            <t t-set="_ph_t_no_note_dot">No notes.</t>
             <t t-set="title" t-value="detail and detail['header']['name'] or _ph_t_detail"/>
             <div class="content-wrapper">
 
@@ -435,6 +438,18 @@
                             </t>
                         </div>
 
+                        <!-- WJ-PH-009: Ghi chú khi đặt hàng (portal_note) — cùng khối, cùng thứ tự với mobile;
+                             KHÁC "Ghi chú giao hàng" của chuyến ở panel trên. -->
+                        <t t-call="wujia_portal_layout.wj_surface_card">
+                            <t t-set="sc_class" t-value="'wj-pc-card wj-ph-order-note'"/>
+                            <t t-call="wujia_portal_layout.wj_card_header">
+                                <t t-set="ch_title">Ordering note</t>
+                                <t t-set="ch_level" t-value="3"/>
+                                <t t-set="ch_platform" t-value="'pc'"/>
+                            </t>
+                            <p t-attf-class="wj-ph-note #{'' if detail['note'] else 'wj-ph-note--empty'}" t-out="detail['note'] or _ph_t_no_note"/>
+                        </t>
+
                         <!-- Bảng sản phẩm đã đặt — giá đã gồm thuế -->
                         <t t-call="wujia_portal_layout.wj_surface_card">
                             <t t-set="sc_class" t-value="'wj-pc-card'"/>
@@ -547,7 +562,7 @@
                             </div>
                             <div class="wujia-mhist-kv">
                                 <span class="wujia-mhist-kv-label">Delivery note</span>
-                                <span class="wujia-mhist-kv-value" t-out="(b and b['delivery_note']) or '—'"/>
+                                <span class="wujia-mhist-kv-value" t-out="(b and b['delivery_note']) or _ph_t_no_note"/>
                             </div>
                             <div class="wujia-mhist-kv">
                                 <span class="wujia-mhist-kv-label">Departure time</span>
@@ -559,12 +574,12 @@
                         <!-- Ghi chú khi đặt hàng — dùng portal_note (order.note = T&C Odoo, sai ngữ nghĩa) -->
                         <t t-call="wujia_portal_layout.wj_surface_card">
                             <t t-set="sc_variant" t-value="'record'"/>
-                            <t t-set="sc_class" t-value="'wujia-mhist-card'"/>
+                            <t t-set="sc_class" t-value="'wujia-mhist-card wj-ph-order-note'"/>
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Ordering note</t>
                                 <t t-set="ch_platform" t-value="'m'"/>
                             </t>
-                            <p class="wujia-mhist-note" t-out="detail['note'] or _ph_t_no_note_dot"/>
+                            <p t-attf-class="wujia-mhist-note wj-ph-note #{'' if detail['note'] else 'wj-ph-note--empty'}" t-out="detail['note'] or _ph_t_no_note"/>
                         </t>
 
                         <!-- Danh sách sản phẩm — thành tiền đã gồm thuế -->

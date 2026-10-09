@@ -69,6 +69,22 @@
     white-space: nowrap;
 }
 
+/* WJ-PH-009 — Ghi chú khi đặt hàng (portal_note), PC + mobile cùng nội dung.
+   pre-line giữ xuống dòng người nhập; anywhere bẻ chuỗi dài không dấu cách (không tràn ngang). */
+.wj-ph-note {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+.wj-pc-card.wj-ph-order-note { margin-bottom: var(--wj-pc-content-padding); }
+.wj-pc-card .wj-ph-note {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--wj-pc-text);
+}
+.wj-pc-card .wj-ph-note--empty { color: var(--wj-pc-muted); font-weight: 400; }
+
 .state-step { padding: 8px 4px; border-radius: 6px; position: relative; }
 .state-step-pending .state-badge { opacity: 0.4; }
 .state-step-active .state-badge { opacity: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }

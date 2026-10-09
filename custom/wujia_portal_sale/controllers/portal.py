@@ -820,8 +820,7 @@ class WujiaPortalSale(http.Controller):
         order = request.env['sale.order'].sudo().browse(order_id).exists()
         if not order or not order.is_portal_order or order.franchise_id.id != fid:
             return request.redirect('/portal/order')
-        # Đơn đã huỷ không phải "kết quả gửi đơn" — SALE_STATE_META không map 'cancel'
-        # nên sẽ rơi về nhãn an toàn "Đang xử lý", gây hiểu sai. Chặn ngay ở guard.
+        # Đơn đã huỷ không phải "kết quả gửi đơn" — xem ở Lịch sử đặt hàng. Chặn ngay ở guard.
         if order.state == 'cancel':
             return request.redirect('/portal/order')
 

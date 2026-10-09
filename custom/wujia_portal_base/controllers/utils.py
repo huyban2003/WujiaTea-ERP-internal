@@ -515,12 +515,14 @@ def status_badge_for(label, default='neutral'):
 # ---------------------------------------------------------------------------
 
 # state → (label `_lt`, status_type). status_type = key ngữ nghĩa, template map sang badge CSS
-# riêng (PC/mobile). 'cancel' KHÔNG có ở đây — đơn huỷ bị loại khỏi lịch sử và Home (BA).
+# riêng (PC/mobile). WJ-PH-003 (BA 01/10): Lịch sử tra cứu được đơn huỷ ⇒ có 'cancel';
+# Home vẫn lọc bỏ đơn huỷ bằng domain riêng.
 # State custom thêm về sau rơi về DEFAULT_STATE_META (BA: nhãn an toàn "Đang xử lý").
 SALE_STATE_META = {
     'draft': (_lt('Awaiting confirmation'), 'pending'),
     'sent': (_lt('Submitted'), 'sent'),
     'sale': (_lt('Confirmed'), 'confirmed'),
+    'cancel': (_lt('Cancelled'), 'cancelled'),
 }
 DEFAULT_STATE_META = (_lt('Processing'), 'pending')
 

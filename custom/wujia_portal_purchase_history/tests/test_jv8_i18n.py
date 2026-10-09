@@ -87,7 +87,7 @@ class TestJv8HistoryLabels(TransactionCase):
             'wujia_portal_purchase_history.portal_history_list': ('Tìm theo mã đơn', 'Tất cả trạng thái'),
             'wujia_portal_purchase_history.portal_history_detail': (
                 'Chi tiết đơn hàng', 'Chưa giao', 'Chưa có thông tin giao hàng', 'Không có ghi chú',
-                'Không có ghi chú.', 'Trạng thái giao hàng', 'Ghi chú khi đặt hàng', 'Tổng cộng', 'sản phẩm',
+                'Trạng thái giao hàng', 'Ghi chú khi đặt hàng', 'Tổng cộng', 'sản phẩm',
                 '· SL: x'),
         }
         for xmlid, words in cases.items():
@@ -167,11 +167,11 @@ class TestJv8HistoryPages(HttpCase):
     def test_detail_fallbacks_and_singular(self):
         url = '/portal/purchase-history/%d' % self.order.id
         en = self._get(url, 'en_US')
-        for s in ('Not delivered yet', 'No delivery information yet', 'No notes.', '1 product ', '01 product '):
+        for s in ('Not delivered yet', 'No delivery information yet', 'No notes', '1 product ', '01 product '):
             self.assertIn(s, en)
         self.assertNotIn('1 products', en)
         vi = self._get(url, 'vi_VN')
-        for s in ('Chưa giao', 'Chưa có thông tin giao hàng', 'Không có ghi chú.', '1 sản phẩm', '01 sản phẩm'):
+        for s in ('Chưa giao', 'Chưa có thông tin giao hàng', 'Không có ghi chú', '1 sản phẩm', '01 sản phẩm'):
             self.assertIn(s, vi)
 
     def test_detail_batch_status_follows_lang(self):

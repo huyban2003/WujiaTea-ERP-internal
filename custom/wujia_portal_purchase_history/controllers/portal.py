@@ -203,15 +203,14 @@ class WujiaPortalHistory(http.Controller):
         return request.env._(msg)
 
     def _state_options(self, sale_order):
-        # Option lọc trạng thái = selection sale.order.state trừ 'cancel' (đơn huỷ ẩn khỏi lịch sử)
-        # + 2 nhãn suy từ chuyến giao (WJ-PH-003) → lọc được đủ 5 nhãn đang hiển thị.
+        # Option lọc trạng thái = selection sale.order.state + 2 nhãn suy từ chuyến giao
+        # (WJ-PH-003) → lọc được đủ 6 nhãn đang hiển thị; "Đã hủy" đứng cuối (BA 01/10).
         # Label ưu tiên nhãn VN của portal, fallback nhãn Odoo.
-        opts = []
-        for value, odoo_label in sale_order._fields['state'].selection:
-            if value == 'cancel':
-                continue
-            opts.append((value, SALE_STATE_META.get(value, (odoo_label, ''))[0]))
+        opts = [(value, SALE_STATE_META.get(value, (odoo_label, ''))[0])
+                for value, odoo_label in sale_order._fields['state'].selection
+                if value != 'cancel']
         opts += [(key, meta[0]) for key, meta in DELIVERY_OVERRIDE_META.items()]
+        opts.append(('cancel', SALE_STATE_META['cancel'][0]))
         return opts
 
     def _history_list_values(self, page=1, page_size=PAGE_SIZE, date_from='', date_to='',
@@ -252,8 +251,9 @@ class WujiaPortalHistory(http.Controller):
 
         tz = portal_tz()
 
-        # Domain: current store + loại đơn huỷ (BA). Lấy cả đơn portal lẫn backend.
-        domain = [('franchise_id', '=', fid), ('state', '!=', 'cancel')]
+        # Domain: current store, mọi trạng thái kể cả đơn huỷ (WJ-PH-003, BA 01/10).
+        # Lấy cả đơn portal lẫn backend.
+        domain = [('franchise_id', '=', fid)]
         # Mốc ngày người dùng chọn là giờ địa phương, create_date lưu UTC → phải quy đổi,
         # không thì "hôm nay" bỏ sót đơn tạo 00:00–07:00 giờ VN (WJ-PH-002).
         utc_from, utc_to = local_day_range_utc(df, dt, tz)
@@ -261,8 +261,7 @@ class WujiaPortalHistory(http.Controller):
             domain.append(('create_date', '>=', utc_from))
         if utc_to:
             domain.append(('create_date', '<=', utc_to))
-        valid_states = ({v for v, _ in SO._fields['state'].selection} - {'cancel'}
-                        | set(DELIVERY_OVERRIDE_META))
+        valid_states = {v for v, _ in SO._fields['state'].selection} | set(DELIVERY_OVERRIDE_META)
         if state and state in valid_states:
             domain += _status_domain(state)
         q = (q or '').strip()
@@ -348,14 +347,13 @@ class WujiaPortalHistory(http.Controller):
         )
 
     def _get_scoped_order(self, order_id):
-        """Đơn thuộc current store + không huỷ. Kiểm tra lại quyền mọi lần, không tin
-        việc user vừa mở từ list (chống IDOR đổi URL)."""
+        """Đơn thuộc current store (kể cả đơn huỷ — WJ-PH-003). Kiểm tra lại quyền mọi lần,
+        không tin việc user vừa mở từ list (chống IDOR đổi URL)."""
         fid = get_active_franchise_id()
         if not fid:
             return request.env['sale.order'].browse()
         return request.env['sale.order'].sudo().search([
             ('id', '=', order_id),
             ('franchise_id', '=', fid),
-            ('state', '!=', 'cancel'),
         ], limit=1)
 

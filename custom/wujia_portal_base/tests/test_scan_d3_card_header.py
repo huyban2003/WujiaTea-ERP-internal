@@ -47,7 +47,8 @@ class TestCardHeaderCallSites(TransactionCase):
         # D3e — chi tiết bù hàng + lịch sử đặt hàng
         'wujia_portal_return.portal_return_detail': 15,
         'wujia_portal_purchase_history.portal_history_results_part': 1,
-        'wujia_portal_purchase_history.portal_history_detail': 8,
+        # I7 WJ-PH-009: +1 card "Ghi chú khi đặt hàng" bản PC.
+        'wujia_portal_purchase_history.portal_history_detail': 9,
     }
 
     ZERO_COUNT_VIEWS = {
