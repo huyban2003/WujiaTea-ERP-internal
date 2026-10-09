@@ -3188,3 +3188,36 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ: deploy `-u wujia_portal_layout,wujia_portal_base` → `qa_sync --only WJ-PROFILE-001/002/003 --apply` · cùng nợ I1–I10 · xoá DB
   `wujia_i1`…`wujia_i11` + filestore khi xong.
 - Phiên kế: **I12 #169 WJ-PORTAL-UI-005 + #171 WJ-HOME-001** (`next-session-clusters-H.md` Prompt I12).
+
+## I12 #169 WJ-PORTAL-UI-005 + #171 WJ-HOME-001 — hộp chọn cửa hàng là dialog + khối đầu Home PC · 09/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `a64ce589` (đã push); sheet chưa ghi (`qa_sync` dry-run, `--apply` sau deploy).
+- Đầu phiên: chủ dự án chốt commit + push I11 ⇒ `cbaceca8` + docs `429e0894` (đã push). Reconcile: #169 0 commit / 0 dòng `custom/`;
+  #171 là **ID dùng lại** (entry ledger 08/2026 C7 nhãn KPI mobile) ⇒ thay entry.
+- Gốc (đo trước trên DB `wujia_i12`, admin 3 cửa hàng, khớp mô tả BA): hộp không role/aria-modal/tên · mở bằng Enter focus vẫn ở trigger ·
+  Tab 10/10 + Shift+Tab 10/10 ra ngoài · Esc không đóng · ×/Hủy/nền ⇒ focus rơi BODY · must-pick focus BODY. Home PC: PageHeader 64px +
+  câu chào ⇒ toprow y=209; mobile "Khung giờ đặt hàng" là h3 đứng trước mọi h2 (nhảy cấp).
+- Chủ dự án chốt: mở hộp ⇒ focus nút Đóng × (như sheet Thêm WJ-PORTAL-UI-004); must-pick (không ×) ⇒ radio đang chọn/đầu.
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.45.0: `store_picker_modal.xml` card `role=dialog aria-modal aria-labelledby/-describedby` (tiêu đề + câu dẫn có sẵn,
+    0 msgid mới), icon `aria-hidden`; trigger (badge PC, strip mobile, mục menu tài khoản, nút scope prompt) `aria-haspopup=dialog aria-controls`.
+    `store_picker.js`: `show(trigger)` nhớ trigger + `inert` mọi con của `body` trừ overlay + `aria-expanded` + focus ×; `hide()` gỡ đúng phần
+    inert đã đặt, trả focus về trigger nếu còn thấy, không thì Current Store đang hiện (mục menu tài khoản đã đóng); keydown Esc (chỉ khi có
+    nút đóng) + bẫy Tab (radio group = 1 điểm dừng); must-pick khởi tạo inert + focus; đồng bộ `--active` khi đổi radio bằng mũi tên.
+  - Home: bỏ `.content-header` PC (PageHeader + câu chào); 1 `<h1 class="visually-hidden">Store overview</h1>` ngay trong `.wujia-home-wrapper`
+    (ngoài khối `d-none`/`d-lg-none` ⇒ chung PC + mobile); mobile "Ordering window" `ch_level=2`.
+  - `wujia_portal_layout` 19.0.60.9.0: utility `.visually-hidden` kiểu BS5 (bundle portal là BS4 chỉ có `.sr-only`), `_components.css?v=1334`.
+- Kiểm: `-u layout,base` RC=0 · `wujia_i12` (`test_i12_dialog_home.py`) **8/8** · hồi quy `-u` 11 module **1069/1069** · mutation **8/8** đỏ
+  (`i12_mutate.py`: role, aria-haspopup, inert, Esc, trả focus, H1 vào khối PC, mobile h3, visibility:hidden) · Playwright `i12_measure.py`
+  1440 + 390: dialog tên "Đổi cửa hàng đang thao tác", focus ×, Tab/Shift+Tab 0/10 thoát, nền inert 12/12, Esc/×/Hủy/nền ⇒ focus Current Store,
+  menu tài khoản ⇒ Current Store, cookie cửa hàng không đổi, must-pick focus radio + 0 thoát + Esc không đóng, 0 lỗi JS · Home PC toprow
+  209 → 96, KPI 358 → 245, trang −113px; mobile 390/320 ảnh trước = sau (chỉ đồng hồ khung giờ), heading H1(ẩn) → h2… cả 2 kênh ·
+  `check_layers` 0 mới (R7 2 cũ ở `wujia_franchise`) · `vn_hardcode_scan` base/layout 0.
+- Đối chiếu "Kết quả mong muốn": #169 Pass (tên/vai trò, focus trong hộp, nền không tương tác, Esc/Đóng/Hủy về trigger, Tab không thoát,
+  không đổi store) · #171 Pass (PC không còn tiêu đề + câu chào, KPI lên cao 0 khoảng trắng, mobile y nguyên, H1 visually-hidden, section h2).
+- LIMIT: chưa đo trên VoiceOver/TalkBack thật (chỉ cây truy cập Chromium) · chưa chạy Đổi cửa hàng thật (đúng phạm vi issue) · tab trình duyệt
+  vẫn "Trang chủ" khác H1 "Tổng quan cửa hàng".
+- Bài học: user admin đăng nhập vào `/odoo` có long-poll ⇒ Playwright `networkidle` treo, chờ `load`. Log test Odoo ở
+  `logs/<năm>/<tháng>/<ngày>.log` (wujia_core chuyển log), không phải `logs/odoo.log`.
+- Nợ: deploy `-u wujia_portal_layout,wujia_portal_base` → `qa_sync --only WJ-PORTAL-UI-005` + `--only WJ-HOME-001 --apply`
+  · cùng nợ I1–I11 · xoá DB `wujia_i1`…`wujia_i12` + filestore khi xong.
+- Phiên kế: **I13 #170 WJ-PORTAL-UI-006 contrast token chung** (`next-session-clusters-H.md` Prompt I13).
