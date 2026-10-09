@@ -1,13 +1,13 @@
 {
     'name': 'Wujia Notifications',
-    'version': '19.0.2.0.0',
+    'version': '19.0.3.0.0',
     'category': 'Wujia',
     'summary': 'HQ → franchise store notifications — compose, target, send, withdraw, track reads.',
     'description': """
 Notification business logic. Split from wujia_portal_notification (F11, ADR-027).
 
 - Models wujia.notification (ANN/ code, chatter, recipient targeting, send/withdraw),
-  wujia.notification.type (type), wujia.notification.read (read per user + store).
+  wujia.notification.type (type), wujia.notification.read (read per user for all-store notifications, per user + store when targeted).
 - _portal_history_domain / _portal_effective_domain / _portal_unread_count / _mark_read /
   _portal_get_attachment: rules shared by every channel.
 """,

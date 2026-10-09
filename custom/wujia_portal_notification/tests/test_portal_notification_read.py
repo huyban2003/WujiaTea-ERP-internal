@@ -1,9 +1,9 @@
-"""NOTI-02 bước 1 — không ghi read status khi user chưa chọn cửa hàng (spec F §8.11 + §18)."""
+"""Ghi đã đọc qua portal. WJ-NOTI-001 (BA 02/10/2026) thay NOTI-02 bước 1: chưa chọn cửa hàng vẫn ghi
+đã đọc cho thông báo toàn hệ (theo user, franchise NULL)."""
 
 from odoo import fields
 from odoo.tests.common import HOST, HttpCase, tagged
 
-STORE_NOT_SELECTED_MSG = 'Vui lòng chọn cửa hàng trước khi thao tác.'
 ACTIVE_FRANCHISE_COOKIE = 'wujia_active_franchise_id'
 PORTAL_PASSWORD = 'wujia@test123'
 
@@ -61,25 +61,26 @@ class TestPortalNotificationRead(HttpCase):
     def _select_store(self, franchise):
         self.opener.cookies.set(ACTIVE_FRANCHISE_COOKIE, str(franchise.id), domain=HOST)
 
-    # ---------------- chưa chọn cửa hàng → chặn ghi ----------------
-    def test_mark_all_read_blocked_without_store(self):
+    # ---------------- chưa chọn cửa hàng → vẫn ghi dấu toàn hệ ----------------
+    def test_mark_all_read_without_store_marks_broadcast(self):
         res = self.make_jsonrpc_request('/portal/notification/mark-all-read')
-        self.assertEqual(res.get('error'), 'STORE_NOT_SELECTED')
-        self.assertEqual(res.get('message'), STORE_NOT_SELECTED_MSG)
-        self.assertFalse(self._read_rows(), 'Không được ghi read row khi chưa chọn cửa hàng.')
+        self.assertTrue(res.get('success'))
+        rows = self._read_rows()
+        self.assertEqual(len(rows), 1)
+        self.assertFalse(rows.franchise_id, 'Thông báo toàn hệ ghi theo user (không cửa hàng).')
 
-    def test_mark_read_blocked_without_store(self):
+    def test_mark_read_without_store_marks_broadcast(self):
         res = self.make_jsonrpc_request(
             '/portal/notification/mark-read', {'notification_ids': [self.noti.id]})
-        self.assertEqual(res.get('error'), 'STORE_NOT_SELECTED')
-        self.assertEqual(res.get('message'), STORE_NOT_SELECTED_MSG)
-        self.assertFalse(self._read_rows())
+        self.assertEqual(res.get('created'), 1)
+        self.assertFalse(self._read_rows().franchise_id)
 
-    def test_detail_readable_without_store_but_no_read_row(self):
-        # Chưa chọn cửa hàng vẫn ĐỌC được nội dung, chỉ không ghi nhận đã đọc.
+    def test_detail_without_store_records_read(self):
         response = self.url_open('/portal/notification/%s' % self.noti.id)
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(self._read_rows())
+        rows = self._read_rows()
+        self.assertEqual(len(rows), 1)
+        self.assertTrue(rows.last_open_date)
 
     # ---------------- đã chọn cửa hàng → ghi bình thường ----------------
     def test_mark_all_read_with_store_is_idempotent(self):
@@ -91,9 +92,16 @@ class TestPortalNotificationRead(HttpCase):
         self.assertEqual(first.get('unread_count'), 0)
         rows = self._read_rows()
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows.franchise_id, self.franchise_a)
+        self.assertFalse(rows.franchise_id, 'Thông báo toàn hệ: dấu theo user, hiệu lực mọi cửa hàng.')
         self.assertFalse(rows.last_open_date, 'mark-all không được giả lập thời điểm mở detail.')
 
         second = self.make_jsonrpc_request('/portal/notification/mark-all-read')
         self.assertEqual(second.get('updated_count'), 0, 'Gọi lại phải idempotent.')
         self.assertEqual(len(self._read_rows()), 1)
+
+        # Sang cửa hàng B: thông báo toàn hệ vẫn đã đọc, không tạo thêm dấu.
+        self._select_store(self.franchise_b)
+        third = self.make_jsonrpc_request('/portal/notification/mark-all-read')
+        self.assertNotIn(self.noti.id, self._read_rows().filtered('franchise_id').notification_id.ids)
+        self.assertEqual(len(self._read_rows()), 1)
+        self.assertEqual(third.get('unread_count'), 0)

@@ -2,10 +2,11 @@ from odoo import api, fields, models
 
 
 class WujiaNotificationRead(models.Model):
-    """Tracking đã đọc — theo (thông báo + user + cửa hàng hiện tại) theo BA FINAL.
+    """Tracking đã đọc (WJ-NOTI-001, BA 02/10/2026).
 
-    Thông báo là global nhưng trạng thái đọc riêng từng tài khoản tại từng cửa hàng:
-    1 user ở 2 cửa hàng đọc độc lập. Đếm unread = effective_count − read_count(user, store)."""
+    Thông báo toàn hệ ⇒ 1 dấu theo user (franchise_id NULL), hiệu lực ở mọi cửa hàng và cả khi
+    chưa chọn cửa hàng. Thông báo chỉ định ⇒ dấu theo user + đúng cửa hàng nhận đang chọn.
+    Luật đếm/đọc dùng chung ở `wujia.notification._portal_read_scope`."""
 
     _name = 'wujia.notification.read'
     _description = 'Wujia Notification Read Tracking'
@@ -46,29 +47,36 @@ class WujiaNotificationRead(models.Model):
 
     @api.model
     def _mark_read(self, user, franchise_id, notifications, opened=False, touch=False):
-        """Ghi "đã đọc" của user tại cửa hàng cho `notifications` — idempotent, trả số dòng tạo mới.
+        """Ghi "đã đọc" cho `notifications` theo đúng phạm vi — idempotent, trả số dòng tạo mới.
 
+        Toàn hệ ⇒ dòng franchise_id NULL (ghi cả khi chưa chọn cửa hàng). Chỉ định ⇒ dòng
+        `franchise_id` chỉ khi cửa hàng đang chọn là cửa hàng nhận; ngoài ra bỏ qua (không tạo
+        dấu sai phạm vi).
         opened: người dùng thật sự mở nội dung ⇒ dòng mới có `last_open_date`.
         touch: dòng đã có đổi `last_open_date` (mở lại trang chi tiết), `read_date` giữ nguyên.
-        Chưa chọn cửa hàng thì không ghi (spec F §8.11 — tránh row franchise_id NULL).
         """
-        if not franchise_id or not notifications:
-            return 0
-        existing = self.search([
-            ('user_id', '=', user.id),
-            ('notification_id', 'in', notifications.ids),
-            ('franchise_id', '=', franchise_id),
-        ])
+        broadcast = notifications.filtered(lambda n: not n.franchise_ids)
+        targeted = (notifications - broadcast).filtered(
+            lambda n: franchise_id and franchise_id in n.franchise_ids.ids)
         now = fields.Datetime.now()
-        if touch and existing:
-            existing.last_open_date = now
-        done = set(existing.mapped('notification_id').ids)
-        vals = [
-            dict({'notification_id': nid, 'user_id': user.id,
-                  'franchise_id': franchise_id, 'read_date': now},
-                 **({'last_open_date': now} if opened else {}))
-            for nid in notifications.ids if nid not in done
-        ]
+        vals = []
+        for store_id, batch in ((False, broadcast), (franchise_id, targeted)):
+            if not batch:
+                continue
+            existing = self.search([
+                ('user_id', '=', user.id),
+                ('notification_id', 'in', batch.ids),
+                ('franchise_id', '=', store_id),
+            ])
+            if touch and existing:
+                existing.last_open_date = now
+            done = set(existing.mapped('notification_id').ids)
+            vals += [
+                dict({'notification_id': nid, 'user_id': user.id,
+                      'franchise_id': store_id, 'read_date': now},
+                     **({'last_open_date': now} if opened else {}))
+                for nid in batch.ids if nid not in done
+            ]
         if vals:
             self.create(vals)
         return len(vals)

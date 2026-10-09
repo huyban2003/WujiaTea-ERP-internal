@@ -69,35 +69,37 @@ class TestPortalRules(NotificationCommon, TransactionCase):
         self.assertEqual(effective, self.live)
         self.assertIn(self.other_store, self._found(self.Noti._portal_effective_domain([self.store_b.id])))
 
-    def test_unread_count_is_per_store(self):
+    def test_unread_count_broadcast_once_per_user(self):
+        """WJ-NOTI-001: thông báo toàn hệ đọc 1 lần theo user, hiệu lực mọi cửa hàng."""
         self.assertEqual(self._broadcast_unread(self.store_a), 1)
         self.Read._mark_read(self.user, self.store_a.id, self.live)
         self.assertEqual(self._broadcast_unread(self.store_a), 0)
-        self.assertEqual(self._broadcast_unread(self.store_b), 2, 'đọc ở A không tính cho B')
+        self.assertEqual(self._broadcast_unread(self.store_b), 1, 'chỉ còn bài riêng của B')
         # Đọc thông báo hết hạn không làm âm số chưa đọc.
         self.Read._mark_read(self.user, self.store_b.id, self.expired)
-        self.assertEqual(self._broadcast_unread(self.store_b), 2)
+        self.assertEqual(self._broadcast_unread(self.store_b), 1)
 
     def test_mark_read_modes(self):
         rows = lambda: self.Read.search([('user_id', '=', self.user.id)])
-        self.assertEqual(self.Read._mark_read(self.user, False, self.live), 0, 'chưa chọn cửa hàng')
-        self.assertFalse(rows())
-        # mark-all: không giả lập thời điểm mở.
-        self.assertEqual(self.Read._mark_read(self.user, self.store_a.id, self.live | self.expired), 2)
+        # Chưa chọn cửa hàng: bài toàn hệ vẫn ghi (dòng NULL); bài chỉ định bỏ qua.
+        self.assertEqual(self.Read._mark_read(self.user, False, self.live | self.other_store), 1)
+        self.assertEqual(rows().franchise_id, self.env['wujia.franchise.management'])
+        # mark-all: không giả lập thời điểm mở; bài toàn hệ đã có dấu ⇒ chỉ tạo bài hết hạn.
+        self.assertEqual(self.Read._mark_read(self.user, self.store_a.id, self.live | self.expired), 1)
         self.assertFalse(any(rows().mapped('last_open_date')))
-        self.assertEqual(self.Read._mark_read(self.user, self.store_a.id, self.live | self.expired), 0)
+        self.assertEqual(self.Read._mark_read(self.user, self.store_b.id, self.live | self.expired), 0)
         # mark-read theo id: dòng mới có last_open_date, dòng cũ giữ nguyên.
-        self.assertEqual(self.Read._mark_read(self.user, self.store_b.id, self.live, opened=True), 1)
+        self.assertEqual(self.Read._mark_read(self.user, self.store_b.id, self.other_store, opened=True), 1)
         row_b = rows().filtered(lambda r: r.franchise_id == self.store_b)
         self.assertTrue(row_b.last_open_date)
+        row_live = rows().filtered(lambda r: r.notification_id == self.live)
         self.Read._mark_read(self.user, self.store_a.id, self.live, opened=True)
-        row_a = rows().filtered(lambda r: r.franchise_id == self.store_a and r.notification_id == self.live)
-        self.assertFalse(row_a.last_open_date)
+        self.assertFalse(row_live.last_open_date)
         # mở chi tiết lại: đổi last_open_date, giữ read_date.
-        first_read = row_a.read_date
+        first_read = row_live.read_date
         self.Read._mark_read(self.user, self.store_a.id, self.live, opened=True, touch=True)
-        self.assertTrue(row_a.last_open_date)
-        self.assertEqual(row_a.read_date, first_read)
+        self.assertTrue(row_live.last_open_date)
+        self.assertEqual(row_live.read_date, first_read)
         self.assertEqual(len(rows()), 3)
 
     def test_get_attachment_only_own_files(self):

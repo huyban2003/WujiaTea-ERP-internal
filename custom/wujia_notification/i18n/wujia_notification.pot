@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 16:53+0000\n"
-"PO-Revision-Date: 2026-10-06 16:53+0000\n"
+"POT-Creation-Date: 2026-10-09 08:20+0000\n"
+"PO-Revision-Date: 2026-10-09 08:20+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -85,6 +85,20 @@ msgstr ""
 #. module: wujia_notification
 #: model:ir.model.fields.selection,name:wujia_notification.selection__wujia_notification__target_mode__all
 msgid "All stores"
+msgstr ""
+
+#. module: wujia_notification
+#: model:ir.model.fields,help:wujia_notification.field_wujia_notification__recipient_count
+msgid ""
+"All stores: users holding a valid membership. Targeted: user/store pairs at "
+"the recipient stores."
+msgstr ""
+
+#. module: wujia_notification
+#: model:ir.model.fields,help:wujia_notification.field_wujia_notification__read_count
+msgid ""
+"All stores: users who have read it. Targeted: user/store pairs that have "
+"read it at a recipient store."
 msgstr ""
 
 #. module: wujia_notification
@@ -502,11 +516,6 @@ msgid "Number of stores that would receive it if sent right now."
 msgstr ""
 
 #. module: wujia_notification
-#: model:ir.model.fields,help:wujia_notification.field_wujia_notification__read_count
-msgid "Number of user/store pairs that have read this notification."
-msgstr ""
-
-#. module: wujia_notification
 #. odoo-python
 #: code:addons/wujia_notification/models/wujia_notification.py:0
 msgid "Only draft notifications can be sent."
@@ -794,11 +803,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:wujia_notification.view_notification_list
 #: model_terms:ir.ui.view,arch_db:wujia_notification.view_notification_search
 msgid "Title"
-msgstr ""
-
-#. module: wujia_notification
-#: model:ir.model.fields,help:wujia_notification.field_wujia_notification__recipient_count
-msgid "Total number of user/store pairs holding a valid membership."
 msgstr ""
 
 #. module: wujia_notification

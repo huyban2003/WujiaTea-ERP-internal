@@ -55,7 +55,7 @@ class TestPortalNotificationF11(NotificationCommon, HttpCase):
         self.url_open('/portal/notification/%s' % self.live.id)
         row = self._rows()
         self.assertEqual(len(row), 1)
-        self.assertEqual(row.franchise_id, self.store_a)
+        self.assertFalse(row.franchise_id, 'Toàn hệ: dấu theo user (WJ-NOTI-001).')
         first = row.read_date
         self.assertTrue(row.last_open_date)
         self.url_open('/portal/notification/%s' % self.live.id)

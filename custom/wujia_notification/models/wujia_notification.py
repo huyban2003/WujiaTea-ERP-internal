@@ -60,7 +60,7 @@ class WujiaNotification(models.Model):
     franchise_ids empty = broadcast cho tất cả cửa hàng đang hoạt động; `target_mode`
     quyết định field này được điền thế nào (tất cả / theo tiêu chí / chọn tay).
     Trạng thái đọc/chưa đọc lưu ở `wujia.notification.read` (table riêng để
-    đếm unread nhanh — pattern v14)."""
+    đếm unread nhanh — pattern v14); phạm vi dấu đọc xem `_portal_read_scope`."""
 
     # Mapping BA spec phần F (wujia.announcement) → model THẬT (giữ tên source, Sprint 41):
     #   title→name · name (ANN/2026/0001)→code · category_id→type_id · published_date→published_date
@@ -172,11 +172,11 @@ class WujiaNotification(models.Model):
     )
     read_count = fields.Integer(
         string='Read', compute='_compute_read_stats',
-        help='Number of user/store pairs that have read this notification.',
+        help='All stores: users who have read it. Targeted: user/store pairs that have read it at a recipient store.',
     )
     recipient_count = fields.Integer(
         string='Recipients', compute='_compute_read_stats',
-        help='Total number of user/store pairs holding a valid membership.',
+        help='All stores: users holding a valid membership. Targeted: user/store pairs at the recipient stores.',
     )
     unread_count = fields.Integer(
         string='Unread', compute='_compute_read_stats',
@@ -239,32 +239,35 @@ class WujiaNotification(models.Model):
                 rec.target_preview_count = total
 
     def _compute_read_stats(self):
-        """Spec F §15 + ghi chú cột L dòng 762/863. Perf 1500 user: 2 query cho CẢ recordset."""
-        read_by_noti = {}
-        if self.ids:
-            read_by_noti = {
-                noti.id: count
-                for noti, count in self.env['wujia.notification.read'].sudo()._read_group(
-                    [('notification_id', 'in', self.ids)],
-                    groupby=['notification_id'], aggregates=['__count'],
-                )
-            }
-        # 1 query cho mọi record: cặp (user, cửa hàng) còn hiệu lực, gom theo cửa hàng để
-        # thông báo có target đếm được đúng phạm vi của nó.
+        """Spec F §15 + WJ-NOTI-001. Perf 1500 user: 2 query cho CẢ recordset.
+
+        Cùng phạm vi dấu đọc với portal: toàn hệ đếm theo USER (người nhận = user còn membership
+        hợp lệ, không trùng; đã đọc = dấu franchise NULL); chỉ định đếm cặp (user, cửa hàng nhận).
+        Dòng lệch phạm vi không được tính."""
+        reads = {}
+        noti_ids = [nid for nid in self._origin.ids if nid]
+        if noti_ids:
+            for noti, franchise, count in self.env['wujia.notification.read'].sudo()._read_group(
+                [('notification_id', 'in', noti_ids)],
+                groupby=['notification_id', 'franchise_id'], aggregates=['__count'],
+            ):
+                reads.setdefault(noti.id, {})[franchise.id] = count
         pairs = self.env['wujia.franchise.member'].sudo()._read_group(
             [('is_currently_valid', '=', True)], groupby=['franchise_id', 'user_id'],
         )
         per_franchise = {}
         for franchise, _user in pairs:
             per_franchise[franchise.id] = per_franchise.get(franchise.id, 0) + 1
-        total = len(pairs)
+        total_users = len({user.id for _franchise, user in pairs})
         for rec in self:
-            rec.read_count = read_by_noti.get(rec._origin.id or rec.id, 0)
-            # franchise_ids rỗng = broadcast toàn hệ thống; có giá trị = chỉ đếm cửa hàng nhận.
+            noti_reads = reads.get(rec._origin.id, {})
             fids = rec.franchise_ids.ids
-            rec.recipient_count = (
-                sum(per_franchise.get(fid, 0) for fid in fids) if fids else total
-            )
+            if fids:
+                rec.recipient_count = sum(per_franchise.get(fid, 0) for fid in fids)
+                rec.read_count = sum(noti_reads.get(fid, 0) for fid in fids)
+            else:
+                rec.recipient_count = total_users
+                rec.read_count = noti_reads.get(False, 0)
             rec.unread_count = 0 if rec.is_expired else max(
                 rec.recipient_count - rec.read_count, 0
             )
@@ -476,37 +479,54 @@ class WujiaNotification(models.Model):
             '|', ('expired_date', '=', False), ('expired_date', '>=', fields.Datetime.now()),
         ]
 
+    # Phạm vi dấu đọc (WJ-NOTI-001, BA 02/10/2026):
+    #   toàn hệ (franchise_ids rỗng) ⇒ dấu theo user, franchise_id NULL, hiệu lực mọi cửa hàng;
+    #   chỉ định ⇒ dấu theo user + đúng cửa hàng đang chọn.
+    # Hai nhánh xét theo CHÍNH thông báo, nên dòng lệch phạm vi (dòng NULL của bài chỉ định,
+    # dòng mang cửa hàng của bài toàn hệ) không bao giờ được tính là đã đọc.
+    @api.model
+    def _portal_read_scope(self, user, franchise_id):
+        """(dấu đọc của bài toàn hệ, dấu đọc của bài chỉ định) — domain trên wujia.notification.read."""
+        return (
+            [('user_id', '=', user.id), ('franchise_id', '=', False)],
+            [('user_id', '=', user.id), ('franchise_id', 'in', [franchise_id] if franchise_id else [])],
+        )
+
     @api.model
     def _portal_read_domain(self, user, franchise_id):
-        dom = [('user_id', '=', user.id)]
-        if franchise_id:
-            dom.append(('franchise_id', '=', franchise_id))
-        return dom
+        """Thông báo user ĐÃ đọc trong phạm vi cửa hàng đang chọn (domain trên wujia.notification)."""
+        broadcast, targeted = self._portal_read_scope(user, franchise_id)
+        return [
+            '|',
+            '&', ('franchise_ids', '=', False), ('read_ids', 'any', broadcast),
+            '&', ('franchise_ids', '!=', False), ('read_ids', 'any', targeted),
+        ]
+
+    @api.model
+    def _portal_unread_domain(self, user, franchise_ids, franchise_id):
+        """MỘT luật chưa đọc cho Home, badge chuông, hộp chuông, lọc "Chưa đọc", "Đánh dấu tất cả":
+        còn hiệu lực (đã phát hành, tới giờ, đúng đối tượng, chưa hết hạn) và chưa có dấu đúng phạm vi."""
+        broadcast, targeted = self._portal_read_scope(user, franchise_id)
+        return self._portal_effective_domain(franchise_ids) + [
+            '|',
+            '&', ('franchise_ids', '=', False), ('read_ids', 'not any', broadcast),
+            '&', ('franchise_ids', '!=', False), ('read_ids', 'not any', targeted),
+        ]
 
     @api.model
     def _portal_read_ids(self, user, notification_ids, franchise_id):
-        """1 query — id thông báo user đã đọc TẠI cửa hàng hiện tại."""
+        """1 query — id thông báo (trong `notification_ids`) user đã đọc theo phạm vi trên."""
         if not notification_ids:
             return set()
-        dom = self._portal_read_domain(user, franchise_id) + [
-            ('notification_id', 'in', list(notification_ids))]
-        return set(self.env['wujia.notification.read'].search(dom).mapped('notification_id').ids)
+        return set(self.search(
+            [('id', 'in', list(notification_ids))] + self._portal_read_domain(user, franchise_id)
+        ).ids)
 
     @api.model
     def _portal_unread_count(self, user, franchise_ids, franchise_id):
-        """Số thông báo còn hiệu lực CHƯA đọc của user tại cửa hàng hiện tại.
-
-        2 câu đếm, KHÔNG nạp id ra Python: badge chạy trên mọi trang portal, với 1500
-        cửa hàng thì `search(...).ids` là kéo cả bảng về mỗi request. `any` đẩy điều
-        kiện "còn hiệu lực" xuống subquery của notification_id.
-        """
-        eff_domain = self._portal_effective_domain(franchise_ids)
-        total_eff = self.search_count(eff_domain)
-        if not total_eff:
-            return 0
-        dom = self._portal_read_domain(user, franchise_id) + [
-            ('notification_id', 'any', eff_domain)]
-        return max(0, total_eff - self.env['wujia.notification.read'].search_count(dom))
+        """Số thông báo chưa đọc — 1 câu đếm (NOT EXISTS), không nạp id ra Python:
+        badge chạy trên mọi trang portal, 1500 user."""
+        return self.search_count(self._portal_unread_domain(user, franchise_ids, franchise_id))
 
     def _portal_get_attachment(self, attachment_id):
         """File đính kèm chỉ khi thuộc đúng thông báo này (đóng IDOR /web/content)."""

@@ -238,12 +238,10 @@ class TestJv7PortalByLang(NotificationCommon, HttpCase):
                     if noti.id in mine:
                         self.assertEqual(mine[noti.id]['priority_label'], labels[noti.priority])
 
-    def test_error_message_in_user_language(self):
+    def test_mark_all_without_store_not_an_error(self):
+        # WJ-NOTI-001: chưa chọn cửa hàng vẫn đánh dấu được thông báo toàn hệ — không còn STORE_NOT_SELECTED.
+        # Câu lỗi theo ngôn ngữ vẫn kiểm ở test_error_messages_vi_unchanged.
         self.authenticate('jv7.noti.ns', 'jv7.noti.ns')
         res = self.make_jsonrpc_request('/portal/notification/mark-all-read')
-        self.assertEqual(res['error'], 'STORE_NOT_SELECTED')
-        self.assertEqual(res['message'], ERRORS_VI['STORE_NOT_SELECTED'])
-        self.user_nostore.lang = 'en_US'
-        self.authenticate('jv7.noti.ns', 'jv7.noti.ns')
-        res = self.make_jsonrpc_request('/portal/notification/mark-all-read')
-        self.assertEqual(res['message'], 'Please select a store first.')
+        self.assertTrue(res['success'])
+        self.assertNotIn('error', res)

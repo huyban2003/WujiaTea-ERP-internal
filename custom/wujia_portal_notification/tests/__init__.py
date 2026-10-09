@@ -6,3 +6,4 @@ from . import test_e5b_list_card_read_state
 from . import test_portal_notification_f11
 from . import test_jv7_i18n
 from . import test_i4b_notification_scope
+from . import test_i6_unread_one_rule

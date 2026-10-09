@@ -47,8 +47,12 @@
                         <t t-set="_nt_m_marked_one">Marked %s notification as read.</t>
                         <t t-set="_nt_m_marked_n">Marked %s notifications as read.</t>
                         <t t-set="_nt_bulk_msgs" t-value="{'data-wj-msg-mark-failed': _nt_m_mark_failed, 'data-wj-msg-marked-one': _nt_m_marked_one, 'data-wj-msg-marked-n': _nt_m_marked_n}"/>
-                        <button type="button" id="wj-noti-bulk-read" class="wj-btn wj-btn--primary" t-att="_nt_bulk_msgs">
-                            <i class="feather icon-check-circle"/>Mark as read
+                        <!-- WJ-NOTI-001: nhãn giữ "Đánh dấu tất cả là đã đọc", phạm vi giải thích bằng tooltip. -->
+                        <t t-set="_nt_tip_all">Applies to valid all-store notifications only. Select a store to include that store's notifications.</t>
+                        <t t-set="_nt_tip_store">Applies to valid all-store notifications and those of the store you are working in.</t>
+                        <button type="button" id="wj-noti-bulk-read" class="wj-btn wj-btn--primary" t-att="_nt_bulk_msgs"
+                                t-att-title="_nt_tip_store if store_scope == 'ok' else _nt_tip_all">
+                            <i class="feather icon-check-circle"/>Mark all as read
                         </button>
                     </div>
                 </t>
