@@ -3063,3 +3063,32 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ: deploy `-u wujia_portal_base,wujia_portal_purchase_history` → `qa_sync --only WJ-PH-003 --apply` + `--only WJ-PH-009 --apply`
   (cùng nợ I1–I6) · xoá DB `wujia_i1`…`wujia_i7` + filestore khi xong.
 - Phiên kế: **I8 #160 WJ-ORD-032 + #162 WJ-SUPPORT-002 + #166 WJ-EXAM-008** (`next-session-clusters-H.md` Prompt I8).
+
+## I8 #160 WJ-ORD-032 + #162 WJ-SUPPORT-002 + #166 WJ-EXAM-008 — lệch PC↔mobile nhỏ · 09/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `f8744424` (đầu phiên I9, chưa push); sheet chưa ghi (dry-run đúng 1 dòng/issue).
+- Đầu phiên: repo up to date. `issue_queue --dev` = 22 (cụm I + #142, #169–#174). Reconcile: 0 commit/0 dòng `custom/` mang 3 ID, nhưng
+  #160 thực tế đã sửa ở `6129ca59` (06/10, "nút Xem giỏ 390" — thêm `flex-wrap`), đo UAT chỉ-đọc 360/390/430 không tràn.
+- Chủ dự án chốt: #160 chỉ ledger + đo lại (không chia cột đều) · #162 hiện đầy đủ nội dung (không thu gọn).
+- Đã làm:
+  - #160: không code. Đo DB copy + UAT: 5 khổ, tên SP ~110 ký tự, số lượng 99999 ⇒ 3 thành phần trong viewport, nút 44 (mobile)/40 (PC), 0 tràn.
+  - #162 `wujia_portal_support` 19.0.5.2.0: khối mobile thêm thẻ "Request content" (msgid PC sẵn có ⇒ "Nội dung yêu cầu") sau Meta grid,
+    trước File đính kèm; `.wujia-mticket-content` (14/21, đệm 6/14/14) + `.wj-sup-content` overflow-wrap anywhere, ảnh/bảng max-width, dùng
+    cả ở PC (PC 1440 trước đó tràn chuỗi liền dài khỏi thẻ — phát hiện khi đo).
+  - #166 `wujia_portal_exam` 19.0.7.3.0: XML khung ảnh mặc định `is-empty` + "No photo selected", bỏ tên tệp mẫu viết cứng, nút "Choose photo",
+    Xoá ảnh `hidden`; JS `resetPhotoPreview(fileLabel, error)` = nơi duy nhất vẽ trạng thái (tiêu đề, nút Chọn↔Thay, Xoá, dòng tệp, class);
+    `onPhotoPick` lỗi/thành công đi qua hàm này. 3 key `data-wj-msg-photo-{selected,choose,change}`; msgid mới "Choose photo" → "Chọn ảnh" (sửa tay `.pot`/vi_VN).
+  - Test: `wujia_portal_support/tests/test_i8_mobile_content.py` (4, tag `wujia_support_i8`) · `wujia_portal_exam/tests/test_i8_photo_state.py`
+    (3, tag `wujia_exam_i8`) · guard `test_scan_d3_card_header` support_detail 6→7 (CALL_SITES + FLUSH_VIEWS).
+- Kiểm: DB `wujia_i8` (copy `wujia_i7`, ticket 5 dựng nội dung nhiều đoạn + URL dài + chuỗi liền + tệp tên dài) · test mới 7/7 · `-u` 8 module
+  (support, exam, portal_layout, portal_base, portal_sale, portal_support, portal_exam, i18n) **821/821** sau khi sửa guard · mutation **4/4** đỏ
+  (`i8_mutate.py`) · Playwright (`i8_measure.py`) 5 khổ trước/sau: #162 mobile có thẻ, chữ gọn, Gửi cách bottom nav 41px, PC hết tràn;
+  #166 mở/validate/chọn/validate/xoá/tệp lỗi/sửa dòng có ảnh/mở lại ⇒ luôn đúng 1 trạng thái; 0 tràn, 0 JS · `check_layers` 0 mới (R7 = 2 có sẵn,
+  module Thái) · `vn_hardcode_scan` support/exam 0.
+- Đối chiếu "Kết quả mong muốn": #160 Pass (đã có trên UAT) · #162 3/3 ý Pass · #166 4/4 GIVEN/WHEN Pass.
+- LIMIT: #160 bố cục lệch theo khổ (chốt giữ), SP 5 của issue không còn bán, chỉ đo tiếng Việt (đổi lang admin trên DB nháp không áp vào phiên đo) ·
+  #162 không thu gọn nội dung dài · #166 kéo thả ảnh vẫn chỉ là chữ hướng dẫn (có sẵn), modal chỉ có ở PC.
+- Bài học: Odoo 19 `-u A --test-tags /B` chỉ chạy test của module đang nạp ⇒ hồi quy phải `-u` cả nhóm module muốn test. Sửa CSS khi server
+  đo đang chạy không đổi bundle — `-u` module rồi khởi động lại. `qa_sync.py` không có `--dry-run`: chạy không `--apply` là chạy thử.
+- Nợ: deploy `-u wujia_portal_support,wujia_portal_exam` → `qa_sync --only WJ-SUPPORT-002 --apply` + `--only WJ-EXAM-008 --apply`
+  · `qa_sync --only WJ-ORD-032 --apply` làm được ngay (đã trên UAT) · cùng nợ I1–I7 · xoá DB `wujia_i1`…`wujia_i8` + filestore khi xong.
+- Phiên kế: **I9 #167 WJ-LANG-002 + #164 WJ-INSPECT-001** (`next-session-clusters-H.md` Prompt I9).

@@ -2682,3 +2682,39 @@ WJ-PH-009:
   impact: "Chỉ trang chi tiết đơn của Lịch sử đặt hàng. Không đổi danh sách, giỏ hàng, nơi nhập ghi chú. Đo bản sao dữ liệu, 5 khổ 1920 / 1440 / 430 / 390 / 360: đơn có ghi chú 2 dòng + một chuỗi liền 200 ký tự ⇒ máy tính và điện thoại cùng nội dung, xuống dòng giữ nguyên, chữ nằm gọn trong thẻ, trang không cuộn ngang; đơn không ghi chú ⇒ Không có ghi chú ở cả hai kênh, không lấy nhầm ghi chú giao hàng. Mốc UAT trước khi cập nhật: S00077 trên máy tính không có chữ QA-RETEST-ISSUE-148 nào"
   retest: "Mở /portal/purchase-history/77 (S00077, chọn cửa hàng TP HCM Quận 1). Máy tính 1440: có thẻ Ghi chú khi đặt hàng với nội dung QA-RETEST-ISSUE-148-DOUBLECLICK-20261002, tách khỏi dòng Ghi chú giao hàng trong khung Batch / giao hàng. Điện thoại 390: cùng nội dung ở thẻ Ghi chú khi đặt hàng. Mở một đơn không có ghi chú: cả hai kênh hiện Không có ghi chú. Nếu có đơn ghi chú nhiều dòng hoặc rất dài: xuống dòng giữ nguyên, không tràn ngang"
   limit: "Không có. Chưa thử ghi chú dạng định dạng (in đậm, đường dẫn) vì ô nhập ở giỏ hàng chỉ nhận chữ thường"
+
+# I8 (09/10/2026) — lệch PC↔mobile nhỏ: 160 WJ-ORD-032 · 162 WJ-SUPPORT-002 · 166 WJ-EXAM-008.
+#   Chủ dự án chốt: #160 đã sửa tình cờ ở 6129ca59 (đã lên UAT) ⇒ chỉ đo lại + ghi sổ, không code lại;
+#   #162 hiện ĐẦY ĐỦ nội dung (không thu gọn).
+WJ-ORD-032:
+  stt: 160
+  sprint: "2026-10-09-I8"
+  build_override: "ĐÃ lên UAT (bản sửa 06/10/2026) http://113.161.187.126:8019 | Sprint 2026-10-09-I8 | commit: 6129ca59 | Deploy: không cần thêm — đo lại CHỈ ĐỌC trên UAT 09/10/2026 | URL: /portal/order/product/<id>"
+  url: "/portal/order/product/<id> — chi tiết sản phẩm, điện thoại 360 / 390 / 430 và máy tính 1440 / 1920 (UAT 09/10: /portal/order/product/4; sản phẩm 5 trong issue hiện không còn đặt được)"
+  odoo_fit: "Custom"
+  fix: "Nguyên nhân: hàng Số lượng / Thêm vào giỏ / Xem giỏ là một hàng ngang không được xuống dòng, nên trên điện thoại nút Xem giỏ bị đẩy ra ngoài mép phải. Đã sửa trong đợt sửa lỗi sau UAT ngày 06/10/2026 (cùng đợt Việt hoá Đặt hàng) và đã có trên UAT: hàng được phép xuống dòng, nhãn nút không bị bẻ chữ. Phiên này không đổi mã, chỉ đo lại và ghi sổ"
+  impact: "Chỉ hàng nút ở trang chi tiết sản phẩm. Đo 09/10/2026: trên UAT chỉ đọc (điện thoại 360, 390, 430) và trên bản sao dữ liệu (thêm máy tính 1440, 1920, tên sản phẩm rất dài, số lượng 5 chữ số): ô số lượng, Thêm vào giỏ, Xem giỏ đều nằm trong màn hình, đọc đủ nhãn, nút cao 44 trên điện thoại và 40 trên máy tính, trang không cuộn ngang. Ở 360 hai nút cùng xuống dòng thứ hai; ở 390 và 430 Xem giỏ xuống dòng thứ hai; máy tính giữ một hàng như cũ"
+  retest: "Mở chi tiết một sản phẩm đang bán (ví dụ /portal/order/product/4) trên điện thoại 360, 390, 430: thấy đủ ô số lượng, nút Thêm vào giỏ và Xem giỏ, không bị cắt, không cuộn ngang; gõ số lượng 99999 vẫn không tràn; bấm Xem giỏ mở giỏ hàng (không cần thêm sản phẩm). Máy tính 1440: bốn thành phần trên một hàng như trước"
+  limit: "Thứ nhất, bố cục khác nhau theo khổ: ở 360 hai nút cùng xuống dòng, ở 390 và 430 chỉ Xem giỏ xuống dòng (chủ dự án chốt giữ, không chia cột đều). Thứ hai, sản phẩm 5 trong issue hiện không mở được trên UAT (báo sản phẩm không còn bán) nên đo trên sản phẩm 4. Thứ ba, chỉ đo giao diện tiếng Việt; nhãn tiếng Anh ngắn hơn hoặc bằng"
+
+WJ-SUPPORT-002:
+  stt: 162
+  sprint: "2026-10-09-I8"
+  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I8 | commit: f8744424 | Deploy: -u wujia_portal_support rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/support/<id>"
+  url: "/portal/support/<id> — chi tiết yêu cầu hỗ trợ, điện thoại và máy tính (ví dụ WJ-TK/26/00006 /portal/support/6)"
+  odoo_fit: "Custom"
+  fix: "Nguyên nhân: bản điện thoại của trang chi tiết yêu cầu hỗ trợ chưa từng có khối nội dung — chỉ bản máy tính có. Nay điện thoại có thẻ Nội dung yêu cầu ngay dưới khối thông tin (Nhóm, Ưu tiên, Người gửi, Ngày tạo), trước File đính kèm, Lịch sử trao đổi và ô trả lời, nên đọc được nội dung gốc trước khi phản hồi. Hiện đầy đủ, không thu gọn; giữ xuống dòng, đoạn, danh sách như người gửi nhập; đường dẫn hay chuỗi rất dài tự xuống dòng trong thẻ. Không có nội dung thì hiện dấu gạch như máy tính. Máy tính giữ nguyên khối Nội dung yêu cầu, chỉ thêm tự xuống dòng cho chuỗi dài (trước đây chuỗi liền rất dài tràn ra khỏi thẻ ở khổ 1440)"
+  impact: "Chỉ trang chi tiết yêu cầu hỗ trợ. Không đổi dữ liệu, danh sách, tạo mới, trả lời. Đo bản sao dữ liệu ở 1920 / 1440 / 430 / 390 / 360 với phiếu có nội dung nhiều đoạn, danh sách đánh số, một đường dẫn rất dài và một chuỗi liền 90 ký tự, kèm tệp đính kèm tên dài, và phiếu WJ-TK/26/00006: điện thoại hiện đủ nội dung giống máy tính, chữ nằm gọn trong thẻ, trang không cuộn ngang; cuộn tới cuối, nút Gửi cách thanh điều hướng dưới 41 px, không bị che. Máy tính hết tràn chuỗi dài, các khối khác không đổi"
+  retest: "Mở /portal/support/6 (WJ-TK/26/00006, chọn cửa hàng của phiếu) trên điện thoại 390: thấy thẻ Nội dung yêu cầu với Reset mật khẩu user POS. và Ticket #3, state=waiting_customer., trước Lịch sử trao đổi; cuộn tới cuối, ô trả lời và nút Gửi không bị thanh dưới che. Lặp ở 360 và 430. Máy tính 1440: khối Nội dung yêu cầu như trước. Nếu có phiếu nội dung dài nhiều dòng hoặc có đường dẫn dài: đọc đủ, không tràn ngang"
+  limit: "Không thu gọn nội dung dài (chủ dự án chốt hiện đầy đủ) — phiếu rất dài phải cuộn qua mới tới phần trao đổi. Không thử nội dung có ảnh chèn trong bài vì ô nhập ở cổng chỉ nhận chữ"
+
+WJ-EXAM-008:
+  stt: 166
+  sprint: "2026-10-09-I8"
+  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I8 | commit: f8744424 | Deploy: -u wujia_portal_exam rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/exam/register"
+  url: "/portal/exam/register — hộp Thêm người đăng ký, máy tính 1440 / 1920"
+  odoo_fit: "Custom"
+  fix: "Nguyên nhân: khung ảnh trong hộp Thêm người có tiêu đề Ảnh đã được chọn và một tên tệp mẫu viết cứng sẵn trong trang; khi mở hộp, chương trình chỉ đổi dòng tên tệp thành Chưa chọn ảnh mà không đổi tiêu đề, nên hai trạng thái hiện cùng lúc. Nay khung ảnh có đúng một trạng thái, do một chỗ duy nhất quyết định theo việc đã có ảnh hay chưa. Chưa có ảnh: tiêu đề Chưa chọn ảnh, ảnh đại diện mặc định, một nút Chọn ảnh, không có dòng tên tệp, không có nút Xóa ảnh. Đã có ảnh: tiêu đề Ảnh đã được chọn, ảnh xem trước, tên tệp và định dạng (hoặc Ảnh đã chọn khi sửa một người đã có ảnh), nút Thay ảnh và Xóa ảnh. Xóa ảnh trở về chưa chọn; tệp không hợp lệ trở về chưa chọn kèm câu báo lỗi. Bấm Thêm người khi thiếu tên hoặc số điện thoại chỉ hiện lỗi của ô nhập, trạng thái ảnh giữ đúng như trước khi bấm"
+  impact: "Chỉ khung ảnh trong hộp Thêm/Sửa người ở màn Đăng ký thi trên máy tính. Không đổi cách lưu ảnh, kiểm tra tệp (JPG/PNG, tối đa 5 MB), gửi đăng ký; luồng đăng ký trên điện thoại không có khung này. Đo bản sao dữ liệu ở 1440 và 1920, không gửi đăng ký: mở hộp → chỉ Chưa chọn ảnh; bấm Thêm người khi trống → lỗi tên và số điện thoại hiện, vẫn Chưa chọn ảnh; chọn ảnh PNG → xem trước + Ảnh đã được chọn + tên tệp, nút Thay ảnh và Xóa ảnh; bấm Thêm người khi trống lần nữa → vẫn Ảnh đã được chọn; Xóa ảnh → Chưa chọn ảnh; chọn tệp không phải ảnh → Chưa chọn ảnh + câu Ảnh không hợp lệ; thêm một người có ảnh rồi bấm Sửa → Ảnh đã được chọn; mở Thêm người mới → Chưa chọn ảnh. Không lần nào hai trạng thái cùng hiện, không lỗi trang"
+  retest: "Máy tính 1440, mở /portal/exam/register, bấm Thêm người: khung ảnh chỉ có Chưa chọn ảnh và nút Chọn ảnh. Bấm Thêm người khi để trống tên và số điện thoại: hiện lỗi hai ô, khung ảnh vẫn Chưa chọn ảnh. Chọn một ảnh JPG hoặc PNG nhỏ: thấy ảnh xem trước, Ảnh đã được chọn, tên tệp, nút Thay ảnh và Xóa ảnh. Bấm Xóa ảnh: trở lại Chưa chọn ảnh. Không cần gửi đăng ký"
+  limit: "Dòng Hoặc kéo thả ảnh mới vẫn là chữ hướng dẫn, kéo thả chưa hoạt động (có từ trước, ngoài phạm vi issue). Chưa đo hộp ở khổ điện thoại vì điện thoại dùng luồng đăng ký riêng không có khung ảnh này"

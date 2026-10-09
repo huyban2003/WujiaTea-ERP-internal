@@ -112,7 +112,7 @@ luôn chen trước H (Step 2b `/wujia-start`).
 | I5 | #153 role theo cửa hàng đang chọn, chặn backend + ẩn menu/nút | base, report, debt, info_request, layout (nav) | Cao | ✅ 09/10 `b9e7c3c7` (ledger #153) |
 | I6 | #159 WJ-NOTI-001 phạm vi đã đọc + một luật số chưa đọc (migration dấu đọc) | wujia_notification (L2), portal_notification, portal_base | Cao | ✅ 09/10 `76f5671d` (ledger #159) |
 | I7 | #62 WJ-PH-003 Lịch sử gồm đơn Đã hủy (Dev nhận 07/10) + #163 WJ-PH-009 ghi chú đặt hàng PC | portal_purchase_history, portal_base | Thấp | ✅ 09/10 `34880bf0` (ledger #62 + #163) |
-| I8 | #160 WJ-ORD-032 · #162 WJ-SUPPORT-002 · #166 WJ-EXAM-008 — lệch PC↔mobile nhỏ | portal_sale, portal_support, portal_exam | Thấp | ☐ |
+| I8 | #160 WJ-ORD-032 · #162 WJ-SUPPORT-002 · #166 WJ-EXAM-008 — lệch PC↔mobile nhỏ | portal_sale, portal_support, portal_exam | Thấp | ✅ 09/10 `f8744424` (ledger #160 `6129ca59` + #162 + #166) |
 | I9 | #167 WJ-LANG-002 cờ ngôn ngữ PC + #164 WJ-INSPECT-001 ngôn ngữ trang Khảo sát | portal_layout (+ bàn giao Thái) | Thấp | ☐ |
 | I10 | #168 UI-LISTCARD-002 typography ListCard + badge **(gộp H2)** | layout + module màn | TB | ☐ |
 | **★IR** | **Review cụm I: ma trận role × store × route bằng máy + ảnh** | 0 / vá nhỏ | — | ☐ |
