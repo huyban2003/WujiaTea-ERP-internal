@@ -2978,3 +2978,31 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   `qa_sync --only WJ-PORTAL-SCOPE-001 --apply` + `--only WJ-EXAM-001 --apply` · báo BA: Hỗ trợ/Thông báo nay theo cửa hàng · Khảo sát bàn giao ·
   issue chưa phân cụm #142, #169–#174 · xoá DB `wujia_i1`…`wujia_i4b` + filestore khi xong.
 - Phiên kế: **I5 #153 WJ-PORTAL-ROLE-001** (role theo cửa hàng đang chọn; có Báo cáo + menu YC cập nhật).
+
+## I5 #153 WJ-PORTAL-ROLE-001 · 09/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `b9e7c3c7` (đã push); sheet chưa ghi (`--apply` sau deploy).
+- Chủ dự án chốt: Home **ẩn hẳn ô Công nợ** với Nhân viên · YC cập nhật **chỉ chặn backend** (không thêm lối vào) ·
+  `/portal/franchises/<id>`, `/my/franchises/<id>`, JSON members **theo role tại đúng cửa hàng đó** · **một trang "Không có quyền" chung** (403).
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.41.0: `STORE_ADMIN_ROLES`, `get_current_store_role()` (cache theo request), `is_current_store_admin()`,
+    `render_no_permission()` + `views/portal_no_permission.xml`; xoá `get_max_role_in_franchises` + `ROLE_RANK`; Home `show_debt_kpi`;
+    Hồ sơ cửa hàng chỉ query thành viên khi Chủ/QL (mobile thêm thẻ "Thông tin thành viên" cho Nhân viên); `_members_if_admin` cho 2 route cũ;
+    shell `_nav_store_admin` thay vòng lặp `_nav_mgr_fids`.
+  - `wujia_portal_layout` 19.0.60.5.0: `.wujia-mhome-hero-kpis` lưới tự co 4 ⇄ 3 ô.
+  - `wujia_portal_report` 19.0.3.2.0 (trang 403, export ⇒ về trang báo cáo, bỏ `max_role`) · `wujia_portal_debt` 19.0.5.1.0 (`_debt_access`,
+    bỏ `portal_debt_no_permission`, KPI Home không query với Nhân viên) · `wujia_portal_info_request` 19.0.3.2.0 (guard list/new/detail/cancel/tệp/AJAX
+    gọi lại L2 `_portal_can_request`, bỏ `Forbidden` thô). Nav sidebar + sheet report/debt theo luật chung.
+  - i18n: `.pot` 4 module sinh lại; vi_VN thêm câu mới, xoá câu chết (sửa tay theo msgid, không qua polib để giữ diff nhỏ).
+  - Test tag `wujia_role_i5` (base 4 · report · debt · info_request); sửa `test_f5_nav_item` ×2, `test_scan_e7_page_container`, `test_e8c_account_menu`,
+    `test_f5_menu_ownership`, `test_scan_d3_card_header` (6→7), `test_portal_debt` (200→403), `test_jv8b_i18n`.
+- Kiểm: DB `wujia_i5` (copy `wujia_i4b`) `-u` 5 module + hồi quy sale/return/exam/notification/delivery/purchase_history/support/knowledge:
+  1060 test, 1 đỏ (snapshot i18n câu cũ) ⇒ sửa, rerun info_request + I5 22/22 RC=0 · mutation **5/5** đỏ (report guard · YC list guard ·
+  KPI nợ luôn gửi · thành viên luôn query · nav luôn admin) · Playwright Chủ@HN-01+NV@HCM-01 và QL@HN-01 × 17 route × 1920/391 (`i5_measure.py`):
+  NV ⇒ 403 đủ màn, export 303, AJAX forbidden, menu/sheet không Báo cáo/Công nợ, Home 3 ô đều; Chủ/QL ⇒ 200, xlsx thật, 4 ô; 0 JS ·
+  `check_layers` 0 mới · `vn_hardcode_scan` 0.
+- Đối chiếu "Kết quả mong muốn": 6/6 gạch Pass. LIMIT: YC chưa có lối vào menu · route cũ theo cửa hàng mang mã · Hỗ trợ/Khảo sát/Metabase ngoài phạm vi ·
+  `/my/franchises` (danh sách website gốc) tràn ngang mobile 81px — có sẵn.
+- Bài học: CSRF token trong HttpCase phải lấy SAU `authenticate` (đổi session). Test cũ mã hoá luật "QL nơi khác thấy Báo cáo" ⇒ đổi theo luật mới.
+- Nợ: deploy `-u wujia_portal_base,wujia_portal_layout,wujia_portal_report,wujia_portal_debt,wujia_portal_info_request` →
+  `qa_sync --only WJ-PORTAL-ROLE-001 --apply` (cùng nợ I1–I4b) · xoá DB `wujia_i1`…`wujia_i5` + filestore khi xong.
+- Phiên kế: **I6 #159 WJ-NOTI-001** (`next-session-clusters-H.md` Prompt I6 — ledger đã có entry 08/2026 cùng ID ⇒ thay entry, dùng `stt: 159`).
