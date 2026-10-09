@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Exam (Training / Exams)',
-    'version': '19.0.7.2.0',
+    'version': '19.0.7.3.0',
     'category': 'Wujia',
     'summary': 'Portal exam registration screens (PC + mobile) — business logic lives in wujia_exam (F12).',
     'author': 'WujiaTea',

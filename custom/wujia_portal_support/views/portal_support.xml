@@ -410,7 +410,7 @@
                                     <t t-set="ch_class" t-value="'wj-surface-card__head wj-card-header--flush'"/>
                                 </t>
                                 <div class="wj-surface-card__body">
-                                    <div t-out="ticket.description or '—'"/>
+                                    <div class="wj-sup-content wj-richtext" t-out="ticket.description or '—'"/>
                                 </div>
                             </div>
                             <t t-set="portal_files" t-value="ticket._portal_attachments()"/>
@@ -562,6 +562,22 @@
                                   t-out="ticket.create_date and ticket.create_date.strftime('%d/%m/%Y') or '—'"/>
                         </span>
                     </div>
+                </t>
+
+                <!-- WJ-SUPPORT-002: nội dung gốc như PC, đọc đủ trước khi trả lời (không thu gọn). -->
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_body" t-value="'flush'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <div class="wj-surface-headpad">
+                        <t t-call="wujia_portal_layout.wj_card_header">
+                            <t t-set="ch_title">Request content</t>
+                            <t t-set="ch_level" t-value="2"/>
+                            <t t-set="ch_platform" t-value="'m'"/>
+                            <t t-set="ch_class" t-value="'wj-card-header--flush'"/>
+                        </t>
+                    </div>
+                    <div class="wujia-mticket-content wj-sup-content wj-richtext" t-out="ticket.description or '—'"/>
                 </t>
 
                 <!-- File đính kèm -->

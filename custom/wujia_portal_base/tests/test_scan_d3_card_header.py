@@ -25,7 +25,7 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_delivery.portal_delivery_detail': 4,
         'wujia_portal_base.portal_franchise_information': 7,
         'wujia_portal_support.portal_support_form': 1,
-        'wujia_portal_support.portal_support_detail': 6,  # +1 thẻ "File đính kèm" mobile (26/09)
+        'wujia_portal_support.portal_support_detail': 7,  # +1 thẻ "File đính kèm" mobile (26/09) · +1 "Nội dung yêu cầu" mobile (I8)
         # D3b — nhóm màn kế tiếp
         # G3b/142: Khung giờ (PC + mobile) + 7 block Home PC V4 (3 block list cũ đã bỏ)
         'wujia_portal_base.portal_home_page': 9,
@@ -66,7 +66,8 @@ class TestCardHeaderCallSites(TransactionCase):
         'wujia_portal_knowledge.portal_knowledge_list': 1,
         'wujia_portal_knowledge.portal_knowledge_detail': 1,
         # D3c: 4 card Bootstrap + card "Lịch sử trao đổi" (card khai padding:0) + thẻ "File đính kèm" mobile
-        'wujia_portal_support.portal_support_detail': 6,
+        # + thẻ "Nội dung yêu cầu" mobile (I8, WJ-SUPPORT-002)
+        'wujia_portal_support.portal_support_detail': 7,
         # khối `wj-pc-acct-staff` — dòng `__line` dưới đã tự khai margin-top 8px
         'wujia_portal_base.portal_franchise_information': 1,
         # summary head chuyến giao — `.wj-pc-order-head` đã có padding riêng

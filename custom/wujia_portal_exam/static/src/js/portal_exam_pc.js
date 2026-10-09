@@ -112,6 +112,10 @@
         var saveBtn      = qs(root, "[data-wj-exam-part-save]");
         var thumb        = qs(root, ".wj-exam-pc-thumb");
         var fileNameEl   = qs(root, ".wj-exam-pc-photobox__file");
+        var photoBox     = qs(root, ".wj-exam-pc-photobox");
+        var photoTitle   = qs(root, ".wj-exam-pc-photobox__title");
+        var photoPickBtn = qs(root, ".wj-exam-pc-photobtn:not(.wj-exam-pc-photobtn--del)");
+        var photoDelBtn  = qs(root, ".wj-exam-pc-photobtn--del");
 
         /* ---- state ---- */
         var editingRow = null;      // <tr> đang sửa, null = chế độ thêm
@@ -356,7 +360,22 @@
             return tr;
         }
 
-        function resetPhotoPreview() {
+        /* WJ-EXAM-008 — nơi DUY NHẤT vẽ trạng thái ảnh từ modalPhoto: chưa chọn / đã chọn loại trừ nhau.
+           fileLabel: tên tệp vừa chọn; error: câu lỗi khi tệp không hợp lệ (vẫn là trạng thái chưa chọn). */
+        function resetPhotoPreview(fileLabel, error) {
+            var has = !!modalPhoto;
+            if (photoBox) { photoBox.classList.toggle("is-empty", !has); }
+            if (photoTitle) {
+                photoTitle.textContent = has ? m("photo-selected", "Photo selected") : m("photo-none", "No photo selected");
+            }
+            if (photoPickBtn) {
+                photoPickBtn.textContent = has ? m("photo-change", "Change photo") : m("photo-choose", "Choose photo");
+            }
+            if (photoDelBtn) { photoDelBtn.hidden = !has; }
+            if (fileNameEl) {
+                fileNameEl.textContent = error || (has ? (fileLabel || m("photo-chosen", "Photo chosen")) : "");
+                fileNameEl.hidden = !fileNameEl.textContent;
+            }
             if (thumb) {
                 if (modalPhoto) {
                     thumb.innerHTML = "";
@@ -369,7 +388,6 @@
                     thumb.innerHTML = '<i class="feather icon-user"></i>';
                 }
             }
-            if (fileNameEl) { fileNameEl.textContent = modalPhoto ? m("photo-chosen", "Photo chosen") : m("photo-none", "No photo selected"); }
         }
         function clearFieldInvalid() {
             qsa(root, ".wj-exam-pc-formgrid .wj-pc-field").forEach(function (f) {
@@ -430,18 +448,13 @@
             if (!file) { return; }
             if (!PHOTO_MIME_RE.test(file.type) || file.size > MAX_PHOTO_BYTES) {
                 modalPhoto = ""; fileInput.value = "";
-                resetPhotoPreview();
-                if (fileNameEl) { fileNameEl.textContent = m("photo-invalid", "Invalid photo (JPG/PNG, ≤ 5 MB)."); }
+                resetPhotoPreview("", m("photo-invalid", "Invalid photo (JPG/PNG, ≤ 5 MB)."));
                 return;
             }
             var reader = new FileReader();
             reader.onload = function () {
                 modalPhoto = reader.result || "";
-                resetPhotoPreview();
-                if (fileNameEl) {
-                    fileNameEl.textContent = file.name + " · "
-                        + ((file.type.split("/")[1] || "").toUpperCase());
-                }
+                resetPhotoPreview(file.name + " · " + ((file.type.split("/")[1] || "").toUpperCase()));
             };
             reader.readAsDataURL(file);
         }

@@ -58,6 +58,19 @@
         outline: none;
         border-color: var(--wujia-morder-primary);
     }
+    /* WJ-SUPPORT-002: thẻ Nội dung yêu cầu mobile (body flush ⇒ tự đệm như thread). */
+    .wujia-mticket-content {
+        padding: 6px 14px 14px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--wujia-morder-text);
+    }
 }
+
+/* WJ-SUPPORT-002: nội dung phiếu (HTML) — chuỗi/URL dài xuống dòng trong thẻ, cả PC + mobile. */
+.wj-sup-content { overflow-wrap: anywhere; }
+.wj-sup-content p:last-child { margin-bottom: 0; }
+.wj-sup-content img,
+.wj-sup-content table { max-width: 100%; height: auto; }
 
 .support-chatter .wj-surface-card__body { min-height: 220px; }

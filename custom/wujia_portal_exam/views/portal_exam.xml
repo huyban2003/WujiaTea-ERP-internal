@@ -245,6 +245,9 @@
             <t t-set="_ex_m_photo_missing">No photo</t>
             <t t-set="_ex_m_photo_chosen">Photo chosen</t>
             <t t-set="_ex_m_photo_none">No photo selected</t>
+            <t t-set="_ex_m_photo_selected">Photo selected</t>
+            <t t-set="_ex_m_photo_choose">Choose photo</t>
+            <t t-set="_ex_m_photo_change">Change photo</t>
             <t t-set="_ex_m_modal_edit">Edit participant</t>
             <t t-set="_ex_m_modal_add">Add participant</t>
             <t t-set="_ex_m_save">Save</t>
@@ -274,7 +277,7 @@
             <t t-set="_ex_m_choose_slot">Please choose an exam time slot.</t>
             <t t-set="_ex_m_check_people">Check the participant details again.</t>
             <t t-set="_ex_m_conn_retry">Connection error. Please try again.</t>
-            <t t-set="_ex_msgs" t-value="{'data-wj-msg-pick-day': _ex_m_pick_day, 'data-wj-msg-no-slots': _ex_m_no_slots, 'data-wj-msg-loading-slots': _ex_m_loading_slots, 'data-wj-msg-load-failed': _ex_m_load_failed, 'data-wj-msg-load-error': _ex_m_load_error, 'data-wj-msg-slot-title': _ex_m_slot_title, 'data-wj-msg-slot-title-empty': _ex_m_slot_title_empty, 'data-wj-msg-seats-left': _ex_m_seats_left, 'data-wj-msg-max-hint': _ex_m_max_hint, 'data-wj-msg-max-hint-none': _ex_m_max_hint_none, 'data-wj-msg-edit-row': _ex_m_edit_row, 'data-wj-msg-remove-row': _ex_m_remove_row, 'data-wj-msg-photo-uploaded': _ex_m_photo_uploaded, 'data-wj-msg-photo-missing': _ex_m_photo_missing, 'data-wj-msg-photo-chosen': _ex_m_photo_chosen, 'data-wj-msg-photo-none': _ex_m_photo_none, 'data-wj-msg-modal-edit': _ex_m_modal_edit, 'data-wj-msg-modal-add': _ex_m_modal_add, 'data-wj-msg-save': _ex_m_save, 'data-wj-msg-add-person': _ex_m_add_person, 'data-wj-msg-name-phone-required': _ex_m_name_phone_required, 'data-wj-msg-max-people': _ex_m_max_people, 'data-wj-msg-photo-invalid': _ex_m_photo_invalid, 'data-wj-msg-no-slot-title': _ex_m_no_slot_title, 'data-wj-msg-no-slot-text': _ex_m_no_slot_text, 'data-wj-msg-no-people-title': _ex_m_no_people_title, 'data-wj-msg-no-people-text': _ex_m_no_people_text, 'data-wj-msg-missing-title': _ex_m_missing_title, 'data-wj-msg-missing-text': _ex_m_missing_text, 'data-wj-msg-submit-failed': _ex_m_submit_failed, 'data-wj-msg-keep-data': _ex_m_keep_data, 'data-wj-msg-submit-failed-title': _ex_m_submit_failed_title, 'data-wj-msg-conn-error': _ex_m_conn_error, 'data-wj-msg-no-open-slots': _ex_m_no_open_slots, 'data-wj-msg-person-n': _ex_m_person_n, 'data-wj-msg-add-photo': _ex_m_add_photo, 'data-wj-msg-need-name-phone': _ex_m_need_name_phone, 'data-wj-msg-phone-invalid': _ex_m_phone_invalid, 'data-wj-msg-cf-phone': _ex_m_cf_phone, 'data-wj-msg-cf-birth': _ex_m_cf_birth, 'data-wj-msg-cf-job': _ex_m_cf_job, 'data-wj-msg-photo-too-big': _ex_m_photo_too_big, 'data-wj-msg-choose-slot': _ex_m_choose_slot, 'data-wj-msg-check-people': _ex_m_check_people, 'data-wj-msg-conn-retry': _ex_m_conn_retry}"/>
+            <t t-set="_ex_msgs" t-value="{'data-wj-msg-pick-day': _ex_m_pick_day, 'data-wj-msg-no-slots': _ex_m_no_slots, 'data-wj-msg-loading-slots': _ex_m_loading_slots, 'data-wj-msg-load-failed': _ex_m_load_failed, 'data-wj-msg-load-error': _ex_m_load_error, 'data-wj-msg-slot-title': _ex_m_slot_title, 'data-wj-msg-slot-title-empty': _ex_m_slot_title_empty, 'data-wj-msg-seats-left': _ex_m_seats_left, 'data-wj-msg-max-hint': _ex_m_max_hint, 'data-wj-msg-max-hint-none': _ex_m_max_hint_none, 'data-wj-msg-edit-row': _ex_m_edit_row, 'data-wj-msg-remove-row': _ex_m_remove_row, 'data-wj-msg-photo-uploaded': _ex_m_photo_uploaded, 'data-wj-msg-photo-missing': _ex_m_photo_missing, 'data-wj-msg-photo-chosen': _ex_m_photo_chosen, 'data-wj-msg-photo-none': _ex_m_photo_none, 'data-wj-msg-photo-selected': _ex_m_photo_selected, 'data-wj-msg-photo-choose': _ex_m_photo_choose, 'data-wj-msg-photo-change': _ex_m_photo_change, 'data-wj-msg-modal-edit': _ex_m_modal_edit, 'data-wj-msg-modal-add': _ex_m_modal_add, 'data-wj-msg-save': _ex_m_save, 'data-wj-msg-add-person': _ex_m_add_person, 'data-wj-msg-name-phone-required': _ex_m_name_phone_required, 'data-wj-msg-max-people': _ex_m_max_people, 'data-wj-msg-photo-invalid': _ex_m_photo_invalid, 'data-wj-msg-no-slot-title': _ex_m_no_slot_title, 'data-wj-msg-no-slot-text': _ex_m_no_slot_text, 'data-wj-msg-no-people-title': _ex_m_no_people_title, 'data-wj-msg-no-people-text': _ex_m_no_people_text, 'data-wj-msg-missing-title': _ex_m_missing_title, 'data-wj-msg-missing-text': _ex_m_missing_text, 'data-wj-msg-submit-failed': _ex_m_submit_failed, 'data-wj-msg-keep-data': _ex_m_keep_data, 'data-wj-msg-submit-failed-title': _ex_m_submit_failed_title, 'data-wj-msg-conn-error': _ex_m_conn_error, 'data-wj-msg-no-open-slots': _ex_m_no_open_slots, 'data-wj-msg-person-n': _ex_m_person_n, 'data-wj-msg-add-photo': _ex_m_add_photo, 'data-wj-msg-need-name-phone': _ex_m_need_name_phone, 'data-wj-msg-phone-invalid': _ex_m_phone_invalid, 'data-wj-msg-cf-phone': _ex_m_cf_phone, 'data-wj-msg-cf-birth': _ex_m_cf_birth, 'data-wj-msg-cf-job': _ex_m_cf_job, 'data-wj-msg-photo-too-big': _ex_m_photo_too_big, 'data-wj-msg-choose-slot': _ex_m_choose_slot, 'data-wj-msg-check-people': _ex_m_check_people, 'data-wj-msg-conn-retry': _ex_m_conn_retry}"/>
 
             <!-- Desktop: tối ưu cho mobile -->
             <!-- ===== PC ≥992px — Figma WJ_Exam_PC v1.2 · 02_Create (4891:2042)
@@ -588,17 +591,18 @@
                         <p class="wj-exam-pc-fieldhelp" data-wj-exam-field-help="1" hidden="hidden">Name and phone number are required.</p>
 
                         <p class="wj-exam-pc-flabel wj-exam-pc-photolabel">Staff photo</p>
-                        <div class="wj-exam-pc-photobox">
+                        <!-- WJ-EXAM-008: mặc định = trạng thái chưa chọn; JS resetPhotoPreview() là nơi duy nhất đổi sang đã chọn. -->
+                        <div class="wj-exam-pc-photobox is-empty">
                             <div class="wj-exam-pc-photobox__preview">
                                 <span class="wj-exam-pc-thumb"><i class="feather icon-user"/></span>
                                 <span class="wj-exam-pc-thumb__cap">Photo preview</span>
                             </div>
                             <div class="wj-exam-pc-photobox__main">
-                                <p class="wj-exam-pc-photobox__title">Photo selected</p>
-                                <p class="wj-exam-pc-photobox__file">anh-nguyen-van-an.jpg · JPG</p>
+                                <p class="wj-exam-pc-photobox__title">No photo selected</p>
+                                <p class="wj-exam-pc-photobox__file" hidden="hidden"/>
                                 <div class="wj-exam-pc-photobox__row">
-                                    <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-photobtn">Change photo</button>
-                                    <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-photobtn wj-exam-pc-photobtn--del">Remove photo</button>
+                                    <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-photobtn">Choose photo</button>
+                                    <button type="button" class="wj-btn wj-btn--secondary wj-exam-pc-photobtn wj-exam-pc-photobtn--del" hidden="hidden">Remove photo</button>
                                     <span class="wj-exam-pc-photobox__drop">
                                         <span class="wj-exam-pc-photobox__droptitle">Or drag and drop a new photo</span>
                                         <span class="wj-exam-pc-photobox__hint">JPG, PNG · system size limit</span>
