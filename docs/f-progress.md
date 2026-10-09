@@ -3221,3 +3221,37 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ: deploy `-u wujia_portal_layout,wujia_portal_base` → `qa_sync --only WJ-PORTAL-UI-005` + `--only WJ-HOME-001 --apply`
   · cùng nợ I1–I11 · xoá DB `wujia_i1`…`wujia_i12` + filestore khi xong.
 - Phiên kế: **I13 #170 WJ-PORTAL-UI-006 contrast token chung** (`next-session-clusters-H.md` Prompt I13).
+
+## I13 #170 WJ-PORTAL-UI-006 — tương phản chữ dùng chung ≥ 4.5:1 · 09/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `69670757` + docs, chưa push (chờ chủ dự án); sheet chưa ghi (`qa_sync` dry-run, `--apply` sau deploy).
+- Đầu phiên: I12 đã push. Reconcile #170: 0 commit / 0 dòng `custom/` / 0 ledger.
+- Gốc: #28A9DF (2.68 trên trắng) và xám #8A939E/#8A9099/#9CA3AF (2.5–3.2) dùng làm MÀU CHỮ ở ~190 khai báo, 16 file CSS; cả `--wujia-cta`
+  #0F7CA8 (4.33 trên #F3F6F8) và subtitle #6B7280 (4.45) cũng trượt. Chữ trắng trên #28A9DF / #16A34A / #EF4444. Topbar chữ trắng trên cyan.
+- Chủ dự án chốt: token + quét hết module mình (không `wujia_franchise*` / `portal_inspection` / `mobile_*`) · chữ vô hiệu cũng ≥4.5 ·
+  chữ trắng ⇒ làm đậm nền · topbar giữ nền #28A9DF, chữ + icon navy.
+- Đã làm:
+  - `wujia_portal_layout` 19.0.60.10.0 `_variables.css`: token mới `--wujia-brand-text` #166F94 / `-hover` #125C7B, `--wujia-brand-fill`
+    (= cta) / `-hover`, `--wujia-{danger,success,warning}-{text,fill}`, `--wujia-topbar-fg` #0B2430, `--wj-disabled-{fg,bg,border}`;
+    muted + subtitle → #616774, info-text #13773B; token mobile (nav, strip, morder, mres, msheet) trỏ về token mới. `--wujia-primary` giữ.
+  - Quét bằng script: 189 `color:` brand/xám cũ → token chữ; 39 khối chữ trắng + nền sáng → token `-fill`. Topbar PC + header mobile
+    đổi `--wujia-focus-ring` cục bộ sang navy. Placeholder chung `::placeholder` = muted, opacity 1. Sửa 4 hover làm mất chữ (KPI Home,
+    chip checked, FAB Đăng ký thi, nút Tạo). DataList thêm `.wj-data-item.is-disabled` (nền/viền xám) thay `opacity .55` của khoá thi đã đóng.
+  - Module màn bump: base 7.46 · debt 5.2 · delivery 4.2 · exam 7.4 · knowledge 5.1 · notification 5.1 · report 3.3 · return 5.4 · sale 5.4;
+    `assets.xml` `?v=1335` (9 file layout).
+  - Công cụ mới `scripts/qa/wj_contrast.py` (Playwright): mọi text node + placeholder + chữ SVG (`fill`), nền đặc gộp alpha + opacity,
+    hover/focus từng dạng phần tử tương tác, vòng focus so nền cha, `--diff`.
+- Kiểm: DB `wujia_i13` (copy `wujia_frp`) · `wj_contrast` 56 trang (28 route + chi tiết × 1440/390) × owner + manager, 3.702 mẫu/tài khoản
+  (default/hover/focus): **1.635 → 0** cặp <4.5, focus ring **140 → 0** <3, 0 HTTP lỗi · `wj_measure --diff` HEAD ↔ mới 5 khổ: 0 đổi chiều cao,
+  0 mất record, 0 lỗi JS · `-u` 13 module portal `--test-tags` **1127/1127** · test mới `wujia_i13` (layout token 5 + base quét CSS 3) ·
+  mutation **13/13** (`i13_mutate.py`) · sửa 4 guard cũ ghim màu cũ (E3 pager #9CA3AF, E8 sidebar primary-dark, G2 chevron, D5h tự kiểm
+  rỗng ⇒ tự kiểm bằng mẫu) · `check_layers` 0 mới (R7 2 cũ ở `wujia_franchise`) · `vn_hardcode_scan` 10 module 0.
+- Đối chiếu "Kết quả mong muốn" #170: Pass — Sidebar, bảng/list, StoreContextBar, BottomNavigation, FilterChip, StatusBadge, link ≥4.5 ở
+  mọi trạng thái PC + mobile; đang chọn/chưa chọn phân biệt bằng nền + đậm; #28A9DF giữ cho nền/viền/icon/topbar; focus ≥3.
+- LIMIT: 12 dòng chữ sáng trên gradient tối Home mobile máy không đo (tính tay ≥5.6) · icon trắng header mobile giữ · dialog chọn cửa hàng /
+  dropdown mở chưa đo bằng máy · muted = subtitle cùng xám · nền `alert-info` Vuexy giữ · nhóm Thái chưa sửa.
+- Bài học: đo chữ SVG phải đọc `fill`, không `color` (báo động giả biểu đồ) · guard "phải quét trúng ≥1 rule" vỡ khi rule cuối bị bỏ đúng ⇒
+  tự kiểm guard bằng mẫu · `--logfile=/dev/null` làm hỏng chuyển log của wujia_core (RC 255).
+- Nợ: deploy `-u wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_delivery,wujia_portal_exam,wujia_portal_knowledge,
+  wujia_portal_notification,wujia_portal_report,wujia_portal_return,wujia_portal_sale` → `qa_sync --only WJ-PORTAL-UI-006 --apply` · cùng nợ
+  I1–I12 · xoá DB `wujia_i1`…`wujia_i13` + filestore khi xong.
+- Phiên kế: **★IR Review cụm I** (`next-session-clusters-H.md` Prompt ★IR).

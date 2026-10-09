@@ -134,7 +134,7 @@ luôn chen trước H (Step 2b `/wujia-start`).
 | I10 | #168 UI-LISTCARD-002 typography ListCard + badge **(gộp H2)** | layout + module màn | TB | ✅ 09/10 `5b0d057c` (ledger #168) |
 | I11 | #174 WJ-PROFILE-003 card thành viên + #172 WJ-PROFILE-001 PC thiếu trường + #173 WJ-PROFILE-002 số ngày còn lại | base (Hồ sơ cửa hàng) | TB | ✅ 09/10 |
 | I12 | #169 WJ-PORTAL-UI-005 overlay chọn cửa hàng (role=dialog, focus) + #171 WJ-HOME-001 khối đầu Trang chủ PC | layout, base | TB | ✅ 09/10 |
-| I13 | #170 WJ-PORTAL-UI-006 contrast token chữ dùng chung ≥4.5:1 | layout (+ module màn nếu màu rời) | TB | ☐ |
+| I13 | #170 WJ-PORTAL-UI-006 contrast token chữ dùng chung ≥4.5:1 | layout + 9 module màn (base, debt, delivery, exam, knowledge, notification, report, return, sale) | TB | ✅ 09/10 |
 | **★IR** | **Review cụm I: ma trận role × store × route bằng máy + ảnh** | 0 / vá nhỏ | — | ☐ |
 | H0 | `scripts/qa/wj_cmp_audit.py` + test bánh cóc (họ legacy không tăng) | layout (test) | Thấp | ☐ |
 | H1 | Dọn code chết B1 | layout | Thấp | ☐ |
