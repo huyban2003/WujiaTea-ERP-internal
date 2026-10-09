@@ -40,3 +40,28 @@ if not franchise_ids:
 - Tham khảo cách làm ở `wujia_portal_delivery` (I4a): list + fragment AJAX + chi tiết + `.ics`, và test
   `wujia_portal_delivery/tests/test_i4a_delivery_scope.py` (ma trận chưa chọn / A / B / ID cửa hàng khác).
 - Bảng lời gọi đầy đủ: `docs/i4-scope-callers.md`.
+
+---
+
+# Bàn giao nhóm Khảo sát — ngôn ngữ header (WJ-INSPECT-001, issue #164)
+
+> Lập 09/10/2026 (phiên I9). Không sửa code `wujia_portal_inspection` — đã vá ở khung `wujia_portal_layout`.
+
+## Gốc
+
+4 route Khảo sát (`/portal/inspection`, `/ajax`, `/detail/<id>`, `/remediation/<id>` + `/submit`) khai `website=True`;
+mọi route portal khác `website=False`. Route `website=True` đi nhánh frontend của `http_routing`: ngôn ngữ lấy theo
+URL › cookie `frontend_lang` › context, lệch ngôn ngữ mặc định (`en_US`) thì redirect `/vi/portal/inspection`.
+UAT: vừa đăng nhập trình duyệt đã có `frontend_lang=en_US` ⇒ header Khảo sát ra cờ Mỹ / "English (US)" trong khi
+Home ra tiếng Việt (đo chỉ-đọc 09/10). Nội dung Khảo sát vẫn tiếng Việt vì chuỗi trong template viết cứng.
+
+## Đã vá ở khung (không cần nhóm Khảo sát làm gì để hết lỗi)
+
+`wujia_portal_layout/models/ir_http.py` `_match`: user đã đăng nhập trên `/portal*` ⇒ bỏ nhánh frontend ⇒ ngôn ngữ
+theo `res.users.lang` như mọi màn portal, không redirect `/vi/...`. Khách chưa đăng nhập giữ nguyên.
+
+## Khuyến nghị khi tiện
+
+- Bỏ `website=True` ở 4 route trên (website không cài trên portal; route không dùng `request.lang` / `request.website`).
+- Chuỗi tiếng Việt viết cứng trong template (vd `'DANH MỤC TIÊU CHÍ'` ở controller) ⇒ đưa qua `_()` / QWeb dịch được
+  để đổi ngôn ngữ thì nội dung đổi theo header.

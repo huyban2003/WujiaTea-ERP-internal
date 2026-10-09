@@ -3092,3 +3092,36 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ: deploy `-u wujia_portal_support,wujia_portal_exam` → `qa_sync --only WJ-SUPPORT-002 --apply` + `--only WJ-EXAM-008 --apply`
   · `qa_sync --only WJ-ORD-032 --apply` làm được ngay (đã trên UAT) · cùng nợ I1–I7 · xoá DB `wujia_i1`…`wujia_i8` + filestore khi xong.
 - Phiên kế: **I9 #167 WJ-LANG-002 + #164 WJ-INSPECT-001** (`next-session-clusters-H.md` Prompt I9).
+
+## I9 #167 WJ-LANG-002 + #164 WJ-INSPECT-001 — ngôn ngữ trên header · 09/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `0e53d12b` (đã push cùng I8); sheet chưa ghi (chạy thử đúng 1 dòng/issue).
+- Đầu phiên: chủ dự án chốt commit I8 riêng ⇒ `f8744424` + docs `c3f6aeda` (chưa push). `issue_queue --dev` = 22. Reconcile #167/#164:
+  0 commit / 0 dòng `custom/` / 0 ledger.
+- Gốc (tái hiện đúng số BA trên DB nháp + UAT chỉ-đọc):
+  - #167: pill PC `width: 118px !important` còn 90px cho cờ + nhãn; nhãn không co ⇒ cờ bị bóp (en 4.36×15, vi 11.38×15).
+  - #164: 4 route Khảo sát (code anh Thái) khai `website=True` ⇒ `http_routing._match` chọn lang theo URL › cookie `frontend_lang` › context,
+    lệch mặc định `en_US` thì redirect `/vi/...`. UAT: vừa đăng nhập đã có cookie `en_US` ⇒ Home Việt, Khảo sát English (cờ US).
+- Chủ dự án chốt: pill nới theo nhãn, tối thiểu 118 · #164 vá ở khung + bàn giao (không sửa `wujia_portal_inspection`).
+- Đã làm (`wujia_portal_layout` 19.0.60.6.0):
+  - `_pc_account.css` (`?v=1329`): pill `width:auto !important; min-width:118px`, nhãn nowrap; cờ `flex:0 0 20px; 20×15` (độ đặc hiệu ≥ Vuexy
+    `bootstrap-extended.css:1804`, giữ margin cũ); dải 992–1199 trả `min-width:0` (không thì pill chỉ có cờ phình 118).
+  - `models/ir_http.py` `_match`: user đã đăng nhập + path `/portal*` ⇒ gán sẵn `request.is_frontend(_multilang) = False` ⇒ http_routing bỏ
+    khâu chọn lang/redirect ⇒ mọi route portal lang = `res.users.lang`. Khách giữ nhánh cũ (J-V0).
+  - Bàn giao: mục mới trong `docs/handover-inspection-scope.md` (gốc, chỗ đã vá, khuyến nghị bỏ `website=True` + đưa chữ cứng qua `_()`).
+  - Test tag `wujia_lang_i9` (`test_i9_lang.py`, 8): cookie en cũ, không cookie (không redirect `/vi/`), header Khảo sát = Home, đổi th theo,
+    ID lạ redirect không tiền tố, khách về login, CSS cờ/pill. Sửa guard `test_g2_pc_topbar.test_pill_ngon_ngu_bo_be_rong_118` theo luật mới.
+- Kiểm: DB `wujia_i9` (copy `wujia_i8`; ⚠ `createdb -T` ra owner sai ⇒ `ALTER DATABASE … OWNER TO odoo19`, không thì Odoo về db selector) ·
+  `wujia_lang_i9` 8/8 · hồi quy `-u` 11 module (layout/base/sale/notification/support/exam/purchase_history/report/delivery/return/i18n)
+  1031/1032 → đỏ duy nhất là guard 118 cũ ⇒ sửa ⇒ layout 265/265 · mutation **4/4** đỏ (`i9_mutate.py`) · Playwright (`i9_measure.py`)
+  4 locale × 7 khổ: cờ 20×15 ở 1440/1920 mọi locale, pill en 139.6 / vi 126.6 / th, zh 118, cách giỏ 22; 992–1199 pill 55 và mobile 22×16
+  không đổi; vi + cookie en: Home → Đặt hàng → Khảo sát → chi tiết → khắc phục đều `vi-VN` + cờ VN, mobile aria "Ngôn ngữ" (trước "Language"),
+  không `/vi/`; set-lang en ⇒ Khảo sát English · `check_layers` 0 mới · `vn_hardcode_scan` layout 0.
+- Đối chiếu "Kết quả mong muốn": #167 3/3 ý Pass (3 locale × 2 khổ 20×15 căn giữa · dropdown + mobile không đổi · tên dài không chồng lấn).
+  #164 Pass (vi nhất quán qua Portal ↔ Khảo sát, không tự đổi locale, locale khác phản ánh đúng).
+- LIMIT: DB nháp 0 phiếu Khảo sát ⇒ chi tiết/khắc phục chỉ đo tới redirect về list · chữ nội dung Khảo sát vẫn viết cứng tiếng Việt (nhóm Khảo sát)
+  · pill en/vi rộng hơn 118 (chốt) · lỗi JS có sẵn `Cannot read properties of null (reading 'stop')` ở `/portal/order` 360 (trước = sau, ngoài phạm vi).
+- Bài học: route `website=True` dưới `/portal` đi nhánh lang khác hẳn route thường — đo ngôn ngữ phải thử cả có/không cookie `frontend_lang`.
+  `--test-tags` Odoo 19 là `tag/module`, không phải `/module:tag` (ra 0 test). Guard CSS cũ ghim số Figma ⇒ đổi luật thì sửa guard cùng phiên.
+- Nợ: deploy `-u wujia_portal_layout` → `qa_sync --only WJ-LANG-002 --apply` + `--only WJ-INSPECT-001 --apply`
+  · cùng nợ I1–I8 · xoá DB `wujia_i1`…`wujia_i9` + filestore khi xong.
+- Phiên kế: **I10 #168 UI-LISTCARD-002 + H2** (`next-session-clusters-H.md` Prompt I10).
