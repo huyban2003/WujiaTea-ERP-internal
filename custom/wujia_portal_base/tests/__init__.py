@@ -27,3 +27,4 @@ from . import test_jv2_i18n
 from . import test_i4a_store_scope
 from . import test_i5_store_role
 from . import test_i11_profile
+from . import test_i12_dialog_home

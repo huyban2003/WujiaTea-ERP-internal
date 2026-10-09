@@ -8,19 +8,12 @@
             <div class="content-wrapper wujia-home-wrapper">
                 <!-- Màu badge loại thông báo — một nguồn cho block PC và mobile (anh em cùng cha ⇒ cùng phạm vi) -->
                 <t t-set="noti_badge_map" t-value="{'URG': 'wujia-badge-danger', 'GEN': 'wujia-badge-info', 'PROMO': 'wujia-badge-warning', 'SYS': 'wujia-badge-muted', 'OTH': 'wujia-badge-success'}"/>
+                <!-- WJ-HOME-001 (08/10): tên trang chỉ cho trình đọc màn hình — 1 H1 visually-hidden chung PC + mobile,
+                     đặt ngoài 2 khối kênh (d-none/d-lg-none là display:none ⇒ bị bỏ khỏi cây truy cập). PC bỏ
+                     PageHeader + câu chào nhìn thấy để KPI lên cao; mobile giữ nguyên giao diện. -->
+                <h1 class="visually-hidden">Store overview</h1>
                 <!-- ======== DESKTOP (≥992px) — mockup V4 (G3a khung · G3b 7 block) ======== -->
                 <div class="d-none d-lg-block wujia-home-pc">
-                <div class="content-header row">
-                    <div class="content-header-left col-12">
-                        <!-- Title dùng chung wj_page_header (UI-PC-BASE-002) thay h2 Vuexy 24/700 -->
-                        <t t-call="wujia_portal_layout.wj_page_header">
-                            <t t-set="ph_platform" t-value="'pc'"/>
-                            <t t-set="ph_variant" t-value="'title'"/>
-                            <t t-set="ph_title">Store overview</t>
-                        </t>
-                        <p class="text-muted">Welcome <strong t-out="request.env.user.name"/>! Here is the activity summary of your franchise store.</p>
-                    </div>
-                </div>
 
                 <t t-if="not franchise_ids" t-call="wujia_portal_base.wj_store_scope_prompt">
                     <t t-set="sp_scope" t-value="store_scope"/>
@@ -486,6 +479,7 @@
                         <section class="wujia-mhome-window">
                             <t t-call="wujia_portal_layout.wj_card_header">
                                 <t t-set="ch_title">Ordering window</t>
+                                <t t-set="ch_level" t-value="2"/>
                                 <t t-set="ch_platform" t-value="'m'"/>
                                 <!-- Pill giữ nguyên class/màu riêng; lead `flex:1 1 auto` đã đẩy nó
                                      sang phải nên KHÔNG cần thêm class trailing (thêm là mất màu). -->

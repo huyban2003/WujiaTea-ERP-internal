@@ -13,6 +13,22 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     font-size: var(--wujia-font-size-card-title) !important;
 }
 
+/* ---------- Visually-hidden (WJ-HOME-001) ----------
+   Chữ chỉ cho trình đọc màn hình (vd H1 tên trang Home): không chiếm chỗ trong layout, vẫn trong cây
+   truy cập. Bundle portal là Bootstrap 4 (chỉ có .sr-only) ⇒ dựng lại lớp chuẩn BS5. CẤM visibility:hidden
+   / display:none (bị bỏ khỏi cây truy cập, visibility còn giữ khoảng trống). */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
 /* ---------- UI-05: Standardized buttons ---------- */
 /* !important defensive across all properties: Vuexy bootstrap.css:2540 sets */
 .btn,

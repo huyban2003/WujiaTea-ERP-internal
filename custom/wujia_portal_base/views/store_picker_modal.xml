@@ -8,10 +8,13 @@
         <div t-if="_wujia_accessible_ids and len(_wujia_accessible_ids) &gt; 1"
              t-attf-class="wujia-store-overlay#{' wujia-store-overlay--show' if _wujia_must_pick else ''}"
              id="wujiaStoreOverlay">
-            <div class="wujia-store-card">
+            <!-- WJ-PORTAL-UI-005: hộp là dialog modal có tên (tiêu đề) + mô tả (câu dẫn);
+                 focus/Tab/Esc/inert nền do store_picker.js quản lý. -->
+            <div class="wujia-store-card" role="dialog" aria-modal="true"
+                 aria-labelledby="wujiaStoreTitle" aria-describedby="wujiaStoreIntro">
                 <div class="wujia-store-header">
-                    <span>
-                        <i class="fa fa-building me-1"/>
+                    <span id="wujiaStoreTitle">
+                        <i class="fa fa-building me-1" aria-hidden="true"/>
                         <t t-if="_wujia_must_pick">Select the store to work on</t>
                         <t t-else="">Switch the store you work on</t>
                     </span>
@@ -26,7 +29,7 @@
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <input type="hidden" name="redirect" t-att-value="request.httprequest.full_path or '/portal'"/>
                     <div class="wujia-store-body">
-                        <p class="wujia-store-intro">
+                        <p class="wujia-store-intro" id="wujiaStoreIntro">
                             <t t-if="_wujia_must_pick">
                                 You belong to several stores. Please select the store to work on so that only its data (orders, returns, notifications) is shown.
                             </t>
@@ -62,7 +65,7 @@
                                 class="wj-btn wj-btn--secondary me-2"
                                 data-action="close-store-picker">Cancel</button>
                         <button type="submit" class="wj-btn wj-btn--primary">
-                            <i class="fa fa-check me-1"/>
+                            <i class="fa fa-check me-1" aria-hidden="true"/>
                             <t t-if="_wujia_must_pick">Confirm</t>
                             <t t-else="">Switch store</t>
                         </button>

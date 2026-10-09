@@ -31,7 +31,7 @@
             </div>
             <!-- Modal đổi cửa hàng chỉ render khi có >1 cửa hàng (store_picker_modal) ⇒ cùng điều kiện. -->
             <a t-if="_am_multi"
-               href="#" role="button" data-action="open-store-picker" class="dropdown-item">
+               href="#" role="button" data-action="open-store-picker" aria-haspopup="dialog" aria-controls="wujiaStoreOverlay" class="dropdown-item">
                 <i class="feather icon-repeat" aria-hidden="true"/>
                 Switch store
             </a>

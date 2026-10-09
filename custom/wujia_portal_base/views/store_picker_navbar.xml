@@ -56,7 +56,7 @@
                     <span t-if="_wujia_active_role" class="wujia-store-strip-role"
                           t-out="_wujia_active_role_label"/>
                 </t>
-                <a t-if="_wujia_strip_clickable" href="#" data-action="open-store-picker"
+                <a t-if="_wujia_strip_clickable" href="#" data-action="open-store-picker" aria-haspopup="dialog" aria-controls="wujiaStoreOverlay"
                    class="wujia-store-mobile-strip wujia-store-mobile-strip--clickable wj-state-surface"
                    aria-label="Switch the store you work on">
                     <t t-out="_wujia_strip_body"/>
@@ -89,7 +89,7 @@
             <li class="nav-item d-none d-lg-flex align-items-center"
                 t-if="_wujia_active_franchise">
                 <div class="wujia-store-current-block">
-                    <a href="#" data-action="open-store-picker"
+                    <a href="#" data-action="open-store-picker" aria-haspopup="dialog" aria-controls="wujiaStoreOverlay"
                        class="wujia-active-store-badge"
                        t-att-title="_wujia_active_franchise.display_name">
                         <span class="wujia-store-badge-text">
