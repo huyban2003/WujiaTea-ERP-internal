@@ -8,20 +8,19 @@ Routes:
 - GET  /portal/info-request/<int>/attachment/<int>     tải tệp (theo cửa hàng đang chọn)
 - GET  /portal/info-request/franchise/<int>/values     AJAX old_value lookup
 
-Role gate: chỉ Owner/Manager mới được tạo (BA spec — gửi cập nhật thông tin
-là quyết định cấp shop, không phải Staff).
+Mọi route chỉ cho Owner/Manager tại cửa hàng đang chọn (`_portal_can_request`).
 """
 import logging
 from urllib.parse import quote
 
-from werkzeug.exceptions import Forbidden, NotFound
+from werkzeug.exceptions import NotFound
 
 from odoo import _, _lt, http
 from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
-    get_current_store_ids, get_store_scope_state,
+    get_current_store_ids, get_store_scope_state, render_no_permission,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     DEFAULT_DOC_MIME,
@@ -76,6 +75,16 @@ def _state_labels():
     return result
 
 
+def _can_request(franchise_ids):
+    return request.env['wujia.info.update.request'].sudo()._portal_can_request(franchise_ids)
+
+
+def _no_permission():
+    return render_no_permission(
+        _('Information update requests'),
+        _("You do not have permission to view this store's information update requests."))
+
+
 class WujiaPortalInfoRequest(http.Controller):
 
     @http.route(['/portal/info-request'], type='http', auth='user', sitemap=False)
@@ -90,6 +99,8 @@ class WujiaPortalInfoRequest(http.Controller):
                  'state': '', 'request_type': '',
                  'request_type_options': _type_options()},
             )
+        if not _can_request(franchise_ids):
+            return _no_permission()
         Model = request.env['wujia.info.update.request'].sudo()
         domain = Model._portal_scope_domain(franchise_ids)
         if state and state in dict(STATE):
@@ -126,11 +137,9 @@ class WujiaPortalInfoRequest(http.Controller):
         if not franchise_ids:
             return request.redirect('/portal/info-request')
 
+        if not _can_request(franchise_ids):
+            return _no_permission()
         Model = request.env['wujia.info.update.request'].sudo()
-        if not Model._portal_can_request(franchise_ids):
-            raise Forbidden(description=_(
-                "Only owners or managers can create information update requests."
-            ))
 
         if request.httprequest.method != 'POST':
             return self._render_form()
@@ -165,6 +174,8 @@ class WujiaPortalInfoRequest(http.Controller):
         franchise_ids = get_current_store_ids()
         if not franchise_ids:
             return request.redirect('/portal/info-request')
+        if not _can_request(franchise_ids):
+            return _no_permission()
         Model = request.env['wujia.info.update.request'].sudo()
         rec = Model.search([('id', '=', req_id)] + Model._portal_scope_domain(franchise_ids), limit=1)
         if not rec:
@@ -182,6 +193,8 @@ class WujiaPortalInfoRequest(http.Controller):
         franchise_ids = get_current_store_ids()
         if not franchise_ids:
             return request.redirect('/portal/info-request')
+        if not _can_request(franchise_ids):
+            return _no_permission()
         Model = request.env['wujia.info.update.request'].sudo()
         rec = Model.search([('id', '=', req_id), ('created_by_user_id', '=', request.env.uid)]
                            + Model._portal_scope_domain(franchise_ids), limit=1)
@@ -200,9 +213,12 @@ class WujiaPortalInfoRequest(http.Controller):
     @http.route(['/portal/info-request/<int:req_id>/attachment/<int:att_id>'],
                 type='http', auth='user', sitemap=False)
     def portal_info_request_attachment(self, req_id, att_id, **kw):
+        franchise_ids = get_current_store_ids()
+        if not _can_request(franchise_ids):
+            raise NotFound()
         Model = request.env['wujia.info.update.request'].sudo()
         rec = Model.search([('id', '=', req_id)]
-                           + Model._portal_scope_domain(get_current_store_ids()), limit=1)
+                           + Model._portal_scope_domain(franchise_ids), limit=1)
         att = rec.attachment_ids.filtered(lambda a: a.id == att_id)
         if not att:
             raise NotFound()
@@ -213,7 +229,8 @@ class WujiaPortalInfoRequest(http.Controller):
     def portal_info_request_get_current(self, fid, request_type=None,
                                         field_target=None, **kw):
         """AJAX: trả giá trị hiện tại trên franchise theo request_type."""
-        if int(fid) not in get_current_store_ids():
+        franchise_ids = get_current_store_ids()
+        if int(fid) not in franchise_ids or not _can_request(franchise_ids):
             return {'error': 'forbidden'}
         franchise = request.env['wujia.franchise.management'].sudo().browse(int(fid))
         if not franchise.exists():

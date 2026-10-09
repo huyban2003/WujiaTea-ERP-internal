@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal Base',
-    'version': '19.0.7.40.0',
+    'version': '19.0.7.41.0',
     'category': 'Wujia',
     'summary': 'Portal layer for franchise stores — dashboard, franchise profile, store picker, real-time updates',
     'author': 'WujiaTea',
@@ -9,6 +9,7 @@
     'data': [
         'views/wj_ajax_list.xml',
         'views/store_scope_prompt.xml',
+        'views/portal_no_permission.xml',
         'views/pc_nav_inherit.xml',
         'views/bottomnav_inherit.xml',
         'views/sidenav_inherit.xml',

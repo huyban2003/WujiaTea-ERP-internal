@@ -31,7 +31,7 @@ class TestNavItemDebt(TransactionCase):
         # Cùng điều kiện sáng truyền vào wj_nav_item để có aria-current.
         self.assertIn('t-set="ni_active"', arch)
         # Quyền = điều kiện của _debt_access: Owner/Manager của cửa hàng đang chọn.
-        self.assertIn('t-if="not _wujia_active_fid or _wujia_active_fid in (_nav_mgr_fids or [])"', arch)
+        self.assertIn('t-if="not _wujia_active_fid or _nav_store_admin"', arch)
 
     def test_item_lands_in_the_shell(self):
         """Mục thật sự nằm trong arch tổng của khung (xpath neo còn khớp)."""

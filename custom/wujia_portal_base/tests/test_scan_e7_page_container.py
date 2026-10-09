@@ -71,7 +71,7 @@ WIDTH_ROUTES = {
         ('wujia_portal_purchase_history', 'portal_history.xml', 'portal_history_detail'),
         ('wujia_portal_delivery', 'portal_delivery.xml', 'portal_delivery_detail'),
         ('wujia_portal_debt', 'portal_debt.xml', 'portal_debt_pay'),
-        ('wujia_portal_debt', 'portal_debt.xml', 'portal_debt_no_permission'),
+        ('wujia_portal_base', 'portal_no_permission.xml', 'portal_no_permission'),
         ('wujia_portal_inspection', 'portal_inspection_detail_templates.xml', 'portal_inspection_detail'),
         ('wujia_portal_inspection', 'portal_inspection_remediation_templates.xml',
          'portal_inspection_remediation_form'),

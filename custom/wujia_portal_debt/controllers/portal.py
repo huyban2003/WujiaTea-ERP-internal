@@ -9,13 +9,14 @@ Guard: chưa chọn cửa hàng → render empty state, KHÔNG 500. Cùng patter
 
 from datetime import datetime
 
-from odoo import http
+from odoo import _, http
 from odoo.http import request
 from odoo.tools.translate import LazyTranslate
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_active_franchise_id,
-    get_max_role_in_franchises,
+    is_current_store_admin,
+    render_no_permission,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     build_pager, parse_page_size, portal_money,
@@ -27,15 +28,13 @@ from ..models.wujia_portal_debt import (
 
 _lt = LazyTranslate(__name__)
 
-# BA §3/§8: chỉ Owner/Manager của cửa hàng hiện tại được xem công nợ. Staff bị chặn.
-_DEBT_ROLES = ('owner', 'manager')
-
 
 def _debt_access(franchise_id):
-    """(allowed, denied_response). Có cửa hàng nhưng role không đủ → trả trang thông báo
-    (không 500, không lộ data). Chưa chọn cửa hàng → để route render empty-state như cũ."""
-    if franchise_id and get_max_role_in_franchises([franchise_id]) not in _DEBT_ROLES:
-        return False, request.render('wujia_portal_debt.portal_debt_no_permission', {})
+    """(allowed, denied_response). Chưa chọn cửa hàng → route render empty-state như cũ."""
+    if franchise_id and not is_current_store_admin():
+        return False, render_no_permission(
+            _('Debts'),
+            _("You do not have permission to view this store's debts and payments."))
     return True, None
 
 

@@ -10,7 +10,6 @@
 
             <!-- ===== Desktop (>=992px) — Figma wujia_pc_02/03/04_store_info_v3.
                  3 trạng thái theo membership.role + số lượng members. ===== -->
-            <t t-set="is_owner_manager" t-value="membership and membership.role in ('owner', 'manager')"/>
             <!-- Chủ tiệm lấy từ franchise, KHÔNG lọc trên `members`: phân trang đẩy chủ tiệm sang trang sau. -->
             <t t-set="owner_member" t-value="franchise.main_owner_member_id"/>
             <t t-set="nguoi_phu_trach"
@@ -251,7 +250,7 @@
                 </t>
 
                 <!-- Card: Thành viên cửa hàng -->
-                <t t-call="wujia_portal_layout.wj_surface_card">
+                <t t-if="is_owner_manager" t-call="wujia_portal_layout.wj_surface_card">
                     <t t-set="sc_variant" t-value="'section'"/>
                     <t t-set="sc_body" t-value="'flush'"/>
                     <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
@@ -293,6 +292,16 @@
                             </t>
                         </div>
                     </t>
+                </t>
+                <t t-if="not is_owner_manager" t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_variant" t-value="'section'"/>
+                    <t t-set="sc_class" t-value="'wujia-mdash-card'"/>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Member information</t>
+                        <t t-set="ch_level" t-value="2"/>
+                        <t t-set="ch_platform" t-value="'m'"/>
+                    </t>
+                    <div class="wj-empty-state--compact">Your account can only view basic store information.</div>
                 </t>
             </div>
         </t>

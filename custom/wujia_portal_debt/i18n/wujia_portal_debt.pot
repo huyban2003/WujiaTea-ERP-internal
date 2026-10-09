@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 10:02+0000\n"
-"PO-Revision-Date: 2026-10-06 10:02+0000\n"
+"POT-Creation-Date: 2026-10-09 06:14+0000\n"
+"PO-Revision-Date: 2026-10-09 06:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -249,12 +249,14 @@ msgstr ""
 #. module: wujia_portal_debt
 #. odoo-python
 #: code:addons/wujia_portal_debt/models/wujia_portal_debt.py:0
+#: code:addons/wujia_portal_debt/tests/test_jv5_i18n.py:0
 msgid "Bank"
 msgstr ""
 
 #. module: wujia_portal_debt
 #. odoo-python
 #: code:addons/wujia_portal_debt/models/wujia_portal_debt.py:0
+#: code:addons/wujia_portal_debt/tests/test_jv5_i18n.py:0
 msgid "Bank transfer"
 msgstr ""
 
@@ -321,7 +323,8 @@ msgid "Credit note •"
 msgstr ""
 
 #. module: wujia_portal_debt
-#: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_no_permission
+#. odoo-python
+#: code:addons/wujia_portal_debt/controllers/portal.py:0
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_overview
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_payment_history
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.wj_debt_pc_tabs
@@ -414,11 +417,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_pay
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.wj_debt_pc_bank_block
 msgid "No payment account configured"
-msgstr ""
-
-#. module: wujia_portal_debt
-#: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_no_permission
-msgid "No permission to view"
 msgstr ""
 
 #. module: wujia_portal_debt
@@ -536,12 +534,6 @@ msgid "Please contact support for transfer instructions."
 msgstr ""
 
 #. module: wujia_portal_debt
-#: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_no_permission
-msgid "Please contact the store owner or manager."
-msgstr ""
-
-#. module: wujia_portal_debt
-#: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_no_permission
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_overview
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_pay
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_payment_history
@@ -692,15 +684,9 @@ msgid "Wujia Portal — debt & payment data source"
 msgstr ""
 
 #. module: wujia_portal_debt
-#: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_no_permission
+#. odoo-python
+#: code:addons/wujia_portal_debt/controllers/portal.py:0
 msgid "You do not have permission to view this store's debts and payments."
-msgstr ""
-
-#. module: wujia_portal_debt
-#: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_no_permission
-msgid ""
-"You do not have permission to view this store's debts and payments. Please "
-"contact the store owner or manager."
 msgstr ""
 
 #. module: wujia_portal_debt
@@ -742,6 +728,7 @@ msgstr ""
 #. module: wujia_portal_debt
 #. odoo-python
 #: code:addons/wujia_portal_debt/controllers/portal.py:0
+#: code:addons/wujia_portal_debt/tests/test_jv5_i18n.py:0
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_overview
 msgid "invoices"
 msgstr ""
@@ -799,6 +786,7 @@ msgstr ""
 #. module: wujia_portal_debt
 #. odoo-python
 #: code:addons/wujia_portal_debt/controllers/portal.py:0
+#: code:addons/wujia_portal_debt/tests/test_jv5_i18n.py:0
 #: model_terms:ir.ui.view,arch_db:wujia_portal_debt.portal_debt_payment_history
 msgid "transactions"
 msgstr ""

@@ -8,7 +8,7 @@
               name="Wujia Mobile — More sheet: Reports">
         <xpath expr="//span[@id='msheet_end']" position="before">
             <!-- Cùng điều kiện với controller /portal/reports/orders và mục sidebar PC. -->
-            <t t-if="_nav_mgr_fids" t-call="wujia_portal_layout.wj_msheet_item">
+            <t t-if="not _wujia_active_fid or _nav_store_admin" t-call="wujia_portal_layout.wj_msheet_item">
                 <t t-set="mi_href" t-value="'/portal/reports/orders'"/>
                 <t t-set="mi_icon" t-value="'feather icon-bar-chart-2'"/>
                 <t t-set="mi_title">Reports</t>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- render_no_permission(np_title, np_message) — role tại cửa hàng đang chọn không đủ (HTTP 403). -->
+    <template id="wj_no_permission_state" name="Wujia Portal — No permission state">
+        <div class="wj-empty-state wj-empty-state--rich wj-no-permission">
+            <span class="wj-empty-state-icon"><i class="feather icon-lock"/></span>
+            <p class="wj-empty-state-title">No permission to view</p>
+            <p class="wj-empty-state-sub" t-out="np_message"/>
+            <p class="wj-empty-state-sub">Please contact the store owner or manager.</p>
+            <a href="/portal" class="wj-empty-state-btn"><i class="feather icon-home"/>Back to Home</a>
+        </div>
+    </template>
+
+    <template id="portal_no_permission" name="Wujia Portal — No permission">
+        <t t-call="wujia_portal_layout.app_layout">
+            <t t-set="pc_width" t-value="'standard'"/>
+            <div class="wj-mpage d-lg-none">
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'m'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title" t-value="np_title"/>
+                </t>
+                <t t-call="wujia_portal_base.wj_no_permission_state"/>
+            </div>
+            <div class="content-wrapper d-none d-lg-block">
+                <t t-call="wujia_portal_layout.wj_page_header">
+                    <t t-set="ph_platform" t-value="'pc'"/>
+                    <t t-set="ph_variant" t-value="'title'"/>
+                    <t t-set="ph_title" t-value="np_title"/>
+                </t>
+                <t t-call="wujia_portal_base.wj_no_permission_state"/>
+            </div>
+        </t>
+    </template>
+
+</odoo>

@@ -106,7 +106,7 @@
                 </div>
             </div>
 
-            <div class="card mt-3">
+            <div t-if="membership.role in ('owner', 'manager')" class="card mt-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="mb-0">Store members</h5>
                     <span id="o_wujia_realtime_indicator"

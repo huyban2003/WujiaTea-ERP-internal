@@ -92,7 +92,7 @@
                     <!-- 4 KPI: Đơn hàng · Thông báo · Đổi trả · Công nợ (thứ tự + nguồn như mobile) -->
                     <section id="dashboard-stats" class="wujia-home-kpis">
                         <div class="row">
-                            <div class="col-lg-3 col-12">
+                            <div t-attf-class="col-lg-#{show_debt_kpi and 3 or 4} col-12">
                                 <t t-call="wujia_portal_layout.wj_surface_card">
                                     <t t-set="sc_variant" t-value="'summary'"/>
                                     <t t-set="sc_href" t-value="'/portal/purchase-history'"/>
@@ -110,7 +110,7 @@
                                     </div>
                                 </t>
                             </div>
-                            <div class="col-lg-3 col-12">
+                            <div t-attf-class="col-lg-#{show_debt_kpi and 3 or 4} col-12">
                                 <t t-call="wujia_portal_layout.wj_surface_card">
                                     <t t-set="sc_variant" t-value="'summary'"/>
                                     <t t-set="sc_href" t-value="'/portal/notification'"/>
@@ -127,7 +127,7 @@
                                     </div>
                                 </t>
                             </div>
-                            <div class="col-lg-3 col-12">
+                            <div t-attf-class="col-lg-#{show_debt_kpi and 3 or 4} col-12">
                                 <t t-call="wujia_portal_layout.wj_surface_card">
                                     <t t-set="sc_variant" t-value="'summary'"/>
                                     <t t-set="sc_href" t-value="'/portal/return'"/>
@@ -147,7 +147,7 @@
                             <!-- CÔNG NỢ: `home_debt_kpi` do wujia_portal_debt đặt (1 lần/trang, dùng chung với ô
                                  mobile). Chưa cài module đó ⇒ ô inert "—", KHÔNG in 0đ (STT11 acceptance #5).
                                  portal_base không depend wujia_portal_debt — đây chỉ là một khe biến QWeb. -->
-                            <div class="col-lg-3 col-12">
+                            <div t-if="show_debt_kpi" class="col-lg-3 col-12">
                                 <t t-call="wujia_portal_layout.wj_surface_card">
                                     <t t-set="sc_variant" t-value="'summary'"/>
                                     <t t-set="sc_href" t-value="home_debt_kpi and '/portal/debt'"/>
@@ -475,7 +475,7 @@
                                      inherit thay bằng link + số thật). Không có nguồn ⇒ "—" chứ
                                      KHÔNG in 0đ: 0 là một giá trị kế toán, thiếu dữ liệu thì không
                                      được hiểu thành đã trả hết (STT11 acceptance #5). -->
-                                <div class="wujia-mhome-kpi">
+                                <div t-if="show_debt_kpi" class="wujia-mhome-kpi">
                                     <span class="wujia-mhome-kpi-label">Debts</span>
                                     <span class="wujia-mhome-kpi-value">—</span>
                                 </div>

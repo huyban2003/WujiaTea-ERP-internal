@@ -90,7 +90,7 @@
                     </div>
                 </div>
                 <div class="content-body">
-                    <div class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
+                    <div t-if="membership.role in ('owner', 'manager')" class="wj-surface-card wj-surface-card--section wj-surface-card--compact wj-surface-card--flush">
                         <div class="wj-surface-card__head d-flex align-items-center justify-content-between">
                             <h4 class="card-title mb-0">Store members</h4>
                             <span id="o_wujia_realtime_indicator"

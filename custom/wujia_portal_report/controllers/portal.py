@@ -18,8 +18,9 @@ from odoo.http import request
 
 from odoo.addons.wujia_portal_base.controllers.portal import (
     get_current_store_ids,
-    get_max_role_in_franchises,
     get_store_scope_state,
+    is_current_store_admin,
+    render_no_permission,
 )
 from odoo.addons.wujia_portal_base.controllers.utils import (
     date_range_error, portal_money,
@@ -65,7 +66,7 @@ def _parse_date(value, fallback=None):
 
 class WujiaPortalReport(http.Controller):
 
-    def _empty_report_values(self, date_from, date_to, filter_error, max_role):
+    def _empty_report_values(self, date_from, date_to, filter_error):
         """Ctx báo cáo rỗng — dùng khi bộ lọc không hợp lệ nên không chạy query."""
         currency = request.env.company.currency_id
         money = lambda amount: portal_money(                    # noqa: E731
@@ -86,7 +87,6 @@ class WujiaPortalReport(http.Controller):
                 'currency': request.env.company.currency_id.symbol or '',
                 'decimal_point': _decimal_point(request.env),
             }),
-            'max_role': max_role,
         }
 
     @http.route(['/portal/reports/orders'], type='http', auth='user', sitemap=False)
@@ -96,17 +96,12 @@ class WujiaPortalReport(http.Controller):
         if store_scope == 'no_store':
             return request.redirect('/portal')
 
-        # ---- Role check: Staff KHÔNG được vào (BA Phase 1) ----
-        # Check max role across ALL accessible franchises (not just active one).
-        # A user with active franchise = staff_franchise but also manager in
-        # another franchise should still be able to access the report page.
-        all_franchise_ids = request.env.user._get_accessible_franchise_ids()
-        max_role = get_max_role_in_franchises(all_franchise_ids or franchise_ids)
-        if max_role not in ('owner', 'manager'):
-            return request.redirect('/portal')
+        if franchise_ids and not is_current_store_admin():
+            return render_no_permission(
+                _('Order report'), _("You do not have permission to view this store's reports."))
         if not franchise_ids:
             return request.render('wujia_portal_report.portal_report_orders',
-                                  dict(self._empty_report_values(date_from, date_to, '', max_role),
+                                  dict(self._empty_report_values(date_from, date_to, ''),
                                        store_scope=store_scope))
 
         # ---- Date range (default = năm hiện tại) ----
@@ -120,7 +115,7 @@ class WujiaPortalReport(http.Controller):
         if filter_error:
             return request.render('wujia_portal_report.portal_report_orders',
                                   self._empty_report_values(
-                                      date_from, date_to, filter_error, max_role))
+                                      date_from, date_to, filter_error))
         df_dt = datetime.combine(df, datetime.min.time())
         dt_dt = datetime.combine(dt, datetime.max.time())
 
@@ -237,7 +232,6 @@ class WujiaPortalReport(http.Controller):
             'state_summary': state_summary,
             'chart_payload_json': json.dumps(chart_payload),
             # role meta
-            'max_role': max_role,
             'store_scope': store_scope,
         })
 
@@ -249,9 +243,8 @@ class WujiaPortalReport(http.Controller):
         if not franchise_ids:
             # Chưa chọn cửa hàng ⇒ không xuất file gộp; trang báo cáo hiện khối nhắc chọn.
             return request.redirect('/portal/reports/orders')
-        max_role = get_max_role_in_franchises(franchise_ids)
-        if max_role not in ('owner', 'manager'):
-            return request.redirect('/portal')
+        if not is_current_store_admin():
+            return request.redirect('/portal/reports/orders')
 
         today = date.today()
         df = _parse_date(date_from, fallback=date(today.year, 1, 1))

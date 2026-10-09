@@ -161,8 +161,9 @@ class TestAccountMenuStore(HttpCase):
         rows, exp = self._golden(self._page('e8c_staff'),
                                  drop=('/portal/debt', '/portal/reports/orders'))
         self.assertEqual(rows, exp)
-        # staff ở cửa hàng đang chọn, manager nơi khác: có Báo cáo, không Công nợ (như sidebar)
-        rows, exp = self._golden(self._page('e8c_mixed', store=self.store), drop=('/portal/debt',))
+        # staff ở cửa hàng đang chọn, manager nơi khác: quyền theo cửa hàng đang chọn (như sidebar)
+        rows, exp = self._golden(self._page('e8c_mixed', store=self.store),
+                                 drop=('/portal/debt', '/portal/reports/orders'))
         self.assertEqual(rows, exp)
         rows, exp = self._golden(self._page('e8c_mixed', store=self.store2))
         self.assertEqual(rows, exp)

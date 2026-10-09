@@ -595,7 +595,7 @@ class TestPortalDebtAccess(HttpCase):
         self.authenticate('debt_staff', 'debt_staff')
         for url in ('/portal/debt', '/portal/debt/payment-history', '/portal/debt/pay'):
             res = self.url_open(url, timeout=30)
-            self.assertEqual(res.status_code, 200)     # thông báo dễ hiểu, KHÔNG 500
+            self.assertEqual(res.status_code, 403)
             self.assertIn('Không có quyền xem', res.text)
 
     def test_admin_without_store_gets_empty_not_error(self):

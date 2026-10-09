@@ -1014,10 +1014,11 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 
 /* ---------- Hero "TỔNG QUAN CỬA HÀNG" (nền tối gradient) ---------- */
-/* 4 KPI nhúng — 1 hàng, ngăn bằng vạch mảnh trắng mờ (đúng Figma) */
+/* 3–4 KPI nhúng (Nhân viên không có ô Công nợ) — 1 hàng, ngăn bằng vạch mảnh trắng mờ */
 .wujia-mhome-hero-kpis {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
     margin-top: 16px;
 }
 .wujia-mhome-kpi {

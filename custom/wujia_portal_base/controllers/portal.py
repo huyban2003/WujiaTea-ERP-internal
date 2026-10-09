@@ -18,7 +18,7 @@ from odoo.addons.wujia_portal_base.controllers.utils import (
 from odoo.addons.wujia_portal_base.models.wujia_franchise_member import ROLE_LABELS
 
 
-ROLE_RANK = {'staff': 1, 'manager': 2, 'owner': 3}
+STORE_ADMIN_ROLES = ('owner', 'manager')
 
 _lt = LazyTranslate(__name__)
 
@@ -103,19 +103,25 @@ def get_active_franchise_ids_filter():
     return request.env.user._get_accessible_franchise_ids()
 
 
-def get_max_role_in_franchises(franchise_ids=None):
-    """Role cao nhất user có (Owner > Manager > Staff). False nếu không thuộc."""
-    memberships = request.env.user._get_active_franchise_memberships()
-    if franchise_ids:
-        target = set(franchise_ids)
-        memberships = memberships.filtered(lambda m: m.franchise_id.id in target)
-    if not memberships:
-        return False
-    max_rank = max(ROLE_RANK.get(m.role, 0) for m in memberships)
-    for role, rank in ROLE_RANK.items():
-        if rank == max_rank:
-            return role
-    return False
+def get_current_store_role():
+    """Role của user tại cửa hàng đang chọn; False nếu chưa chọn."""
+    cached = getattr(request, '_wujia_active_role_cache', None)
+    if cached is not None:
+        return cached
+    fid = get_active_franchise_id()
+    role = next((m.role for m in request.env.user._get_active_franchise_memberships()
+                 if m.franchise_id.id == fid), False) if fid else False
+    request._wujia_active_role_cache = role
+    return role
+
+
+def is_current_store_admin():
+    return get_current_store_role() in STORE_ADMIN_ROLES
+
+
+def render_no_permission(title, message):
+    return request.render('wujia_portal_base.portal_no_permission',
+                          {'np_title': title, 'np_message': message}, status=403)
 
 
 def _float_to_hhmm(value):
@@ -150,12 +156,7 @@ class WujiaPortal(CustomerPortal):
         active_fid = get_active_franchise_id()
         Franchise = request.env['wujia.franchise.management'].sudo()
         active_franchise = Franchise.browse(active_fid).exists() if active_fid else Franchise.browse()
-        membership = (
-            request.env['wujia.franchise.member'].sudo()
-                .find_active_membership(request.env.user.id, active_fid)
-            if active_fid else False
-        )
-        active_role = membership.role if membership else False
+        active_role = get_current_store_role()
         # Currency mà cửa hàng thực sự đặt hàng bằng — CÙNG nguồn với giỏ và SO
         # (bảng giá của partner cửa hàng), không có bảng giá thì rơi về công ty.
         store_currency = (
@@ -203,6 +204,8 @@ class WujiaPortal(CustomerPortal):
             # dùng chung hero mobile + hàng đầu PC (G3a) — một nguồn cho hai kênh
             'active_franchise': active_franchise,
             'active_role': active_role,
+            # Nhân viên không nhận số liệu tài chính; chưa chọn cửa hàng ⇒ ô "—" như cũ.
+            'show_debt_kpi': not active_fid or active_role in STORE_ADMIN_ROLES,
             'order_window': self._order_window_view(active_franchise),
             # Format tiền dùng chung — ký hiệu theo currency của đơn, không hardcode.
             'money': portal_money,
@@ -334,7 +337,7 @@ class WujiaPortal(CustomerPortal):
     # ==================================================================
     # Active-franchise (store picker) — cookie-based, no DB hit
     # Module-level helpers: get_active_franchise_id(), get_current_store_ids(),
-    #     get_store_scope_state(), get_max_role_in_franchises()
+    #     get_store_scope_state(), get_current_store_role(), is_current_store_admin()
     #     (get_active_franchise_ids_filter() DEPRECATED — chỉ còn cho Khảo sát).
     # ==================================================================
     @http.route(['/portal/franchise/switch'], type='http', auth='user',
@@ -425,10 +428,7 @@ class WujiaPortal(CustomerPortal):
         if isinstance(membership, http.Response):
             return request.redirect('/portal/franchises')
         membership_sudo = membership.sudo()
-        members = request.env['wujia.franchise.member'].sudo().search([
-            ('franchise_id', '=', franchise_id),
-            ('is_currently_valid', '=', True),
-        ])
+        members = self._members_if_admin(membership_sudo)
         return request.render('wujia_portal_base.portal_franchise_detail', {
             'franchise': membership_sudo.franchise_id,
             'membership': membership_sudo,
@@ -443,10 +443,7 @@ class WujiaPortal(CustomerPortal):
         if isinstance(membership, http.Response):
             return membership
         membership_sudo = membership.sudo()
-        members = request.env['wujia.franchise.member'].sudo().search([
-            ('franchise_id', '=', franchise_id),
-            ('is_currently_valid', '=', True),
-        ])
+        members = self._members_if_admin(membership_sudo)
         return request.render('wujia_portal_base.portal_my_franchise_detail', {
             'page_name': 'franchise_detail',
             'franchise': membership_sudo.franchise_id,
@@ -463,12 +460,9 @@ class WujiaPortal(CustomerPortal):
             ('franchise_id', '=', franchise_id),
             ('is_currently_valid', '=', True),
         ], limit=1)
-        if not membership:
+        if membership.role not in STORE_ADMIN_ROLES:
             return {'error': 'forbidden'}
-        members = request.env['wujia.franchise.member'].sudo().search([
-            ('franchise_id', '=', franchise_id),
-            ('is_currently_valid', '=', True),
-        ])
+        members = self._members_if_admin(membership)
         return {
             'members': [{
                 'id': m.id,
@@ -504,15 +498,18 @@ class WujiaPortal(CustomerPortal):
                 'title': _('Store profile'),
                 'franchise': franchise,
             })
+        is_owner_manager = membership_sudo.role in STORE_ADMIN_ROLES
         Member = request.env['wujia.franchise.member'].sudo()
-        mdomain = [('franchise_id', '=', fid), ('is_currently_valid', '=', True)]
-        pgn = build_pager(Member.search_count(mdomain), kw.get('page', 1),
-                          parse_page_size(kw.get('page_size'), MEMBER_PAGE_SIZE),
-                          path='/portal/franchise-information',
-                          item_label=_lt('members'),
-                          page_size_options=PAGE_SIZE_OPTIONS)
-        members = Member.search(mdomain, limit=pgn['page_size'],
-                                offset=pgn['offset'], order='role, id')
+        members, pgn = Member.browse(), None
+        if is_owner_manager:
+            mdomain = [('franchise_id', '=', fid), ('is_currently_valid', '=', True)]
+            pgn = build_pager(Member.search_count(mdomain), kw.get('page', 1),
+                              parse_page_size(kw.get('page_size'), MEMBER_PAGE_SIZE),
+                              path='/portal/franchise-information',
+                              item_label=_lt('members'),
+                              page_size_options=PAGE_SIZE_OPTIONS)
+            members = Member.search(mdomain, limit=pgn['page_size'],
+                                    offset=pgn['offset'], order='role, id')
         return request.render('wujia_portal_base.portal_franchise_information', {
             'title': _('Store profile'),
             'page_name': 'franchise_information',
@@ -520,6 +517,7 @@ class WujiaPortal(CustomerPortal):
             'membership': membership_sudo,
             'members': members,
             'pgn': pgn,
+            'is_owner_manager': is_owner_manager,
             'role_labels': ROLE_LABELS,
             'status_labels': FRANCHISE_STATUS_LABELS,
         })
@@ -547,6 +545,14 @@ class WujiaPortal(CustomerPortal):
     # ==================================================================
     # Helpers
     # ==================================================================
+    def _members_if_admin(self, membership):
+        if membership.role not in STORE_ADMIN_ROLES:
+            return request.env['wujia.franchise.member'].sudo().browse()
+        return request.env['wujia.franchise.member'].sudo().search([
+            ('franchise_id', '=', membership.franchise_id.id),
+            ('is_currently_valid', '=', True),
+        ])
+
     def _get_membership_or_redirect(self, franchise_id):
         membership = request.env['wujia.franchise.member'].search([
             ('user_id', '=', request.env.user.id),

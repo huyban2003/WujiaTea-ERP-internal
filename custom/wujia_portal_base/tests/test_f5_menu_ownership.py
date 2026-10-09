@@ -162,12 +162,14 @@ class TestMenuOwnership(HttpCase):
         self.assertIn('nav_item_report', owner)
         staff = self._ids('f5_staff')
         self.assertNotIn('nav_item_debt', staff)      # _debt_access: staff → không quyền
-        self.assertNotIn('nav_item_report', staff)    # report: max role phải owner/manager
+        self.assertNotIn('nav_item_report', staff)
         self.assertIn('nav_item_return', staff)
         mixed = self._ids('f5_mixed', store=self.franchise)
         self.assertNotIn('nav_item_debt', mixed)      # staff ở cửa hàng đang chọn
-        self.assertIn('nav_item_report', mixed)       # manager ở cửa hàng khác
-        self.assertIn('nav_item_debt', self._ids('f5_mixed', store=self.franchise2))
+        self.assertNotIn('nav_item_report', mixed)    # manager ở cửa hàng khác không cấp quyền ở đây
+        mixed2 = self._ids('f5_mixed', store=self.franchise2)
+        self.assertIn('nav_item_debt', mixed2)
+        self.assertIn('nav_item_report', mixed2)
 
     def test_bottomnav_more_button_is_active_when_no_tab_matches(self):
         """Nút "Thêm" sáng khi không tab nào sáng (hành vi Sprint 11)."""

@@ -827,40 +827,4 @@
         </t>
     </template>
 
-    <!-- Chặn Staff (BA §8): chỉ Owner/Manager xem công nợ. Dùng lại shell + empty-state
-         chung — KHÔNG thêm UI mới, chỉ 1 thông báo dễ hiểu thay vì 403 thô. -->
-    <template id="portal_debt_no_permission" name="Wujia Portal — Debts no permission">
-        <t t-call="wujia_portal_layout.app_layout">
-            <t t-set="pc_width" t-value="'standard'"/>
-            <!-- Mobile -->
-            <div class="wj-debt wj-mpage d-lg-none">
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'m'"/>
-                    <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_title">Debts</t>
-                </t>
-                <div class="wj-empty-state wj-empty-state--rich wj-debt-empty">
-                    <span class="wj-empty-state-icon"><i class="feather icon-lock"/></span>
-                    <p class="wj-empty-state-title">No permission to view</p>
-                    <p class="wj-empty-state-sub">You do not have permission to view this store's debts and payments.</p>
-                    <p class="wj-empty-state-sub">Please contact the store owner or manager.</p>
-                </div>
-            </div>
-            <!-- PC -->
-            <div class="content-wrapper d-none d-lg-block wj-debt-pc">
-                <t t-call="wujia_portal_layout.wj_page_header">
-                    <t t-set="ph_platform" t-value="'pc'"/>
-                    <t t-set="ph_variant" t-value="'title'"/>
-                    <t t-set="ph_crumb">Portal / Debts</t>
-                    <t t-set="ph_title">Debts</t>
-                </t>
-                <div class="wj-pc-empty">
-                    <span class="wj-pc-empty__icon"><i class="feather icon-lock"/></span>
-                    <h3 class="wj-pc-empty__title">No permission to view</h3>
-                    <p class="wj-pc-empty__sub">You do not have permission to view this store's debts and payments. Please contact the store owner or manager.</p>
-                </div>
-            </div>
-        </t>
-    </template>
-
 </odoo>

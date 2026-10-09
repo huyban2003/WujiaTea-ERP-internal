@@ -29,8 +29,8 @@ ERR_VI = {
     "Invalid information type.": 'Loại thông tin không hợp lệ.',
     "Please enter the new value.": 'Vui lòng nhập giá trị mới.',
     "Enter the field name when choosing 'Other'.": "Khi chọn 'Khác' phải nhập tên field.",
-    "Only owners or managers can create information update requests.":
-        'Chỉ Owner / Manager mới được tạo yêu cầu cập nhật thông tin.',
+    "You do not have permission to view this store's information update requests.":
+        'Bạn không có quyền xem yêu cầu cập nhật thông tin của cửa hàng.',
 }
 VIEWS = (
     'wujia_portal_info_request.portal_info_request_list',

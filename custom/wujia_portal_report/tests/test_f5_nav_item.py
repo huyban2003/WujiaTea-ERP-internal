@@ -29,8 +29,8 @@ class TestNavItemReport(TransactionCase):
         self.assertIn("//li[@id='nav_end']", arch)
         # Cùng điều kiện sáng truyền vào wj_nav_item để có aria-current.
         self.assertIn('t-set="ni_active"', arch)
-        # Quyền = điều kiện controller: Owner/Manager ở ít nhất một cửa hàng.
-        self.assertIn('t-if="_nav_mgr_fids"', arch)
+        # Quyền = điều kiện controller: Owner/Manager tại cửa hàng đang chọn.
+        self.assertIn('t-if="not _wujia_active_fid or _nav_store_admin"', arch)
 
     def test_item_lands_in_the_shell(self):
         """Mục thật sự nằm trong arch tổng của khung (xpath neo còn khớp)."""

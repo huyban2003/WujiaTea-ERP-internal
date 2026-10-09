@@ -25,3 +25,4 @@ from . import test_g3a_home_pc
 from . import test_g3b_home_pc
 from . import test_jv2_i18n
 from . import test_i4a_store_scope
+from . import test_i5_store_role
