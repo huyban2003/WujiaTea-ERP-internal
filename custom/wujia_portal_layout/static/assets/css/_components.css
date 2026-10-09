@@ -284,6 +284,8 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
    (#757575 · 4.25 trên #F3F6F8) ⇒ mặc định toàn portal về text-muted. Độ đặc hiệu thấp nhất có thể,
    rule riêng của component vẫn thắng. */
 :where(input, textarea)::placeholder { color: var(--wujia-text-muted); opacity: 1; }
+/* .form-control::placeholder của web.assets_frontend (bản có website, #909294 · 3.12) nạp sau ⇒ cần đặc hiệu cao hơn. */
+body .form-control::placeholder { color: var(--wujia-text-muted); opacity: 1; }
 .wj-filter-search-field input:focus { outline: none; border-color: var(--wujia-primary); }
 .wj-filter-search-btn {
     flex: 0 0 auto;
