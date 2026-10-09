@@ -12,6 +12,24 @@ class IrHttp(models.AbstractModel):
     _inherit = 'ir.http'
 
     @classmethod
+    def _match(cls, path):
+        """User đã đăng nhập trên /portal: ngôn ngữ luôn theo tài khoản (WJ-INSPECT-001).
+
+        Route khai `website=True` (Khảo sát) đi nhánh frontend của `http_routing`: ngôn ngữ lấy
+        từ URL › cookie `frontend_lang` › context, và lệch ngôn ngữ mặc định thì redirect sang
+        `/vi/...`. Cookie cũ `en_US` làm header Khảo sát ra English trong khi mọi màn portal
+        khác (route `website=False`) đọc `res.users.lang`. Gán sẵn cờ frontend = False thì
+        `http_routing._match` bỏ qua cả khâu chọn ngôn ngữ lẫn redirect — mọi route portal
+        dùng một nguồn ngôn ngữ. Website không cài trên portal nên route đó không cần gì khác
+        của nhánh frontend. Khách chưa đăng nhập giữ nhánh cũ (`_wj_guest_portal_lang`).
+        """
+        if (request.session.uid and not hasattr(request, 'is_frontend')
+                and (path == '/portal' or path.startswith('/portal/'))):
+            request.is_frontend = False
+            request.is_frontend_multilang = False
+        return super()._match(path)
+
+    @classmethod
     def _pre_dispatch(cls, rule, args):
         super()._pre_dispatch(rule, args)
         cls._wj_guest_portal_lang()

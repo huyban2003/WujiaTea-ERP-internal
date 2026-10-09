@@ -95,10 +95,13 @@ class TestPcTopbarDrawer(TransactionCase):
 
     def test_pill_ngon_ngu_bo_be_rong_118(self):
         """Nhãn ngôn ngữ ẩn ở dải này (_components.css) ⇒ pill 118 chỉ còn cờ 20, thừa 70px."""
-        self.assertIn('width: auto !important', self._body('.wujia-navbar .dropdown-language > .nav-link'))
-        # ≥1200 giữ đúng pill 118 của Figma
+        body = self._body('.wujia-navbar .dropdown-language > .nav-link')
+        self.assertIn('width: auto !important', body)
+        # rule gốc có min-width 118 (WJ-LANG-002) ⇒ dải này phải trả về 0, không thì pill chỉ có cờ vẫn 118
+        self.assertIn('min-width: 0', body)
+        # ≥1200 tối thiểu pill 118 của Figma, nới theo nhãn dài (WJ-LANG-002: cờ không bị bóp)
         root = [b for s, b in _rules(_outside_media(self.css))
                 if s == '.wujia-navbar .dropdown-language > .nav-link']
-        self.assertIn('width: 118px !important', root[0])
-        # khối 992–1199 phải đứng SAU rule gốc (cùng specificity, cùng !important)
-        self.assertGreater(self.css.find(DRAWER_MQ), self.css.find('width: 118px !important'))
+        self.assertIn('min-width: 118px', root[0])
+        # khối 992–1199 phải đứng SAU rule gốc (cùng specificity)
+        self.assertGreater(self.css.find(DRAWER_MQ), self.css.find('min-width: 118px'))

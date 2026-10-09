@@ -21,3 +21,4 @@ from . import test_g1_mobile_density
 from . import test_g2_pc_topbar
 from . import test_j2_brand
 from . import test_jv1_i18n
+from . import test_i9_lang

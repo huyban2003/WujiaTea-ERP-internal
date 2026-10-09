@@ -221,10 +221,14 @@
    Reuse navbar-pill tokens for visual consistency with the store pill.
    UI-02 retest 22/07/2026: BA đo h=46, expected h=40 → Bootstrap `.nav-link`
    padding-y (0.5rem = 8px) đẩy chiều cao. Force border-box + height 40 + padding
-   ngang bằng !important để ép về pixel BA yêu cầu. */
+   ngang bằng !important để ép về pixel BA yêu cầu.
+   WJ-LANG-002: bề rộng cứng 118 chỉ còn 90 cho cờ + nhãn; nhãn không co dưới độ rộng chữ
+   nên cờ bị bóp ("English (US)" còn 4×15). Pill nới theo nhãn, tối thiểu 118 như Figma;
+   cờ giữ ô 20×15 không co. */
 .wujia-navbar .dropdown-language > .nav-link {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    width: 118px !important;
+    width: auto !important;
+    min-width: 118px;
     height: 40px !important;
     padding: 0 14px !important;
     line-height: 1 !important;
@@ -236,7 +240,12 @@
 .wujia-navbar .dropdown-language > .nav-link:focus {
     background: var(--wujia-navbar-pill-bg-hover);
 }
-.wujia-navbar .dropdown-language > .nav-link .selected-language { font-size: 13px; font-weight: 500; }
+.wujia-navbar .dropdown-language > .nav-link .selected-language { font-size: 13px; font-weight: 500; white-space: nowrap; }
+/* Cùng độ đặc hiệu trở lên với Vuexy `.header-navbar .navbar-container ul.nav li > a.nav-link i.flag-icon`
+   (bootstrap-extended.css:1804 — giữ margin-right của nó, khoảng cách cờ↔nhãn không đổi). */
+.wujia-navbar .navbar-container ul.nav li.dropdown-language > a.nav-link i.flag-icon {
+    flex: 0 0 20px; width: 20px; height: 15px;
+}
 
 /* ---------- Cụm B (UI-03 · UI-PC-BASE-011 · UI-02 hình học) ----------
    Cụm hành động bên phải header PC theo source v1.5. Khối này phải nằm CUỐI
@@ -306,7 +315,7 @@
    (nhãn đã ẩn ở _components.css) nên bỏ bề rộng 118 của Figma 1920; hàng trái không xuống
    dòng và được co — khối Cửa hàng tự co + ellipsis tên ở `store_picker.css`. */
 @media (min-width: 992px) and (max-width: 1199.98px) {
-    .wujia-navbar .dropdown-language > .nav-link { width: auto !important; }
+    .wujia-navbar .dropdown-language > .nav-link { width: auto !important; min-width: 0; }
     /* `min-width: 0` cả chuỗi collapse → wrapper → ul: thiếu một mắt thì khối Cửa hàng không co,
        collapse phình quá khung và đẩy cụm phải ra ngoài mép màn hình (đo: 1003 > 978). */
     .wujia-navbar .navbar-collapse { min-width: 0; }
