@@ -3223,7 +3223,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: **I13 #170 WJ-PORTAL-UI-006 contrast token chung** (`next-session-clusters-H.md` Prompt I13).
 
 ## I13 #170 WJ-PORTAL-UI-006 — tương phản chữ dùng chung ≥ 4.5:1 · 09/10/2026 · Mac
-- Kết quả: ✅ code + test + đo + ledger; commit `69670757` + docs, chưa push (chờ chủ dự án); sheet chưa ghi (`qa_sync` dry-run, `--apply` sau deploy).
+- Kết quả: ✅ code + test + đo + ledger; commit `69670757` + docs `6cee7dc2` (đã push); sheet chưa ghi (`qa_sync` dry-run, `--apply` sau deploy).
 - Đầu phiên: I12 đã push. Reconcile #170: 0 commit / 0 dòng `custom/` / 0 ledger.
 - Gốc: #28A9DF (2.68 trên trắng) và xám #8A939E/#8A9099/#9CA3AF (2.5–3.2) dùng làm MÀU CHỮ ở ~190 khai báo, 16 file CSS; cả `--wujia-cta`
   #0F7CA8 (4.33 trên #F3F6F8) và subtitle #6B7280 (4.45) cũng trượt. Chữ trắng trên #28A9DF / #16A34A / #EF4444. Topbar chữ trắng trên cyan.
