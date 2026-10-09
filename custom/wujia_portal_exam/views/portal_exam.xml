@@ -733,7 +733,7 @@
                     <t t-call="wujia_portal_layout.wj_data_list">
                         <t t-set="dl_variant" t-value="'detail-card'"/>
                         <t t-foreach="courses" t-as="c">
-                            <div t-attf-class="wujia-mexam-course wj-data-item wj-lc #{c['closed'] and 'is-closed' or ''}"
+                            <div t-attf-class="wujia-mexam-course wj-data-item wj-lc #{c['closed'] and 'is-closed is-disabled' or ''}"
                                  t-att-data-exam-closed="c['closed'] and '1' or '0'"
                                  t-att-data-exam-course-id="c['course_id']">
                                 <t t-call="wujia_portal_layout.wj_list_card">

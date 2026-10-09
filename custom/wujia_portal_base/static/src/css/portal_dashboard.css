@@ -96,7 +96,7 @@
         align-items: center;
         justify-content: center;
         background: var(--wujia-mdash-tile-bg);
-        color: var(--wujia-primary);
+        color: var(--wujia-brand-text);
         font-size: 24px;
         line-height: 1;
     }
@@ -293,7 +293,7 @@
     align-items: center;
     padding: 3px 12px;
     border-radius: 999px;
-    background: var(--wujia-success);
+    background: var(--wujia-success-fill);
     color: #FFFFFF;
     font-size: 12px;
     font-weight: 700;
@@ -310,9 +310,9 @@
     font-weight: 700;
     white-space: nowrap;
 }
-.wujia-mhome-window-status.is-open    { color: var(--wujia-success); }
-.wujia-mhome-window-status.is-closed  { color: var(--wujia-danger); }
-.wujia-mhome-window-status.is-always  { color: var(--wujia-success); }
+.wujia-mhome-window-status.is-open    { color: var(--wujia-success-text); }
+.wujia-mhome-window-status.is-closed  { color: var(--wujia-danger-text); }
+.wujia-mhome-window-status.is-always  { color: var(--wujia-success-text); }
 .wujia-mhome-window-status small {
     color: var(--wujia-text-subtitle);
     font-weight: 400;
@@ -368,7 +368,7 @@
 .wujia-mhome-action-icon i {
     font-size: 16px;
     line-height: 1;
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
 }
 .wujia-mhome-action-label {
     font-size: 12px;
@@ -390,12 +390,12 @@
         justify-content: center;
         border-radius: 10px;
         background: var(--wujia-mdash-tile-bg);
-        color: var(--wujia-morder-primary);
+        color: var(--wujia-brand-text);
     }
 .wujia-mdash-tile i { font-size: 18px; line-height: 1; }
 .wujia-mdash-tile.is-danger {
         background: var(--wujia-mdash-tile-danger-bg);
-        color: var(--wujia-danger);
+        color: var(--wujia-danger-text);
     }
 /* F4(c): cắt 2 dòng là hành vi riêng Home, không đổi cỡ/màu. */
 .wujia-mhome .wujia-mdash-row-title.is-sm {
@@ -408,23 +408,23 @@
 
 .dashboard-list .list-group-item { border-left: none; border-right: none; border-color: var(--wujia-border); }
 .dashboard-list-link { color: var(--wujia-text-primary); text-decoration: none; }
-.dashboard-list-link:hover { color: var(--wujia-primary); }
+.dashboard-list-link:hover { color: var(--wujia-brand-text); }
 .dashboard-list table th { font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: var(--wujia-text-secondary); border-bottom: 2px solid var(--wujia-table-header-line); }
 
 /* State badges — semantic mapping per BA palette. */
 .state-badge { padding: 0.35em 0.7em; font-size: 0.78rem; font-weight: 600; border-radius: 6px; text-transform: capitalize; }
 .state-draft, .state-new          { background: var(--wujia-text-muted); color: #fff; }
-.state-sent                       { background: var(--wujia-primary-light); color: var(--wujia-primary-dark); }
-.state-sale                       { background: var(--wujia-success); color: #fff; }
-.state-done, .state-completed     { background: var(--wujia-primary); color: #fff; }
+.state-sent                       { background: var(--wujia-primary-light); color: var(--wujia-brand-text-hover); }
+.state-sale                       { background: var(--wujia-success-fill); color: #fff; }
+.state-done, .state-completed     { background: var(--wujia-brand-fill); color: #fff; }
 .state-cancel, .state-cancelled,
-.state-rejected, .state-refused   { background: var(--wujia-danger); color: #fff; }
-.state-approved                   { background: var(--wujia-success); color: #fff; }
-.state-partial, .state-in_progress { background: var(--wujia-warning); color: #fff; }
-.state-resolved                   { background: var(--wujia-primary); color: #fff; }
-.state-active                     { background: var(--wujia-success); color: #fff; }
-.state-locked                     { background: var(--wujia-danger); color: #fff; }
-.state-expired                    { background: var(--wujia-warning); color: #fff; }
+.state-rejected, .state-refused   { background: var(--wujia-danger-fill); color: #fff; }
+.state-approved                   { background: var(--wujia-success-fill); color: #fff; }
+.state-partial, .state-in_progress { background: var(--wujia-warning-fill); color: #fff; }
+.state-resolved                   { background: var(--wujia-brand-fill); color: #fff; }
+.state-active                     { background: var(--wujia-success-fill); color: #fff; }
+.state-locked                     { background: var(--wujia-danger-fill); color: #fff; }
+.state-expired                    { background: var(--wujia-warning-fill); color: #fff; }
 .state-closed                     { background: var(--wujia-text-secondary); color: #fff; }
 
 /* Profile dl */
@@ -437,4 +437,4 @@
 .main-menu .navigation .menu-content { display: none; padding-left: 1rem; list-style: none; }
 .main-menu .navigation .nav-item.has-sub.open > .menu-content { display: block; }
 .main-menu .navigation .menu-content li a { padding: 6px 12px; display: block; color: var(--wujia-text-secondary); text-decoration: none; font-size: 0.9rem; }
-.main-menu .navigation .menu-content li a:hover { color: var(--wujia-primary); background: var(--wujia-primary-light); border-radius: 4px; }
+.main-menu .navigation .menu-content li a:hover { color: var(--wujia-brand-text); background: var(--wujia-primary-light); border-radius: 4px; }

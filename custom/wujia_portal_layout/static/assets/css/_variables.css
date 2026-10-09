@@ -9,7 +9,7 @@
     --wujia-primary-soft:   #EAF7FD;
     /* Viền cho nền -soft (CMP-BPH-001 hover/focus nút Quay lại). */
     --wujia-primary-border-soft: #BFE8F7;
-    --wujia-active-text:    #28A9DF;
+    --wujia-active-text:    var(--wujia-brand-text);
     --wujia-primary-rgb:    40 169 223;   /* rgb(var(--wujia-primary-rgb) / .04) cho nền hover nhạt */
 
     /* ---------- CTA (WJ-ORD-012): chữ-trắng-trên-nền cần AA 4.5:1. Brand
@@ -28,26 +28,48 @@
     --wujia-focus-ring:       2px solid var(--wujia-cta);
     --wujia-focus-ring-offset: 2px;
 
+    /* ---------- Độ tương phản chữ (WJ-PORTAL-UI-006, WCAG AA ≥4.5:1) ----------
+       #28A9DF chỉ làm nền/viền/icon/accent — làm CHỮ chỉ 2.45–2.68. Mọi màu chữ dưới đây
+       đạt ≥4.6 trên MỌI nền sáng của portal (#FFF, #F3F6F8, #F8FAFC, #EAF7FD, #E0F7FF,
+       #F3F4F6, #EAF8EF, #FEECEC, #FEE2E2, #FFF7E6…) — cùng tông (hue) với màu gốc, chỉ đậm hơn.
+       -fill = nền đặc dưới chữ trắng (≥4.7 với #FFF). Test khoá: test_i13_contrast.py. */
+    --wujia-brand-text:       #166F94;   /* chữ/link/active thay #28A9DF · 5.62 trên #FFF */
+    --wujia-brand-text-hover: #125C7B;   /* hover link/chữ brand · 7.39 */
+    --wujia-brand-fill:       var(--wujia-cta);       /* nền chip/nút/phân trang đang chọn · 4.70 */
+    --wujia-brand-fill-hover: var(--wujia-cta-dark);  /* 6.42 */
+    --wujia-danger-text:      #C92020;   /* thay #EF4444/#DC2626 làm chữ */
+    --wujia-danger-fill:      #C92020;   /* badge số đỏ chữ trắng · 5.66 */
+    --wujia-success-text:     #107736;   /* thay #16A34A làm chữ */
+    --wujia-success-fill:     #15803D;   /* badge Quản lý · 5.02 */
+    --wujia-warning-text:     #9B5504;   /* thay #F29A1F/#D97706 làm chữ */
+    --wujia-warning-fill:     #B45309;   /* badge Chủ tiệm · 5.02 */
+    /* Topbar PC giữ nền #28A9DF (nhận diện) ⇒ chữ/icon trên nó dùng navy (hero mobile) · 5.98,
+       7.1 trên pill trắng mờ. Viền focus trên topbar cũng navy (ring --wujia-cta chỉ 1.75). */
+    --wujia-topbar-fg:        #0B2430;
+    /* Disabled cũng ≥4.5 theo BA; phân biệt bằng nền/viền xám + cursor, không bằng chữ nhạt. */
+    --wj-disabled-fg:         var(--wujia-text-muted);
+    --wj-disabled-bg:         #F3F4F6;
+    --wj-disabled-border:     #E5E7EB;
+
     /* ---------- Surface / layout (BA bg #F3F6F8) ---------- */
     --wujia-bg-page:        #F3F6F8;
     --wujia-bg-sidebar:     #FFFFFF;
     --wujia-bg-card:        #FFFFFF;
     --wujia-border:         #E5E7EB;
 
-    /* CMP-PGNT-001 — hex chữ disabled lấy nguyên của BA (#9CA3AF), không dùng
-       --wujia-text-muted (#8A939E) để khỏi lệch bảng đo. */
+    /* CMP-PGNT-001 — chữ disabled #9CA3AF của BA chỉ 2.54 ⇒ WJ-PORTAL-UI-006 về token disabled chung. */
     --wj-pgn-size:          36px;
     --wj-pgn-radius:        10px;
     --wj-pgn-gap:           8px;
     --wj-pgn-touch:         44px;
-    --wj-pgn-disabled-fg:   #9CA3AF;
+    --wj-pgn-disabled-fg:   var(--wj-disabled-fg);
     --wujia-border-soft:    #EEF2F5;
     --wujia-table-header-line: #9AA0A6;
 
     /* ---------- Text ---------- */
     --wujia-text-primary:   #111827;
     --wujia-text-secondary: #374151;
-    --wujia-text-muted:     #8A939E;
+    --wujia-text-muted:     #616774;   /* WJ-PORTAL-UI-006: #8A939E chỉ 3.11 · nay 5.67 */
 
     /* ---------- State / semantic (BA success/danger; warning/info kept) ---------- */
     --wujia-success:        #16A34A;
@@ -58,7 +80,7 @@
     --wujia-danger-bg:      #FEECEC;
     --wujia-info:           #1FC160;
     --wujia-info-bg:        #D6F4E0;
-    --wujia-info-text:      #1FC160;
+    --wujia-info-text:      #13773B;   /* WJ-PORTAL-UI-006: #1FC160 trên #D6F4E0 chỉ 1.9 */
     --wujia-muted-bg:       #F1F3F6;
 
     /* ---------- BA source-name aliases (--wj-* mobile / --wj-pc-* desktop)
@@ -86,7 +108,7 @@
     --wj-pc-border-soft:    var(--wujia-border-soft);
     --wj-pc-text:           var(--wujia-text-primary);
     --wj-pc-muted:          var(--wujia-text-subtitle);
-    --wj-pc-subtle:         #8A9099;
+    --wj-pc-subtle:         var(--wujia-text-muted);   /* #8A9099 chỉ 3.22 */
     --wj-pc-danger:         var(--wujia-danger);
 
     /* PC dimensional tokens (BA pc_source_ui_v1_4 — Sprint PC-1, desktop only). */
@@ -217,14 +239,14 @@
     /* ---------- Navbar pill (Current Store badge on cyan navbar) ---------- */
     --wujia-navbar-pill-bg:       rgba(255, 255, 255, 0.18);
     --wujia-navbar-pill-bg-hover: rgba(255, 255, 255, 0.28);
-    --wujia-navbar-pill-text:     #FFFFFF;
-    --wujia-navbar-pill-icon:     #FFFFFF;
+    --wujia-navbar-pill-text:     var(--wujia-topbar-fg);
+    --wujia-navbar-pill-icon:     var(--wujia-topbar-fg);
     --wujia-navbar-pill-radius:   10px;
     --wujia-navbar-pill-padding:  6px 16px;
     --wujia-navbar-pill-gap:      10px;
     --wujia-navbar-pill-font:     15px;
     --wujia-navbar-pill-label-size: 11px;
-    --wujia-navbar-pill-label-color: rgba(255, 255, 255, 0.85);
+    --wujia-navbar-pill-label-color: var(--wujia-topbar-fg);
 
     /* ---------- Header right action icons ---------- */
     --wujia-header-icon-size:        20px;
@@ -233,7 +255,7 @@
 
     /* ---------- Mobile sub-strip (Current Store below navbar) ---------- */
     --wujia-mobile-strip-bg:            #FFFFFF;
-    --wujia-mobile-strip-label-color:   var(--wujia-primary);
+    --wujia-mobile-strip-label-color:   var(--wujia-brand-text);
     --wujia-mobile-strip-name-color:    var(--wujia-text-primary);
     --wujia-mobile-strip-padding:       12px 16px;
     --wujia-mobile-strip-border-bottom: 1px solid var(--wujia-border);
@@ -259,7 +281,7 @@
     --wujia-page-title-weight: 700;
 
     /* ---------- Page subtitle / description ---------- */
-    --wujia-text-subtitle:      #6B7280;
+    --wujia-text-subtitle:      #616774;   /* WJ-PORTAL-UI-006: #6B7280 trên #F3F6F8 chỉ 4.45 */
     --wujia-font-size-subtitle: 14px;
 
     /* ---------- Content Card ---------- */
@@ -268,7 +290,7 @@
     --wujia-content-card-header-icon-bg:    var(--wujia-primary);
     --wujia-content-card-bullet-size:       8px;
     --wujia-content-card-bullet-color:      var(--wujia-primary);
-    --wujia-content-card-link-color:        var(--wujia-primary);
+    --wujia-content-card-link-color:        var(--wujia-brand-text);
     --wujia-content-card-row-gap:           14px;
 
     /* ---------- Main content vertical spacing ---------- */
@@ -324,7 +346,7 @@
     --wujia-mhome-progress-track:  #E5E7EB;
     --wujia-mhome-progress-fill:   #F59E0B;
     --wujia-mhome-nav-active:      #EF4444;
-    --wujia-mhome-nav-inactive:    #8A939E;
+    --wujia-mhome-nav-inactive:    var(--wujia-text-muted);
     --wujia-mhome-card-border:     #E9EEF2;
 
     /* ---------- Mobile Order / Cart (Figma 2480:2) ---------- */
@@ -335,12 +357,12 @@
     --wujia-morder-border:       #E5E7EB;
     --wujia-morder-divider:      #EEF2F5;
     --wujia-morder-text:         #111827;
-    --wujia-morder-text-sub:     #6B7280;
-    --wujia-morder-text-muted:   #8A939E;
+    --wujia-morder-text-sub:     var(--wujia-text-subtitle);
+    --wujia-morder-text-muted:   var(--wujia-text-muted);
     --wujia-morder-warn-bg:      #FEE2E2;
-    --wujia-morder-warn-text:    #DC2626;
+    --wujia-morder-warn-text:    var(--wujia-danger-text);
     --wujia-morder-thumb-bg:     #DDF6FF;
-    --wujia-morder-thumb-text:   var(--wujia-primary);
+    --wujia-morder-thumb-text:   var(--wujia-brand-text);
     --wujia-morder-qty-badge:    var(--wujia-morder-primary);
     --wujia-morder-floatbar-bg:  linear-gradient(90deg, #0B2430 0%, #1B5C75 100%);
     --wujia-morder-floatbar-sub: #DDF6FF;
@@ -351,10 +373,10 @@
        Append-only: KHÔNG sửa token cũ (blast radius = 0). */
     --wujia-mres-info-bg:        #F8FAFC;   /* box 4 dòng thông tin đơn */
     --wujia-mres-warn-bg:        #FFF7E6;   /* badge trạng thái "Chờ xác nhận" */
-    --wujia-mres-warn-text:      #D97706;
+    --wujia-mres-warn-text:      var(--wujia-warning-text);
     --wujia-mres-danger-border:  #FCA5A5;   /* box khung giờ tiếp theo */
     --wujia-mres-danger-label:   #991B1B;
-    --wujia-mres-danger-value:   #DC2626;
+    --wujia-mres-danger-value:   var(--wujia-danger-text);
     --wujia-mres-info-label:     #075985;   /* box "giỏ vẫn giữ nguyên" */
     --wujia-mres-info-text:      #0369A1;
     --wujia-msubmit-backdrop:    rgba(17, 24, 39, 0.34);
@@ -399,16 +421,16 @@
     /* Chỗ nav THỰC chiếm = 72 + safe area (nav cao đúng biến này). Mọi khối fixed phía
        trên nav (sheet Thêm, thanh giỏ, CTA dính) phải bám biến này, không bám -height. */
     --wujia-mnav-total:              calc(var(--wujia-mnav-height) + env(safe-area-inset-bottom, 0px));
-    --wujia-mnav-active:             var(--wujia-primary);
-    --wujia-mnav-inactive:           #8A939E;
-    --wujia-mnav-badge:              #EF4444;
+    --wujia-mnav-active:             var(--wujia-brand-text);
+    --wujia-mnav-inactive:           var(--wujia-text-muted);
+    --wujia-mnav-badge:              var(--wujia-danger-fill);
 
     /* ---------- More bottom sheet ---------- */
     --wujia-msheet-radius:        20px;
     --wujia-msheet-backdrop:      rgba(17, 24, 39, 0.28);
     --wujia-msheet-handle:        #D8DEE6;
-    --wujia-msheet-subtitle:      #6B7280;
-    --wujia-msheet-item-sub:      #8A939E;
+    --wujia-msheet-subtitle:      var(--wujia-text-subtitle);
+    --wujia-msheet-item-sub:      var(--wujia-text-muted);
     --wujia-msheet-icon-bg:       var(--wujia-primary-soft);
     --wujia-msheet-chevron:       #B3BAC4;
     --wujia-msheet-row-h:         62px;

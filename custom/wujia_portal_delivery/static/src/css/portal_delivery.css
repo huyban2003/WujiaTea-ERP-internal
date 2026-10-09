@@ -46,7 +46,7 @@
     .wujia-mdelivery-row-divider { height: 1px; background: var(--wujia-morder-divider); }
     .wujia-mdelivery-row-colicon {
         flex: 0 0 auto; font-size: 16px; line-height: 1;
-        color: var(--wujia-morder-primary); margin-top: 1px;
+        color: var(--wujia-brand-text); margin-top: 1px;
     }
     .wujia-mdelivery-row-colbody { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
     .wujia-mdelivery-row-collabel { font-size: 10.5px; font-weight: 700; color: var(--wujia-morder-text-sub); }
@@ -56,12 +56,12 @@
         height: 24px; padding: 0 12px; border-radius: 8px;
         font-size: 11px; font-weight: 700; line-height: 1; white-space: nowrap;
     }
-    .wujia-mdelivery-badge--going { background: var(--wujia-primary-soft); color: var(--wujia-morder-primary); }
+    .wujia-mdelivery-badge--going { background: var(--wujia-primary-soft); color: var(--wujia-brand-text); }
     .wujia-mdelivery-badge--soon { background: var(--wujia-mdelivery-soon-bg); color: var(--wujia-mdelivery-soon-fg); }
     .wujia-mdelivery-badge--done { background: var(--wujia-mdelivery-done-bg); color: var(--wujia-mdelivery-done-fg); }
     .wujia-mdelivery-badge--muted { background: var(--wujia-morder-divider); color: var(--wujia-morder-text-muted); }
 
-    .wujia-mdelivery-icon-danger { background: var(--wujia-danger-bg); color: var(--wujia-danger); }
+    .wujia-mdelivery-icon-danger { background: var(--wujia-danger-bg); color: var(--wujia-danger-text); }
 
     /* ---------- Skeleton (loading — UI-only) ---------- */
     .wujia-mdelivery-skel-bar {
@@ -174,7 +174,7 @@
 
 /* ---- Mã chuyến: link tối màu (Figma dark bold, không cyan) ---- */
 .wj-pc-dlv-codelink { color: var(--wj-pc-text); font-weight: 700; text-decoration: none; }
-.wj-pc-dlv-codelink:hover { color: var(--wj-pc-primary); }
+.wj-pc-dlv-codelink:hover { color: var(--wujia-brand-text); }
 
 
 /* ---- Loading skeleton (7 hàng × 7 bar, xen kẽ nền) ---- */
@@ -198,10 +198,10 @@
 .wj-pc-dlv-inner__icon {
     width: 84px; height: 84px; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
-    background: var(--wj-pc-primary-soft); color: var(--wj-pc-primary);
+    background: var(--wj-pc-primary-soft); color: var(--wujia-brand-text);
     font-size: 34px; margin-bottom: 20px;
 }
-.wj-pc-dlv-inner__icon--error { background: var(--wj-pc-red-soft); color: var(--wj-pc-red); }
+.wj-pc-dlv-inner__icon--error { background: var(--wj-pc-red-soft); color: var(--wujia-danger-text); }
 .wj-pc-dlv-inner__title { font-size: 28px; font-weight: 700; color: var(--wj-pc-text); margin: 0 0 10px; }
 .wj-pc-dlv-inner__sub { font-size: 16px; font-weight: 400; color: var(--wj-pc-muted); margin: 0 0 20px; }
 

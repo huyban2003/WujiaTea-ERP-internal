@@ -182,7 +182,7 @@
     height: 34px;
     border-radius: 50%;
     background: var(--wj-debt-soft);
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
 }
 .wj-debt-actionrow__icon i { font-size: 17px; line-height: 1; }
 .wj-debt-actionrow__text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
@@ -221,7 +221,7 @@
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: var(--wujia-primary);
+    background: var(--wujia-brand-fill);
     color: #FFFFFF;
     font-size: 15px;
     font-weight: 700;
@@ -289,7 +289,7 @@
 .wj-debt-copy { flex: 0 0 auto; }
 .wj-debt-copy.is-copied { color: var(--wj-debt-success); }
 /* Phản hồi copy (WJ-DEBT-005) — trống thì không chiếm chỗ, dùng chung mobile + PC. */
-.wj-debt-copy-msg { font-size: 12px; font-weight: 700; color: var(--wujia-success); }
+.wj-debt-copy-msg { font-size: 12px; font-weight: 700; color: var(--wujia-success-text); }
 .wj-debt-copy-msg:empty { display: none; }
 .wj-debt-copy-msg.is-error { color: var(--wujia-mres-danger-value); }
 
@@ -336,7 +336,7 @@
     border-bottom: 2px solid transparent;
 }
 .wj-debt-pc-tab:hover { color: var(--wj-pc-text); }
-.wj-debt-pc-tab.is-active { color: var(--wj-pc-primary); border-bottom-color: var(--wj-pc-primary); }
+.wj-debt-pc-tab.is-active { color: var(--wujia-brand-text); border-bottom-color: var(--wj-pc-primary); }
 
 /* ---------- Filter row (card trắng) ---------- */
 .wj-debt-pc-filter {
@@ -431,7 +431,7 @@
 .wj-debt-pc-summary__col:last-child { border-right: 0; }
 .wj-debt-pc-summary__label { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); }
 .wj-debt-pc-summary__value { font-size: 26px; font-weight: 700; line-height: 1.1; color: var(--wj-pc-text); }
-.wj-debt-pc-summary__value--paid { color: var(--wj-pc-green); }
+.wj-debt-pc-summary__value--paid { color: var(--wujia-success-text); }
 .wj-debt-pc-summary__side {
     flex: 0 0 auto;
     display: flex;
@@ -451,7 +451,7 @@
 .wj-debt-pc-table { min-width: 900px; }
 .wj-debt-pc-table th.text-end,
 .wj-debt-pc-table td.text-end { text-align: right; }
-.wj-debt-pc-td--paid { font-weight: 700; color: var(--wj-pc-green); }
+.wj-debt-pc-td--paid { font-weight: 700; color: var(--wujia-success-text); }
 /* Nút PDF trong hàng bảng dùng atom `wj-btn--secondary --sm` (32/bo 8) từ E6b1. */
 
 /* ---------- Pagination footer ---------- */
@@ -474,8 +474,8 @@
     width: 72px; height: 72px; margin-bottom: 16px;
     border-radius: 999px; font-size: 30px;
 }
-.wj-debt-pc-emptybox--empty_week .wj-debt-pc-emptybox__icon { background: var(--wj-pc-blue-soft); color: var(--wj-pc-primary); }
-.wj-debt-pc-emptybox--no_debt .wj-debt-pc-emptybox__icon { background: var(--wj-pc-green-soft); color: var(--wj-pc-green); }
+.wj-debt-pc-emptybox--empty_week .wj-debt-pc-emptybox__icon { background: var(--wj-pc-blue-soft); color: var(--wujia-brand-text); }
+.wj-debt-pc-emptybox--no_debt .wj-debt-pc-emptybox__icon { background: var(--wj-pc-green-soft); color: var(--wujia-success-text); }
 .wj-debt-pc-emptybox__title { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: var(--wj-pc-text); }
 .wj-debt-pc-emptybox__sub { margin: 0; max-width: 460px; font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); }
 
@@ -488,7 +488,7 @@
 .wj-debt-pc-banner__icon {
     flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
     width: 24px; height: 24px; border-radius: 50%;
-    background: var(--wj-pc-primary); color: #fff; font-size: 14px; font-weight: 700; line-height: 1;
+    background: var(--wujia-brand-fill); color: #fff; font-size: 14px; font-weight: 700; line-height: 1;
 }
 .wj-debt-pc-banner__text { font-size: 14px; font-weight: 500; color: var(--wj-pc-text); }
 .wj-debt-pc-banner__aside { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--wj-pc-muted); }
@@ -531,7 +531,7 @@
 }
 /* Hook: chỗ đứng trong hàng + màu báo "đã chép"; dáng ở atom `wj-iconbtn--sm`. */
 .wj-debt-pc-copy { flex: 0 0 auto; }
-.wj-debt-pc-copy.is-copied { color: var(--wj-pc-green); border-color: var(--wj-pc-green); }
+.wj-debt-pc-copy.is-copied { color: var(--wujia-success-text); border-color: var(--wj-pc-green); }
 
 .wj-debt-pc-modal__note {
     display: flex; flex-direction: column; gap: 4px;

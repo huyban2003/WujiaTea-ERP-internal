@@ -130,4 +130,4 @@ class TestStoreBlockCssG2(TransactionCase):
     def test_chevron_mau_chinh_khong_co_lai(self):
         body = _rule(self.css, '.wujia-store-strip-chevron')
         self.assertIn('flex: 0 0 auto', body)
-        self.assertIn('var(--wujia-primary)', body)
+        self.assertIn('var(--wujia-brand-text)', body)   # WJ-PORTAL-UI-006: chữ/icon brand đậm ≥4.5

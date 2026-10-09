@@ -20,17 +20,17 @@
     text-decoration: none;
     transition: background-color .15s, border-color .15s, color .15s;
 }
-.wj-pc-btn--primary { background: var(--wj-pc-primary); color: #fff; }
-.wj-pc-btn--primary:hover { background: var(--wj-pc-primary-dark); color: #fff; }
+.wj-pc-btn--primary { background: var(--wujia-brand-fill); color: #fff; }
+.wj-pc-btn--primary:hover { background: var(--wujia-brand-fill-hover); color: #fff; }
 .wj-pc-btn--secondary {
     background: var(--wj-pc-card);
     border-color: var(--wj-pc-border);
     color: var(--wj-pc-text);
 }
 .wj-pc-btn--secondary:hover { background: var(--wj-pc-bg); color: var(--wj-pc-text); }
-.wj-pc-btn--ghost { background: transparent; color: var(--wj-pc-primary); }
+.wj-pc-btn--ghost { background: transparent; color: var(--wujia-brand-text); }
 .wj-pc-btn--ghost:hover { background: var(--wj-pc-primary-soft); }
-.wj-pc-btn--danger { background: var(--wj-pc-danger); color: #fff; }
+.wj-pc-btn--danger { background: var(--wujia-danger-fill); color: #fff; }
 .wj-pc-btn--danger:hover { filter: brightness(.95); color: #fff; }
 
 /* ---------- Status badge (pill h28, radius 14) — SVG StatusBadge_Set ---------- */
@@ -50,10 +50,10 @@
     white-space: nowrap;
 }
 .wj-pc-badge--sent    { background: var(--wj-pc-blue-bg);    color: var(--wj-pc-blue); }
-.wj-pc-badge--transit { background: var(--wj-pc-yellow-soft); color: var(--wj-pc-yellow); }
-.wj-pc-badge--done    { background: var(--wj-pc-green-soft);  color: var(--wj-pc-green); }
+.wj-pc-badge--transit { background: var(--wj-pc-yellow-soft); color: var(--wujia-warning-text); }
+.wj-pc-badge--done    { background: var(--wj-pc-green-soft);  color: var(--wujia-success-text); }
 .wj-pc-badge--pending { background: var(--wj-pc-gray-soft);   color: var(--wj-pc-muted); }
-.wj-pc-badge--cancel  { background: var(--wj-pc-red-soft);    color: var(--wj-pc-red); }
+.wj-pc-badge--cancel  { background: var(--wj-pc-red-soft);    color: var(--wujia-danger-text); }
 /* F4 — chip gọn (~20px) cho danh sách dày, vd popup chuông thông báo. */
 .wj-pc-badge--sm { height: auto; padding: 3px 8px; font-size: 11px; line-height: 1.35; }
 
@@ -156,10 +156,10 @@
     justify-content: center;
     font-size: 22px;
 }
-.wj-pc-metric-card__icon--blue   { background: var(--wj-pc-blue-soft);   color: var(--wj-pc-primary); }
-.wj-pc-metric-card__icon--yellow { background: var(--wj-pc-yellow-soft); color: var(--wj-pc-yellow); }
-.wj-pc-metric-card__icon--green  { background: var(--wj-pc-green-soft);  color: var(--wj-pc-green); }
-.wj-pc-metric-card__icon--red    { background: var(--wj-pc-red-soft);    color: var(--wj-pc-red); }
+.wj-pc-metric-card__icon--blue   { background: var(--wj-pc-blue-soft);   color: var(--wujia-brand-text); }
+.wj-pc-metric-card__icon--yellow { background: var(--wj-pc-yellow-soft); color: var(--wujia-warning-text); }
+.wj-pc-metric-card__icon--green  { background: var(--wj-pc-green-soft);  color: var(--wujia-success-text); }
+.wj-pc-metric-card__icon--red    { background: var(--wj-pc-red-soft);    color: var(--wujia-danger-text); }
 .wj-pc-metric-card__body { display: flex; flex-direction: column; gap: 2px; }
 .wj-pc-metric-card__label { font-size: 14px; font-weight: 600; color: var(--wj-pc-muted); }
 .wj-pc-metric-card__value { font-size: 30px; font-weight: 700; color: var(--wj-pc-text); line-height: 1.1; }
@@ -200,7 +200,7 @@
 .wj-pc-table .wj-pc-td--code   { font-weight: 600; }
 .wj-pc-table .wj-pc-td--muted  { color: var(--wj-pc-muted); font-weight: 500; }
 .wj-pc-table .wj-pc-td--amount { font-weight: 700; }
-.wj-pc-link { color: var(--wj-pc-primary); font-weight: 700; text-decoration: none; }
+.wj-pc-link { color: var(--wujia-brand-text); font-weight: 700; text-decoration: none; }
 .wj-pc-link:hover { text-decoration: underline; }
 
 /* ---------- Pagination CŨ — CHỈ còn nhóm Khảo sát dùng (defer, luật 08/09) ----------
@@ -235,14 +235,14 @@
     text-decoration: none;
 }
 .wj-inspection-pc .wj-pc-page-btn.is-active {
-    background: var(--wj-pc-primary);
+    background: var(--wujia-brand-fill);
     border-color: var(--wj-pc-primary);
     color: #fff;
 }
 .wj-inspection-pc .wj-pc-page-btn.is-disabled { opacity: .45; pointer-events: none; }
 .wj-inspection-pc .wj-pc-page-btn:hover:not(.is-active):not(.is-disabled) {
     border-color: var(--wj-pc-primary);
-    color: var(--wj-pc-primary);
+    color: var(--wujia-brand-text);
 }
 
 /* ---------- Form field (label + input/select/textarea h42) — SVG FormField_Set ---------- */
@@ -294,7 +294,7 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
     height: 68px;
     border-radius: 999px;
     background: var(--wj-pc-blue-soft);
-    color: var(--wj-pc-primary);
+    color: var(--wujia-brand-text);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -335,7 +335,7 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
 .wj-pc-modal__actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 22px; }
 
 /* ---------- Status badge: confirmed (cyan) — Figma "Đã xác nhận" #EAF7FD/#28A9DF ---------- */
-.wj-pc-badge--confirmed { background: var(--wj-pc-primary-soft); color: var(--wj-pc-primary); }
+.wj-pc-badge--confirmed { background: var(--wj-pc-primary-soft); color: var(--wujia-brand-text); }
 
 /* ---------- Card sub-count (right of title) — "N sản phẩm" ---------- */
 .wj-pc-card__count { font-size: 14px; font-weight: 500; color: var(--wj-pc-muted); white-space: nowrap; }
@@ -347,8 +347,8 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
 .wj-pc-kv { display: flex; flex-direction: column; gap: 4px; }
 .wj-pc-kv__label { font-size: 13px; font-weight: 700; color: var(--wj-pc-muted); }
 .wj-pc-kv__value { font-size: 15px; font-weight: 700; color: var(--wj-pc-text); }
-.wj-pc-kv__value--primary { color: var(--wj-pc-primary); }
-.wj-pc-kv__value--warning { color: var(--wj-pc-yellow); }
+.wj-pc-kv__value--primary { color: var(--wujia-brand-text); }
+.wj-pc-kv__value--warning { color: var(--wujia-warning-text); }
 
 /* ---------- Order summary head (detail) — code 30/800 left, amount 28/800 right ---------- */
 .wj-pc-order-head {
@@ -421,16 +421,16 @@ input[type="file"].wj-pc-control { height: auto; min-height: var(--wj-pc-input-h
     gap: 4px; font-size: 14px; font-weight: 700; white-space: nowrap;
     color: var(--wujia-text-secondary);
 }
-.wj-page-header--pc .wj-page-header__back > i { font-size: 20px; color: var(--wujia-primary); }
+.wj-page-header--pc .wj-page-header__back > i { font-size: 20px; color: var(--wujia-brand-text); }
 /* Hover + focus-visible: nền/viền soft + chữ lẫn icon về primary (spec 3 state) */
 .wj-page-header--pc .wj-page-header__back:hover,
 .wj-page-header--pc .wj-page-header__back:focus-visible {
     background: var(--wujia-primary-soft);
     border-color: var(--wujia-primary-border-soft);
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
 }
 .wj-page-header--pc .wj-page-header__back:hover > i,
-.wj-page-header--pc .wj-page-header__back:focus-visible > i { color: var(--wujia-primary); }
+.wj-page-header--pc .wj-page-header__back:focus-visible > i { color: var(--wujia-brand-text); }
 /* Breadcrumb PC (UI-PC-BASE-007) — cùng token với .wj-pc-page-header__crumb */
 .wj-page-header__crumb {
     font-size: 14px;

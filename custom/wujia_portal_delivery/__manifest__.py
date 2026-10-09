@@ -1,6 +1,6 @@
 {
     'name': 'Wujia Portal — Delivery Tracking',
-    'version': '19.0.4.1.0',
+    'version': '19.0.4.2.0',
     'category': 'Wujia',
     'summary': 'Portal delivery trip tracking — batch list + detail (desktop + mobile Figma 4731)',
     'author': 'WujiaTea',

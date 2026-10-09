@@ -79,13 +79,13 @@ class TestSidebarCss(TransactionCase):
         css = _read('css', '_sidebar.css')
         active = _body(css, '#wj-main-menu .navigation > li.active > a')
         self.assertIn('background: var(--wujia-primary-soft)', active)
-        self.assertIn('color: var(--wujia-primary-dark)', active)
+        self.assertIn('color: var(--wujia-brand-text-hover)', active)   # WJ-PORTAL-UI-006: #168FC2 chỉ 3.66
         self.assertIn('font-weight: 700', active)
         rail = _body(css, '#wj-main-menu .navigation > li.active > a::before')
         self.assertIn('width: 3px', rail)
         self.assertIn('position: absolute', rail)   # rail không đẩy layout
         self.assertEqual(_token('wujia-primary-soft'), '#EAF7FD')
-        self.assertEqual(_token('wujia-primary-dark'), '#168FC2')
+        self.assertEqual(_token('wujia-brand-text-hover'), '#125C7B')
 
     def test_drawer_992_1199(self):
         css = _read('css', '_sidebar.css')

@@ -91,6 +91,18 @@ textarea:not([disabled]):not([readonly]):focus-visible {
         border-color: var(--wujia-primary);
         box-shadow: var(--wujia-hover-shadow);
     }
+    /* WJ-PORTAL-UI-006 — hai bề mặt mà nền hover sáng ở trên làm mất chữ trắng (đo 1.09):
+       chip đã chọn bằng input (không mang .is-active nên lọt danh sách) giữ nền đậm;
+       thẻ KPI nằm trên hero tối chỉ sáng nhẹ. Đặc hiệu (0,4,1)/(0,5,0) > (0,4,0) của rule trên. */
+    .wj-filter-chip:has(input:checked):not(.is-disabled):hover {
+        background-color: var(--wujia-brand-fill-hover);
+        border-color: var(--wujia-brand-fill-hover);
+    }
+    .wujia-mhome-kpi.wj-state-surface:not(.is-active):not(.is-disabled):hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        border-color: transparent;
+        box-shadow: none;
+    }
 }
 
 /* Pressed — không bọc media query để thiết bị chạm cũng có phản hồi. Không
@@ -143,7 +155,7 @@ textarea:not([disabled]):not([readonly]):focus-visible {
 }
 .list-group .list-group-item-action.active:hover,
 .list-group .list-group-item-action.active:focus {
-    background-color: var(--wujia-primary);
+    background-color: var(--wujia-brand-fill);
     border-color: var(--wujia-primary);
     color: #FFFFFF;
 }

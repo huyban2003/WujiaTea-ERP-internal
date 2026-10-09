@@ -8,8 +8,8 @@
 .store-picker-list { max-height: 50vh; overflow-y: auto; }
 .store-picker-item { cursor: pointer; padding: 12px 16px; border-radius: 0 !important; border-color: var(--wujia-border) !important; }
 .store-picker-item:hover { background-color: var(--wujia-primary-light); }
-.store-picker-item.active { background-color: var(--wujia-primary) !important; color: #fff !important; border-color: var(--wujia-primary) !important; }
-.store-picker-item.active .text-muted { color: rgba(255,255,255,0.85) !important; }
+.store-picker-item.active { background-color: var(--wujia-brand-fill) !important; color: #fff !important; border-color: var(--wujia-primary) !important; }
+.store-picker-item.active .text-muted { color: #fff !important; }
 .store-picker-radio { margin-right: 10px; }
 .store-picker-name { font-size: 1rem; }
 .store-picker-addr { margin-top: 2px; font-size: 0.8rem; }
@@ -70,8 +70,8 @@
     letter-spacing: 0.3px;
     min-height: 46px;
 }
-.wujia-store-role-badge-manager { background-color: var(--wujia-success); }
-.wujia-store-role-badge-owner   { background-color: var(--wujia-warning); }
+.wujia-store-role-badge-manager { background-color: var(--wujia-success-fill); }   /* WJ-PORTAL-UI-006: chữ trắng ≥4.5 */
+.wujia-store-role-badge-owner   { background-color: var(--wujia-warning-fill); }
 .wujia-store-role-badge-staff   { background-color: var(--wujia-text-muted); }
 
 /* UI-01 (Sprint 34): PC Current Store — store pill + role trong 1 container 430px
@@ -177,7 +177,7 @@
     display: inline-flex;
     align-items: center;
     background: var(--wujia-primary-soft);
-    color: var(--wujia-morder-primary);
+    color: var(--wujia-brand-text);
     border-radius: 999px;
     /* UI-MOB-SHELL-002: chip 24px cùng role chip (Blank Shell y=116-140 strip 48px). */
     min-height: 24px;
@@ -217,7 +217,7 @@
 .wujia-store-strip-chevron {
     flex: 0 0 auto;
     margin-left: -2px;
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
     font-size: 20px;
     line-height: 1;
 }

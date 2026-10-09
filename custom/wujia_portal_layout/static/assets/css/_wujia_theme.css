@@ -64,17 +64,17 @@ html body .h4, html body .h5, html body .h6,
     background-color: var(--wujia-primary) !important;
     border-color: var(--wujia-primary) !important;
 }
-.text-primary { color: var(--wujia-primary) !important; }
+.text-primary { color: var(--wujia-brand-text) !important; }
 .border-primary { border-color: var(--wujia-primary) !important; }
 
 .bg-success, .badge.badge-success { background-color: var(--wujia-success) !important; }
-.text-success { color: var(--wujia-success) !important; }
+.text-success { color: var(--wujia-success-text) !important; }
 
-.bg-warning, .badge.badge-warning { background-color: var(--wujia-warning) !important; color: #fff; }
-.text-warning { color: var(--wujia-warning) !important; }
+.bg-warning, .badge.badge-warning { background-color: var(--wujia-warning-fill) !important; color: #fff; }
+.text-warning { color: var(--wujia-warning-text) !important; }
 
 .bg-danger, .badge.badge-danger { background-color: var(--wujia-danger) !important; }
-.text-danger { color: var(--wujia-danger) !important; }
+.text-danger { color: var(--wujia-danger-text) !important; }
 
 .text-muted { color: var(--wujia-text-muted) !important; }
 
@@ -216,8 +216,8 @@ html body .h4, html body .h5, html body .h6,
 }
 
 /* ---------- Links ---------- */
-a { color: var(--wujia-primary); }
-a:hover { color: var(--wujia-primary-dark); }
+a { color: var(--wujia-brand-text); }
+a:hover { color: var(--wujia-brand-text-hover); }
 
 /* ---------- Alerts (info/success banner) ---------- */
 .alert-info,
@@ -226,6 +226,9 @@ a:hover { color: var(--wujia-primary-dark); }
     color: var(--wujia-info-text);
     border: 1px solid var(--wujia-info-bg);
 }
+/* WJ-PORTAL-UI-006: Vuexy (colors.css) ép `.alert-info` nền cyan nhạt + chữ #00CFE8 bằng !important
+   (1.63). Giữ nền Vuexy, chỉ kéo chữ về brand-text (4.82 trên #CCF5FA). */
+html body .alert.alert-info { color: var(--wujia-brand-text) !important; }
 
 /* ---------- Misc ---------- */
 .pace .pace-progress {

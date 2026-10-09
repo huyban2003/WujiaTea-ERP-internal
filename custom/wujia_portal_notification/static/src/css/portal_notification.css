@@ -6,7 +6,7 @@
 .notification-item { transition: background-color 0.15s; }
 .notification-item:hover { background-color: var(--wujia-bg-page); }
 .notification-unread { background-color: var(--wujia-warning-bg); }
-.notification-unread .notification-title strong { color: var(--wujia-primary); }
+.notification-unread .notification-title strong { color: var(--wujia-brand-text); }
 .notification-icon {
     width: 44px; height: 44px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -17,7 +17,7 @@
 .notification-content img { max-width: 100%; height: auto; border-radius: 6px; }
 
 .notification-tabs .nav-link { color: var(--wujia-text-secondary); padding: 8px 16px; }
-.notification-tabs .nav-link.active { color: var(--wujia-primary); font-weight: 600; border-bottom-color: var(--wujia-primary); }
+.notification-tabs .nav-link.active { color: var(--wujia-brand-text); font-weight: 600; border-bottom-color: var(--wujia-primary); }
 .notification-tabs .nav-link .badge { font-size: 0.7rem; }
 
 /* Sprint 22 — Mobile THÔNG BÁO (Figma WJ_Notification_Mockup_v9 4651:655) — List + Detail.
@@ -51,10 +51,10 @@
         background: var(--wujia-morder-primary);
     }
     /* Tone — icon nền mềm + chữ theo loại thông báo (dùng chung list + detail) */
-    .wujia-mnoti-tone-cyan   { background: var(--wujia-primary-soft); color: var(--wujia-primary); }
-    .wujia-mnoti-tone-green  { background: var(--wujia-success-bg);   color: var(--wujia-success); }
-    .wujia-mnoti-tone-amber  { background: var(--wujia-warning-bg);   color: var(--wujia-warning); }
-    .wujia-mnoti-tone-red    { background: var(--wujia-danger-bg);    color: var(--wujia-danger); }
+    .wujia-mnoti-tone-cyan   { background: var(--wujia-primary-soft); color: var(--wujia-brand-text); }
+    .wujia-mnoti-tone-green  { background: var(--wujia-success-bg);   color: var(--wujia-success-text); }
+    .wujia-mnoti-tone-amber  { background: var(--wujia-warning-bg);   color: var(--wujia-warning-text); }
+    .wujia-mnoti-tone-red    { background: var(--wujia-danger-bg);    color: var(--wujia-danger-text); }
     .wujia-mnoti-tone-violet { background: #EEF0FF;                   color: #6366F1; }
     .wujia-mnoti-tone-gray   { background: var(--wujia-mshell-bg);    color: var(--wujia-morder-text-muted); }
     .wujia-mnoti-detail-badges .wujia-badge { display: inline-flex; align-items: center; gap: 4px; }
@@ -69,7 +69,7 @@
         border: 1px solid var(--wujia-morder-border);
         border-radius: 10px;
         background: var(--wujia-morder-card-bg);
-        color: var(--wujia-morder-primary);
+        color: var(--wujia-brand-text);
         font-size: 20px;
         text-decoration: none;
     }
@@ -119,7 +119,7 @@
         align-items: center; justify-content: center;
         border-radius: 8px;
         background: #FFFFFF;
-        color: var(--wujia-morder-primary);
+        color: var(--wujia-brand-text);
         font-size: 16px;
     }
     .wujia-mnoti-detail-link-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -147,7 +147,7 @@
         border-radius: 8px;
         background: var(--wujia-morder-card-bg);
         border: 1px solid var(--wujia-morder-border);
-        color: var(--wujia-morder-primary);
+        color: var(--wujia-brand-text);
         font-size: 15px;
     }
     .wujia-mnoti-detail-file-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -221,7 +221,7 @@
 .wj-pc-noti-urgent-sub {
     display: flex; align-items: center; gap: 6px;
     font-size: 16px; font-weight: 700;
-    color: var(--wj-pc-danger); margin: 0 0 16px;
+    color: var(--wujia-danger-text); margin: 0 0 16px;
 }
 .wj-pc-noti-detail-body {
     font-size: 15px; line-height: 1.75;
@@ -243,7 +243,7 @@
     flex: 0 0 auto; width: 40px; height: 40px;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: var(--wj-pc-component-radius);
-    background: var(--wujia-primary-soft); color: var(--wj-pc-primary);
+    background: var(--wujia-primary-soft); color: var(--wujia-brand-text);
     font-size: 18px;
 }
 .wj-pc-noti-attach-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -256,10 +256,10 @@
 .wj-pc-noti-attach-dl { flex: 0 0 auto; }
 
 /* ---- Type tone (popup icons; classes injected by JS) ---- */
-.wj-pc-noti-type--cyan { background: var(--wujia-primary-soft); color: var(--wujia-primary); }
-.wj-pc-noti-type--green { background: var(--wujia-success-bg); color: var(--wujia-success); }
-.wj-pc-noti-type--amber { background: var(--wujia-warning-bg); color: var(--wujia-warning); }
-.wj-pc-noti-type--red { background: var(--wujia-danger-bg); color: var(--wujia-danger); }
+.wj-pc-noti-type--cyan { background: var(--wujia-primary-soft); color: var(--wujia-brand-text); }
+.wj-pc-noti-type--green { background: var(--wujia-success-bg); color: var(--wujia-success-text); }
+.wj-pc-noti-type--amber { background: var(--wujia-warning-bg); color: var(--wujia-warning-text); }
+.wj-pc-noti-type--red { background: var(--wujia-danger-bg); color: var(--wujia-danger-text); }
 .wj-pc-noti-type--violet { background: #EEF0FF; color: #6366F1; }
 
 /* ====================================================================

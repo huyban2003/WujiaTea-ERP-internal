@@ -161,21 +161,23 @@ class TestDataListExam(TransactionCase):
     def test_mot_chu_so_huu_dang_item(self):
         """E5b2: ba họ ruột đã retire (sổ đăng ký E5 canh), chỉ còn
         `wujia-mexam-course`/`-rrow` sống như lớp TRẠNG THÁI ⇒ cấm khai lại dáng."""
-        css = _strip_comments(self._css())
         DANG = ('padding', 'background', 'border-radius', 'height', 'display')
-        kiem = 0
-        for khoi in re.finditer(r'([^{}]+)\{([^{}]*)\}', css):
-            sel, than = khoi.group(1).strip(), khoi.group(2)
-            for phan in sel.split(','):
-                chu = _chu_the(re.sub(r':not\([^)]*\)', '', phan))
-                if not re.match(r'\.(wujia-mexam-course|wujia-mexam-rrow)(?![-\w])', chu):
-                    continue
-                kiem += 1
-                for prop in DANG:
-                    self.assertNotRegex(
-                        than, r'(^|;)\s*%s\s*:' % prop,
-                        'rule "%s" giành lại dáng item bằng %s' % (phan.strip(), prop))
-        self.assertGreaterEqual(kiem, 1, 'không quét trúng rule nào — guard rỗng')
+
+        def quet(css):
+            loi = []
+            for khoi in re.finditer(r'([^{}]+)\{([^{}]*)\}', _strip_comments(css)):
+                sel, than = khoi.group(1).strip(), khoi.group(2)
+                for phan in sel.split(','):
+                    chu = _chu_the(re.sub(r':not\([^)]*\)', '', phan))
+                    if not re.match(r'\.(wujia-mexam-course|wujia-mexam-rrow)(?![-\w])', chu):
+                        continue
+                    loi += ['rule "%s" giành lại dáng item bằng %s' % (phan.strip(), prop)
+                            for prop in DANG if re.search(r'(^|;)\s*%s\s*:' % prop, than)]
+            return loi
+        # I13 bỏ rule cuối (`.is-closed { opacity }`) — khoá đã đóng dùng `.wj-data-item.is-disabled` của
+        # DataList ⇒ CSS màn có thể không còn rule nào; tự kiểm guard bằng mẫu thay cho đếm ≥1.
+        self.assertTrue(quet('.wujia-mexam-course.is-closed { background: #eee; }'), 'guard rỗng')
+        self.assertFalse(quet(self._css()))
 
     def test_khong_con_rule_layout_rieng_cho_item(self):
         """E5b2 đảo chiều test cũ: layout bên trong item nay là của ListCard ⇒ màn

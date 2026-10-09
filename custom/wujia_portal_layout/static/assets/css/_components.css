@@ -78,13 +78,13 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 /* Primary: cyan bg + white text + h=42 */
 .btn-primary,
 .wujia-btn-primary {
-    background-color: var(--wujia-primary) !important;
+    background-color: var(--wujia-brand-fill) !important;
     border-color: var(--wujia-primary) !important;
     color: #FFFFFF !important;
 }
 .btn-primary:hover,
 .wujia-btn-primary:hover {
-    background-color: var(--wujia-primary-dark) !important;
+    background-color: var(--wujia-brand-fill-hover) !important;
     border-color: var(--wujia-primary-dark) !important;
     color: #FFFFFF !important;
 }
@@ -163,10 +163,10 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: var(--wujia-text-secondary);
     border: 1px solid transparent;
 }
-.wujia-badge-success { background-color: var(--wujia-success-bg); color: var(--wujia-success); }
-.wujia-badge-warning { background-color: var(--wujia-warning-bg); color: var(--wujia-warning); }
-.wujia-badge-danger  { background-color: var(--wujia-danger-bg);  color: var(--wujia-danger);  }
-.wujia-badge-info    { background-color: var(--wujia-primary-soft); color: var(--wujia-primary-dark); }
+.wujia-badge-success { background-color: var(--wujia-success-bg); color: var(--wujia-success-text); }
+.wujia-badge-warning { background-color: var(--wujia-warning-bg); color: var(--wujia-warning-text); }
+.wujia-badge-danger  { background-color: var(--wujia-danger-bg);  color: var(--wujia-danger-text);  }
+.wujia-badge-info    { background-color: var(--wujia-primary-soft); color: var(--wujia-brand-text-hover); }
 .wujia-badge-muted   { background-color: var(--wujia-muted-bg);   color: var(--wujia-text-muted); }
 /* F4 — icon trong badge nhỏ hơn chữ một bậc; `--sm` = badge nhãn phụ trong hàng (Figma 11px). */
 .wujia-badge i { font-size: 11px; }
@@ -179,11 +179,11 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     background-color: var(--wujia-muted-bg);
     color: var(--wujia-text-secondary);
 }
-.state-active   { background-color: var(--wujia-success-bg); color: var(--wujia-success); }
+.state-active   { background-color: var(--wujia-success-bg); color: var(--wujia-success-text); }
 .state-draft    { background-color: var(--wujia-muted-bg);   color: var(--wujia-text-secondary); }
 .state-locked,
-.state-expired  { background-color: var(--wujia-danger-bg);  color: var(--wujia-danger); }
-.state-closed   { background-color: var(--wujia-warning-bg); color: var(--wujia-warning); }
+.state-expired  { background-color: var(--wujia-danger-bg);  color: var(--wujia-danger-text); }
+.state-closed   { background-color: var(--wujia-warning-bg); color: var(--wujia-warning-text); }
 
 /* ---------- UI-15: Empty state ---------- */
 .wujia-empty-state {
@@ -235,21 +235,21 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 .wj-filter-chip.is-active,
 .wj-filter-chip:has(input:checked) {
-    background: var(--wujia-morder-primary);
+    background: var(--wujia-brand-fill);
     border-color: var(--wujia-morder-primary);
     color: #FFFFFF;
 }
 .wj-filter-chip--soft.is-active {
     background: var(--wujia-primary-soft);
     border-color: var(--wujia-morder-primary);
-    color: var(--wujia-morder-primary);
+    color: var(--wujia-brand-text);
 }
 .wj-filter-chip--clear { color: var(--wujia-morder-text-muted); }
 
 /* CountMeta (BA: muted "N items" text, not a badge). --bold / --primary variants. */
 .wj-count-meta { font-size: 13px; color: var(--wujia-morder-text-sub); }
 .wj-count-meta--bold { font-weight: 700; }
-.wj-count-meta--primary { flex: 0 0 auto; font-weight: 700; color: var(--wujia-morder-primary); }
+.wj-count-meta--primary { flex: 0 0 auto; font-weight: 700; color: var(--wujia-brand-text); }
 
 /* Filter card canonical (Figma 4785:498 — 5 biến thể: search / date-range / chip-slide / period) */
 .wj-filter-card {
@@ -280,6 +280,10 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     color: var(--wujia-morder-text);
 }
 .wj-filter-search-field input::placeholder { color: var(--wujia-text-muted); font-size: 12px; font-weight: 700; }
+/* WJ-PORTAL-UI-006: ô nào không tự đặt màu placeholder thì nhận màu mặc định của trình duyệt
+   (#757575 · 4.25 trên #F3F6F8) ⇒ mặc định toàn portal về text-muted. Độ đặc hiệu thấp nhất có thể,
+   rule riêng của component vẫn thắng. */
+:where(input, textarea)::placeholder { color: var(--wujia-text-muted); opacity: 1; }
 .wj-filter-search-field input:focus { outline: none; border-color: var(--wujia-primary); }
 .wj-filter-search-btn {
     flex: 0 0 auto;
@@ -287,7 +291,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     height: var(--wj-filter-btn-h-m);
     border: 0;
     border-radius: 10px;
-    background: var(--wujia-primary);
+    background: var(--wujia-brand-fill);
     color: #FFFFFF;
     display: flex;
     align-items: center;
@@ -302,7 +306,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     padding: 8px 12px;
     border-radius: 8px;
     background: var(--wujia-danger-bg);
-    color: var(--wujia-danger);
+    color: var(--wujia-danger-text);
     font-size: 13px;
     font-weight: 500;
 }
@@ -406,7 +410,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     justify-content: center;
     border-radius: 50%;
     background: var(--wujia-mdash-tile-bg);
-    color: var(--wujia-morder-primary);
+    color: var(--wujia-brand-text);
 }
 .wj-empty-state-icon > i { font-size: 28px; line-height: 1; }
 /* Scope qua .wj-empty-state để thắng base `.wj-empty-state p` (0,1,1). */
@@ -424,7 +428,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     padding: 0 16px;
     border: 0;
     border-radius: 10px;
-    background: var(--wujia-primary);
+    background: var(--wujia-brand-fill);
     color: #FFFFFF;
     font-size: 14px;
     font-weight: 700;
@@ -433,7 +437,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 .wj-empty-state-btn > i { font-size: 15px; line-height: 1; }
 .wj-empty-state-btn:hover,
-.wj-empty-state-btn:focus { background: var(--wujia-primary-dark); color: #FFFFFF; }
+.wj-empty-state-btn:focus { background: var(--wujia-brand-fill-hover); color: #FFFFFF; }
 /* --row = empty-state ngang cho các block Home mobile (SVG BA 391×1734, card 359×108:
    tile 44 tại x=32/y=+32, text từ x=90.6). KHÔNG có CTA — thao tác nằm ở Hành động nhanh. */
 .wj-empty-state--row {
@@ -516,7 +520,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     text-decoration: none !important;
 }
 .wujia-content-card-row-content a:hover {
-    color: var(--wujia-primary) !important;
+    color: var(--wujia-brand-text) !important;
 }
 .wujia-content-card-row-date {
     flex-shrink: 0;
@@ -651,7 +655,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 }
 .wujia-content-card-table:not(.wj-data-table) thead th {
     background: var(--wujia-bg-page);
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
     font-weight: 600;
     font-size: 14px;
     padding: 12px var(--wujia-content-card-padding);
@@ -707,7 +711,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     height: 44px;
     padding: 0 16px;
     background: var(--wujia-bg-page);
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
     font-weight: 600;
     font-size: 14px;
     border-top: 1px solid var(--wujia-border);
@@ -812,6 +816,12 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-data-list--detail-card .wj-data-item + .wj-data-item {
     margin-top: 8px;
 }
+/* WJ-PORTAL-UI-006 — item vô hiệu (vd khoá thi đã đóng): nền/viền xám, chữ giữ màu đạt AA
+   (không dùng opacity — kéo chữ xuống <4.5). `.is-disabled` cũng tắt hover ở `_interaction.css`. */
+.wj-data-list .wj-data-item.is-disabled {
+    background: var(--wj-disabled-bg);
+    border-color: var(--wj-disabled-border);
+}
 
 /* ---------------------------------------------------------------------------
    E5 — CMP-LC-001 ListCard: RUỘT của một record. Dáng NGOÀI (viền/bo/đệm/gap)
@@ -908,7 +918,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     margin-right: 4px;
     font-size: 16px;
     line-height: 1;
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
 }
 /* Ô icon phân loại đứng trước tên (Thông báo, Kiến thức) — CHỜ BA chốt LC-06. */
 .wj-lc__tile {
@@ -972,7 +982,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-lc__link {
     font-size: 14px;
     font-weight: 600;
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
     text-decoration: none;
     /* E5c: vùng chạm 44 bằng đệm + lề âm nên không đội cao/rộng card (a11y ≥44). */
     display: inline-block;
@@ -1004,7 +1014,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     min-width: var(--wujia-header-badge-size);
     height: var(--wujia-header-badge-size);
     padding: 0 5px;
-    background-color: var(--wujia-danger);
+    background-color: var(--wujia-danger-fill);
     color: #FFFFFF;
     font-size: 11px;
     font-weight: 600;
@@ -1024,7 +1034,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .header-navbar .navbar-container ul.nav li .wujia-header-badge {
     padding: 0 5px;
     /* !important: final hammer. Specificity (0,0,5,2) already beats every */
-    background-color: var(--wujia-danger) !important;
+    background-color: var(--wujia-danger-fill) !important;
     border-radius: 999px !important;
     /* White digit on the red badge. On the server the Vuexy navbar link */
     color: #FFFFFF !important;
@@ -1187,7 +1197,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     height: 16px;
     padding: 0 4px;
     border-radius: 999px;
-    background: var(--wujia-mnav-badge);
+    background: var(--wujia-danger-fill);
     color: #FFFFFF;
     font-size: 9px;
     font-weight: 700;
@@ -1203,6 +1213,8 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     height: var(--wujia-mheader-height);
     padding: 0 16px;
     background: var(--wujia-mheader-bg);
+    /* WJ-PORTAL-UI-006: ring --wujia-cta trên nền header #28A9DF chỉ 1.75 ⇒ navy 5.98. */
+    --wujia-focus-ring: 2px solid var(--wujia-topbar-fg);
 }
 .wujia-mheader-logo {
     display: inline-flex;
@@ -1320,7 +1332,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 /* status_type dùng chung trang Lịch sử: pending = "Chờ xác nhận" (amber Figma). */
 .wujia-mres-badge--pending { background: var(--wujia-mres-warn-bg); color: var(--wujia-mres-warn-text); }
 .wujia-mres-badge--sent { background: var(--wujia-primary-soft); color: var(--wujia-mres-info-text); }
-.wujia-mres-badge--confirmed { background: var(--wujia-success-bg); color: var(--wujia-success); }
+.wujia-mres-badge--confirmed { background: var(--wujia-success-bg); color: var(--wujia-success-text); }
 
 /* Title chung (List + Detail) — v2: titlerow + count / detail back button */
 /* chip = base 32h (reconcile canonical Figma 4785:498; bỏ override 28/12 cũ) */
@@ -1457,7 +1469,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         justify-content: center;
         border-radius: 50%;
         background: var(--wujia-msheet-icon-bg);
-        color: var(--wujia-mshell-primary);
+        color: var(--wujia-brand-text);
     }
     .wujia-msheet-item-icon i {
         font-size: 18px;
@@ -1517,7 +1529,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         flex: 0 0 auto;
         font-size: 12px;
         font-weight: 700;
-        color: var(--wujia-morder-primary);
+        color: var(--wujia-brand-text);
         text-decoration: none;
         white-space: nowrap;
     }
@@ -1557,7 +1569,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         width: 24px;
         text-align: center;
         font-size: 17px;
-        color: var(--wujia-morder-primary);
+        color: var(--wujia-brand-text);
     }
 
     .wujia-mdash-row-main {
@@ -1596,7 +1608,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-mdash-row-sub.is-primary {
         font-weight: 700;
-        color: var(--wujia-morder-primary);
+        color: var(--wujia-brand-text);
     }
     .wujia-mdash-row-sub.is-xs { font-size: 11px; }
 
@@ -1756,7 +1768,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
         color: var(--wujia-morder-text-muted);
         cursor: pointer;
     }
-    .wujia-maccount-eye.is-active { color: var(--wujia-morder-primary); }
+    .wujia-maccount-eye.is-active { color: var(--wujia-brand-text); }
     .wujia-maccount-eye i { font-size: 17px; line-height: 1; }
     /* E6b2: cỡ theo bậc lg của atom (48). */
     .wujia-maccount-submit { margin-top: 2px; }
@@ -1770,11 +1782,11 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-maccount-alert.is-error {
         background: var(--wujia-danger-bg);
-        color: var(--wujia-danger);
+        color: var(--wujia-danger-text);
     }
     .wujia-maccount-alert.is-ok {
         background: var(--wujia-success-bg);
-        color: var(--wujia-success);
+        color: var(--wujia-success-text);
     }
 
     /* ---------- Avatar dropdown menu (màn 04) — header d-lg-none ---------- */
@@ -1820,7 +1832,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     }
     .wujia-mheader-menu .wj-acct-menu__logout,
     .wujia-mheader-menu .wj-acct-menu__logout > i { color: var(--wujia-maccount-logout) !important; }
-    .wujia-mheader-menu .dropdown-item.is-active { background: var(--wujia-primary-soft); color: var(--wujia-primary-dark); }
+    .wujia-mheader-menu .dropdown-item.is-active { background: var(--wujia-primary-soft); color: var(--wujia-brand-text-hover); }
 }
 
 /* CMP-SN-001 — thân menu avatar dùng chung PC + mobile (wj_acct_menu_items). Đệm ngang lấy từ
@@ -1839,7 +1851,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 .wj-acct-menu__lang .flag-icon { flex: 0 0 18px; width: 18px; line-height: 14px; }
 .wj-acct-menu__lang-name { flex: 1 1 auto; }
 .wj-acct-menu__lang.is-current { font-weight: 700; }
-.wj-acct-menu__check { margin-left: auto; font-size: 16px; color: var(--wujia-primary-dark); }
+.wj-acct-menu__check { margin-left: auto; font-size: 16px; color: var(--wujia-brand-text-hover); }
 
 /* ============================================================
    WJ_PageHeader — component chuẩn hoá header portal (BA CMP-PG-001)
@@ -1879,7 +1891,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     background: var(--wj-surface);
     border: 1px solid var(--wj-border);
     border-radius: 12px;
-    color: var(--wj-primary);
+    color: var(--wujia-brand-text);
     text-decoration: none;
 }
 .wj-page-header__back > i { font-size: 24px; line-height: 1; }
@@ -1894,7 +1906,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: var(--wj-primary);
+    background: var(--wujia-brand-fill);
     color: #FFFFFF;
     border: 0;
     border-radius: 12px;
@@ -1905,7 +1917,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     white-space: nowrap;
 }
 .wj-page-header__create > i { font-size: 20px; line-height: 1; }
-.wj-page-header__create:hover { background: var(--wj-primary-dark); color: #FFFFFF; }
+.wj-page-header__create:hover { background: var(--wujia-brand-fill-hover); color: #FFFFFF; }
 
 /* Mobile modifier (CMP-PG-001) — 1 hàng cao 44 = pad 8 + title 28 + pad 8; x do container.
    UI-MOB-HEADER-DENSITY-001 hạ từ 52; ba biến thể (title/back/create) cùng cao 44. */
@@ -1990,7 +2002,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
     text-decoration: none;
 }
 .wj-section-header__action > i { font-size: 16px; line-height: 1; }
@@ -2120,7 +2132,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
     text-decoration: none;
 }
 .wj-card-header__action > i { font-size: 16px; line-height: 1; }
@@ -2314,7 +2326,7 @@ a.wujia-mhome-kpi:active { opacity: 0.85; }
 }
 
 .wj-pagination__btn.is-active {
-    background: var(--wujia-primary);
+    background: var(--wujia-brand-fill);
     border-color: var(--wujia-primary);
     color: #FFFFFF;
 }
@@ -2572,7 +2584,7 @@ label.wj-filter-search-field input { height: 38px; }
 .wj-btn--ghost,
 .wj-iconbtn--ghost {
     background: transparent;
-    color: var(--wujia-primary);
+    color: var(--wujia-brand-text);
 }
 
 /* Hover/pressed của variant NỀN ĐẬM khai tại đây; variant nền trung tính đi theo

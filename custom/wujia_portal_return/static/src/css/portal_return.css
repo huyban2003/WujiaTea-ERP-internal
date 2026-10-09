@@ -35,7 +35,7 @@
         background: var(--wujia-morder-thumb-bg); color: var(--wujia-morder-text-sub);
         border-radius: 10px; padding: 10px 12px; font-size: 13px;
     }
-    .wujia-mreturn-banner i { color: var(--wujia-morder-primary); margin-top: 1px; }
+    .wujia-mreturn-banner i { color: var(--wujia-brand-text); margin-top: 1px; }
     .wujia-mreturn-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .wujia-mreturn-grid2 + .wujia-mticket-label { margin-top: 12px; }
     @media (max-width: 360px) {
@@ -81,7 +81,7 @@
 /* Cỡ chữ + nhịp + màu thường đã về modifier chung `wj-card-header--sublabel` (_components.css).
    F4(c): giữ màu danger — ngữ nghĩa "Lý do từ chối", một màn. */
 .wj-surface-card__body > .wj-card-header.wj-return-sublabel--danger .wj-card-header__title {
-    color: var(--bs-danger, #dc3545) !important;
+    color: var(--wujia-danger-text) !important;
 }
 
 /* UAT-BH-007: tên sản phẩm đầy đủ sau khi chọn — wrap tự do, không cắt. */
@@ -89,7 +89,7 @@
     margin: 6px 0 0;
     font-size: 13px;
     line-height: 18px;
-    color: var(--wujia-morder-text-sub, #6B7280);
+    color: var(--wujia-morder-text-sub);
     overflow-wrap: anywhere;
 }
 

@@ -5,7 +5,7 @@
 
 .exam-result-card { border-radius: var(--wujia-card-radius); }
 .exam-score-wrap { font-size: 0; }
-.exam-score { font-size: 3rem; font-weight: 700; color: var(--wujia-primary); line-height: 1; }
+.exam-score { font-size: 3rem; font-weight: 700; color: var(--wujia-brand-text); line-height: 1; }
 .exam-score-max { font-size: 1.2rem; color: var(--wujia-text-secondary); vertical-align: super; }
 
 /* ==========================================================================
@@ -55,7 +55,7 @@
     }
     .wujia-mexam-card-line i {
         font-size: 15px;
-        color: var(--wujia-primary);
+        color: var(--wujia-brand-text);
         flex: 0 0 auto;
     }
     .wujia-mexam-fab {
@@ -76,6 +76,8 @@
         text-decoration: none;
         box-shadow: 0 6px 18px rgba(15, 124, 168, 0.35);
     }
+    /* WJ-PORTAL-UI-006: `a:hover` chung đổi chữ sang brand-text-hover (1.57 trên nền CTA). */
+    .wujia-mexam-fab:hover, .wujia-mexam-fab:focus { background: var(--wujia-cta-dark); color: #FFFFFF; }
     .wujia-mexam-fab i { font-size: 18px; }
 
     /* ================= Wizard head (s1→s5) ================= */
@@ -122,12 +124,13 @@
         margin-top: 3px;
         font-size: 13px;
         font-weight: 600;
-        color: var(--wujia-primary);
+        color: var(--wujia-brand-text);
     }
     .wujia-mexam-chips { margin: 0; }
 
     /* ================= s1 — Chọn khóa thi ================= */
-    .wujia-mexam-course.is-closed { opacity: 0.55; }
+    /* WJ-PORTAL-UI-006: bỏ `.is-closed { opacity: .55 }` (kéo chữ khoá đã đóng xuống 2.1–3.9). Khoá đóng
+       mang thêm `is-disabled` ⇒ nền xám của DataList (`_components.css`) + badge "Đã đóng". */
 
     /* ================= Selected card (s2/s3) ================= */
     .wujia-mexam-selcard {
@@ -155,7 +158,7 @@
         border: 1px solid var(--wujia-primary);
         border-radius: 999px;
         background: #FFFFFF;
-        color: var(--wujia-primary);
+        color: var(--wujia-brand-text);
         font-size: 12.5px;
         font-weight: 600;
         white-space: nowrap;
@@ -229,7 +232,7 @@
         position: relative;
         border: 1.5px solid var(--wujia-primary);
         border-radius: 50%;
-        color: var(--wujia-primary);
+        color: var(--wujia-brand-text);
         font-weight: 700;
         cursor: pointer;
     }
@@ -259,7 +262,7 @@
         font-size: 12.5px;
         color: var(--wujia-text-subtitle);
     }
-    .wujia-mexam-cal-note i { font-size: 16px; color: var(--wujia-primary); flex: 0 0 auto; }
+    .wujia-mexam-cal-note i { font-size: 16px; color: var(--wujia-brand-text); flex: 0 0 auto; }
 
     /* ================= s3 — Slot bottom-sheet ================= */
     .wujia-mexam-sheet-backdrop {
@@ -331,7 +334,7 @@
     .wujia-mexam-slot-status {
         margin-left: auto;
         font-size: 13px;
-        color: var(--wujia-primary);
+        color: var(--wujia-brand-text);
     }
     .wujia-mexam-slot-radio {
         flex: 0 0 auto;
@@ -387,13 +390,13 @@
     .wujia-mexam-person-req {
         font-size: 13px;
         font-weight: 600;
-        color: var(--wujia-primary);
+        color: var(--wujia-brand-text);
     }
     .wujia-mexam-person-tools { display: inline-flex; align-items: center; gap: 12px; }
     .wujia-mexam-person-toggle {
         font-size: 13px;
         font-weight: 600;
-        color: var(--wujia-primary);
+        color: var(--wujia-brand-text);
         text-decoration: none;
     }
     .wujia-mexam-person-body {
@@ -485,7 +488,7 @@
     .wujia-mexam-rrow-ico.is-idle { background: var(--wujia-mexam-cal-muted); }
     .wujia-mexam-rnote { margin-top: 0; }
     .wujia-mexam-rnote--warn {
-        color: var(--wujia-danger);
+        color: var(--wujia-danger-text);
         background: #FEF2F2;
         border-color: #FEDEDE;
     }
@@ -506,7 +509,7 @@
         padding: 0 12px;
         border: 1px dashed var(--wujia-mexam-field-border);
         border-radius: 10px;
-        color: var(--wujia-primary);
+        color: var(--wujia-brand-text);
         font-size: 13.5px;
         cursor: pointer;
         align-self: flex-start;
@@ -517,10 +520,10 @@
     .wujia-mexam-person-err {
         margin: 2px 0 0;
         font-size: 12.5px;
-        color: var(--wujia-danger);
+        color: var(--wujia-danger-text);
     }
     .wujia-mexam-submit-err {
-        color: var(--wujia-danger);
+        color: var(--wujia-danger-text);
         background: #FEF2F2;
         border-color: #FEDEDE;
         margin-top: 0;
@@ -537,8 +540,10 @@
    ========================================================================== */
 :root {
     --wj-exam-pc-tint:      #F2FBFF;   /* info box / ngày còn chỗ / slot đang chọn */
-    --wj-exam-pc-day-block: #94A3B8;   /* ngày không thể đăng ký */
-    --wj-exam-pc-day-out:   #B9C0C8;   /* ngày tháng khác */
+    /* WJ-PORTAL-UI-006: hai loại ngày khoá vẫn là chữ ⇒ ≥4.5 (BA: disabled cũng đạt); phân biệt
+       bằng nền/viền (--day-bd-bk, nền header bảng) + cursor, không bằng chữ nhạt (#94A3B8 2.56, #B9C0C8 1.75). */
+    --wj-exam-pc-day-block: var(--wj-disabled-fg);   /* ngày không thể đăng ký */
+    --wj-exam-pc-day-out:   var(--wj-disabled-fg);   /* ngày tháng khác */
     --wj-exam-pc-thumb-bg:  var(--wujia-primary-soft);   /* ô ảnh nhân viên */
     --wj-exam-pc-kv-border: #F3F6F8;   /* viền ô key-value */
     --wj-exam-pc-bd-info:   #D5F1FB;   /* viền banner theo state */
@@ -711,7 +716,7 @@
         height: 36px;
         border-radius: var(--wj-pc-input-radius);
         background: var(--wj-exam-pc-thumb-bg);
-        color: var(--wj-pc-primary);
+        color: var(--wujia-brand-text);
     }
     .wj-exam-pc-avatar i { font-size: 18px; }
     /* Ảnh thí sinh thật (Action 10) — cùng khung 36×36 với placeholder */
@@ -746,7 +751,7 @@
         font-size: 13px;
         font-weight: 700;
         font-style: normal;
-        color: var(--wj-pc-primary);
+        color: var(--wujia-brand-text);
     }
     .wj-exam-pc-banner__body { min-width: 0; }
     .wj-exam-pc-banner__title {
@@ -768,12 +773,12 @@
         border-color: var(--wj-exam-pc-bd-warn);
         background: var(--wj-pc-yellow-soft);
     }
-    .wj-exam-pc-banner--warning .wj-exam-pc-banner__chip { color: var(--wj-pc-yellow); }
+    .wj-exam-pc-banner--warning .wj-exam-pc-banner__chip { color: var(--wujia-warning-text); }
     .wj-exam-pc-banner--danger {
         border-color: var(--wj-exam-pc-bd-danger);
         background: var(--wj-pc-red-soft);
     }
-    .wj-exam-pc-banner--danger .wj-exam-pc-banner__chip { color: var(--wj-pc-red); }
+    .wj-exam-pc-banner--danger .wj-exam-pc-banner__chip { color: var(--wujia-danger-text); }
     .wj-exam-pc-banner--muted {
         border-color: var(--wj-exam-pc-bd-muted);
         background: var(--wj-pc-table-header-bg);
@@ -924,7 +929,7 @@
         border-color: var(--wj-pc-primary);
         background: var(--wj-exam-pc-tint);
         font-weight: 700;
-        color: var(--wj-pc-primary);
+        color: var(--wujia-brand-text);
     }
     .wj-exam-pc-day.is-selected {
         border-color: var(--wujia-cta);
@@ -1021,7 +1026,7 @@
         font-weight: 700;
         color: var(--wj-pc-subtle);
     }
-    .wj-exam-pc-slot--open .wj-exam-pc-slot__icon { color: var(--wj-pc-primary); }
+    .wj-exam-pc-slot--open .wj-exam-pc-slot__icon { color: var(--wujia-brand-text); }
     .wj-exam-pc-slot--open .wj-exam-pc-slot__time { color: var(--wj-pc-text); }
     .wj-exam-pc-slot__chip {
         display: inline-flex;
@@ -1040,17 +1045,17 @@
     .wj-exam-pc-slot__chip--open {
         min-width: 104px;
         background: var(--wj-exam-pc-tint);
-        color: var(--wj-pc-primary);
+        color: var(--wujia-brand-text);
     }
     /* 07_UIStates · 4. ca quá hạn đăng ký */
     .wj-exam-pc-slot__chip--overdue {
         background: var(--wj-pc-yellow-soft);
-        color: var(--wj-pc-yellow);
+        color: var(--wujia-warning-text);
     }
     .wj-exam-pc-slot__check {
         visibility: hidden;
         font-size: 20px;
-        color: var(--wj-pc-primary);
+        color: var(--wujia-brand-text);
     }
     .wj-exam-pc-slot.is-selected {
         border-color: var(--wujia-cta);
@@ -1101,13 +1106,13 @@
     }
     .wj-exam-pc-alert__btn { margin-left: auto; }
     .wj-exam-pc-alert--danger .wj-exam-pc-alert__chip,
-    .wj-exam-pc-alert--danger .wj-exam-pc-alert__title { color: var(--wj-pc-red); }
+    .wj-exam-pc-alert--danger .wj-exam-pc-alert__title { color: var(--wujia-danger-text); }
     .wj-exam-pc-alert--success {
         border-color: var(--wj-exam-pc-bd-green);
         background: var(--wj-pc-green-soft);
     }
     .wj-exam-pc-alert--success .wj-exam-pc-alert__chip,
-    .wj-exam-pc-alert--success .wj-exam-pc-alert__title { color: var(--wj-pc-green); }
+    .wj-exam-pc-alert--success .wj-exam-pc-alert__title { color: var(--wujia-success-text); }
 
     /* ---------- 3. Người tham gia ---------- */
     .wj-exam-pc-parthead {
@@ -1171,7 +1176,7 @@
     .wj-exam-pc-photo__tag {
         font-size: 12px;
         font-weight: 700;
-        color: var(--wj-pc-primary);
+        color: var(--wujia-brand-text);
         /* Figma để nhãn trên một dòng; không có nowrap thì "Chưa có ảnh"
            bị ngắt hai dòng và đẩy chiều cao hàng lệch khỏi 68px. */
         white-space: nowrap;
@@ -1242,11 +1247,11 @@
     }
     .wj-exam-pc-chip--primary {
         background: var(--wj-exam-pc-tint);
-        color: var(--wj-pc-primary);
+        color: var(--wujia-brand-text);
     }
     .wj-exam-pc-chip--green {
         background: var(--wj-pc-green-soft);
-        color: var(--wj-pc-green);
+        color: var(--wujia-success-text);
     }
 
     .wj-exam-pc-sumnote {
@@ -1315,7 +1320,7 @@
         margin: 6px 0 0;
         font-size: 12px;
         font-weight: 700;
-        color: var(--wj-pc-red);
+        color: var(--wujia-danger-text);
     }
     .wj-exam-pc-fieldhelp {
         margin: 8px 0 0;
@@ -1351,7 +1356,7 @@
         height: 112px;
         border-radius: var(--wj-pc-component-radius);
         background: var(--wj-exam-pc-thumb-bg);
-        color: var(--wj-pc-primary);
+        color: var(--wujia-brand-text);
     }
     .wj-exam-pc-thumb i { font-size: 44px; }
     .wj-exam-pc-thumb__cap {
@@ -1389,7 +1394,7 @@
     .wj-exam-pc-photobox__droptitle {
         font-size: 12px;
         font-weight: 700;
-        color: var(--wj-pc-primary);
+        color: var(--wujia-brand-text);
     }
     .wj-exam-pc-photobox__hint {
         font-size: 11px;

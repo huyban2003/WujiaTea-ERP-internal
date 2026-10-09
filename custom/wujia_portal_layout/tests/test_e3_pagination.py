@@ -162,7 +162,8 @@ class TestPaginationTokens(TransactionCase):
         css = _css('_variables.css')
         for token, value in (('--wj-pgn-size', '36px'), ('--wj-pgn-radius', '10px'),
                              ('--wj-pgn-gap', '8px'), ('--wj-pgn-touch', '44px'),
-                             ('--wj-pgn-disabled-fg', '#9CA3AF')):
+                             # WJ-PORTAL-UI-006: #9CA3AF chỉ 2.54 — chữ vô hiệu theo token chung ≥4.5
+                             ('--wj-pgn-disabled-fg', 'var(--wj-disabled-fg)')):
             self.assertRegex(css, re.escape(token) + r':\s*' + re.escape(value) + r';')
 
     def test_nut_dung_token_khong_go_so_cung(self):
