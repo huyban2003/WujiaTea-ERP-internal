@@ -3125,3 +3125,33 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ: deploy `-u wujia_portal_layout` → `qa_sync --only WJ-LANG-002 --apply` + `--only WJ-INSPECT-001 --apply`
   · cùng nợ I1–I8 · xoá DB `wujia_i1`…`wujia_i9` + filestore khi xong.
 - Phiên kế: **I10 #168 UI-LISTCARD-002 + H2** (`next-session-clusters-H.md` Prompt I10).
+
+## I10 #168 UI-LISTCARD-002 + H2 StatusBadge sót — chữ ListCard + căn badge · 09/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `5b0d057c` (push đầu phiên I11); sheet chưa ghi (`qa_sync` bị chặn quyền ghi — chủ dự án chạy tay).
+- Đầu phiên: `git pull` (đã mới nhất, `f5b58f5c`). `issue_queue --dev` thêm **6 issue mới #169–#174** (0 code, chỉ docs nhắc ID; #171 dùng lại
+  `WJ-HOME-001`). Reconcile #168: 0 commit / 0 dòng `custom/` / 0 ledger.
+- Chủ dự án chốt: CategoryBadge trong card **cùng line-height, giữ cao riêng** (không kéo lên 28) · #174 để phiên sau.
+- Gốc (đo trước trên DB `wujia_i10`, khớp số BA): label 13/400, value 13/400; `.wj-status-badge` line-height 1 (12) vs `.wujia-badge` 1.4 (16.8).
+- Đã làm:
+  - `wujia_portal_layout` 19.0.60.7.0: token `--wj-lc-title/label/value/strong-*`, `--wj-lc-lh` 18, `--wj-badge-lh` 16 (`_variables.css?v=1330`);
+    `_components.css?v=1332`: rule ListCard đọc token; `--compact` thêm line-height; `.wj-lc .wujia-badge` inline-flex căn giữa, `--sm` đệm dọc 2
+    (cao 26 / 22, trước 26.8 / 23.4). Đo lần 1 lộ card +1–2px ⇒ `.wj-lc__row` căn **đỉnh** (baseline label 12 vs value 13 đẩy hàng lên 19) +
+    `.wj-lc__label` inline-flex căn giữa (icon 16 `.wj-lc__icon` đội hộp chữ 12 lên 19).
+  - H2: fallback map trạng thái `'wujia-badge-muted'` → `'wj-status-badge--neutral'` (return list ×2, support ×2, info_request list); ưu tiên detail
+    Yêu cầu cập nhật Bootstrap → `wujia-badge` như list (giữ họ tag chờ Q-TAG-1); Hồ sơ cửa hàng `/portal/franchises/<id>/profile` khoá Portal /
+    Hết hạn / Sắp hết hạn → StatusBadge danger/pending. Bump base 19.0.7.43.0 · return, support 19.0.5.3.0 · info_request 19.0.3.3.0.
+  - Guard: `test_scan_e2_status_badge` + 2 test quét mọi view `wujia_portal_*` (Bootstrap badge chỉ còn loại trừ BA, đếm đúng số; fallback map
+    không họ cũ) + miễn trừ `--compact` thành {font-size, line-height}; e2b sửa assert chip "phương án xử lý" về đúng trang chi tiết (cũ bám nhầm
+    chuỗi fallback ở list); E5 đọc số qua token. Test mới `wujia_listcard_i10` (`test_i10_listcard_tokens.py`, 7).
+- Kiểm: `wujia_listcard_i10` + e5 + e2 + e2b 58/58 · hồi quy `-u` 11 module (layout/base/return/info_request/support/notification/knowledge/exam/
+  debt/delivery/purchase_history) **1010/1010** · mutation **10/10** đỏ (`i10_mutate.py`) · Playwright `i10_measure.py` 10 route × 360/390/430/1440:
+  label 12/500/18, value 13/500/18, strong 13/600/18, name 15/600/20, Inter; 0 card cao lên (Công nợ 360: 2 card −18 vì hàng nhãn–giá trị nay vừa
+  1 dòng; Hỗ trợ −0.8/card), số card thấy không giảm, 0 cắt mới, 0 tràn, badge bảng desktop y nguyên · `wj_measure --diff` (em.hcm, 5 khổ):
+  1440/1024/992 0 lệch, chỉ Hỗ trợ mobile −16px, 0 record mất · `check_layers` 0 mới (R7 2 cũ ở `wujia_franchise`) · `vn_hardcode_scan` 0.
+- Đối chiếu "Kết quả mong muốn" #168: 7/7 ý Pass (ý 3: hai họ cùng line-height 16 + căn giữa; cao khác 2px theo chốt).
+- LIMIT: card thành viên Hồ sơ cửa hàng (role + status cùng hàng, ngoài 8 màn BA) tâm lệch 1px — làm lại ở #174 · tên Thông báo vẫn kẹp 2 dòng (luật LC
+  cũ, trước = sau) · màu label (contrast) là #170 · "Khẩn" giữ họ tag chờ Q-TAG-1.
+- Bài học: đổi cỡ chữ một phía trong hàng flex căn baseline là đổi chiều cao hàng — đo chiều cao card trước/sau, đừng chỉ đo font.
+- Nợ: deploy `-u wujia_portal_layout,wujia_portal_base,wujia_portal_return,wujia_portal_info_request,wujia_portal_support` →
+  `qa_sync --only UI-LISTCARD-002` (xem) → `--apply` · cùng nợ I1–I9 · xoá DB `wujia_i1`…`wujia_i10` + filestore khi xong.
+- Phiên kế: **I11 #174 + #172 + #173 Hồ sơ cửa hàng** (`next-session-clusters-H.md` Prompt I11).

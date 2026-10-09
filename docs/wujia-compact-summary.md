@@ -126,6 +126,8 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 ## §5 wujia-current-status
 
+**State (2026-10-09 · I10) — #168 UI-LISTCARD-002 + H2 XONG CODE + TEST + ĐO + LEDGER; commit `5b0d057c` ĐÃ PUSH.** `portal_layout` 19.0.60.7.0: token `--wj-lc-*` (`_variables.css`) title 15/600/20 · label 12/500/18 · value 13/500/18 · strong 13/600/18; `--wj-badge-lh` 16 cho `.wj-status-badge--compact` + `.wj-lc .wujia-badge` (inline-flex, cao riêng 26 / `--sm` 22 — chủ dự án chốt không kéo lên 28); `.wj-lc__row` căn đỉnh + label inline-flex (căn baseline/icon 16 làm hàng 19, card +1–2px). H2: fallback map trạng thái → `wj-status-badge--neutral` (return/support/info_request), ưu tiên detail Yêu cầu cập nhật bỏ Bootstrap badge, Hồ sơ cửa hàng khoá/hết hạn/sắp hết hạn → StatusBadge; guard e2 quét mọi view `wujia_portal_*` (loại trừ BA đếm đúng số). Test `wujia_listcard_i10` 7, hồi quy 11 module 1010/1010, mutation 10/10, đo 10 route × 4 khổ: 0 card cao lên, 0 cắt mới, bảng desktop 0 lệch. Ledger `stt` 168; `qa_sync` chưa chạy (bị chặn quyền ghi sheet). 6 issue mới #169–#174 phân cụm I11–I13 (`next-session-clusters-H.md` §1.E). Phiên kế **I11 #174+#172+#173**.
+
 **State (2026-10-09 · I9) — #167 WJ-LANG-002 + #164 WJ-INSPECT-001 XONG CODE + TEST + ĐO + LEDGER; commit `0e53d12b` ĐÃ PUSH (cùng I8 `f8744424`).** #167 `portal_layout` 19.0.60.6.0: pill ngôn ngữ PC `min-width:118` nới theo nhãn, cờ cố định 20×15 (trước en 4×15). #164: route Khảo sát (Thái) `website=True` ⇒ http_routing lấy lang theo cookie `frontend_lang` (UAT mang sẵn `en_US`) ⇒ header English; vá ở khung: `ir.http._match` cho user đã đăng nhập trên `/portal*` bỏ nhánh frontend ⇒ lang = `res.users.lang`, không redirect `/vi/`; bàn giao `docs/handover-inspection-scope.md`. Test `wujia_lang_i9` 8/8, hồi quy 11 module 1032 (sửa guard pill 118 cũ), mutation 4/4, đo 4 locale × 7 khổ. Ledger `stt` 167/164, chạy thử 1 dòng/issue. Phiên kế **I10 #168+H2**.
 
 **State (2026-10-09 · I8) — #160 WJ-ORD-032 + #162 WJ-SUPPORT-002 + #166 WJ-EXAM-008 XONG CODE + TEST + ĐO + LEDGER; commit `f8744424` (chưa push).** #160 đã sửa tình cờ ở `6129ca59` (flex-wrap, đã lên UAT) ⇒ chủ dự án chốt chỉ đo lại + ledger. #162 `portal_support` 19.0.5.2.0: thẻ mobile "Nội dung yêu cầu" (đầy đủ, không thu gọn) + `.wj-sup-content` overflow-wrap cả PC (PC 1440 từng tràn chuỗi liền). #166 `portal_exam` 19.0.7.3.0: khung ảnh modal Thêm người mặc định "Chưa chọn ảnh", `resetPhotoPreview()` là nơi duy nhất vẽ trạng thái (tiêu đề/nút Chọn↔Thay/Xoá ẩn/tên tệp); msgid mới "Choose photo". Test tag `wujia_support_i8` + `wujia_exam_i8` 7/7, hồi quy 8 module 821/821 (guard D3 6→7), mutation 4/4, đo 5 khổ 0 tràn/0 JS. Ledger `stt` 160/162/166, dry-run 1 dòng/issue (#160 `--apply` được ngay). Phiên kế **I9 #167+#164**.
@@ -584,8 +586,11 @@ Chủ dự án chốt 07/10: Phần O cụm J pend theo BA ⇒ Issue List; **#62
 | **I7** | #62 WJ-PH-003 + #163 WJ-PH-009 (Med) | portal_purchase_history, portal_base | Lịch sử có đơn Đã hủy; PC hiện ghi chú đặt hàng |
 | **I8** ✅ | #160 · #162 · #166 | portal_sale, portal_support, portal_exam | Lệch PC↔mobile nhỏ — #160 đã sửa ở `6129ca59` (chỉ ledger) |
 | **I9** | #167 WJ-LANG-002 + #164 WJ-INSPECT-001 (Low) | portal_layout (+ bàn giao Thái) | Cờ ngôn ngữ PC co; Khảo sát sai ngôn ngữ — gốc ở module Thái ⇒ chỉ bàn giao |
-| **I10** | #168 UI-LISTCARD-002 (Low) + H2 | layout + module màn | Typography ListCard + badge |
-| **★IR** | Review | — | Ma trận role × store × route, ledger đủ 15 |
+| **I10** ✅ | #168 UI-LISTCARD-002 (Low) + H2 | layout, base, return, info_request, support | Token chữ ListCard + line-height badge chung; H2 guard quét mọi view portal |
+| **I11** | #174 + #172 + #173 WJ-PROFILE-003/001/002 (Med) | portal_base | Hồ sơ cửa hàng: card thành viên, trường PC thiếu, số ngày còn lại |
+| **I12** | #169 WJ-PORTAL-UI-005 + #171 WJ-HOME-001 (⚠ ID dùng lại) | layout, base | Overlay chọn cửa hàng a11y; khối đầu Home PC |
+| **I13** | #170 WJ-PORTAL-UI-006 (Med) | layout | Contrast token chữ dùng chung ≥4.5:1 |
+| **★IR** | Review | — | Ma trận role × store × route, ledger đủ 21 |
 
 ### Chuẩn nghiệm thu mỗi issue — khớp ≥90% acceptance BA (chủ dự án yêu cầu 08-10)
 

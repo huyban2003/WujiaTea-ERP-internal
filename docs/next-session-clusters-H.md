@@ -80,6 +80,23 @@ Reconcile 07/10: 0 commit / 0 dòng `custom/` / 0 ledger cho cả 10 ⇒ chưa f
 | 164 | WJ-INSPECT-001 | Low | `/portal/inspection*` hiện cờ/nhãn English khi phiên đang vi_VN | I9 |
 | 168 | UI-LISTCARD-002 | Low | ListCard: token chữ title/label/value + 2 họ badge lệch line-height | I10 (+H2) |
 
+### E. 6 issue mới (BA thêm 08/10) — phân cụm 09/10 (phiên I10), xếp trước ★IR
+
+Reconcile 09/10: 0 commit code / 0 dòng `custom/` cho cả 6 (chỉ docs nhắc ID). ⚠ **#171 dùng lại ID `WJ-HOME-001`** — ledger có entry
+08/2026 (KPI Home mobile) ⇒ khi đóng phải **thay** entry cũ, kiểm `qa_sync` ghi đúng dòng STT 171.
+
+| STT | ID | Sev | Tóm tắt | Phiên |
+|---|---|---|---|---|
+| 169 | WJ-PORTAL-UI-005 | Med | Overlay chọn cửa hàng (Enter) thiếu role=dialog / quản lý focus — PC + mobile | I12 |
+| 170 | WJ-PORTAL-UI-006 | Med | Contrast chữ <4.5:1 ở token dùng chung (sidebar, header bảng, link, store code, bottom nav, label ListCard, chip lọc, badge Quản lý) | I13 |
+| 171 | WJ-HOME-001 | Low | Khối đầu Trang chủ PC (H1 + câu chào) — xem lại theo PageHeader | I12 |
+| 172 | WJ-PROFILE-001 | Med | `/portal/franchise-information` PC thiếu trường mobile có (ngày khai trương, SĐT, email, hợp đồng, số ngày còn lại) | I11 |
+| 173 | WJ-PROFILE-002 | Med | "Còn lại 613 ngày" lệch lịch (đúng 585/586) | I11 |
+| 174 | WJ-PROFILE-003 | Med | Card thành viên: role + status ép tên còn 38–114px, tên bị cắt ở 320–390 | I11 |
+
+Lý do gom: I11 cùng màn Hồ sơ cửa hàng (một lần `-u wujia_portal_base`); #174 dựng lại hàng role/status — I10 đã đo tâm lệch 1px
+ở đúng card này. I13 tách riêng vì chạm token màu toàn portal (đo contrast mọi trạng thái), label ListCard I10 giữ màu chờ phiên này.
+
 ---
 
 ## 2. Lộ trình
@@ -90,7 +107,7 @@ Reconcile 07/10: 0 commit / 0 dòng `custom/` / 0 ledger cho cả 10 ⇒ chưa f
 
 ```
 I1 #155 ─► I2 #156 ─► I3 #154 ─► I4a #152 ─► I4b #152+#157 ─► I5 #153 ─► I6 #159 ─► I7 #62+#163
-        ─► I8 #160+#162+#166 ─► I9 #167+#164 ─► I10 #168+H2 ─► ★IR
+        ─► I8 #160+#162+#166 ─► I9 #167+#164 ─► I10 #168+H2 ─► I11 #174+#172+#173 ─► I12 #169+#171 ─► I13 #170 ─► ★IR
                                                                                               │
 H-A (không cần BA): H0 công cụ ─► H1 code chết ─► H3 CSS trang ─► ★HR-1 ◄────────────────────┘
                                                                                      │ (+ BA trả kết quả duyệt spec)
@@ -114,11 +131,14 @@ luôn chen trước H (Step 2b `/wujia-start`).
 | I7 | #62 WJ-PH-003 Lịch sử gồm đơn Đã hủy (Dev nhận 07/10) + #163 WJ-PH-009 ghi chú đặt hàng PC | portal_purchase_history, portal_base | Thấp | ✅ 09/10 `34880bf0` (ledger #62 + #163) |
 | I8 | #160 WJ-ORD-032 · #162 WJ-SUPPORT-002 · #166 WJ-EXAM-008 — lệch PC↔mobile nhỏ | portal_sale, portal_support, portal_exam | Thấp | ✅ 09/10 `f8744424` (ledger #160 `6129ca59` + #162 + #166) |
 | I9 | #167 WJ-LANG-002 cờ ngôn ngữ PC + #164 WJ-INSPECT-001 ngôn ngữ trang Khảo sát | portal_layout (+ bàn giao Thái) | Thấp | ✅ 09/10 `0e53d12b` (ledger #167 + #164; bàn giao `handover-inspection-scope.md`) |
-| I10 | #168 UI-LISTCARD-002 typography ListCard + badge **(gộp H2)** | layout + module màn | TB | ☐ |
+| I10 | #168 UI-LISTCARD-002 typography ListCard + badge **(gộp H2)** | layout + module màn | TB | ✅ 09/10 chưa commit (ledger #168) |
+| I11 | #174 WJ-PROFILE-003 card thành viên + #172 WJ-PROFILE-001 PC thiếu trường + #173 WJ-PROFILE-002 số ngày còn lại | base (Hồ sơ cửa hàng) | TB | ☐ |
+| I12 | #169 WJ-PORTAL-UI-005 overlay chọn cửa hàng (role=dialog, focus) + #171 WJ-HOME-001 khối đầu Trang chủ PC | layout, base | TB | ☐ |
+| I13 | #170 WJ-PORTAL-UI-006 contrast token chữ dùng chung ≥4.5:1 | layout (+ module màn nếu màu rời) | TB | ☐ |
 | **★IR** | **Review cụm I: ma trận role × store × route bằng máy + ảnh** | 0 / vá nhỏ | — | ☐ |
 | H0 | `scripts/qa/wj_cmp_audit.py` + test bánh cóc (họ legacy không tăng) | layout (test) | Thấp | ☐ |
 | H1 | Dọn code chết B1 | layout | Thấp | ☐ |
-| ~~H2~~ | StatusBadge sót B2 + mở guard ra mọi module portal — **gộp vào I10** | return, info_request, base (test) | Thấp | → I10 |
+| ~~H2~~ | StatusBadge sót B2 + mở guard ra mọi module portal — **gộp vào I10** | return, info_request, base (test) | Thấp | ✅ trong I10 |
 | H3 | Dời ~800 dòng CSS trang khỏi `_components.css` | layout, base, sale | TB | ☐ |
 | H-SPEC | Đề xuất spec 7 dòng gửi BA | 0 | — | ✅ 02/10 — `docs/ba-component-spec-proposal.pdf` (chờ BA) |
 | **★HR-1** | **Review H0–H3 + nhận kết quả BA duyệt** | 0 / vá nhỏ | — | ☐ |
@@ -306,13 +326,43 @@ Làm phiên I10. #168 + H2 (StatusBadge sót) cùng đụng badge trong ListCard
 Nghiệm thu: đo computed style mọi ListCard 8 màn BA nêu + chiều cao card trước/sau (không tăng) + ảnh; bánh cóc H0 nếu đã có.
 ```
 
+### Prompt I11 — #174 + #172 + #173 (Hồ sơ cửa hàng)
+
+```text
+Làm phiên I11 (§1.E). Cùng màn /portal/franchise-information (wujia_portal_base).
+- #174 WJ-PROFILE-003: card thành viên — role + status xuống hàng riêng (hoặc tên đủ rộng trước badge), bỏ clamp 40px + overflow
+  hidden cho tên ở card này; 320–430 đọc đủ tên, không vỡ từng ký tự, không tràn ngang. Giữ ListCard chung (sửa qua slot, không CSS route).
+- #172 WJ-PROFILE-001: PC thiếu trường mobile có — đối chiếu từng trường, cùng nguồn dữ liệu.
+- #173 WJ-PROFILE-002: số ngày còn lại tính theo lịch (ngày kết thúc − hôm nay theo múi giờ cửa hàng); một nguồn cho PC + mobile + /portal/franchises/<id>/profile.
+Nghiệm thu: đo 320/360/390/430 + 1440; test ngày (biên 0, âm, đúng 30).
+```
+
+### Prompt I12 — #169 + #171
+
+```text
+Làm phiên I12 (§1.E).
+- #169 WJ-PORTAL-UI-005: overlay chọn cửa hàng role=dialog + aria-modal + nhãn, focus vào overlay khi mở, bẫy Tab, Esc đóng và trả focus
+  về nút Current Store — PC + mobile, chuột + bàn phím.
+- #171 WJ-HOME-001 (⚠ ID dùng lại — thay entry ledger 08/2026): khối đầu Trang chủ PC theo PageHeader.
+Nghiệm thu: Playwright bàn phím (Enter/Tab/Shift+Tab/Esc) 1440 + 390; ảnh Home PC.
+```
+
+### Prompt I13 — #170 contrast token chung
+
+```text
+Làm phiên I13 (§1.E). Đo contrast mọi chữ thường ở Sidebar, bảng/list (gồm label ListCard I10), StoreContextBar, BottomNavigation,
+FilterChip, StatusBadge, link — default/hover/focus/active/disabled ≥4.5:1; focus indicator ≥3:1. Sửa ở token/component chung,
+không vá màu rời theo route; giữ nhận diện thương hiệu (#28A9DF chỉ làm nền/viền, chữ dùng tông đậm hơn).
+Nghiệm thu: script đo contrast trước/sau toàn portal PC + mobile, 0 cặp <4.5.
+```
+
 ### Prompt ★IR — Review cụm I
 
 ```text
-Review cụm I (I1–I10). KHÔNG làm tính năng mới.
+Review cụm I (I1–I13). KHÔNG làm tính năng mới.
 1. Ma trận role × store × route bằng test HTTP + ảnh 2 khổ trên DB copy giống UAT; đo UAT chỉ-đọc sau deploy.
 2. Rà diff toàn cụm: code thừa, comment sử ký, bump version/?v= sót, chạm nhầm module anh Thái.
-3. Lỗi nhỏ <30 dòng ⇒ sửa; lớn hơn ⇒ ghi nợ. Ghi docs/i-review.md + ledger đủ 15 issue ở Ready for Retest.
+3. Lỗi nhỏ <30 dòng ⇒ sửa; lớn hơn ⇒ ghi nợ. Ghi docs/i-review.md + ledger đủ 21 issue ở Ready for Retest.
 ```
 
 ### Prompt H0 — Công cụ kiểm kê + bánh cóc
