@@ -114,14 +114,16 @@
                                         <dd class="col-sm-7" t-out="franchise.franchise_end_date and franchise.franchise_end_date.strftime('%d/%m/%Y') or '—'"/>
                                         <dt class="col-sm-5">Remaining</dt>
                                         <dd class="col-sm-7">
-                                            <t t-if="franchise.is_expired">
+                                            <t t-set="_fp_days" t-value="franchise._portal_contract_days()"/>
+                                            <t t-if="_fp_days[0] is None">—</t>
+                                            <t t-elif="_fp_days[1]">
                                                 <span class="wj-status-badge wj-status-badge--danger">Has expired</span>
                                             </t>
-                                            <t t-elif="franchise.remaining_days &lt;= 30 and franchise.remaining_days &gt; 0">
-                                                <span class="wj-status-badge wj-status-badge--pending"><t t-out="franchise.remaining_days"/> days (expiring soon)</span>
+                                            <t t-elif="0 &lt; _fp_days[0] &lt;= 30">
+                                                <span class="wj-status-badge wj-status-badge--pending"><t t-out="_fp_days[0]"/> days (expiring soon)</span>
                                             </t>
                                             <t t-else="">
-                                                <span class="text-muted"><t t-out="franchise.remaining_days or 0"/> days</span>
+                                                <span class="text-muted"><t t-out="_fp_days[0]"/> days</span>
                                             </t>
                                         </dd>
                                     </dl>

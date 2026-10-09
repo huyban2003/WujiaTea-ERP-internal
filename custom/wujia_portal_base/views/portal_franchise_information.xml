@@ -16,6 +16,7 @@
                t-value="(owner_member.user_id.name if owner_member else False) or franchise.partner_id.name or '—'"/>
             <t t-set="status_label"
                t-value="status_labels.get(franchise.status, franchise.status)"/>
+            <t t-set="contract_days" t-value="franchise._portal_contract_days()"/>
 
             <t t-set="acct_page" t-value="'store'"/>
             <t t-set="acct_title">Store profile</t>
@@ -93,6 +94,48 @@
                         <div class="wj-pc-acct-field">
                             <span class="wj-pc-acct-field__label">Person in charge</span>
                             <span class="wj-pc-acct-field__value" t-out="nguoi_phu_trach"/>
+                        </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Opening date</span>
+                            <span class="wj-pc-acct-field__value"
+                                  t-out="franchise.opening_date and franchise.opening_date.strftime('%d/%m/%Y') or '—'"/>
+                        </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Phone</span>
+                            <span class="wj-pc-acct-field__value" t-out="franchise.phone or '—'"/>
+                        </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Email</span>
+                            <span class="wj-pc-acct-field__value" t-out="franchise.email or '—'"/>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Panel: Hợp đồng nhượng quyền -->
+                <t t-call="wujia_portal_layout.wj_surface_card">
+                    <t t-set="sc_class" t-value="'wj-pc-card'"/>
+                    <t t-call="wujia_portal_layout.wj_card_header">
+                        <t t-set="ch_title">Franchise contract</t>
+                        <t t-set="ch_platform" t-value="'pc'"/>
+                    </t>
+                    <div class="wj-pc-acct-kv-grid wj-pc-acct-kv-grid--3">
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Start date</span>
+                            <span class="wj-pc-acct-field__value"
+                                  t-out="franchise.franchise_start_date and franchise.franchise_start_date.strftime('%d/%m/%Y') or '—'"/>
+                        </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">End date</span>
+                            <span class="wj-pc-acct-field__value"
+                                  t-out="franchise.franchise_end_date and franchise.franchise_end_date.strftime('%d/%m/%Y') or '—'"/>
+                        </div>
+                        <div class="wj-pc-acct-field">
+                            <span class="wj-pc-acct-field__label">Remaining</span>
+                            <span t-if="contract_days[1]" class="wj-pc-acct-field__value wj-pc-acct-field__value--chip">
+                                <span class="wj-status-badge wj-status-badge--danger">Has expired</span>
+                            </span>
+                            <span t-elif="contract_days[0] is None" class="wj-pc-acct-field__value">—</span>
+                            <span t-else="" class="wj-pc-acct-field__value"><t t-out="contract_days[0]"/> days</span>
                         </div>
                     </div>
                 </t>
@@ -216,6 +259,10 @@
                             <span class="wujia-maccount-kv-key">Address</span>
                             <span class="wujia-maccount-kv-val" t-out="franchise.address or '—'"/>
                         </div>
+                        <div class="wujia-maccount-kv">
+                            <span class="wujia-maccount-kv-key">Person in charge</span>
+                            <span class="wujia-maccount-kv-val" t-out="nguoi_phu_trach"/>
+                        </div>
                     </div>
                 </t>
 
@@ -242,8 +289,9 @@
                         <div class="wujia-maccount-kv">
                             <span class="wujia-maccount-kv-key">Remaining</span>
                             <span class="wujia-maccount-kv-val">
-                                <span t-if="franchise.is_expired" class="wj-status-badge wj-status-badge--danger">Has expired</span>
-                                <t t-else=""><t t-out="franchise.remaining_days"/> days</t>
+                                <span t-if="contract_days[1]" class="wj-status-badge wj-status-badge--danger">Has expired</span>
+                                <t t-elif="contract_days[0] is None">—</t>
+                                <t t-else=""><t t-out="contract_days[0]"/> days</t>
                             </span>
                         </div>
                     </div>
@@ -273,16 +321,20 @@
                         </t>
                         <div t-foreach="members" t-as="m" class="wj-data-item wj-lc">
                             <t t-call="wujia_portal_layout.wj_list_card">
-                                <t t-set="lc_prefix">
-                                    <span class="wujia-badge wujia-badge-info"
-                                          t-out="role_labels.get(m.role, m.role)"/>
-                                </t>
                                 <t t-set="lc_name" t-value="m.user_id.name or '—'"/>
+                                <t t-set="lc_name_wrap" t-value="True"/>
                                 <t t-set="lc_state">
                                     <span t-if="m.active" class="wj-status-badge wj-status-badge--compact wj-status-badge--success">Active</span>
                                     <span t-else="" class="wj-status-badge wj-status-badge--compact wj-status-badge--neutral">Inactive</span>
                                 </t>
                                 <t t-set="lc_rows">
+                                    <t t-call="wujia_portal_layout.wj_list_card_row">
+                                        <t t-set="lcr_label">Role</t>
+                                        <t t-set="lcr_value">
+                                            <span class="wujia-badge wujia-badge-info"
+                                                  t-out="role_labels.get(m.role, m.role)"/>
+                                        </t>
+                                    </t>
                                     <t t-call="wujia_portal_layout.wj_list_card_row">
                                         <t t-set="lcr_full" t-value="True"/>
                                         <t t-set="lcr_value"

@@ -12,6 +12,7 @@
          gắn `wj-data-item wj-lc`. Component không bọc thêm lớp <div> nào.
 
          lc_name      markup/chuỗi — tên hoặc mã record (trái trên)
+         lc_name_wrap True ⇒ tên xuống dòng đủ, không cắt 2 dòng (tên người)
          lc_prefix    markup thô — mảnh đứng TRƯỚC tên trên cùng hàng (vd mã ticket)
          lc_state     markup thô — badge trạng thái (phải trên); thiếu thì bỏ hẳn hàng
          lc_rows      markup thô — các hàng phụ, dựng bằng wj_list_card_row
@@ -20,7 +21,7 @@
         <span class="wj-lc__head">
             <span class="wj-lc__lead">
                 <t t-if="lc_prefix" t-out="lc_prefix"/>
-                <span class="wj-lc__name" t-out="lc_name"/>
+                <span t-attf-class="wj-lc__name#{' wj-lc__name--wrap' if lc_name_wrap else ''}" t-out="lc_name"/>
             </span>
             <t t-if="lc_state">
                 <span class="wj-lc__state" t-out="lc_state"/>
