@@ -3155,3 +3155,36 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ: deploy `-u wujia_portal_layout,wujia_portal_base,wujia_portal_return,wujia_portal_info_request,wujia_portal_support` →
   `qa_sync --only UI-LISTCARD-002` (xem) → `--apply` · cùng nợ I1–I9 · xoá DB `wujia_i1`…`wujia_i10` + filestore khi xong.
 - Phiên kế: **I11 #174 + #172 + #173 Hồ sơ cửa hàng** (`next-session-clusters-H.md` Prompt I11).
+
+## I11 #174 WJ-PROFILE-003 + #172 WJ-PROFILE-001 + #173 WJ-PROFILE-002 — Hồ sơ cửa hàng · 09/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `cbaceca8` (push đầu phiên I12); sheet chưa ghi (`qa_sync` dry-run 1 dòng/issue, `--apply` sau deploy).
+- Đầu phiên: chủ dự án chốt commit + push I10 ⇒ `5b0d057c` + docs `7e072dd5` (đã push). `issue_queue --dev` = 22. Reconcile #172–174:
+  0 commit / 0 dòng `custom/` / 0 ledger.
+- Gốc (tái hiện trên DB `wujia_i11` trước khi sửa):
+  - #173: `wujia_franchise.remaining_days` + `is_expired` **stored**, chỉ depend `franchise_end_date` ⇒ không tự giảm theo ngày, không cron nào tính
+    lại (UAT lệch 28 ngày; local HCM-01 lưu 730, đúng 696). `context_today` theo user, không theo cửa hàng.
+  - #172: PC thiếu Ngày khai trương / SĐT / Email / Bắt đầu / Kết thúc / Còn lại; mobile thiếu Người phụ trách.
+  - #174: card thành viên `lc_prefix` (role) + `lc_state` (status) ép tên còn 26–32px ở 320, 96–102 ở 390; tên clamp 2 dòng + overflow hidden.
+- Chủ dự án chốt: #173 **Portal tính sống + bàn giao** (không đụng `wujia_franchise*`) · đếm **không gồm hôm nay** (585) · #174 **role xuống hàng meta**,
+  status giữ góc phải.
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.44.0: model `_inherit wujia.franchise.management` `_portal_today()` (tz `partner_id.tz`, sai/rỗng ⇒ VN) +
+    `_portal_contract_days()` → `(days, expired)`; 3 chỗ hiển thị (Hồ sơ PC + mobile, `/portal/franchises/<id>/profile`) gọi helper; end rỗng ⇒ "—".
+    PC thêm 3 ô vào Thông tin nhượng quyền + panel Hợp đồng nhượng quyền; mobile thêm Người phụ trách. vi_VN.po +8 msgid, `.pot` sinh lại.
+  - `wujia_portal_layout` 19.0.60.8.0: `wj_list_card` param `lc_name_wrap` ⇒ `.wj-lc__name--wrap` (block, bỏ clamp, `overflow-wrap: break-word`),
+    `_components.css?v=1333`. Card thành viên: bỏ `lc_prefix`, hàng "Vai trò" trong `lc_rows`.
+  - Bàn giao `docs/handover-franchise-remaining-days.md` (gốc + đề xuất cron daily theo tz cửa hàng cho backend/bộ lọc ≤30 ngày).
+  - Guard `test_scan_d3_card_header` 7 → 8 call site (panel Hợp đồng mới).
+- Kiểm: `-u layout,base` RC=0 · `wujia_profile_i11` (`test_i11_profile.py`) **11/11** (585 đúng ví dụ BA, biên 0/−1/30/31, end rỗng, giảm theo ngày,
+  tz Pago Pago 586 / VN sau 17h UTC 584, tz rác fallback; render PC = mobile 7 trường; hết hạn bỏ qua cờ stored; trang profile cũ cùng số; card không role ở
+  hàng tên; CSS wrap) · hồi quy `-u` 11 module **1021/1021** (sau sửa guard D3) · mutation **9/9** đỏ (`i11_mutate.py`) · Playwright `i11_measure.py` 320/360/390/430/1440:
+  vùng tên 116/156/186/217 (trước 26–32/66–72/96–102/136–142), 0 tên cắt (tên thử 45 ký tự 4 dòng ở 320), 0 tràn, 0 JS; "Còn lại" 696 ở 3 chỗ
+  (trước 730); PC 12 trường, mobile cùng giá trị · `check_layers` 0 mới · `vn_hardcode_scan` base/layout 0.
+- Đối chiếu "Kết quả mong muốn": #172 Pass (9 nhóm thông tin cùng giá trị 2 kênh, khác bố cục) · #173 Pass (585 với ví dụ BA, tự giảm, theo hợp đồng
+  hiện hành) · #174 Pass (320–430 đọc đủ tên, không vỡ ký tự, không cắt 2 dòng, không tràn).
+- LIMIT: backend vẫn đọc `remaining_days` cũ (bàn giao) · card thành viên cao +18–32px (thêm hàng Vai trò) · nhãn SĐT PC "Số điện thoại" vs mobile "SĐT"
+  · chữ trạng thái "Kích hoạt (Active)" là bản dịch sẵn có.
+- Bài học: field compute `store=True` phụ thuộc "hôm nay" là số chết — ORM chỉ tính lại khi field depend đổi; con số theo lịch phải tính lúc đọc hoặc có cron.
+- Nợ: deploy `-u wujia_portal_layout,wujia_portal_base` → `qa_sync --only WJ-PROFILE-001/002/003 --apply` · cùng nợ I1–I10 · xoá DB
+  `wujia_i1`…`wujia_i11` + filestore khi xong.
+- Phiên kế: **I12 #169 WJ-PORTAL-UI-005 + #171 WJ-HOME-001** (`next-session-clusters-H.md` Prompt I12).

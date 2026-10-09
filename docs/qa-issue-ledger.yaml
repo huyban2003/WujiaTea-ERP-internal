@@ -2756,3 +2756,36 @@ UI-LISTCARD-002:
   impact: "Thẻ danh sách điện thoại của 8 màn trên và danh sách thành viên ở Hồ sơ cửa hàng (dùng chung thẻ). Đo bản sao dữ liệu 8 màn + Hồ sơ cửa hàng × 360 / 390 / 430: mọi nhãn 12/500/18, giá trị 13/500/18, nhấn mạnh 13/600/18, tiêu đề 15/600/20; không thẻ nào cao lên (Công nợ 360 có 2 thẻ thấp đi vì nhãn–giá trị nay vừa một dòng, Hỗ trợ thấp đi 0,8 px/thẻ), số thẻ thấy trên màn không giảm, không chữ bị cắt mới, không tràn ngang. Không đổi: bảng máy tính (đo 1440 / 1024 / 992 không lệch), thẻ Kiến thức 1440, Trang chủ, dữ liệu, trạng thái, quyền, lọc, phân trang, tiền tệ"
   retest: "Điện thoại 390, lần lượt mở Giao hàng, Lịch sử đặt hàng, Công nợ, Đổi trả, Đăng ký thi, Kiến thức, Hỗ trợ, Thông báo: trong mỗi thẻ nhãn (vd Xuất phát (dự kiến), Đơn liên quan) nhỏ hơn và nhạt hơn giá trị bên cạnh; nhãn trạng thái và nhãn danh mục cùng cỡ chữ, chữ nằm giữa nhãn; thẻ không cao hơn trước, số thẻ thấy trên một màn như cũ. Thử 360 và 430: tên, tiền, nhãn không bị cắt. Máy tính 1440: bảng các màn trên và thẻ Kiến thức không đổi"
   limit: "Nhãn phân loại thấp hơn nhãn trạng thái 2 px (26 so với 28; nhãn nhỏ của Thông báo 22) theo chốt giữ chiều cao riêng; khi hai loại đứng cùng một hàng (chỉ có ở thẻ thành viên Hồ sơ cửa hàng) tâm lệch 1 px — bố cục thẻ này làm lại ở WJ-PROFILE-003. Tên dài ở Thông báo vẫn tối đa 2 dòng có dấu … (quy tắc thẻ danh sách có từ trước, trước = sau). Màu chữ nhãn (độ tương phản) thuộc WJ-PORTAL-UI-006, chưa đổi. Mức ưu tiên Khẩn vẫn kiểu nhãn phân loại chờ BA trả Q-TAG-1"
+
+WJ-PROFILE-001:
+  stt: 172
+  sprint: "2026-10-09-I11"
+  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I11 | commit: cbaceca8 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/franchise-information"
+  url: "/portal/franchise-information (máy tính và điện thoại)"
+  odoo_fit: "Custom"
+  fix: "Hồ sơ cửa hàng trên máy tính và điện thoại nay hiện cùng một bộ thông tin, lấy từ cùng một bản ghi cửa hàng: mã, tên, trạng thái, khu vực, địa chỉ, số điện thoại, email, ngày khai trương, người phụ trách và hợp đồng hiện hành (ngày bắt đầu, ngày kết thúc, số ngày còn lại). Máy tính bổ sung Ngày khai trương, Số điện thoại, Email vào khối Thông tin nhượng quyền và thêm khối Hợp đồng nhượng quyền; điện thoại bổ sung Người phụ trách. Chỉ khác cách bố trí theo màn hình"
+  impact: "Chỉ trang Hồ sơ cửa hàng. Đo bản sao dữ liệu cửa hàng HCM-01, máy tính 1440 và điện thoại 320/360/390/430: 12 trường máy tính và các trường tương ứng trên điện thoại cùng giá trị; không tràn ngang, không lỗi trang. Không đổi: danh sách thành viên trên máy tính, quyền xem (Nhân viên vẫn chỉ thấy thông tin cơ bản), cửa hàng bị khoá vẫn chặn"
+  retest: "Đăng nhập Chủ tiệm/Quản lý, chọn HCM-01, mở Hồ sơ cửa hàng trên máy tính 1440: khối Thông tin nhượng quyền có Ngày khai trương, Số điện thoại, Email, Người phụ trách; có khối Hợp đồng nhượng quyền (Ngày bắt đầu, Ngày kết thúc, Còn lại). Mở cùng trang trên điện thoại 390: có thêm Người phụ trách; so từng giá trị với máy tính — phải trùng"
+  limit: "Nhãn số điện thoại ghi 'Số điện thoại' trên máy tính, 'SĐT' trên điện thoại (cùng giá trị, khác nhãn do bề rộng). Trang cũ /portal/franchises/<id>/profile ghi 'Đại diện' theo đối tác cửa hàng, không thuộc phạm vi issue"
+
+WJ-PROFILE-002:
+  stt: 173
+  sprint: "2026-10-09-I11"
+  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I11 | commit: cbaceca8 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/franchise-information"
+  url: "/portal/franchise-information · /portal/franchises/<id>/profile"
+  odoo_fit: "Custom"
+  fix: "Số ngày còn lại của hợp đồng nay được tính mỗi lần mở trang: ngày kết thúc của hợp đồng hiện hành trừ ngày hôm nay theo múi giờ của cửa hàng, không tính hôm nay (ví dụ kiểm 08/10/2026, kết thúc 15/05/2028 ⇒ 585 ngày). Ngày cuối hợp đồng hiện 0 ngày, từ hôm sau hiện Đã hết hạn. Giá trị tự giảm mỗi ngày và đổi ngay khi hợp đồng hiện hành đổi. Trước đây Portal đọc một con số lưu sẵn chỉ được tính lại khi sửa ngày kết thúc nên bị lệch dần theo thời gian (UAT lệch 28 ngày)"
+  impact: "Hồ sơ cửa hàng máy tính + điện thoại và trang cũ /portal/franchises/<id>/profile dùng chung một cách tính. Đo bản sao dữ liệu ngày 09/10/2026: HCM-01 kết thúc 04/09/2028 hiện 696 ngày ở cả 3 chỗ (trước: 730). Kiểm tự động: 585 với đúng ví dụ BA, biên 0 ngày, 30 ngày, đã quá hạn 1 ngày, không có ngày kết thúc, cửa hàng ở múi giờ khác"
+  retest: "Mở Hồ sơ cửa hàng HCM-01 (máy tính và điện thoại) và /portal/franchises/<id>/profile: Còn lại = ngày kết thúc − ngày hôm nay (không tính hôm nay), ba chỗ cùng số. Hôm sau mở lại: số giảm 1. Nếu đổi hợp đồng hiện hành ở backend: số đổi theo ngày kết thúc mới"
+  limit: "Chỉ sửa phía Portal. Backend (cột Số ngày còn lại, bộ lọc sắp hết hạn trong quản lý nhượng quyền) vẫn đọc con số lưu sẵn — thuộc module nhượng quyền của nhóm khác, đã bàn giao cách sửa (cron hằng ngày theo múi giờ cửa hàng)"
+
+WJ-PROFILE-003:
+  stt: 174
+  sprint: "2026-10-09-I11"
+  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I11 | commit: cbaceca8 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/franchise-information"
+  url: "/portal/franchise-information — danh sách Thành viên cửa hàng trên điện thoại"
+  odoo_fit: "Custom"
+  fix: "Thẻ thành viên: tên đứng đầu thẻ, được xuống dòng đủ (không cắt sau 2 dòng, không vỡ từng ký tự); trạng thái giữ góc phải trên như các thẻ danh sách khác; vai trò chuyển xuống một hàng riêng 'Vai trò' ngay dưới tên. Thẻ cao theo nội dung. Làm bằng một tuỳ chọn của thẻ danh sách dùng chung (tên người được xuống dòng đủ), không chỉnh riêng cho trang"
+  impact: "Chỉ danh sách thành viên Hồ sơ cửa hàng trên điện thoại. Đo bản sao dữ liệu 320/360/390/430: vùng tên rộng 116/156/186/217 px (trước 26–32/66–72/96–102/136–142), mọi tên đọc đủ — kể cả tên thử 45 ký tự (4 dòng ở 320); không tràn ngang, không lỗi trang. Thẻ cao thêm khoảng 18–30 px vì có hàng Vai trò. Không đổi: các thẻ danh sách ở màn khác, bảng thành viên trên máy tính"
+  retest: "Điện thoại 320, 360, 390, 430: mở Hồ sơ cửa hàng, cuộn tới Thành viên cửa hàng — tên Hoàng Văn Em (Chủ HCM-01), Phạm Thị Dung (đa cửa hàng) đọc đủ, không bị cắt; trạng thái ở góc phải; vai trò ở hàng Vai trò; trang không cuộn ngang"
+  limit: "Thẻ thành viên cao hơn trước (thêm một hàng Vai trò). Chữ trạng thái 'Kích hoạt (Active)' là bản dịch có sẵn, không đổi trong issue này"
