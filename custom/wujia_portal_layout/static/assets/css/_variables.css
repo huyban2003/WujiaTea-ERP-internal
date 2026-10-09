@@ -116,6 +116,22 @@
     --wj-pc-red:              #EF4444;
     --wj-pc-gray-soft:        #F3F4F6;
 
+    /* ---------- ListCard CMP-LC-001 — chữ (UI-LISTCARD-002, BA 05/10/2026) ----------
+       Một bộ token cho mọi ListCard: title 15/600/20 · label 12/500/18 · value 13/500/18 ·
+       strong 13/600/18. Hàng giữ line-height 18 ⇒ label nhỏ đi không đổi chiều cao card.
+       --wj-badge-lh: line-height chung của chữ trong badge (StatusBadge compact +
+       CategoryBadge) để hai họ cùng dòng chữ, căn giữa như nhau. */
+    --wj-lc-title-fs:        15px;
+    --wj-lc-title-fw:        600;
+    --wj-lc-title-lh:        20px;
+    --wj-lc-label-fs:        12px;
+    --wj-lc-label-fw:        500;
+    --wj-lc-value-fs:        13px;
+    --wj-lc-value-fw:        500;
+    --wj-lc-strong-fw:       600;
+    --wj-lc-lh:              18px;
+    --wj-badge-lh:           16px;
+
     /* ---------- StatusBadge CMP-SB-001 (BA Confirmed 26/08/2026) ----------
        7 variant ngữ nghĩa, dùng CHUNG cho PC lẫn mobile. NỀN đúng hex BA.
        CHỮ: 5/7 hex BA đo dưới WCAG AA 4.5 (chính spec BA đòi AA) ⇒ làm đậm

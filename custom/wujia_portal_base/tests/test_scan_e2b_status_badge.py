@@ -134,8 +134,11 @@ class TestStatusBadgeRemainder(TransactionCase):
         self.assertEqual(noti.count('WJ_PTAG'), 4, 'chip ưu tiên phải giữ nguyên hệ cũ')
         self.assertIn('wj-pc-badge wj-pc-badge--confirmed', noti, 'loại thông báo là CategoryBadge')
         self.assertIn('wj-pc-badge wj-pc-badge--cancel', noti, 'badge đếm chưa đọc là CountBadge')
-        ret = self._read('wujia_portal_return/views/portal_return_list.xml')
-        self.assertIn('wujia-badge-muted', ret, 'phương án xử lý là CategoryBadge')
+        # I10: chip phương án xử lý nằm ở trang chi tiết; list chỉ còn fallback của map trạng thái
+        # (nay là `wj-status-badge--neutral`, khoá ở test_scan_e2).
+        ret = self._read('wujia_portal_return/views/portal_return_detail.xml')
+        self.assertEqual(ret.count('class="wujia-badge wujia-badge-info" t-out="comp[\'resolution_label\']"'), 2,
+                         'phương án xử lý là CategoryBadge')
 
     # --- 6. badge 28px không được kéo chip bên cạnh -------------------------
     def test_notification_rows_do_not_stretch_the_excluded_chips(self):

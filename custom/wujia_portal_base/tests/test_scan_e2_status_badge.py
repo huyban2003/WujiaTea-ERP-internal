@@ -22,6 +22,24 @@ from odoo.tests.common import TransactionCase
 from .common import legacy_vn_badge, load_vi
 
 CUSTOM = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+THAI_MODULES = ('wujia_portal_inspection',)
+
+# H2 (I10) — Bootstrap `badge` BA loại khỏi CMP-SB-001 (chờ CMP-TAG-001 / H4b), đếm đúng số dòng.
+# Khoá = (file, mẫu nhận dạng dòng) → số dòng.
+BOOTSTRAP_BADGE_EXCLUDED = {
+    # RoleBadge + "Main owner" + cờ "Updated" (ẩn, JS bật) — màn chọn cửa hàng
+    ('wujia_portal_base/views/portal_templates.xml', r'text-bg-#\{role_color\}'): 2,
+    ('wujia_portal_base/views/portal_templates.xml', r'text-bg-warning ms-1">Main owner'): 2,
+    ('wujia_portal_base/views/portal_templates.xml', r'text-bg-success d-none">Updated'): 1,
+    ('wujia_portal_base/views/portal_franchises_in_layout.xml', r'badge-#\{role_color\}'): 2,
+    ('wujia_portal_base/views/portal_franchises_in_layout.xml', r'badge-warning ml-1">Main owner'): 2,
+    ('wujia_portal_base/views/portal_franchises_in_layout.xml', r'badge-success d-none">Updated'): 1,
+    ('wujia_portal_base/views/portal_franchise_profile.xml', r'is_primary_owner.*Main owner'): 1,
+    # CountBadge: số bài theo danh mục Kiến thức + số trên chuông/giỏ header
+    ('wujia_portal_knowledge/views/portal_knowledge.xml', r'article_count'): 1,
+    ('wujia_portal_notification/views/header_bell_inherit.xml', r'wujia-header-noti-count'): 1,
+    ('wujia_portal_sale/views/header_cart_inherit.xml', r'wujia-header-cart-count'): 1,
+}
 
 
 @tagged('post_install', '-at_install', 'wujia_status_badge_e2')
@@ -55,11 +73,12 @@ class TestStatusBadgeMapsAndCallSites(TransactionCase):
                     if bare and '--' not in selector and ' ' not in selector.strip():
                         continue
                     # LC-25 (BA 06/09): ListCard được dùng badge chữ 12 qua MỘT
-                    # modifier chung. Miễn trừ hẹp: chỉ `--compact`, chỉ font-size.
+                    # modifier chung. Miễn trừ hẹp: chỉ `--compact`, chỉ font-size
+                    # + line-height (UI-LISTCARD-002: cùng dòng chữ với CategoryBadge).
                     if selector.strip() == '.wj-status-badge--compact':
                         khai = {d.split(':')[0].strip()
                                 for d in body.split(';') if ':' in d}
-                        if khai == {'font-size'}:
+                        if khai == {'font-size', 'line-height'}:
                             continue
                     if shape.search(body):
                         offenders.append('%s → %s' % (os.path.basename(path), selector.strip()))
@@ -108,3 +127,39 @@ class TestStatusBadgeMapsAndCallSites(TransactionCase):
                     'wujia_portal_sale/views/portal_order_result.xml'):
             self.assertEqual(legacy.findall(self._read(rel)), [],
                              '%s còn badge họ cũ' % rel)
+
+    def _portal_views(self):
+        """Mọi view của module portal của mình (bỏ Khảo sát — code anh Thái)."""
+        for mod in sorted(os.listdir(CUSTOM)):
+            if not mod.startswith('wujia_portal_') or mod in THAI_MODULES:
+                continue
+            views = os.path.join(CUSTOM, mod, 'views')
+            if not os.path.isdir(views):
+                continue
+            for fn in sorted(os.listdir(views)):
+                if fn.endswith('.xml'):
+                    rel = '%s/views/%s' % (mod, fn)
+                    yield rel, self._read(rel)
+
+    def test_every_portal_screen_has_no_bootstrap_badge_outside_ba_exclusions(self):
+        """H2 (I10): Bootstrap `badge` thô chỉ còn ở họ BA loại (Role · Main owner · đếm · cờ
+        'Updated' ẩn). Danh sách loại trừ đếm ĐÚNG số chỗ ⇒ thêm một chỗ mới cũng đỏ, H4b hạ dần."""
+        bootstrap = re.compile(r'(?<![\w-])badge\s+(?:bg|text-bg|badge)-')
+        found = {}
+        for rel, text in self._portal_views():
+            for line in text.splitlines():
+                if bootstrap.search(line):
+                    key = next((k for k in BOOTSTRAP_BADGE_EXCLUDED
+                                if k[0] == rel and re.search(k[1], line)), (rel, line.strip()[:90]))
+                    found[key] = found.get(key, 0) + 1
+        self.assertEqual(found, BOOTSTRAP_BADGE_EXCLUDED,
+                         'Bootstrap badge ngoài danh sách loại trừ BA (hoặc loại trừ đã cũ)')
+
+    def test_status_maps_never_fall_back_to_a_legacy_family(self):
+        """H2 (I10): fallback của map trạng thái trong template cũng phải là component —
+        state lạ (dữ liệu cũ) thì vẫn ra `.wj-status-badge--neutral`, không ra chip họ cũ."""
+        fallback = re.compile(r'(?:state_labels|comp_status_labels|status_labels)\.get\([^)]*?'
+                              r"'(?!wj-status-badge--)[\w-]*badge[\w-]*'")
+        offenders = ['%s → %s' % (rel, m.group(0)[:80])
+                     for rel, text in self._portal_views() for m in fallback.finditer(text)]
+        self.assertEqual(offenders, [], 'fallback map trạng thái còn họ badge cũ')

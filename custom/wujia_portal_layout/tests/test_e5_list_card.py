@@ -25,6 +25,12 @@ def _css(name):
         return re.sub(r'/\*.*?\*/', '', fh.read(), flags=re.S)
 
 
+def _resolved(block):
+    """Thay `var(--x)` bằng giá trị trong `_variables.css` (UI-LISTCARD-002 đưa số vào token)."""
+    tokens = dict(re.findall(r'(--[\w-]+)\s*:\s*([^;]+);', _css('_variables.css')))
+    return re.sub(r'var\((--[\w-]+)\)', lambda m: tokens.get(m.group(1), m.group(0)).strip(), block)
+
+
 def _block(css, selector):
     """Khối rule theo selector đúng chữ. Phải nuốt khoảng trắng trước `{`: rule
     một dòng được canh cột nên `selector + " {"` không khớp (bẫy đã dính 1 lần)."""
@@ -114,10 +120,10 @@ class TestListCardTemplate(TransactionCase):
         card = _block(css, '.wj-data-item.wj-lc')
         self.assertRegex(card, r'flex-direction:\s*column')
         self.assertRegex(card, r'gap:\s*8px', 'header–body phải là 8')
-        name = _block(css, '.wj-lc__name')
+        name = _resolved(_block(css, '.wj-lc__name'))
         self.assertRegex(name, r'font-size:\s*1[56]px')
         self.assertRegex(name, r'font-weight:\s*600')
-        row = _block(css, '.wj-lc__row')
+        row = _resolved(_block(css, '.wj-lc__row'))
         self.assertRegex(row, r'font-size:\s*1[34]px')
         gap = re.search(r'gap:\s*\d+px\s+(\d+)px', row)
         self.assertTrue(gap and 6 <= int(gap.group(1)) <= 8, 'gap hàng phải 6–8')
@@ -136,8 +142,8 @@ class TestListCardTemplate(TransactionCase):
         css = _css('_components.css')
         blk = _block(css, '.wj-status-badge--compact')
         self.assertRegex(blk, r'font-size:\s*12px')
-        # chỉ đổi cỡ chữ — cao/bo/màu vẫn là chuẩn E2
-        self.assertNotIn('height', blk)
+        # chỉ đổi chữ (cỡ + line-height I10) — cao/bo/màu vẫn là chuẩn E2
+        self.assertNotRegex(blk, r'(?<![\w-])height\s*:')
         self.assertNotIn('background', blk)
 
     def test_ten_va_gia_tri_khong_bi_cat(self):

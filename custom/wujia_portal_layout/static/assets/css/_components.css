@@ -122,8 +122,9 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     background: var(--wj-sb-neutral-bg);
     color: var(--wj-sb-neutral-fg);
 }
-/* LC-04/LC-25: trong ListCard badge dùng chữ 12 — modifier CHUNG, không CSS theo route. */
-.wj-status-badge--compact    { font-size: 12px; }
+/* LC-04/LC-25: trong ListCard badge dùng chữ 12 — modifier CHUNG, không CSS theo route.
+   UI-LISTCARD-002: line-height chung với CategoryBadge (cao vẫn --wj-sb-h, inline-flex căn giữa). */
+.wj-status-badge--compact    { font-size: 12px; line-height: var(--wj-badge-lh); }
 .wj-status-badge--neutral    { background: var(--wj-sb-neutral-bg);    color: var(--wj-sb-neutral-fg); }
 .wj-status-badge--info       { background: var(--wj-sb-info-bg);       color: var(--wj-sb-info-fg); }
 .wj-status-badge--pending    { background: var(--wj-sb-pending-bg);    color: var(--wj-sb-pending-fg); }
@@ -825,9 +826,9 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
 .wj-lc__name {
     flex: 1 1 0%;
     min-width: 0;
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 20px;
+    font-size: var(--wj-lc-title-fs);
+    font-weight: var(--wj-lc-title-fw);
+    line-height: var(--wj-lc-title-lh);
     color: var(--wujia-text-primary);
     overflow-wrap: anywhere;
     display: -webkit-box;
@@ -852,11 +853,13 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     display: flex;
     grid-column: 1 / -1;
     flex-wrap: wrap;
-    align-items: baseline;
+    /* UI-LISTCARD-002: label 12 + value 13 cùng hộp 18 ⇒ căn ĐỈNH giữ hàng đúng 18
+       (căn baseline đẩy label xuống ~0,35px, hàng thành 19, card cao thêm 1–2px). */
+    align-items: flex-start;
     gap: 2px 6px;
     min-width: 0;
-    font-size: 13px;
-    line-height: 18px;
+    font-size: var(--wj-lc-value-fs);
+    line-height: var(--wj-lc-lh);
 }
 /* LC-05: hai trường NGẮN đứng chung một hàng, mỗi trường một cột. */
 .wj-lc__row--inline {
@@ -867,8 +870,15 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     flex-direction: column;
     gap: 2px;
 }
+/* UI-LISTCARD-002: label nhỏ hơn value một bậc + đậm 500 ⇒ tách tầng label–value.
+   Flex căn giữa: icon 16 (`.wj-lc__icon`) không thò khỏi hộp 18 của chữ 12. */
 .wj-lc__label {
     flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--wj-lc-label-fs);
+    font-weight: var(--wj-lc-label-fw);
+    line-height: var(--wj-lc-lh);
     color: var(--wujia-text-muted);
 }
 /* LC-06: icon phụ 16–18px, chỉ khi hữu ích — không icon trang trí lớn trước tên. */
@@ -895,6 +905,7 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
    mỗi card lệch vài px (đo được ở UAT-BH-008). */
 .wj-lc__value {
     min-width: 0;
+    font-weight: var(--wj-lc-value-fw);
     color: var(--wujia-text-secondary);
     overflow-wrap: anywhere;
     font-variant-numeric: tabular-nums;
@@ -914,8 +925,21 @@ h2, .wujia-h2 { font-size: var(--wujia-font-size-h2) !important; font-weight: 60
     white-space: nowrap;
 }
 .wj-lc__value--strong {
-    font-weight: 600;
+    font-weight: var(--wj-lc-strong-fw);
     color: var(--wujia-text-primary);
+}
+/* UI-LISTCARD-002: CategoryBadge (`.wujia-badge`) trong card dùng CÙNG line-height chữ với
+   StatusBadge compact và căn giữa dọc như nó ⇒ hai họ đứng chung hàng thì chữ thẳng hàng.
+   Giữ màu/cỡ chữ/bo của họ tag (semantic riêng); cao 26 (cũ 26,8), `--sm` 22 (cũ 23,4) —
+   không bao giờ làm card cao lên. Ngoài ListCard (bảng desktop, Home) không đổi. */
+.wj-lc .wujia-badge {
+    display: inline-flex;
+    align-items: center;
+    line-height: var(--wj-badge-lh);
+}
+.wj-lc .wujia-badge--sm {
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 .wj-lc__actions {
     display: flex;

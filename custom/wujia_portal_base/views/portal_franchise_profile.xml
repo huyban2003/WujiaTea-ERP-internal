@@ -46,7 +46,7 @@
                                         <dd class="col-sm-8">
                                             <span t-attf-class="wj-status-badge #{franchise.status == 'active' and 'wj-status-badge--success' or (franchise.status == 'draft' and 'wj-status-badge--neutral' or 'wj-status-badge--danger')}"
                                                   t-out="status_labels.get(franchise.status, franchise.status)"/>
-                                            <span t-if="franchise.portal_locked" class="badge bg-danger ms-1">
+                                            <span t-if="franchise.portal_locked" class="wj-status-badge wj-status-badge--danger ms-1">
                                                 <i class="fa fa-lock me-1"/>Portal access locked
                                             </span>
                                         </dd>
@@ -115,10 +115,10 @@
                                         <dt class="col-sm-5">Remaining</dt>
                                         <dd class="col-sm-7">
                                             <t t-if="franchise.is_expired">
-                                                <span class="badge bg-danger">Has expired</span>
+                                                <span class="wj-status-badge wj-status-badge--danger">Has expired</span>
                                             </t>
                                             <t t-elif="franchise.remaining_days &lt;= 30 and franchise.remaining_days &gt; 0">
-                                                <span class="badge bg-warning text-dark"><t t-out="franchise.remaining_days"/> days (expiring soon)</span>
+                                                <span class="wj-status-badge wj-status-badge--pending"><t t-out="franchise.remaining_days"/> days (expiring soon)</span>
                                             </t>
                                             <t t-else="">
                                                 <span class="text-muted"><t t-out="franchise.remaining_days or 0"/> days</span>
