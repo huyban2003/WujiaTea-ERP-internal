@@ -111,7 +111,7 @@ luôn chen trước H (Step 2b `/wujia-start`).
 | I4b | #152 Đổi trả · Yêu cầu cập nhật · Hỗ trợ · Thông báo · Công nợ + bàn giao màn Khảo sát **+ #157 WJ-EXAM-001** | return, info_request, support, notification, debt, portal_exam | Cao | ✅ 08/10 `907035bf` (ledger #152 + #157) |
 | I5 | #153 role theo cửa hàng đang chọn, chặn backend + ẩn menu/nút | base, report, debt, info_request, layout (nav) | Cao | ✅ 09/10 `b9e7c3c7` (ledger #153) |
 | I6 | #159 WJ-NOTI-001 phạm vi đã đọc + một luật số chưa đọc (migration dấu đọc) | wujia_notification (L2), portal_notification, portal_base | Cao | ✅ 09/10 `76f5671d` (ledger #159) |
-| I7 | #62 WJ-PH-003 Lịch sử gồm đơn Đã hủy (Dev nhận 07/10) + #163 WJ-PH-009 ghi chú đặt hàng PC | portal_purchase_history, portal_base | Thấp | ☐ |
+| I7 | #62 WJ-PH-003 Lịch sử gồm đơn Đã hủy (Dev nhận 07/10) + #163 WJ-PH-009 ghi chú đặt hàng PC | portal_purchase_history, portal_base | Thấp | ✅ 09/10 `34880bf0` (ledger #62 + #163) |
 | I8 | #160 WJ-ORD-032 · #162 WJ-SUPPORT-002 · #166 WJ-EXAM-008 — lệch PC↔mobile nhỏ | portal_sale, portal_support, portal_exam | Thấp | ☐ |
 | I9 | #167 WJ-LANG-002 cờ ngôn ngữ PC + #164 WJ-INSPECT-001 ngôn ngữ trang Khảo sát | portal_layout (+ bàn giao Thái) | Thấp | ☐ |
 | I10 | #168 UI-LISTCARD-002 typography ListCard + badge **(gộp H2)** | layout + module màn | TB | ☐ |

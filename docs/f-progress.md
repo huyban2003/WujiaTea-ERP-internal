@@ -3039,3 +3039,27 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Nợ: deploy `-u wujia_notification,wujia_portal_notification` (CÓ cập nhật dữ liệu — xem log `read scope`) →
   `qa_sync --only WJ-NOTI-001 --apply` (cùng nợ I1–I5) · xoá DB `wujia_i1`…`wujia_i6` + filestore khi xong.
 - Phiên kế: **I7 #62 WJ-PH-003 + #163 WJ-PH-009** (`next-session-clusters-H.md` Prompt I7).
+
+## I7 #62 WJ-PH-003 + #163 WJ-PH-009 — Lịch sử gồm đơn Đã hủy + ghi chú đặt hàng PC · 09/10/2026 · Mac
+- Kết quả: ✅ code + test + đo + ledger; commit `34880bf0` (đã push); sheet chưa ghi (dry-run đúng 1 dòng/issue, `--apply` sau deploy).
+- Đầu phiên: chủ dự án chốt commit I6 riêng ⇒ `76f5671d` + docs `9acbf6b4` (đã push). `issue_queue --dev` = 22 (cụm I + #142, #169–#174).
+  Reconcile: WJ-PH-003 chỉ có commit theo yêu cầu cũ (`2f0e466b`, `0cd1f0a4`) ⇒ thay entry ledger + `stt: 62`; WJ-PH-009 0 dấu vết.
+- Đã làm:
+  - `wujia_portal_base` 19.0.7.42.0: `SALE_STATE_META` thêm `cancel` → `_lt('Cancelled')` (badge danger có sẵn). Home vẫn lọc `state != cancel`.
+  - `wujia_portal_purchase_history` 19.0.4.1.0: list/lọc/phân trang/chi tiết bỏ `state != cancel` (giữ `franchise_id = fid`); option "Đã hủy"
+    cuối ô lọc PC + **chip "Đã hủy" mobile** (mobile không có ô chọn trạng thái — phát hiện khi đo); thẻ PC "Ghi chú khi đặt hàng"
+    (`portal_note`) dưới 2 panel; một chuỗi rỗng "Không có ghi chú" cho mọi ghi chú cả 2 kênh; `.wj-ph-note` pre-line + anywhere.
+  - `wujia_portal_sale`: chỉ sửa comment guard huỷ ở màn kết quả gửi đơn.
+  - i18n purchase_history: bỏ "No notes.", thêm "Cancelled" (sửa tay `.pot`/vi_VN — `--i18n-export` CLI Odoo 19 trả RC 2).
+  - Test tag `wujia_ph_i7` (`test_i7_cancel_note.py`, 11 test); sửa `test_jv8_i18n` (bỏ "No notes."), `test_scan_d3_card_header` (8→9).
+- Kiểm: DB `wujia_i7` (copy `wujia_i6`) `-u base,purchase_history` + base/sale/layout/return/delivery/report/i18n **585/585**, sau chip 465/465 ·
+  mutation **4/4** đỏ (`i7_mutate.py`: list loại huỷ · detail bỏ scope · bỏ thẻ ghi chú PC · PC đọc delivery_note) · Playwright admin
+  HCM-01 × 5 khổ (`i7_measure.py`): Tất cả 56 · Đã hủy 50 · trang 3 đủ 10 · nháp 1 · chi tiết huỷ badge danger · ghi chú 2 dòng + chuỗi 200
+  ký tự PC = mobile, gọn thẻ · đổi HN-01 ⇒ không tìm thấy · 0 tràn, 0 JS · `check_layers` 0 mới · `vn_hardcode_scan` 0.
+  UAT chỉ-đọc trước deploy: S00077 @HCM-01 PC không có ghi chú, không có option lọc huỷ (ảnh `i7_shots/uat_before_1440_77.png`).
+- Đối chiếu "Kết quả mong muốn": #62 4/4 gạch Pass (list · lọc · phân trang · chi tiết + IDOR; 5 trạng thái cũ giữ). #163 2/2 GIVEN Pass.
+- LIMIT: không tách đơn thay thế (BA chốt) · Home không hiện đơn huỷ · dòng "Trạng thái" trong khung Thông tin đơn PC vẫn chữ xanh (có sẵn).
+- Bài học: mobile Lịch sử lọc bằng chip, không có select ⇒ thêm trạng thái lọc phải soi cả chip, đo `option[value]` trên mobile ra số của khối PC ẩn.
+- Nợ: deploy `-u wujia_portal_base,wujia_portal_purchase_history` → `qa_sync --only WJ-PH-003 --apply` + `--only WJ-PH-009 --apply`
+  (cùng nợ I1–I6) · xoá DB `wujia_i1`…`wujia_i7` + filestore khi xong.
+- Phiên kế: **I8 #160 WJ-ORD-032 + #162 WJ-SUPPORT-002 + #166 WJ-EXAM-008** (`next-session-clusters-H.md` Prompt I8).
