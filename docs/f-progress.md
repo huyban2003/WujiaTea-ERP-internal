@@ -3277,3 +3277,26 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - 10/10 #142 UI-PC-HOME-REDESIGN-001 → Ready for Retest (chủ dự án chọn): không đổi code, LIMIT ghi phản hồi BA RETEST FAIL 08/10 — `$` do
   bảng giá duy nhất "Default" USD trên UAT (76/77 đơn USD), PC = mobile; retest cần đổi bảng giá sang VND + đơn mới. `issue_queue --dev` = 0.
 - Phiên kế: cụm H (H-A không cần BA) / Phần O cụm J (chờ BA).
+
+## Chỉnh UI header — badge đỏ nhạt + topbar PC thẻ trắng · 10/10/2026 · Mac
+- Kết quả: ✅ code + test + đo trên DB copy; **chưa commit, chưa deploy** (chờ chủ dự án duyệt). Không có Issue ID ⇒ không ledger/`qa_sync`.
+- Yêu cầu chủ dự án: (1) badge số giỏ hàng đỏ quá đậm; (2) thanh header PC xấu. Chốt qua ảnh dựng thử: thẻ trắng · đỏ `#DC2626` ·
+  **cho lệch số đo Figma UI-01 (khối cửa hàng 430 cố định) và UI-03 (tài khoản 204×52)**.
+- Đã làm:
+  - `wujia_portal_layout` 19.0.60.11.0 `_variables.css`: `--wujia-danger-fill` #C92020 → #DC2626 (chữ trắng 4.83); nhóm
+    `--wujia-navbar-pill-*` thành thẻ trắng (nền `bg-card`, hover `primary-soft`, chữ `text-primary`, icon `brand-text`, nhãn
+    `text-subtitle`, bo 14, thêm `-shadow`). `_pc_account.css`: tài khoản 52 → 48 bo theo token; cụm phải (giỏ/chuông tròn 40,
+    khoảng cách, padding phải 20) áp từ **992** thay vì 1200 — trước đây 992–1199 giỏ/chuông trần trên nền xanh, pill tài khoản dính mép.
+  - `wujia_portal_base` 19.0.7.47.0 `store_picker.css`: khối cửa hàng `width: auto; max-width: 430px` (ôm nội dung, tên dài ellipsis);
+    chip vai trò trong khối bo tròn, nền nhạt + chữ đậm theo vai trò (neutral / success / warning). Chip ở menu tài khoản không đổi.
+  - Guard sửa cùng phiên: `test_g2_store_switcher` (430 cố định → trần 430), `test_g2_pc_topbar` (`PC_MQ` 1200 → 992),
+    `test_i13_contrast` (thêm chữ/icon/nhãn pill trên nền pill + hover ≥4.5). `assets.xml` `?v=1337`.
+- Kiểm: DB `wujia_hdr` (copy `wujia_vr`; phải `-u wujia_i18n` trước rồi mới `-u` toàn bộ module, không thì `mt_queued` thiếu cột) ·
+  `-u wujia_portal_layout,wujia_portal_base --test-tags` **637/637** · đo cascade thật owner/manager/staff × 1920/1440/1200/1100/992:
+  cao 48/40/40/40/48, bo 14/20, nền trắng, khối 252–267 (tên dài 426–430 + ellipsis), 0 tràn, 0 lỗi JS · badge `rgb(220,38,38)` PC + mobile ·
+  `wj_contrast` 33 trang (6 route × 1440/1100/390, default/hover/focus) 2.662 mẫu: **0** cặp <4.5, 0 focus ring <3 ·
+  hồi quy 6 trang × 2 khổ: 200, 0 tràn, 0 lỗi JS.
+- LIMIT: dựng thử ban đầu bằng nhúng CSS trên UAT (thứ tự cascade khác thật) — số chốt lấy từ DB copy · hamburger 992–1199 giữ màu cũ.
+- Deploy: `nssm stop Odoo; python D:\wujia-tea\odoo19\odoo-bin -c D:\wujia-tea\config\odoo-server.conf -d wujia_tea_19 --addons-path "D:\wujia-tea\custom,D:\wujia-tea\odoo19\addons" -u wujia_portal_layout,wujia_portal_base --stop-after-init; nssm start Odoo`
+- Nợ: commit + push + deploy → kiểm version XML-RPC → đo lại UAT → xoá DB `wujia_hdr` + filestore · báo BA số đo UI-01/UI-03 đã đổi theo chủ dự án.
+- Phiên kế: cụm H (H-A không cần BA) / Phần O cụm J (chờ BA).

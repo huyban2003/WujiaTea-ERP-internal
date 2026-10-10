@@ -103,6 +103,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 **Pending sống (hàng đợi):**
 - ✅ **[10/10] `afc42869` ĐÃ DEPLOY UAT** (version khớp XML-RPC) · `wj_contrast` trên UAT 32 → **0** cặp <4.5 (56 trang, 4.001 mẫu) · sheet #170 ghi ĐÃ DEPLOY. Hàng đợi deploy: TRỐNG. DB `wujia_i1…i13` (+`i4b`) + filestore đã xoá.
 - ✅ **[10/10] #142 UI-PC-HOME-REDESIGN-001 → Ready for Retest** kèm phản hồi BA (LIMIT): lỗi `$` do dữ liệu — bảng giá duy nhất "Default" trên UAT là USD (76/77 đơn USD), code in đúng tiền tệ đơn, PC = mobile. BA đổi bảng giá sang VND rồi đặt đơn mới để retest.
+- ⏳ **[10/10] Chỉnh UI header (chủ dự án yêu cầu, không Issue ID)** — badge đỏ `--wujia-danger-fill` #DC2626; topbar PC thẻ trắng (khối cửa hàng ôm nội dung ≤430, tài khoản cao 48, cụm phải áp từ 992). **Lệch Figma UI-01/UI-03 do chủ dự án chốt.** layout 19.0.60.11.0 · base 19.0.7.47.0 · `?v=1337` · test 637/637. **Chưa commit/deploy**; DB `wujia_hdr` còn giữ để đo lại.
 - **Cụm H** chuẩn hoá component (`docs/next-session-clusters-H.md`): H-A (H0 → H1 → H3 → ★HR-1) không cần BA; H-B chờ BA duyệt spec.
 - **Phần O cụm J** (portal Vận hành nhượng quyền) — PEND theo BA 07/10 (`docs/next-session-clusters-J.md`).
 - **ADR-027**: 7 câu hỏi BA (chapter 74) + áp `auto_install` đồng loạt 1 phiên + nợ ch.77 (portal_sale write, `_sql_constraints`, bàn giao Thái).
