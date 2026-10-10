@@ -43,8 +43,7 @@
     --wujia-success-fill:     #15803D;   /* badge Quản lý · 5.02 */
     --wujia-warning-text:     #9B5504;   /* thay #F29A1F/#D97706 làm chữ */
     --wujia-warning-fill:     #B45309;   /* badge Chủ tiệm · 5.02 */
-    /* Topbar PC giữ nền #28A9DF (nhận diện) ⇒ chữ/icon nằm thẳng trên nó dùng navy · 5.98.
-       Viền focus trên topbar cũng navy (ring --wujia-cta chỉ 1.75). */
+    /* Navy trên nền topbar #28A9DF · 5.98: viền focus của topbar (ring --wujia-cta chỉ 1.75). */
     --wujia-topbar-fg:        #0B2430;
     /* Disabled cũng ≥4.5 theo BA; phân biệt bằng nền/viền xám + cursor, không bằng chữ nhạt. */
     --wj-disabled-fg:         var(--wujia-text-muted);
@@ -236,18 +235,20 @@
     --wj-btn-radius:    12px;
     --wj-btn-danger:    #DC2626;
 
-    /* ---------- Navbar pill: thẻ trắng trên topbar PC (cửa hàng · ngôn ngữ · giỏ · chuông · tài khoản) ---------- */
-    --wujia-navbar-pill-bg:       var(--wujia-bg-card);
-    --wujia-navbar-pill-bg-hover: var(--wujia-primary-soft);
-    --wujia-navbar-pill-text:     var(--wujia-text-primary);
-    --wujia-navbar-pill-icon:     var(--wujia-brand-text);
+    /* ---------- Navbar pill: kính mờ + chữ trắng trên topbar PC, theo Figma WJ_PC_TopHeader_Primary_v1.
+       Chữ trắng trên kính chỉ ~2.2:1 — ngoại lệ WJ-PORTAL-UI-006, chủ dự án chốt 10/10/2026. ---------- */
+    --wujia-navbar-pill-bg:       rgb(255 255 255 / .18);
+    --wujia-navbar-pill-bg-hover: rgb(255 255 255 / .30);
+    --wujia-navbar-pill-text:     #FFFFFF;
+    --wujia-navbar-pill-icon:     #FFFFFF;
     --wujia-navbar-pill-radius:   14px;
-    --wujia-navbar-pill-shadow:   0 1px 2px rgb(11 36 48 / .12);
+    --wujia-navbar-pill-shadow:   none;
+    --wujia-navbar-chip-bg:       rgb(255 255 255 / .26);
     --wujia-navbar-pill-padding:  6px 16px;
     --wujia-navbar-pill-gap:      10px;
     --wujia-navbar-pill-font:     15px;
     --wujia-navbar-pill-label-size: 11px;
-    --wujia-navbar-pill-label-color: var(--wujia-text-subtitle);
+    --wujia-navbar-pill-label-color: rgb(255 255 255 / .82);
 
     /* ---------- Header right action icons ---------- */
     --wujia-header-icon-size:        20px;

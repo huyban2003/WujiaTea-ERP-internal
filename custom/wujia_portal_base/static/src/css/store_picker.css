@@ -112,7 +112,7 @@
 .wujia-store-current-block .wujia-active-store-badge .wujia-store-badge-name {
     display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
 }
-/* Chip vai trò trên thẻ trắng: nền nhạt + chữ đậm cùng tông. Chỉ scope trong khối —
+/* Chip vai trò trên khối kính mờ: kính đậm hơn một nấc, chữ trắng. Chỉ scope trong khối —
    .wujia-store-role-badge trần còn dùng ở menu tài khoản. */
 .wujia-store-current-block .wujia-store-role-badge {
     flex: 0 0 auto;
@@ -124,10 +124,9 @@
     border-radius: 999px;
     font-size: 12px;
     box-sizing: border-box;
+    background-color: var(--wujia-navbar-chip-bg);
+    color: var(--wujia-navbar-pill-text);
 }
-.wujia-store-current-block .wujia-store-role-badge-staff   { background-color: var(--wj-sb-neutral-bg); color: var(--wujia-text-secondary); }
-.wujia-store-current-block .wujia-store-role-badge-manager { background-color: var(--wujia-success-bg); color: var(--wujia-success-text); }
-.wujia-store-current-block .wujia-store-role-badge-owner   { background-color: var(--wujia-warning-bg); color: var(--wujia-warning-text); }
 
 /* Top bar 992–1199: hàng trái không xuống dòng (`_pc_account.css`). Thiếu chỗ thì khối co
    (cần `min-width: 0` ở cả <li> lẫn khối) thay vì rớt dòng; tên dài ellipsis, chip giữ nguyên. */

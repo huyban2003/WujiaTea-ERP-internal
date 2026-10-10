@@ -328,7 +328,7 @@
 }
 
 /* ---------- WJ-PORTAL-UI-006: chữ + icon topbar PC ----------
-   Nền topbar giữ #28A9DF (nhận diện); mọi link của topbar nằm trong thẻ trắng nên chữ dùng
+   Nền topbar giữ #28A9DF (nhận diện); mọi link của topbar nằm trong ô kính mờ nên chữ dùng
    token pill (Vuexy hover còn #CCC). Không chạm dropdown-menu (nền trắng riêng). */
 .wujia-navbar .navbar-container ul.nav li > a.nav-link,
 .wujia-navbar .navbar-container ul.nav li > a.nav-link:hover,
@@ -339,6 +339,8 @@
 .wujia-navbar .navbar-container ul.nav li > a.nav-link i.ficon {
     color: var(--wujia-navbar-pill-icon) !important;
 }
+/* Nút ba gạch 992–1199 là <button>: phải thắng `.navbar-light .navbar-nav .nav-link` (xám 50%). */
+.wujia-navbar .navbar-container ul.nav li > .wj-menu-toggle { color: var(--wujia-navbar-pill-icon); }
 /* Viền focus trên topbar: ring --wujia-cta trên #28A9DF chỉ 1.75 ⇒ navy (5.98). Đổi token tại
    phạm vi topbar, rule focus chung ở _interaction.css giữ nguyên. */
 .wujia-navbar { --wujia-focus-ring: 2px solid var(--wujia-topbar-fg); }

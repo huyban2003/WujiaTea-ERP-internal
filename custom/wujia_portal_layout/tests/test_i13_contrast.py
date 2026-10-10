@@ -1,7 +1,7 @@
 """I13 / WJ-PORTAL-UI-006 — tương phản chữ dùng chung ≥ WCAG AA 4.5:1.
 
 Khoá ở TOKEN (`_variables.css`), không theo màn: mọi token chữ × mọi nền sáng ≥ 4.5,
-mọi nền đặc mang chữ trắng ≥ 4.5, chữ/vòng focus trên topbar xanh ≥ 4.5/3. Màu thương
+mọi nền đặc mang chữ trắng ≥ 4.5, vòng focus trên topbar xanh ≥ 3. Màu thương
 hiệu #28A9DF vẫn là nền/viền/icon — chỉ thôi làm màu chữ. Phép quét `color:` toàn
 module ở `wujia_portal_base/tests/test_scan_i13_contrast.py` (tầng ghép).
 Đo trên trang thật: `scripts/qa/wj_contrast.py`.
@@ -76,15 +76,17 @@ class TestSharedTokensReachAA(TransactionCase):
                if _contrast('#FFFFFF', self._hex(t)) < 4.5]
         self.assertFalse(bad, 'nền đặc mang chữ trắng dưới 4.5: %s' % bad)
 
-    def test_topbar_keeps_cyan_and_navy_text(self):
-        """Topbar PC/mobile giữ nền #28A9DF (chủ dự án chốt 09/10) ⇒ chữ/icon navy; pill PC là thẻ trắng."""
+    def test_topbar_keeps_cyan_with_glass_pills(self):
+        """Topbar giữ nền #28A9DF; pill PC là kính mờ + chữ trắng theo Figma — ngoại lệ AA do chủ dự án
+        chốt 10/10/2026, nên chỉ khoá đúng giá trị Figma chứ không khoá tỉ lệ."""
         cyan = self._hex('--wujia-primary')
         self.assertEqual(cyan, '#28A9DF', 'màu thương hiệu không được đổi')
         self.assertGreaterEqual(_contrast(self._hex('--wujia-topbar-fg'), cyan), 4.5)
-        pill = self._hex('--wujia-navbar-pill-bg')
-        for t in ('--wujia-navbar-pill-text', '--wujia-navbar-pill-icon', '--wujia-navbar-pill-label-color'):
-            self.assertGreaterEqual(_contrast(self._hex(t), pill), 4.5, t)
-            self.assertGreaterEqual(_contrast(self._hex(t), self._hex('--wujia-navbar-pill-bg-hover')), 4.5, t)
+        for t in ('--wujia-navbar-pill-text', '--wujia-navbar-pill-icon'):
+            self.assertEqual(self._hex(t), '#FFFFFF', t)
+        for t, alpha in (('--wujia-navbar-pill-bg', '.18'), ('--wujia-navbar-chip-bg', '.26'),
+                         ('--wujia-navbar-pill-label-color', '.82')):
+            self.assertEqual(self.tokens[t].split('/*')[0].strip(), 'rgb(255 255 255 / %s)' % alpha, t)
         # Vòng focus mặc định (xanh CTA) ≥ 3 trên mọi nền sáng.
         ring = re.search(r'(var\((--[\w-]+)\)|#[0-9A-Fa-f]{6})\s*$', self.tokens['--wujia-focus-ring'].strip())
         ring_hex = self._hex(ring.group(2)) if ring.group(2) else ring.group(1).upper()
