@@ -168,10 +168,67 @@ export class WujiaCartSync extends Interaction {
             return;
         }
         const lineId = parseInt(row.dataset.lineId, 10);
-        if (!window.confirm(this.msg("remove-confirm", "Remove this product from the cart?"))) {
-            return;
+        const name = row.querySelector(".wj-pc-cart-prod-name, .wujia-mcart-row-name");
+        this.askRemove(name ? name.textContent.trim() : "", btn).then((ok) => {
+            if (ok) {
+                this.mutate("/portal/order/cart/remove", { line_id: lineId });
+            }
+        });
+    }
+
+    // Hỏi bằng hộp của portal (#wjCartRemove, cùng khuôn hộp gửi đơn WJ-ORD-028): Hủy / Esc /
+    // bấm nền = không xoá. Trang nào thiếu hộp thì hỏi bằng trình duyệt — không bao giờ xoá
+    // mà không hỏi.
+    askRemove(name, opener) {
+        const modal = document.getElementById("wjCartRemove");
+        if (!modal) {
+            return Promise.resolve(
+                window.confirm(this.msg("remove-confirm", "Remove this product from the cart?"))
+            );
         }
-        this.mutate("/portal/order/cart/remove", { line_id: lineId });
+        if (!modal.hidden) {
+            return Promise.resolve(false);
+        }
+        return new Promise((resolve) => {
+            const buttons = Array.from(modal.querySelectorAll("[data-wj-cr-action]"));
+            const close = (ok) => {
+                modal.removeEventListener("click", onClick);
+                document.removeEventListener("keydown", onKey, true);
+                modal.setAttribute("hidden", "hidden");
+                document.body.classList.remove("wj-order-confirm-open");
+                if (opener.isConnected) {
+                    opener.focus();
+                }
+                resolve(ok);
+            };
+            const onClick = (ev) => {
+                const act = ev.target.closest("[data-wj-cr-action]");
+                if (act) {
+                    close(act.dataset.wjCrAction === "confirm");
+                } else if (ev.target === modal) {
+                    close(false);
+                }
+            };
+            const onKey = (ev) => {
+                if (ev.key === "Escape") {
+                    ev.preventDefault();
+                    close(false);
+                } else if (ev.key === "Tab") {
+                    // Giữ focus trong hộp: chỉ có 2 nút.
+                    const i = buttons.indexOf(document.activeElement);
+                    const next = ev.shiftKey ? (i <= 0 ? buttons.length - 1 : i - 1) : (i + 1) % buttons.length;
+                    ev.preventDefault();
+                    buttons[next].focus();
+                }
+            };
+            modal.querySelector("[data-wj-cr='name']").textContent = name;
+            modal.addEventListener("click", onClick);
+            document.addEventListener("keydown", onKey, true);
+            modal.removeAttribute("hidden");
+            document.body.classList.add("wj-order-confirm-open");
+            // Focus nút Hủy: Enter/Space bấm vội không xoá.
+            modal.querySelector("[data-wj-cr-action='cancel']").focus();
+        });
     }
 
     mutate(url, params) {
@@ -317,12 +374,7 @@ export class WujiaCartSync extends Interaction {
     }
 
     toast(msg, ok) {
-        const el = document.createElement("div");
-        el.className = "alert alert-" + (ok ? "success" : "danger");
-        el.style.cssText = "position:fixed;top:20px;right:20px;z-index:9999;min-width:240px;";
-        el.textContent = msg;
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 2500);
+        window.wjToast(msg, { type: ok ? "success" : "error" });
     }
 }
 

@@ -4,17 +4,6 @@
    Câu toast: data-wj-msg-* trên nút (dịch bằng .po, J-V7); fallback tiếng Anh. */
 (function () {
     "use strict";
-    function toast(msg) {
-        var el = document.createElement("div");
-        el.className = "wj-noti-toast";
-        el.textContent = msg;
-        el.style.cssText =
-            "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:2000;" +
-            "background:#111827;color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;" +
-            "box-shadow:0 6px 20px rgba(0,0,0,.25)";
-        document.body.appendChild(el);
-        setTimeout(function () { el.remove(); }, 1600);
-    }
     // Delegation: nút nằm trong vùng swap của wj_ajax_list — bind trực tiếp sẽ mất
     // listener sau lần lọc đầu tiên (node cũ đã bị thay).
     document.addEventListener("click", function (ev) {
@@ -36,13 +25,14 @@
                 var out = (res && res.result) || {};
                 if (out.error) {
                     // Ví dụ chưa chọn cửa hàng — hiện message nghiệp vụ, không reload.
-                    toast(out.message || m("mark-failed", "Could not mark as read. Please try again."));
+                    window.wjToast(out.message || m("mark-failed", "Could not mark as read. Please try again."),
+                                   { type: "error" });
                     btn.disabled = false;
                     return;
                 }
                 var n = out.updated_count || 0;
-                toast(n === 1 ? m("marked-one", "Marked %s notification as read.", n)
-                              : m("marked-n", "Marked %s notifications as read.", n));
+                window.wjToast(n === 1 ? m("marked-one", "Marked %s notification as read.", n)
+                                       : m("marked-n", "Marked %s notifications as read.", n));
                 setTimeout(function () { window.location.reload(); }, 600);
             })
             .catch(function () { btn.disabled = false; });

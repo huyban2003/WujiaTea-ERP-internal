@@ -125,6 +125,9 @@ class TestSaleI18nJV4(TransactionCase):
             with self.subTest(key=key):
                 self.assertIn("'data-wj-msg-%s'" % key, arch)
         self.assertIn('Xoá sản phẩm này khỏi giỏ?', arch)  # câu JS ra tiếng Việt ở vi_VN
+        modal = self.env_vi.ref('wujia_portal_sale.cart_remove_modal').arch
+        for text in ('Xoá sản phẩm này khỏi giỏ?', '>Hủy<', '>Xoá<'):
+            self.assertIn(text, modal)
         for name in PAGES:
             with open(os.path.join(SALE_DIR, 'views', name), encoding='utf-8') as fh:
                 src = fh.read()

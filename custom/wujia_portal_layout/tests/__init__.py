@@ -24,3 +24,4 @@ from . import test_jv1_i18n
 from . import test_i9_lang
 from . import test_i10_listcard_tokens
 from . import test_i13_contrast
+from . import test_toast

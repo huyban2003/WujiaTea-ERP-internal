@@ -726,7 +726,8 @@ class WujiaPortalSale(http.Controller):
             line.unlink()
         state = self._cart_state(cart, franchise)
         self._publish_cart_event(fid, state, 'remove')
-        return {'success': True, 'cart_count': state['line_count'], 'cart': state}
+        return {'success': True, 'removed': True,
+                'cart_count': state['line_count'], 'cart': state}
 
     # --------------------------------------------------------------- cart count
     @http.route(['/portal/order/cart/count'], type='json', auth='user',

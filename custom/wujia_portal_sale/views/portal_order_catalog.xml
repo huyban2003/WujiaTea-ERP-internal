@@ -271,6 +271,7 @@
                 <!-- /desktop wrapper -->
                 <!-- WJ-ORD-028: panel giỏ PC ở catalog cũng có nút gửi đơn. -->
                 <t t-if="not no_franchise" t-call="wujia_portal_sale.order_confirm_modal"/>
+                <t t-if="not no_franchise" t-call="wujia_portal_sale.cart_remove_modal"/>
 
                 <!-- ===== MOBILE (<992px) — BA UI Registry v3 + Figma 2480:2 ===== -->
                 <div class="d-lg-none wujia-morder">

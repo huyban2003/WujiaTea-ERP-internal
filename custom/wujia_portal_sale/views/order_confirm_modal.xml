@@ -48,4 +48,21 @@
             </div>
         </div>
     </template>
+
+    <!-- Hộp hỏi trước khi xoá một dòng giỏ (thay `window.confirm`), cùng khuôn với hộp trên nên
+         không thêm CSS. Tên sản phẩm do portal_cart_sync.js điền lúc mở; đặt ở cấp trang vì panel
+         giỏ bị thay mỗi lần reconcile. -->
+    <template id="cart_remove_modal" name="Wujia Portal — Confirm cart line removal">
+        <div class="wj-pc-modal__backdrop wj-order-confirm" id="wjCartRemove" hidden="hidden">
+            <div class="wj-pc-modal__panel wj-order-confirm__panel" role="dialog" aria-modal="true"
+                 aria-labelledby="wjCartRemoveTitle" aria-describedby="wjCartRemoveName">
+                <h2 class="wj-pc-modal__title" id="wjCartRemoveTitle">Remove this product from the cart?</h2>
+                <p class="wj-pc-modal__body" id="wjCartRemoveName" data-wj-cr="name"/>
+                <div class="wj-pc-modal__actions wj-order-confirm__actions">
+                    <button type="button" class="wj-btn wj-btn--secondary" data-wj-cr-action="cancel">Cancel</button>
+                    <button type="button" class="wj-btn wj-btn--danger" data-wj-cr-action="confirm">Remove</button>
+                </div>
+            </div>
+        </div>
+    </template>
 </odoo>

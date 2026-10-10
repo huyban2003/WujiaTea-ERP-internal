@@ -17,12 +17,7 @@
     }
 
     function toast(msg, ok) {
-        const el = document.createElement("div");
-        el.className = "alert alert-" + (ok ? "success" : "danger");
-        el.style.cssText = "position:fixed;top:20px;right:20px;z-index:9999;min-width:240px;";
-        el.textContent = msg;
-        document.body.appendChild(el);
-        setTimeout(function () { el.remove(); }, 2500);
+        window.wjToast(msg, { type: ok ? "success" : "error" });
     }
 
     /* J-V4: câu hiển thị lấy từ data-wj-msg-* trên #wj-cart-sync (dịch bằng .po), fallback EN. */

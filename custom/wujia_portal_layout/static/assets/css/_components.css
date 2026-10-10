@@ -2664,3 +2664,52 @@ label.wj-filter-search-field input { height: 38px; }
 
 /* CTA của EmptyState: bố cục do EmptyState giữ, dáng do atom giữ. */
 .wj-empty-state > .wj-btn { margin-top: 11px; min-width: 147px; }
+
+/* ===== Toast (wjToast) — thẻ báo kết quả dùng chung PC + mobile ==============
+   `top` do wj_toast.js đặt (đáy thanh trên + lề); ở đây chỉ lo bề ngang và dáng thẻ. */
+.wj-toast-host {
+    position: fixed;
+    top: var(--wujia-toast-edge);
+    right: var(--wujia-toast-edge-pc);
+    z-index: var(--wujia-toast-z);
+    width: var(--wujia-toast-width);
+    max-width: calc(100vw - 2 * var(--wujia-toast-edge));
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+.wj-toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--wujia-bg-card);
+    border: 1px solid var(--wujia-border-soft);
+    border-radius: 12px;
+    box-shadow: var(--wujia-toast-shadow);
+    color: var(--wujia-text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    animation: wj-toast-in .18s ease-out;
+}
+.wj-toast__icon {
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--wujia-success-fill);
+    color: var(--wujia-bg-card);
+    font-size: 14px;
+}
+.wj-toast--error .wj-toast__icon { background: var(--wujia-danger-fill); }
+.wj-toast__text { min-width: 0; overflow-wrap: anywhere; }
+@keyframes wj-toast-in { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .wj-toast { animation: none; } }
+@media (max-width: 991.98px) {
+    .wj-toast-host { left: var(--wujia-toast-edge); right: var(--wujia-toast-edge); width: auto; }
+}

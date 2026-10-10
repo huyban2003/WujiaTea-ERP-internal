@@ -259,10 +259,11 @@ class TestF6CartSubmit(HttpCase):
     def test_remove_idempotent(self):
         line = self.put(self.p_free, 3)
         res = self.rpc('/portal/order/cart/remove', line_id=line.id)
-        self.assertEqual(set(res), {'success', 'cart_count', 'cart'})
+        self.assertEqual(set(res), {'success', 'removed', 'cart_count', 'cart'})
         self.assertEqual(res['cart_count'], 0)
         res = self.rpc('/portal/order/cart/remove', line_id=line.id)
         self.assertTrue(res['success'])
+        self.assertTrue(res['removed'])
 
     # ------------------------------------------------------------ submit
     def test_submit_empty_cart(self):
