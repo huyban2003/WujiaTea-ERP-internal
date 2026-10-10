@@ -11,7 +11,8 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Kết quả: ✅ xong | ◐ dở (dừng ở bước …) | ⛔ chặn (lý do …)
 - Đã làm: <gạch đầu dòng ngắn, theo nghiệp vụ>
 - Commit: <hash — message> | chưa commit
-- Deploy: chưa | UAT <version>
+- Deploy: chưa | UAT <version> — lệnh cho chủ dự án (compact summary §6, -u đủ module đã bump):
+  `nssm stop Odoo; python D:\wujia-tea\odoo19\odoo-bin -c D:\wujia-tea\config\odoo-server.conf -d wujia_tea_19 --addons-path "D:\wujia-tea\custom,D:\wujia-tea\odoo19\addons" -u <mods> --stop-after-init; nssm start Odoo`
 - Số đo: <test x/y, B4 x/286, check_layers n vi phạm, wj_measure diff …>
 - Lệch plan / quyết định mới: <… hoặc "không">
 - Nợ để lại: <… hoặc "không">
@@ -3255,3 +3256,21 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   wujia_portal_notification,wujia_portal_report,wujia_portal_return,wujia_portal_sale` → `qa_sync --only WJ-PORTAL-UI-006 --apply` · cùng nợ
   I1–I12 · xoá DB `wujia_i1`…`wujia_i13` + filestore khi xong.
 - Phiên kế: **★IR Review cụm I** (`next-session-clusters-H.md` Prompt ★IR).
+
+## ★IR — Review cụm I trên UAT (09–10/10/2026)
+- Phạm vi: đo chỉ đọc trên UAT sau khi chủ dự án deploy cụm I. Báo cáo đầy đủ ở `docs/i-review.md` (ma trận, từng issue, sửa, nợ).
+- Deploy UAT: lần đầu chạy 2 tiến trình `-u` cùng lúc (PID 2992, 14244) nên khoá DB, nâng cấp dừng giữa chừng. Chạy lại với danh sách
+  module ⇒ 0 module lệch. Ghi luật **lệnh deploy sau mỗi issue/phiên** vào compact §6 (đúng dạng chủ dự án chạy, không cờ lạ).
+- Đo: `scripts/qa/wj_ir_matrix.py` 274 ô (5 ngữ cảnh × 2 khổ × 28 route + chi tiết), 252 đạt. 22 ô lệch là kỳ vọng script quá chặt;
+  admin chưa chọn cửa hàng: quét 0 lộ chứng từ. `wj_ir_checks.py` 44 kiểm: 42 đạt + #159 đo tay đạt + #172 nhãn "SĐT" đạt.
+  #166 modal ảnh đạt @1440/1920.
+- Sửa `afc42869`: #170 trên UAT còn 32 cặp <4.5. Nguyên nhân: chip Giao hàng chỉ hiện khi có dữ liệu; số Đã thanh toán Công nợ;
+  placeholder bị `.form-control::placeholder` của bundle website đè. Bump layout 19.0.60.10.1 · delivery 19.0.4.2.1 · debt 19.0.5.2.1 ·
+  `?v=1336`. Test DB `wujia_i13` 736/736 (nhớ `--db-filter='^<db>$'`, thiếu thì 118 test HTTP 404).
+- Sheet (CSV kiểm 10/10): 20 dòng Ready for Retest + #156 `Done` (BA đóng) · `issue_queue --dev` chỉ còn #142. `qa_sync --only` từng ID,
+  chừa #142; #154 lỗi bridge ở bước History (ô đã ghi) ⇒ có thể thiếu 1 dòng History. Ledger: 19 issue "ĐÃ DEPLOY UAT 09/10/2026",
+  #160 đã ghi từ trước, #170 "CHƯA lên UAT (phần bổ sung)".
+- #142 UI-PC-HOME-REDESIGN-001: Home hiện `$` do dữ liệu (partner HCM-01 gắn pricelist "Default (USD)"), không phải code ⇒ chờ chủ dự án.
+- Deploy: `nssm stop Odoo; python D:\wujia-tea\odoo19\odoo-bin -c D:\wujia-tea\config\odoo-server.conf -d wujia_tea_19 --addons-path "D:\wujia-tea\custom,D:\wujia-tea\odoo19\addons" -u wujia_portal_layout,wujia_portal_delivery,wujia_portal_debt --stop-after-init; nssm start Odoo`
+- Phiên kế: sau deploy, chạy lại `wj_contrast.py --base http://113.161.187.126:8019 --login em.hcm` (mục tiêu 0) → `qa_deploy_mark.py WJ-PORTAL-UI-006 --apply`;
+  quyết #142; Phần O cụm J / cụm H.

@@ -1,0 +1,96 @@
+\chapter{Sprint 67 --- Cụm I: Issue List theo luật ``một cửa hàng đang chọn'' (2026-10-08 $\to$ 10-10)}
+
+\emph{Chapter này ghi lại cụm I: 13 phiên đóng 21 issue của tab \texttt{5. Issue List}, cộng phiên review ★IR đo
+trên UAT. Nhật ký từng phiên ở \texttt{docs/f-progress.md}; kế hoạch và prompt ở \texttt{docs/next-session-clusters-H.md};
+báo cáo nghiệm thu ở \texttt{docs/i-review.md}.}
+
+\section{Vì sao có cụm I}
+
+Ngày 01/10 BA chốt hai luật cho toàn portal: (1) dữ liệu chỉ hiện theo \textbf{một} cửa hàng đang chọn, chưa chọn thì nhắc
+chọn chứ không gộp mọi cửa hàng; (2) quyền xét theo \textbf{vai trò tại chính cửa hàng đó}, không lấy vai trò cao nhất trên
+mọi cửa hàng. Ngày 07/10 Phần O của cụm J tạm dừng theo BA, nên chủ dự án chuyển sang Issue List. Lúc đầu cụm có 5 issue
+High/Medium. BA thêm 10 issue ngày 03--04/10 và 6 issue ngày 08/10, nên cụm tăng lên 13 phiên. Issue dùng luật cửa hàng
+đang chọn xếp sau I4, issue gom theo module để mỗi phiên chỉ \texttt{-u} một lần.
+
+\section{Các phiên}
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{1.1cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.0cm}}
+\toprule
+Phiên & Commit & Nội dung & Ngày \\
+\midrule
+I1 & \texttt{0b5834d2} & \#155 sản phẩm công khai portal bắt buộc có danh mục & 08/10 \\
+I2 & \texttt{8da0a983} & \#156 hạn đổi trả 10 ngày tính từ lúc giao hoàn tất; bỏ Lưu nháp & 08/10 \\
+I3 & \texttt{2984550a} & \#154 khung giờ đặt hàng dùng chung nhiều khu vực (M2M + migration), giờ theo múi giờ cửa hàng & 08/10 \\
+I4a/b & \texttt{58fcc113}, \texttt{907035bf} & \#152 helper phạm vi một nguồn cho 10 màn + \#157 Đăng ký thi nhắc chọn cửa hàng & 08/10 \\
+I5 & \texttt{b9e7c3c7} & \#153 quyền theo vai trò tại cửa hàng đang chọn: 403 + ẩn menu/ô & 09/10 \\
+I6 & \texttt{76f5671d} & \#159 phạm vi đã đọc thông báo + một luật đếm chưa đọc (migration dấu đọc) & 09/10 \\
+I7 & \texttt{34880bf0} & \#62 Lịch sử gồm đơn Đã hủy + \#163 ghi chú đặt hàng trên PC & 09/10 \\
+I8 & \texttt{f8744424} & \#160 chi tiết SP mobile, \#162 nội dung phiếu hỗ trợ mobile, \#166 trạng thái ảnh modal thi & 09/10 \\
+I9 & \texttt{0e53d12b} & \#167 cờ ngôn ngữ 20$\times$15, \#164 ngôn ngữ header Khảo sát & 09/10 \\
+I10 & \texttt{5b0d057c} & \#168 typography ListCard + badge (gộp H2) & 09/10 \\
+I11 & \texttt{cbaceca8} & \#172--\#174 Hồ sơ cửa hàng: đủ trường PC, số ngày còn lại, tên thành viên & 09/10 \\
+I12 & \texttt{a64ce589} & \#169 hộp chọn cửa hàng chuẩn dialog/focus, \#171 khối đầu Trang chủ & 09/10 \\
+I13 & \texttt{69670757} & \#170 token chữ dùng chung tương phản $\geq$ 4.5:1 & 09/10 \\
+★IR & \texttt{afc42869} & Review trên UAT + vá tương phản phần UAT mới lộ & 10/10 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Luật một cửa hàng / vai trò theo cửa hàng}
+
+\subsection*{Gì đã làm}
+Người dùng có nhiều cửa hàng mà chưa chọn cửa hàng thì các màn dữ liệu (Trang chủ, Giao hàng, Báo cáo, Đổi trả, Yêu cầu cập
+nhật, Đăng ký thi, Hỗ trợ, Thông báo, Hồ sơ) hiện khối ``Chọn cửa hàng'' và không lộ số liệu nào. Đặt hàng, Giỏ, Lịch sử và
+Công nợ báo chưa chọn cửa hàng ngay trên màn. Nhân viên tại cửa hàng đang chọn không vào được Công nợ, Lịch sử thanh toán,
+Báo cáo, Yêu cầu cập nhật (trả 403 ``Không có quyền''); menu và ô Trang chủ ẩn theo. Chủ/Quản lý tại cửa hàng đó vẫn vào được.
+
+\begin{itemize}[nosep]
+\item \texttt{wujia\_portal\_base/controllers/portal.py}: \texttt{get\_active\_franchise\_id}, \texttt{get\_current\_store\_ids},
+  \texttt{get\_store\_scope\_state} (\texttt{ok | need\_pick | no\_store}), \texttt{get\_current\_store\_role},
+  \texttt{STORE\_ADMIN\_ROLES}, \texttt{render\_no\_permission} (template \texttt{portal\_no\_permission}, HTTP 403).
+\item Cửa hàng đang chọn lưu ở cookie \texttt{wujia\_active\_franchise\_id}. Tài khoản chỉ có một cửa hàng thì tự chọn.
+\item Thông báo: chưa chọn cửa hàng thì chỉ hiện thông báo \texttt{target\_mode='all'}. Đã đọc với thông báo toàn hệ tính theo
+  user, với thông báo riêng tính theo user + cửa hàng.
+\end{itemize}
+
+\subsection*{Lý do / trade-off}
+Helper đặt ở \texttt{portal\_base} (L3a, ADR-027) để 10 module màn gọi chung một nguồn. Màn Khảo sát là code anh Thái nên
+chỉ bàn giao (\texttt{handover-inspection-scope.md}), không sửa. Yêu cầu cập nhật thông tin chặn ở backend, không thêm lối
+vào menu, theo chủ dự án chốt.
+
+\section{★IR --- nghiệm thu trên UAT}
+
+Đo chỉ đọc trên UAT sau deploy, trước đó kiểm version qua XML-RPC (0 module lệch). Ma trận role $\times$ cửa hàng $\times$
+route (\texttt{scripts/qa/wj\_ir\_matrix.py}) gồm 274 ô, 0 HTTP $\geq$ 500, 0 lỗi JS, 0 tràn ngang. 22 ô lệch đều do kỳ vọng
+script đặt quá chặt. Script kiểm từng issue (\texttt{wj\_ir\_checks.py}) đạt đủ 21 issue, trong đó \#159 và \#172 xác nhận
+bằng đo tay. Đo tương phản trên UAT lộ 32 cặp dưới 4.5 mà bản sao local đo 0: chip Giao hàng chỉ hiện khi có dữ liệu, số
+``Đã thanh toán'' của Công nợ, và placeholder bị \texttt{.form-control::placeholder} của bundle website (nạp sau) đè mất.
+Phần này đã vá ở \texttt{afc42869} (3 module, test 736/736), chờ deploy để đo lại.
+
+\section{Bài học}
+
+\begin{itemize}[nosep]
+\item Đo trên bản sao local không thay được đo trên UAT. Phần tử chỉ hiện khi có dữ liệu, cùng bundle khác (UAT có
+  \texttt{website}), sẽ lọt qua (L14 lặp lại).
+\item Rule dùng chung đặc hiệu 0 (\texttt{:where()}) thua mọi rule nạp sau. Muốn thắng \texttt{web.assets\_frontend} thì cần
+  đặc hiệu cao hơn.
+\item Chạy 2 tiến trình \texttt{-u} cùng lúc trên một DB sẽ khoá nhau, Odoo dừng giữa chừng mà console im lặng (log nằm trong
+  logfile). Kiểm \texttt{Get-Process python*} trước khi chạy.
+\item Mỗi phiên phải đưa chủ dự án \textbf{một lệnh deploy chạy được ngay}, đúng dạng họ dùng, không thêm cờ lạ (compact §6).
+\item Test trên DB copy cần \texttt{--db-filter='\^{}<db>\$'}. Thiếu cờ này thì config \texttt{dbfilter} làm hàng trăm test HTTP
+  trả 404.
+\item Playwright: \texttt{networkidle} không bao giờ xảy ra vì \texttt{bus.bus} long-poll, phải dùng \texttt{load} + chờ.
+\end{itemize}
+
+\section{Nợ để lại}
+
+\begin{itemize}[nosep]
+\item Deploy \texttt{afc42869} (\texttt{-u wujia\_portal\_layout,wujia\_portal\_delivery,wujia\_portal\_debt}), đo lại
+  \texttt{wj\_contrast.py} trên UAT, rồi \texttt{qa\_deploy\_mark.py WJ-PORTAL-UI-006}.
+\item \#142 UI-PC-HOME-REDESIGN-001: Home hiện \$ là do dữ liệu (partner HCM-01 gắn pricelist ``Default (USD)''), không phải
+  code. Chờ chủ dự án chọn sửa dữ liệu UAT hay trả lời BA.
+\item Kịch bản cần ghi dữ liệu (\#154 gửi đơn ngoài giờ, \#155 sản phẩm thiếu danh mục) chỉ đo ở DB copy, không đo trên UAT.
+\item Cụm H (chuẩn hoá component), Phần O cụm J (chờ BA), áp \texttt{auto\_install} ADR-027, i18n defer.
+\end{itemize}

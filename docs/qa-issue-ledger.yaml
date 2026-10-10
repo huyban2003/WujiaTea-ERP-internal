@@ -575,7 +575,7 @@ WJ-PH-002:
 WJ-PH-003:
   stt: 62
   sprint: "2026-10-09-I7"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I7 | commit: 34880bf0 | Deploy: -u wujia_portal_base,wujia_portal_purchase_history rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history, /portal/purchase-history?state=cancel, /portal/purchase-history/<id>"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I7 | commit: 34880bf0 | Deploy: -u wujia_portal_base,wujia_portal_purchase_history rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history, /portal/purchase-history?state=cancel, /portal/purchase-history/<id> | Đo lại chỉ đọc trên UAT 09/10: lọc Đã hủy có S00076, chi tiết đơn huỷ mở được, đơn HN-01 không đọc được từ HCM-01"
   url: "/portal/purchase-history (danh sách, ô lọc trạng thái trên máy tính, chip Đã hủy trên điện thoại, phân trang), /portal/purchase-history/<id> (chi tiết) — máy tính và điện thoại"
   odoo_fit: "Custom"
   fix: "Theo quyết định BA 01/10/2026: Lịch sử đặt hàng nay tra cứu được đơn Đã hủy. Trước đây danh sách, bộ lọc và trang chi tiết đều loại bỏ đơn hủy, nên cửa hàng không có cách nào xem lại đơn đã hủy. Nay danh sách Tất cả gồm cả đơn hủy của cửa hàng đang chọn (đơn tạo trên cổng lẫn đơn tạo ở backend), nhãn Đã hủy màu đỏ; ô lọc trạng thái trên máy tính có thêm mục Đã hủy (đứng cuối), điện thoại có thêm chip Đã hủy cạnh chip Đã xác nhận; phân trang đếm cả đơn hủy; mở được chi tiết đơn hủy (không có dòng Ngày xác nhận, trạng thái giao không đè lên nhãn Đã hủy). Vẫn kiểm cửa hàng đang chọn ở mọi lần mở: sửa số đơn trên địa chỉ sang đơn hủy của cửa hàng khác ⇒ báo Không tìm thấy đơn hàng hoặc bạn không có quyền xem, tải PDF báo không tìm thấy. 5 trạng thái Chờ xác nhận / Đã gửi / Đã xác nhận / Đang giao / Hoàn tất giữ nguyên cách tính và cách lọc. Không thêm lý do hủy, không ẩn riêng đơn thay thế (BA chốt)"
@@ -812,7 +812,7 @@ WJ-ORD-023:
 WJ-EXAM-001:
   stt: 157
   sprint: "2026-10-08-I4b"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-08-I4 | commit: 907035bf (+ 58fcc113) | Deploy: -u wujia_portal_base,wujia_portal_delivery,wujia_portal_report,wujia_support,wujia_exam,wujia_portal_return,wujia_portal_info_request,wujia_portal_support,wujia_portal_notification,wujia_portal_exam rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/exam"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-08-I4 | commit: 907035bf (+ 58fcc113) | Deploy: -u wujia_portal_base,wujia_portal_delivery,wujia_portal_report,wujia_support,wujia_exam,wujia_portal_return,wujia_portal_info_request,wujia_portal_support,wujia_portal_notification,wujia_portal_exam rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/exam | Đo lại chỉ đọc trên UAT 09/10: chưa chọn cửa hàng: Đăng ký thi hiện khối nhắc chọn, 0 mã chứng từ"
   url: "/portal/exam và /portal/exam/registration/<id> (máy tính và điện thoại)"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: điện thoại và máy tính mỗi bên giữ một bảng nhãn trạng thái riêng (điện thoại ghi Chờ duyệt, máy tính ghi Chờ xác nhận), điện thoại còn thay hẳn trạng thái phiếu bằng chữ Có kết quả khi kỳ thi đã công bố, và khi chưa chọn cửa hàng trang báo Chưa có đăng ký thi như thể cửa hàng không có phiếu nào. Nay nhãn trạng thái lấy từ một bảng chung ở phân hệ Thi: Chờ xác nhận, Đã đăng ký, Từ chối, Đã hủy, giống nhau trên máy tính và điện thoại. Trạng thái phiếu luôn hiện; Có kết quả là một nhãn xanh riêng đứng cạnh, chỉ có ở phiếu Đã đăng ký thuộc kỳ đã công bố kết quả (danh sách và trang chi tiết điện thoại). Phiếu Từ chối hoặc Đã hủy không bao giờ có nhãn này. Chưa chọn cửa hàng: không truy vấn phiếu, hiện khối nhắc chọn cửa hàng kèm nút mở bảng chọn (cùng khối với các màn khác)"
@@ -876,7 +876,7 @@ WJ-EXAM-006:
 WJ-NOTI-001:
   stt: 159
   sprint: "2026-10-09-I6"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I6 | commit: 76f5671d | Deploy: -u wujia_notification,wujia_portal_notification rồi khởi động lại (CÓ bước cập nhật dữ liệu: gộp/xoá dấu đã đọc cũ, ghi log từng dòng xoá) | URL: /portal, /portal/notification, /portal/notification/<id>, chuông đầu trang"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I6 | commit: 76f5671d | Deploy: -u wujia_notification,wujia_portal_notification rồi khởi động lại (CÓ bước cập nhật dữ liệu: gộp/xoá dấu đã đọc cũ, ghi log từng dòng xoá) | URL: /portal, /portal/notification, /portal/notification/<id>, chuông đầu trang | Đo lại chỉ đọc trên UAT 09/10: em.hcm tại HCM-01: số chưa đọc ở chuông = ô Trang chủ = lọc Chưa đọc = 1"
   url: "/portal (ô Thông báo), chuông đầu trang + hộp chuông, /portal/notification (lọc Chưa đọc / Đã đọc, nút Đánh dấu tất cả là đã đọc), /portal/notification/<id>; backend Thông báo (cột Đã đọc / Người nhận / Chưa đọc) — máy tính và điện thoại"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: dấu đã đọc luôn ghi theo người dùng + thông báo + cửa hàng, nên thông báo gửi tất cả cửa hàng phải đọc lại ở từng cửa hàng, và khi chưa chọn cửa hàng thì không ghi được (mở chi tiết không tính, Đánh dấu tất cả báo phải chọn cửa hàng). Số chưa đọc lấy tổng thông báo trừ số dòng đã đọc, nên một thông báo đọc ở nhiều cửa hàng bị trừ nhiều lần; bộ lọc Chưa đọc của danh sách lại dựng điều kiện riêng. Nay: thông báo gửi tất cả cửa hàng chỉ cần đọc một lần theo người dùng, có hiệu lực ở mọi cửa hàng và cả khi chưa chọn cửa hàng; thông báo chỉ định cửa hàng ghi riêng theo đúng cửa hàng nhận đang chọn, đọc ở A không tính cho B, cửa hàng không nhận thì không ghi. Chưa chọn cửa hàng: chỉ thấy thông báo toàn hệ, mở chi tiết vẫn ghi đã đọc, Đánh dấu tất cả chỉ áp dụng thông báo toàn hệ còn hiệu lực. Trang chủ, số trên chuông, hộp chuông, số cạnh tiêu đề, bộ lọc Chưa đọc và Đánh dấu tất cả dùng chung một điều kiện: đã gửi, đã tới giờ, đúng đối tượng, còn hiệu lực, chưa có dấu đọc đúng phạm vi. Lịch sử vẫn mở được thông báo hết hiệu lực nhưng không tính vào số chưa đọc. Nút đổi nhãn thành Đánh dấu tất cả là đã đọc, rê chuột hiện phạm vi áp dụng (chưa chọn cửa hàng: chỉ thông báo toàn hệ; có cửa hàng: thêm thông báo của cửa hàng đó). Dữ liệu cũ khi cập nhật: thông báo toàn hệ đã đọc ở nhiều cửa hàng gộp thành một dấu theo người dùng (giữ ngày đọc sớm nhất, lần mở gần nhất); dấu của thông báo chỉ định mà thiếu cửa hàng hoặc sai cửa hàng nhận bị xoá, không đoán. Backend: thông báo toàn hệ đếm Người nhận và Đã đọc theo người dùng; thông báo chỉ định đếm theo cặp người dùng + cửa hàng nhận"
@@ -1187,7 +1187,7 @@ WJ-PORTAL-UI-001:
 WJ-HOME-001:
   stt: 171
   sprint: "2026-10-09-I12"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I12 | commit: a64ce589 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I12 | commit: a64ce589 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal | Đo lại chỉ đọc trên UAT 09/10: Trang chủ 1440/390: đúng 1 H1 (ẩn), không còn câu chào"
   url: "/portal — khối đầu Trang chủ (máy tính); điện thoại đối chứng"
   odoo_fit: "Custom"
   fix: "Trang chủ trên máy tính bỏ tiêu đề 'Tổng quan cửa hàng' và câu 'Chào mừng …! Đây là tóm tắt hoạt động cửa hàng nhượng quyền của bạn.' đang hiển thị; khối Cửa hàng hiện tại / Khung giờ đặt hàng và 4 KPI được đưa lên ngay dưới thanh trên cùng, cách đều 24 px như các trang khác, không để lại khoảng trắng. Tên trang vẫn còn cho trình đọc màn hình: một tiêu đề cấp 1 'Tổng quan cửa hàng' ẩn bằng kỹ thuật visually-hidden (hộp 1×1 px cắt gọn, không dùng visibility:hidden nên không chiếm chỗ), dùng chung cho máy tính và điện thoại. Tiêu đề các khối đều là cấp 2 ngay dưới tiêu đề trang; trên điện thoại khối Khung giờ đặt hàng trước là cấp 3 (nhảy cấp) nay về cấp 2 — chữ nhìn thấy không đổi"
@@ -2611,7 +2611,7 @@ WJ-SUPPORT-003:
 WJ-ORD-031:
   sprint: "2026-10-08-I1"
   commit: "0b5834d2"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-08-I1 | commit: 0b5834d2 | Deploy: -u wujia_sale,wujia_portal_sale rồi khởi động lại | URL: /portal/order"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-08-I1 | commit: 0b5834d2 | Deploy: -u wujia_sale,wujia_portal_sale rồi khởi động lại | URL: /portal/order | Đo lại chỉ đọc trên UAT 09/10: Đặt hàng, chi tiết sản phẩm, giỏ mở được, 0 lỗi trình duyệt ở 5 tài khoản/cửa hàng; kịch bản sản phẩm thiếu danh mục cần sửa dữ liệu nên không đo trên UAT"
   url: "/portal/order (Tất cả, chip danh mục, ô tìm — máy tính và điện thoại), /portal/order/product/<id>, giỏ hàng; backend Sản phẩm → biến thể → tab Wujia Portal"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: hệ thống cho bật Hiện trên cổng mà không cần danh mục Portal, và cổng chỉ lọc theo cờ công khai nên sản phẩm thiếu danh mục vẫn có ở Tất cả nhưng không thuộc chip nào. Nay một sản phẩm chỉ đặt được trên cổng khi đang hoạt động, được công khai và có danh mục Portal đang hoạt động; danh sách, tìm kiếm, chip danh mục, trang chi tiết, sản phẩm liên quan, thêm vào giỏ và gửi đơn dùng chung một điều kiện này. Backend không cho bật công khai (hoặc xoá danh mục của sản phẩm đang công khai) khi chưa chọn danh mục, báo: Sản phẩm public portal ... phải có danh mục Portal trước khi được public; ô Danh mục Portal trên form thành bắt buộc khi bật công khai. Không tự gán danh mục cho dữ liệu cũ"
@@ -2624,7 +2624,7 @@ WJ-ORD-031:
 WJ-RETURN-001:
   sprint: "2026-10-08-I2"
   commit: "8da0a983"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-08-I2 | commit: 8da0a983 | Deploy: -u wujia_return,wujia_portal_return rồi khởi động lại | URL: /portal/return/new"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-08-I2 | commit: 8da0a983 | Deploy: -u wujia_return,wujia_portal_return rồi khởi động lại | URL: /portal/return/new | Đo lại chỉ đọc trên UAT 09/10: form đổi trả máy tính 1440 và điện thoại 390 không còn Lưu nháp"
   url: "/portal/return/new (máy tính và điện thoại); backend Đơn bán → trường Ngày giao hoàn tất"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: cổng chọn đơn theo ngày đặt (10 ngày gần nhất) và mặc định tạo phiếu ở trạng thái Nháp khi không gửi kèm lệnh Gửi. Nay mỗi đơn có Ngày giao hoàn tất = ngày xác nhận phiếu xuất cuối cùng, chỉ có khi mọi phiếu xuất của đơn đã xong hoặc đã huỷ (giao nhiều lần hoặc còn phần giao sau thì chờ phần cuối; phần giao sau bị huỷ thì tính theo lần giao đã xong; huỷ toàn bộ thì không có mốc; phiếu trả hàng không tính). Ô Đơn hàng gốc chỉ liệt kê đơn giao hoàn tất trong 10 ngày, hiện kèm ngày giao xong. Khi gửi, hệ thống kiểm lại và báo đúng lý do: Đơn hàng chưa giao hoàn tất, chưa thể tạo yêu cầu / Đã quá 10 ngày kể từ khi đơn hàng giao hoàn tất (ngày). Bỏ nút Lưu nháp trên máy tính (điện thoại vốn không có); mọi yêu cầu tạo từ cổng, kể cả gọi thẳng đường gửi với lệnh Nháp, đều thành đúng một phiếu Đã gửi, thiếu ảnh hoặc lỗi lưu minh chứng thì không tạo gì. Giữ nguyên: một sản phẩm một yêu cầu, sản phẩm phải thuộc đơn gốc của cửa hàng đang chọn, sản phẩm chưa cấu hình chính sách bù bị chặn"
@@ -2638,7 +2638,7 @@ WJ-RETURN-001:
 WJ-ORD-030:
   sprint: "2026-10-08-I3"
   commit: "2984550a"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-08-I3 | commit: 2984550a | Deploy: -u wujia_order_window,wujia_portal_sale,wujia_portal_base rồi khởi động lại | URL: /portal, /portal/order, /portal/order/cart; backend Bán hàng → Cấu hình → Wujia Portal → Khung giờ đặt hàng"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-08-I3 | commit: 2984550a | Deploy: -u wujia_order_window,wujia_portal_sale,wujia_portal_base rồi khởi động lại | URL: /portal, /portal/order, /portal/order/cart; backend Bán hàng → Cấu hình → Wujia Portal → Khung giờ đặt hàng | Đo lại chỉ đọc trên UAT 09/10: khung giờ 1, 2 giữ khu vực cũ, múi giờ cửa hàng đã điền (TEST-134 giữ Asia/Bangkok); trang Đặt hàng mở được ở 5 tài khoản/cửa hàng, máy tính và điện thoại"
   url: "/portal, /portal/order, /portal/order/cart (máy tính và điện thoại); backend Khung giờ đặt hàng; form Cửa hàng → trường Múi giờ"
   odoo_fit: "Custom (múi giờ dùng trường chuẩn res.partner.tz của Odoo)"
   fix: "Nguyên nhân: mỗi khung giờ chỉ gắn được một khu vực, và giờ được tính theo múi giờ của tài khoản đăng nhập; trang Đặt hàng máy tính còn đọc cờ 'chưa cấu hình' khác nguồn với thanh trạng thái điện thoại nên hai bên báo lệch nhau. Nay một khung giờ chọn được nhiều khu vực; mỗi cửa hàng có Múi giờ (IANA, trên form cửa hàng, dùng trường múi giờ chuẩn của đối tác cửa hàng) và mọi kiểm tra tính theo giờ địa phương của cửa hàng đang chọn, không theo tài khoản hay công ty. Nhiều khung khớp thì chỉ cần một khung đang mở; khu vực không có khung nào dùng khung chung; giữ công tắc tổng, nhiều khung trong ngày, khung qua nửa đêm; múi giờ có giờ mùa hè tính đúng. Cửa hàng thiếu múi giờ: không gửi đơn được, trang báo 'Cửa hàng chưa cấu hình múi giờ nên chưa thể đặt hàng'. Không lưu được khung không có khu vực, hoặc khung đang dùng trùng giờ bắt đầu/kết thúc với khung khác chung khu vực. Trang chủ, Đặt hàng, Giỏ hàng (máy tính và điện thoại), lúc gửi đơn và lúc tạo đơn ở backend dùng cùng một kết quả; nhãn giờ hiện tên múi giờ của cửa hàng kèm độ lệch (ví dụ Asia/Ho_Chi_Minh (UTC+07:00)), không ghi cứng UTC+7"
@@ -2651,7 +2651,7 @@ WJ-ORD-030:
 #   Hỗ trợ = người tạo + cửa hàng đang chọn; Thông báo chưa chọn = chỉ toàn hệ + nhắc chọn.
 WJ-PORTAL-SCOPE-001:
   sprint: "2026-10-08-I4"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-08-I4 | commit: 907035bf (+ 58fcc113) | Deploy: -u wujia_portal_base,wujia_portal_delivery,wujia_portal_report,wujia_support,wujia_exam,wujia_portal_return,wujia_portal_info_request,wujia_portal_support,wujia_portal_notification,wujia_portal_exam rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal, /portal/delivery, /portal/reports/orders, /portal/return, /portal/info-request, /portal/support, /portal/notification"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-08-I4 | commit: 907035bf (+ 58fcc113) | Deploy: -u wujia_portal_base,wujia_portal_delivery,wujia_portal_report,wujia_support,wujia_exam,wujia_portal_return,wujia_portal_info_request,wujia_portal_support,wujia_portal_notification,wujia_portal_exam rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal, /portal/delivery, /portal/reports/orders, /portal/return, /portal/info-request, /portal/support, /portal/notification | Đo lại chỉ đọc trên UAT 09/10: chưa chọn cửa hàng: Trang chủ, Giao hàng, Báo cáo, Đổi trả, YC cập nhật hiện khối nhắc chọn, 0 mã chứng từ; Đặt hàng, Giỏ, Lịch sử, Công nợ báo chưa chọn cửa hàng, không lộ số liệu"
   url: "/portal, /portal/delivery, /portal/reports/orders (+ xuất Excel), /portal/return, /portal/info-request, /portal/support, /portal/notification — máy tính và điện thoại"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: mỗi màn tự tính phạm vi cửa hàng, nhiều màn dùng cách cũ trả về mọi cửa hàng của tài khoản khi chưa chọn nên số liệu bị cộng gộp. Nay có một cách xác định cửa hàng đang chọn dùng chung: chỉ trả về đúng một cửa hàng hoặc không có gì, không bao giờ nhiều cửa hàng. Tài khoản chỉ có một cửa hàng tự được chọn; cửa hàng đã chọn mà tài khoản không còn quyền thì lựa chọn cũ bị xoá. Chưa chọn: Trang chủ, Giao hàng, Báo cáo, Đổi trả, Yêu cầu cập nhật thông tin, Hỗ trợ, Thông báo, Đăng ký thi không truy vấn dữ liệu, hiện một khối nhắc chọn cửa hàng dùng chung (có nút mở bảng chọn); trang chi tiết, tạo mới, huỷ quay về danh sách; xuất Excel báo cáo quay về trang báo cáo; tải tệp bị từ chối. Đã chọn: danh sách, số đếm, chi tiết, bộ lọc, gọi nền (ví dụ lấy giá trị hiện tại ở Yêu cầu cập nhật), xuất Excel, tải tệp và gửi mới chỉ dùng cửa hàng đó; sửa mã phiếu, mã tệp hay mã cửa hàng trên địa chỉ sang cửa hàng khác thì không đọc/ghi được. Tệp đính kèm Yêu cầu cập nhật trước đây tải qua đường chung của hệ thống (mở được tệp mọi cửa hàng của tài khoản) nay tải qua đường riêng có kiểm phiếu và cửa hàng. Hỗ trợ: danh sách gồm phiếu do chính người dùng tạo tại cửa hàng đang chọn (trước đây là mọi cửa hàng). Thông báo: chưa chọn cửa hàng thì danh sách và chuông chỉ còn thông báo gửi toàn hệ thống, kèm khối nhắc chọn"
@@ -2666,7 +2666,7 @@ WJ-PORTAL-SCOPE-001:
 WJ-PORTAL-ROLE-001:
   stt: 153
   sprint: "2026-10-09-I5"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I5 | commit: b9e7c3c7 | Deploy: -u wujia_portal_base,wujia_portal_layout,wujia_portal_report,wujia_portal_debt,wujia_portal_info_request rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal, /portal/reports/orders, /portal/debt, /portal/info-request, /portal/franchise-information"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I5 | commit: b9e7c3c7 | Deploy: -u wujia_portal_base,wujia_portal_layout,wujia_portal_report,wujia_portal_debt,wujia_portal_info_request rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal, /portal/reports/orders, /portal/debt, /portal/info-request, /portal/franchise-information | Đo lại chỉ đọc trên UAT 09/10: Nhân viên HN-01: Công nợ, Lịch sử thanh toán, Báo cáo, YC cập nhật trả 403, Trang chủ không có ô Công nợ, menu ẩn 3 mục; Quản lý HCM-01 mở được cả 3"
   url: "/portal, /portal/reports/orders (+ xuất Excel), /portal/debt, /portal/debt/payment-history, /portal/debt/pay, /portal/info-request (danh sách, tạo, chi tiết, huỷ, tệp, lấy giá trị hiện tại), /portal/franchise-information, /portal/franchises/<id>, /my/franchises/<id> — máy tính và điện thoại"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: trang Báo cáo và menu Báo cáo, Công nợ xét vai trò cao nhất trên mọi cửa hàng của tài khoản, nên Chủ ở cửa hàng A vào được Báo cáo của cửa hàng B dù ở B chỉ là Nhân viên; Yêu cầu cập nhật thông tin chỉ chặn màn tạo mới; danh sách thành viên và số điện thoại hiện cho mọi vai trò (điện thoại và các trang cửa hàng cũ); ô Công nợ trên Trang chủ hiện số tiền cho mọi vai trò. Nay quyền luôn xét theo vai trò của tài khoản tại đúng cửa hàng đang chọn, dùng chung một chỗ tính. Chủ và Quản lý cùng quyền. Nhân viên: menu Báo cáo, Công nợ ẩn (máy tính và bảng Thêm trên điện thoại); mở thẳng Báo cáo, Công nợ, Lịch sử thanh toán, Thanh toán, danh sách / chi tiết / tạo / huỷ Yêu cầu cập nhật thông tin ⇒ trang Không có quyền xem (kèm lý do, nhắc liên hệ chủ tiệm hoặc quản lý, nút Về Trang chủ); xuất Excel quay về trang Báo cáo, không ra tệp; tải tệp Yêu cầu cập nhật báo không tìm thấy; gọi nền lấy giá trị hiện tại bị từ chối. Trang chủ của Nhân viên không tính, không gửi số công nợ, còn 3 ô chia đều. Hồ sơ cửa hàng không truy vấn, không hiện danh sách thành viên với Nhân viên (máy tính và điện thoại), thay bằng câu Tài khoản của bạn chỉ được xem thông tin cửa hàng cơ bản; các trang cửa hàng cũ và dữ liệu thành viên gọi nền chỉ trả thành viên khi là Chủ hoặc Quản lý của chính cửa hàng đó"
@@ -2677,7 +2677,7 @@ WJ-PORTAL-ROLE-001:
 WJ-PH-009:
   stt: 163
   sprint: "2026-10-09-I7"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I7 | commit: 34880bf0 | Deploy: -u wujia_portal_base,wujia_portal_purchase_history rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history/<id>"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I7 | commit: 34880bf0 | Deploy: -u wujia_portal_base,wujia_portal_purchase_history rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history/<id> | Đo lại chỉ đọc trên UAT 09/10: đơn S00077 hiện Ghi chú khi đặt hàng trên máy tính và điện thoại"
   url: "/portal/purchase-history/<id> — chi tiết đơn, máy tính và điện thoại (vd S00077 /portal/purchase-history/77 ở TP HCM Quận 1)"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: trang chi tiết đơn bản máy tính chưa từng có khối Ghi chú khi đặt hàng — chỉ bản điện thoại có; dòng Ghi chú giao hàng trên máy tính là ghi chú của chuyến giao, thông tin khác. Nay máy tính có thẻ riêng Ghi chú khi đặt hàng nằm ngay dưới hai khung Thông tin đơn hàng và Batch / giao hàng (cùng thứ tự với điện thoại), đọc đúng ghi chú cửa hàng nhập khi đặt hàng — cùng nguồn với điện thoại nên nội dung giống hệt. Giữ xuống dòng người nhập; chuỗi dài không dấu cách tự xuống dòng trong thẻ, không đẩy trang. Không có ghi chú ⇒ cả hai kênh hiện cùng một câu Không có ghi chú (chữ nhạt); dòng Ghi chú giao hàng khi trống cũng dùng đúng câu này ở cả máy tính lẫn điện thoại (trước đây điện thoại hiện dấu gạch, máy tính hiện Không có ghi chú, còn khối ghi chú đặt hàng trên điện thoại có dấu chấm cuối). Không sửa dữ liệu đơn"
@@ -2702,7 +2702,7 @@ WJ-ORD-032:
 WJ-SUPPORT-002:
   stt: 162
   sprint: "2026-10-09-I8"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I8 | commit: f8744424 | Deploy: -u wujia_portal_support rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/support/<id>"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I8 | commit: f8744424 | Deploy: -u wujia_portal_support rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/support/<id> | Đo lại chỉ đọc trên UAT 09/10: điện thoại: phiếu WJ-TK/26/00016 có khối Nội dung yêu cầu, không tràn"
   url: "/portal/support/<id> — chi tiết yêu cầu hỗ trợ, điện thoại và máy tính (ví dụ WJ-TK/26/00006 /portal/support/6)"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: bản điện thoại của trang chi tiết yêu cầu hỗ trợ chưa từng có khối nội dung — chỉ bản máy tính có. Nay điện thoại có thẻ Nội dung yêu cầu ngay dưới khối thông tin (Nhóm, Ưu tiên, Người gửi, Ngày tạo), trước File đính kèm, Lịch sử trao đổi và ô trả lời, nên đọc được nội dung gốc trước khi phản hồi. Hiện đầy đủ, không thu gọn; giữ xuống dòng, đoạn, danh sách như người gửi nhập; đường dẫn hay chuỗi rất dài tự xuống dòng trong thẻ. Không có nội dung thì hiện dấu gạch như máy tính. Máy tính giữ nguyên khối Nội dung yêu cầu, chỉ thêm tự xuống dòng cho chuỗi dài (trước đây chuỗi liền rất dài tràn ra khỏi thẻ ở khổ 1440)"
@@ -2713,7 +2713,7 @@ WJ-SUPPORT-002:
 WJ-EXAM-008:
   stt: 166
   sprint: "2026-10-09-I8"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I8 | commit: f8744424 | Deploy: -u wujia_portal_exam rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/exam/register"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I8 | commit: f8744424 | Deploy: -u wujia_portal_exam rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/exam/register | Đo lại chỉ đọc trên UAT 09/10: modal Thêm người 1440/1920: chưa chọn ↔ đã chọn ↔ xoá ảnh về chưa chọn, hai trạng thái không hiện cùng lúc"
   url: "/portal/exam/register — hộp Thêm người đăng ký, máy tính 1440 / 1920"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: khung ảnh trong hộp Thêm người có tiêu đề Ảnh đã được chọn và một tên tệp mẫu viết cứng sẵn trong trang; khi mở hộp, chương trình chỉ đổi dòng tên tệp thành Chưa chọn ảnh mà không đổi tiêu đề, nên hai trạng thái hiện cùng lúc. Nay khung ảnh có đúng một trạng thái, do một chỗ duy nhất quyết định theo việc đã có ảnh hay chưa. Chưa có ảnh: tiêu đề Chưa chọn ảnh, ảnh đại diện mặc định, một nút Chọn ảnh, không có dòng tên tệp, không có nút Xóa ảnh. Đã có ảnh: tiêu đề Ảnh đã được chọn, ảnh xem trước, tên tệp và định dạng (hoặc Ảnh đã chọn khi sửa một người đã có ảnh), nút Thay ảnh và Xóa ảnh. Xóa ảnh trở về chưa chọn; tệp không hợp lệ trở về chưa chọn kèm câu báo lỗi. Bấm Thêm người khi thiếu tên hoặc số điện thoại chỉ hiện lỗi của ô nhập, trạng thái ảnh giữ đúng như trước khi bấm"
@@ -2727,7 +2727,7 @@ WJ-EXAM-008:
 WJ-LANG-002:
   stt: 167
   sprint: "2026-10-09-I9"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I9 | commit: 0e53d12b | Deploy: -u wujia_portal_layout rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I9 | commit: 0e53d12b | Deploy: -u wujia_portal_layout rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal | Đo lại chỉ đọc trên UAT 09/10: cờ ngôn ngữ đang chọn 20×15 ở 1440 và 1920"
   url: "/portal (và mọi trang dùng chung header) — nút ngôn ngữ trên header máy tính 1440 / 1920"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: nút ngôn ngữ trên header máy tính bị ép rộng cố định 118 px; phần còn lại không đủ cho cả cờ lẫn tên ngôn ngữ, mà tên không co được nên cờ bị bóp lại (English (US) còn 4 px, Tiếng Việt 11 px). Nay cờ có ô cố định 20×15 px không co; nút rộng tối thiểu 118 px như thiết kế và tự nới theo tên ngôn ngữ dài, tên không xuống dòng. Đo sau sửa: cờ đang chọn 20×15 với English (US), Tiếng Việt, ภาษาไทย, 简体中文 ở cả 1440 và 1920; nút rộng 139,6 / 126,6 / 118 / 118 px; cờ và chữ thẳng hàng giữa; khoảng cách tới nút giỏ hàng giữ 22 px, không chồng lấn"
@@ -2737,7 +2737,7 @@ WJ-LANG-002:
 WJ-INSPECT-001:
   stt: 164
   sprint: "2026-10-09-I9"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I9 | commit: 0e53d12b | Deploy: -u wujia_portal_layout rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/inspection"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I9 | commit: 0e53d12b | Deploy: -u wujia_portal_layout rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/inspection | Đo lại chỉ đọc trên UAT 09/10: Khảo sát máy tính 1440/1920: header Tiếng Việt"
   url: "/portal/inspection · /portal/inspection/detail/<id> · /portal/inspection/remediation/<id> — máy tính và điện thoại"
   odoo_fit: "Custom"
   fix: "Nguyên nhân: các trang Khảo sát được khai báo theo kiểu trang website, nên ngôn ngữ của trang lấy theo cookie ngôn ngữ của trình duyệt chứ không theo ngôn ngữ của tài khoản như mọi trang Portal khác. Trên UAT, vừa đăng nhập trình duyệt đã mang cookie English, vì vậy header Khảo sát hiện cờ Mỹ và English (US), điện thoại có tên truy cập Language, trong khi nội dung (chữ viết sẵn) vẫn tiếng Việt. Nay khung Portal dùng chung quyết định ngôn ngữ cho mọi trang /portal khi đã đăng nhập: luôn theo ngôn ngữ của tài khoản, bỏ qua cookie trình duyệt, không chuyển địa chỉ sang /vi/…. Không sửa module Khảo sát; đã ghi bàn giao cho nhóm Khảo sát (docs/handover-inspection-scope.md)"
@@ -2751,7 +2751,7 @@ WJ-INSPECT-001:
 UI-LISTCARD-002:
   stt: 168
   sprint: "2026-10-09-I10"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I10 | commit: 5b0d057c | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_return,wujia_portal_info_request,wujia_portal_support rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/delivery"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I10 | commit: 5b0d057c | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_return,wujia_portal_info_request,wujia_portal_support rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/delivery | Đo lại chỉ đọc trên UAT 09/10: ListCard tiêu đề 15/600/20, nhãn 12/500/18, giá trị 13/500/18"
   url: "Thẻ danh sách trên điện thoại: /portal/delivery · /portal/purchase-history · /portal/debt · /portal/return · /portal/exam · /portal/knowledge · /portal/support · /portal/notification"
   odoo_fit: "Custom"
   fix: "Chữ trong thẻ danh sách nay lấy từ một bộ thông số dùng chung cho mọi màn (không chỉnh riêng từng màn): tiêu đề 15/600/20, nhãn 12/500/18, giá trị 13/500/18, giá trị nhấn mạnh 13/600/18, cùng font Inter ⇒ nhãn nhỏ hơn giá trị một bậc, phân tầng nhãn–giá trị rõ. Nhãn trạng thái trong thẻ giữ chữ 12/600, cao 28, chữ căn giữa; nhãn phân loại (danh mục Kiến thức/Hỗ trợ, Có file, Khẩn/Quan trọng của Thông báo) dùng cùng chiều cao dòng chữ 16 và căn giữa như nhãn trạng thái (trước: 12 so với 16,8). Hàng nhãn–giá trị giữ đúng 18 (trước khi chỉnh căn, nhãn nhỏ hơn làm hàng thành 19 — đã xử lý). Kèm dọn nhãn trạng thái còn sót kiểu cũ: trạng thái lạ của Đổi trả/Hỗ trợ/Yêu cầu cập nhật rơi về nhãn trạng thái xám chuẩn; mức ưu tiên ở chi tiết Yêu cầu cập nhật cùng kiểu với danh sách; Hồ sơ cửa hàng: khoá Portal, Hết hạn, Sắp hết hạn dùng nhãn trạng thái chuẩn"
@@ -2762,7 +2762,7 @@ UI-LISTCARD-002:
 WJ-PROFILE-001:
   stt: 172
   sprint: "2026-10-09-I11"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I11 | commit: cbaceca8 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/franchise-information"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I11 | commit: cbaceca8 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/franchise-information | Đo lại chỉ đọc trên UAT 09/10: Hồ sơ cửa hàng máy tính và điện thoại cùng nhóm trường và giá trị (điện thoại ghi nhãn rút gọn SĐT)"
   url: "/portal/franchise-information (máy tính và điện thoại)"
   odoo_fit: "Custom"
   fix: "Hồ sơ cửa hàng trên máy tính và điện thoại nay hiện cùng một bộ thông tin, lấy từ cùng một bản ghi cửa hàng: mã, tên, trạng thái, khu vực, địa chỉ, số điện thoại, email, ngày khai trương, người phụ trách và hợp đồng hiện hành (ngày bắt đầu, ngày kết thúc, số ngày còn lại). Máy tính bổ sung Ngày khai trương, Số điện thoại, Email vào khối Thông tin nhượng quyền và thêm khối Hợp đồng nhượng quyền; điện thoại bổ sung Người phụ trách. Chỉ khác cách bố trí theo màn hình"
@@ -2773,7 +2773,7 @@ WJ-PROFILE-001:
 WJ-PROFILE-002:
   stt: 173
   sprint: "2026-10-09-I11"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I11 | commit: cbaceca8 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/franchise-information"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I11 | commit: cbaceca8 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/franchise-information | Đo lại chỉ đọc trên UAT 09/10: còn lại 584 ngày ngày 09/10/2026 (hết hạn 15/05/2028), tự giảm theo ngày"
   url: "/portal/franchise-information · /portal/franchises/<id>/profile"
   odoo_fit: "Custom"
   fix: "Số ngày còn lại của hợp đồng nay được tính mỗi lần mở trang: ngày kết thúc của hợp đồng hiện hành trừ ngày hôm nay theo múi giờ của cửa hàng, không tính hôm nay (ví dụ kiểm 08/10/2026, kết thúc 15/05/2028 ⇒ 585 ngày). Ngày cuối hợp đồng hiện 0 ngày, từ hôm sau hiện Đã hết hạn. Giá trị tự giảm mỗi ngày và đổi ngay khi hợp đồng hiện hành đổi. Trước đây Portal đọc một con số lưu sẵn chỉ được tính lại khi sửa ngày kết thúc nên bị lệch dần theo thời gian (UAT lệch 28 ngày)"
@@ -2784,7 +2784,7 @@ WJ-PROFILE-002:
 WJ-PROFILE-003:
   stt: 174
   sprint: "2026-10-09-I11"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I11 | commit: cbaceca8 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/franchise-information"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I11 | commit: cbaceca8 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/franchise-information | Đo lại chỉ đọc trên UAT 09/10: danh sách thành viên điện thoại 320/360/390/430: tên không bị cắt, không tràn"
   url: "/portal/franchise-information — danh sách Thành viên cửa hàng trên điện thoại"
   odoo_fit: "Custom"
   fix: "Thẻ thành viên: tên đứng đầu thẻ, được xuống dòng đủ (không cắt sau 2 dòng, không vỡ từng ký tự); trạng thái giữ góc phải trên như các thẻ danh sách khác; vai trò chuyển xuống một hàng riêng 'Vai trò' ngay dưới tên. Thẻ cao theo nội dung. Làm bằng một tuỳ chọn của thẻ danh sách dùng chung (tên người được xuống dòng đủ), không chỉnh riêng cho trang"
@@ -2796,7 +2796,7 @@ WJ-PROFILE-003:
 WJ-PORTAL-UI-005:
   stt: 169
   sprint: "2026-10-09-I12"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I12 | commit: a64ce589 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal"
+  build_override: "ĐÃ DEPLOY UAT 09/10/2026 — sẵn sàng retest | Sprint 2026-10-09-I12 | commit: a64ce589 | Deploy: -u wujia_portal_layout,wujia_portal_base rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal | Đo lại chỉ đọc trên UAT 09/10: hộp thoại 1440/390: có tên, focus vào trong, Tab không thoát, Esc đóng và trả focus về nút mở"
   url: "/portal — hộp Đổi cửa hàng mở từ Cửa hàng hiện tại (máy tính: ô trên thanh trên cùng; điện thoại: dải cửa hàng dưới thanh trên cùng)"
   odoo_fit: "Custom"
   fix: "Hộp chọn cửa hàng nay là hộp thoại chuẩn, dùng chung một cách cho máy tính và điện thoại: trình đọc màn hình đọc được vai trò hộp thoại và tên 'Đổi cửa hàng đang thao tác' (lúc bắt buộc chọn: 'Chọn cửa hàng đang thao tác') kèm câu mô tả; nút Cửa hàng hiện tại báo trước là sẽ mở hộp thoại. Mở bằng chuột hay phím Enter thì con trỏ bàn phím nhảy vào nút Đóng; phần nền phía sau bị khoá (không bấm, không Tab tới được); Tab và Shift+Tab chỉ đi vòng trong hộp (Đóng → cửa hàng đang chọn → Hủy → Đổi cửa hàng); phím mũi tên chuyển lựa chọn mà chưa đổi cửa hàng. Escape, nút Đóng, Hủy hay bấm ra nền đều đóng hộp và đưa con trỏ về đúng nút Cửa hàng hiện tại (mở từ menu tài khoản thì cũng về nút Cửa hàng hiện tại vì menu đã đóng). Lúc bắt buộc chọn cửa hàng: hộp cũng khoá nền, con trỏ đặt sẵn ở cửa hàng đầu, Escape không thoát"
@@ -2809,7 +2809,7 @@ WJ-PORTAL-UI-005:
 WJ-PORTAL-UI-006:
   stt: 170
   sprint: "2026-10-09-I13"
-  build_override: "CHƯA lên UAT | Sprint 2026-10-09-I13 | commit: 69670757 | Deploy: -u wujia_portal_layout,wujia_portal_base,wujia_portal_debt,wujia_portal_delivery,wujia_portal_exam,wujia_portal_knowledge,wujia_portal_notification,wujia_portal_report,wujia_portal_return,wujia_portal_sale rồi khởi động lại (không có bước cập nhật dữ liệu) | URL: /portal/purchase-history"
+  build_override: "CHƯA lên UAT (phần bổ sung) | Sprint 2026-10-09-I13 + ★IR | commit: 69670757 + afc42869 | Deploy: -u wujia_portal_layout,wujia_portal_delivery,wujia_portal_debt rồi khởi động lại (không có bước cập nhật dữ liệu) | Đo UAT 09/10 bản I13: còn 32 cặp dưới 4,5 ở chip lọc Giao hàng, chip mã đơn chi tiết giao hàng, chữ gợi ý ô nhập, số Đã thanh toán Công nợ điện thoại (không hiện trên bản sao dữ liệu local) — đã sửa ở afc42869, đo lại sau deploy | URL: /portal/delivery, /portal/debt, /portal/info-request/new, /portal/return/new, /portal/support/new"
   url: "Toàn Portal (máy tính + điện thoại): Sidebar, bảng/danh sách, Cửa hàng hiện tại, thanh điều hướng dưới, chip lọc, nhãn trạng thái, link"
   odoo_fit: "Custom"
   fix: "Sửa ở bộ màu dùng chung, không vá từng màn. Màu thương hiệu #28A9DF giữ nguyên cho nền, viền, icon và thanh trên cùng, nhưng không còn dùng làm màu chữ: chữ/link/mục đang chọn/tiêu đề cột bảng dùng xanh đậm cùng tông #166F94 (hover #125C7B). Chữ xám phụ (nhãn nhóm Sidebar, nhãn thẻ, mục chưa chọn của thanh điều hướng dưới, chữ mờ, chữ vô hiệu, chữ gợi ý trong ô nhập) gom về một xám #616774. Chữ trạng thái xanh lá/đỏ/cam làm đậm tông. Chữ trắng trên nền đặc giữ trắng, nền đậm lên: chip lọc và nút phân trang đang chọn, nút chính #0F7CA8; nhãn Quản lý #15803D, Chủ tiệm #B45309; số đỏ trên chuông/giỏ #C92020. Thanh trên cùng giữ nền xanh, chữ và icon chuyển navy #0B2430, vòng focus ở đó cũng navy. Mục đang chọn vẫn phân biệt bằng nền xanh nhạt + chữ xanh đậm + chữ đậm; mục vô hiệu bằng nền/viền xám và không đổi khi rê chuột. Kèm sửa 4 trạng thái rê chuột làm mất chữ (thẻ KPI Trang chủ, chip đang chọn, nút + Đăng ký thi, nút Tạo mới)"
