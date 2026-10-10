@@ -3279,7 +3279,7 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Phiên kế: cụm H (H-A không cần BA) / Phần O cụm J (chờ BA).
 
 ## Chỉnh UI header — badge đỏ nhạt + topbar PC thẻ trắng · 10/10/2026 · Mac
-- Kết quả: ✅ code + test + đo trên DB copy; **chưa commit, chưa deploy** (chờ chủ dự án duyệt). Không có Issue ID ⇒ không ledger/`qa_sync`.
+- Kết quả: ✅ **ĐÃ DEPLOY UAT 10/10/2026** (commit `c592558c`), đo lại trên UAT đạt. Không có Issue ID ⇒ không ledger/`qa_sync`.
 - Yêu cầu chủ dự án: (1) badge số giỏ hàng đỏ quá đậm; (2) thanh header PC xấu. Chốt qua ảnh dựng thử: thẻ trắng · đỏ `#DC2626` ·
   **cho lệch số đo Figma UI-01 (khối cửa hàng 430 cố định) và UI-03 (tài khoản 204×52)**.
 - Đã làm:
@@ -3298,5 +3298,23 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   hồi quy 6 trang × 2 khổ: 200, 0 tràn, 0 lỗi JS.
 - LIMIT: dựng thử ban đầu bằng nhúng CSS trên UAT (thứ tự cascade khác thật) — số chốt lấy từ DB copy · hamburger 992–1199 giữ màu cũ.
 - Deploy: `nssm stop Odoo; python D:\wujia-tea\odoo19\odoo-bin -c D:\wujia-tea\config\odoo-server.conf -d wujia_tea_19 --addons-path "D:\wujia-tea\custom,D:\wujia-tea\odoo19\addons" -u wujia_portal_layout,wujia_portal_base --stop-after-init; nssm start Odoo`
-- Nợ: commit + push + deploy → kiểm version XML-RPC → đo lại UAT → xoá DB `wujia_hdr` + filestore · báo BA số đo UI-01/UI-03 đã đổi theo chủ dự án.
+- Sau deploy (UAT, chỉ đọc): XML-RPC layout 19.0.60.11.0 · base 19.0.7.47.0; 3 file CSS phục vụ khớp repo từng byte; `?v=1337`.
+  `/portal` HN-01 (Nhân viên) + HCM-01 (Quản lý) × 1920/1440/1200/1100/992: khối cửa hàng 267 / 313 × 48 bo 14, ngôn ngữ 127×40
+  (55×40 dưới 1200), giỏ/chuông 40×40 bo 20, tài khoản 204×48 bo 14, nền trắng + bóng, mép phải 20, hover `rgb(234,247,253)`,
+  0 tràn, 0 lỗi JS · `--wujia-danger-fill` = #DC2626, badge giỏ/chuông `rgb(220,38,38)` chữ trắng ở 1440 + 390.
+  LIMIT: admin không có số nào đang hiện (giỏ trống, 0 thông báo chưa đọc) ⇒ màu badge đọc từ phần tử ẩn, chưa nhìn badge thật trên UAT.
+- **Đổi lần 2 cùng ngày — kính mờ + chữ trắng đúng Figma** (chủ dự án xem thẻ trắng trên UAT thấy xấu, so 4 kiểu rồi chốt B). ✅ code + test
+  local; **chưa commit, chưa deploy**. layout 19.0.60.12.0 · base 19.0.7.48.0 · `?v=1338`.
+  - `_variables.css`: `--wujia-navbar-pill-bg` rgb(255 255 255 / .18), hover .30, chữ + icon #FFFFFF, nhãn trắng .82, bỏ bóng, thêm
+    `--wujia-navbar-chip-bg` .26. `store_picker.css`: chip vai trò trong khối một kiểu kính + chữ trắng (bỏ 3 màu theo vai trò).
+    `_pc_account.css` + `_sidebar.css`: nút ba gạch 992–1199 ra trắng (trước giờ thua `.navbar-light .navbar-nav .nav-link`, xám 50%).
+    Hình học giữ như lần 1 (khối ôm nội dung ≤430, tài khoản 204×48, bo 14).
+  - ⚠️ **Ngoại lệ WJ-PORTAL-UI-006 (#170) do chủ dự án chốt**: chữ trắng trên kính 1.77–2.24:1. `wj_contrast` 33 trang 2.662 mẫu:
+    319 mẫu <4.5, **toàn bộ trong topbar PC** (nhãn/tên cửa hàng, chip vai trò, tên/vai trò tài khoản, nhãn ngôn ngữ); ngoài topbar 0;
+    focus ring <3: 0. Guard `test_i13_contrast::test_topbar_keeps_cyan_with_glass_pills` đổi sang khoá đúng giá trị Figma.
+  - Kiểm DB `wujia_glass` (copy `wujia_vr`): test 2 module **637/637** · owner/manager/staff × 1920/1440/1200/1100/992: 48/40/40/40/48,
+    nền rgba .18, chip .26, chữ trắng, hover .30, mép phải 20, 0 tràn, 0 lỗi JS · badge `rgb(220,38,38)` · 5 trang × 1440/390: 200, 0 tràn, 0 lỗi JS.
+  - Deploy: lệnh như trên (`-u wujia_portal_layout,wujia_portal_base`).
+- Nợ: commit + push + deploy lần 2 → kiểm version → đo lại UAT → xoá DB `wujia_glass` + filestore · báo BA: số đo UI-01/UI-03 đã đổi
+  **và topbar PC là ngoại lệ tương phản #170** (retest WJ-PORTAL-UI-006 sẽ thấy cặp <4.5 ở topbar). DB `wujia_hdr` đã xoá.
 - Phiên kế: cụm H (H-A không cần BA) / Phần O cụm J (chờ BA).
