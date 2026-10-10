@@ -3303,8 +3303,8 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   (55×40 dưới 1200), giỏ/chuông 40×40 bo 20, tài khoản 204×48 bo 14, nền trắng + bóng, mép phải 20, hover `rgb(234,247,253)`,
   0 tràn, 0 lỗi JS · `--wujia-danger-fill` = #DC2626, badge giỏ/chuông `rgb(220,38,38)` chữ trắng ở 1440 + 390.
   LIMIT: admin không có số nào đang hiện (giỏ trống, 0 thông báo chưa đọc) ⇒ màu badge đọc từ phần tử ẩn, chưa nhìn badge thật trên UAT.
-- **Đổi lần 2 cùng ngày — kính mờ + chữ trắng đúng Figma** (chủ dự án xem thẻ trắng trên UAT thấy xấu, so 4 kiểu rồi chốt B). ✅ code + test
-  local; **chưa commit, chưa deploy**. layout 19.0.60.12.0 · base 19.0.7.48.0 · `?v=1338`.
+- **Đổi lần 2 cùng ngày — kính mờ + chữ trắng đúng Figma** (chủ dự án xem thẻ trắng trên UAT thấy xấu, so 4 kiểu rồi chốt B). ✅ **ĐÃ DEPLOY UAT
+  10/10/2026** (commit `8f72a740`), đo lại trên UAT đạt. layout 19.0.60.12.0 · base 19.0.7.48.0 · `?v=1338`.
   - `_variables.css`: `--wujia-navbar-pill-bg` rgb(255 255 255 / .18), hover .30, chữ + icon #FFFFFF, nhãn trắng .82, bỏ bóng, thêm
     `--wujia-navbar-chip-bg` .26. `store_picker.css`: chip vai trò trong khối một kiểu kính + chữ trắng (bỏ 3 màu theo vai trò).
     `_pc_account.css` + `_sidebar.css`: nút ba gạch 992–1199 ra trắng (trước giờ thua `.navbar-light .navbar-nav .nav-link`, xám 50%).
@@ -3315,6 +3315,45 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   - Kiểm DB `wujia_glass` (copy `wujia_vr`): test 2 module **637/637** · owner/manager/staff × 1920/1440/1200/1100/992: 48/40/40/40/48,
     nền rgba .18, chip .26, chữ trắng, hover .30, mép phải 20, 0 tràn, 0 lỗi JS · badge `rgb(220,38,38)` · 5 trang × 1440/390: 200, 0 tràn, 0 lỗi JS.
   - Deploy: lệnh như trên (`-u wujia_portal_layout,wujia_portal_base`).
-- Nợ: commit + push + deploy lần 2 → kiểm version → đo lại UAT → xoá DB `wujia_glass` + filestore · báo BA: số đo UI-01/UI-03 đã đổi
-  **và topbar PC là ngoại lệ tương phản #170** (retest WJ-PORTAL-UI-006 sẽ thấy cặp <4.5 ở topbar). DB `wujia_hdr` đã xoá.
+  - Sau deploy lần 2 (UAT, chỉ đọc): XML-RPC đúng 2 version; 4 file CSS phục vụ khớp repo từng byte; `?v=1338`. `/portal` HN-01 + HCM-01 ×
+    1920/1440/1200/1100/992: khối 267 / 313 × 48 bo 14 nền rgba .18, chip .26, ngôn ngữ 127×40 (55×40 dưới 1200), giỏ/chuông 40×40, tài khoản
+    204×48, chữ + icon trắng, nhãn trắng .82, nút ba gạch trắng, hover .30, mép phải 20, 0 tràn, 0 lỗi JS · badge `rgb(220,38,38)` ·
+    5 trang × 1440/390: 200, 0 tràn, 0 lỗi JS (`/portal/debt` 403 với admin vai Nhân viên HN-01 — quyền, không liên quan CSS).
+- Nợ: báo BA: số đo UI-01/UI-03 đã đổi **và topbar PC là ngoại lệ tương phản #170** (retest WJ-PORTAL-UI-006 sẽ thấy cặp <4.5 ở topbar).
+  DB `wujia_hdr`, `wujia_glass` + filestore đã xoá.
+- Phiên kế: cụm H (H-A không cần BA) / Phần O cụm J (chờ BA).
+
+## Thông báo giỏ hàng — thẻ `wjToast` dùng chung + hộp hỏi xoá của portal · 10/10/2026 · Mac
+
+- Nguồn: BA gửi ảnh màn Giỏ hàng mobile (UAT, HCM-01) — thông báo "Đã bỏ khỏi giỏ" đè lên cờ/giỏ/tài khoản và không đọc được. Không có
+  Issue ID (hàng đợi Dev = 0) ⇒ làm theo yêu cầu chủ dự án, không ledger/`qa_sync`. ⏳ **ĐÃ PUSH (commit `841f329e`), CHỜ DEPLOY UAT.**
+- Gốc: toast viết tay `div.alert.alert-success` ghim `top:20px; right:20px` (ô 240×52 tại y 20–72 = đúng header mobile 72), màu theme
+  nền xanh lá 20% + chữ xanh lá trên nền `#28A9DF`. Chỉ hiện khi `/cart/step` trả `removed` ("−" ở số tối thiểu); thùng rác đi `/cart/remove`:
+  hỏi bằng `window.confirm`, xoá xong im lặng. Portal có 3 toast viết tay khác nhau (giỏ, đặt hàng, thông báo PC).
+- Chủ dự án chốt (ảnh so: https://claude.ai/artifact/KKmNYo4WnGdbB4GFKhfZSb): thẻ nền trắng + dấu tích xanh, tự tắt 3 giây; mobile ngay dưới
+  header, PC góc phải dưới thanh trên; thùng rác hỏi bằng hộp của portal rồi mới báo; một thành phần chung; "−" ở số tối thiểu giữ như WJ-ORD-021.
+- Sửa:
+  - `wujia_portal_layout` 19.0.60.13.0, `?v=1339`: **mới** `static/assets/js/wj_toast.js` — `window.wjToast(text, {type: 'success'|'error'})`,
+    `top` = đáy `.wujia-mheader`/`.wujia-navbar` đang hiện + 12 (đã cuộn qua thì 12), tối đa 3 thẻ, `role=status|alert`, chữ đặt bằng
+    `textContent`. `_variables.css` thêm `--wujia-toast-*`; `_components.css` thêm `.wj-toast-host`/`.wj-toast*` (chỉ token).
+  - `wujia_portal_sale` 19.0.5.5.0: `portal_cart_sync.js` + `portal_order.js` gọi `wjToast`; `handleRemove` mở hộp `#wjCartRemove`
+    (template mới `cart_remove_modal` trong `order_confirm_modal.xml`, dùng lại khuôn `wj-pc-modal__*` + `wj-order-confirm*` ⇒ không thêm CSS;
+    Hủy/Esc/bấm nền = không xoá; thiếu hộp thì rơi về `window.confirm`). `portal_cart_remove` trả thêm `removed: True`. Xoá `.wj-pc-toast--error`
+    (chưa từng dùng). `.po` thêm `Remove` → "Xoá".
+  - `wujia_portal_notification` 19.0.5.2.0: `portal_notification_pc.js` bỏ thanh đen giữa đáy, gọi `wjToast`.
+  - Test mới: `wujia_portal_sale/tests/test_cart_feedback.py` (4) · `wujia_portal_layout/tests/test_toast.py` (4) ·
+    `wujia_portal_base/tests/test_scan_toast.py` (2, không JS portal nào tự dựng ô `position:fixed`); sửa `test_remove_idempotent` + `test_jv4_i18n`.
+- Kiểm: DB `wujia_toast` (copy `wujia_vr`) · test 4 module **761/761** · Playwright bấm thật 390 / 1440 / 1100:
+  thùng rác → hộp mở (tên sản phẩm, focus nút Hủy, Tab xoay 2 nút), Hủy/Esc/nền giữ nguyên số dòng, "Xoá" bớt 1 dòng + thẻ; "−" ở số tối
+  thiểu xoá ngay + thẻ, không mở hộp; thẻ mobile 366×48 tại x 12, `top` 84 (header 72), cuộn 487px thì `top` 12; PC 360×48 cách phải 24, `top` 84;
+  nền `rgb(255,255,255)` chữ `rgb(17,24,39)`, dấu `rgb(21,128,61)`; chạm số tối đa → thẻ lỗi dấu `rgb(220,38,38)` `role=alert`; thêm vào giỏ +
+  đánh dấu đã đọc (Thông báo PC) ra cùng thẻ; thẻ mất sau 3 giây; không giao nút nào của header; hộp "Xác nhận đơn hàng" vẫn mở/đóng;
+  0 hộp thoại trình duyệt, 0 lỗi JS, 0 tràn ngang.
+- Bài học: `.po` không có dòng `#:` — Odoo ghép tham chiếu từ `.pot`; thêm view mới dùng lại msgid cũ ("Cancel") mà quên thêm `#:` của view
+  đó vào `.pot` thì chữ không được dịch ở view mới.
+- LIMIT: tiêu đề hộp dài ("Xoá sản phẩm này khỏi giỏ?") xuống 2 dòng ở 390 · trang Thông báo PC tải lại sau 0,6 giây nên thẻ chỉ kịp thoáng hiện
+  (hành vi cũ) · `wj_back_guard.js` vẫn dùng `window.confirm` (ngoài phạm vi).
+- Deploy: `nssm stop Odoo; python D:\wujia-tea\odoo19\odoo-bin -c D:\wujia-tea\config\odoo-server.conf -d wujia_tea_19 --addons-path "D:\wujia-tea\custom,D:\wujia-tea\odoo19\addons" -u wujia_portal_layout,wujia_portal_sale,wujia_portal_notification --stop-after-init; nssm start Odoo`
+- Nợ: sau deploy kiểm version qua XML-RPC rồi đo UAT chỉ xem (không xoá dòng thật) · xoá DB `wujia_toast` +
+  filestore · báo BA đã đổi thông báo giỏ + cách tái hiện (bấm "−" ở số tối thiểu).
 - Phiên kế: cụm H (H-A không cần BA) / Phần O cụm J (chờ BA).
