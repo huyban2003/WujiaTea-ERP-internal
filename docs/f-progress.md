@@ -3274,4 +3274,6 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
 - Deploy: `nssm stop Odoo; python D:\wujia-tea\odoo19\odoo-bin -c D:\wujia-tea\config\odoo-server.conf -d wujia_tea_19 --addons-path "D:\wujia-tea\custom,D:\wujia-tea\odoo19\addons" -u wujia_portal_layout,wujia_portal_delivery,wujia_portal_debt --stop-after-init; nssm start Odoo`
 - 10/10 sau deploy `afc42869`: version 3 module khớp · `wj_contrast` UAT **32 → 0** cặp <4.5 (56 trang, 4.001 mẫu) · ledger + sheet dòng 170
   "ĐÃ DEPLOY UAT 10/10/2026" (+1 History; ghi trực tiếp vì `qa_deploy_mark` chỉ thay tiền tố "Chờ deploy UAT") · xoá 14 DB `wujia_i1…i13`, `i4b` + filestore.
-- Phiên kế: quyết #142; cụm H (H-A không cần BA) / Phần O cụm J (chờ BA).
+- 10/10 #142 UI-PC-HOME-REDESIGN-001 → Ready for Retest (chủ dự án chọn): không đổi code, LIMIT ghi phản hồi BA RETEST FAIL 08/10 — `$` do
+  bảng giá duy nhất "Default" USD trên UAT (76/77 đơn USD), PC = mobile; retest cần đổi bảng giá sang VND + đơn mới. `issue_queue --dev` = 0.
+- Phiên kế: cụm H (H-A không cần BA) / Phần O cụm J (chờ BA).

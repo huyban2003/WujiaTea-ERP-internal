@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-10 · **END-SPRINT 67 — CỤM I (21 issue Issue List) + ★IR XONG, ĐÃ LÊN UAT ĐỦ** (chapter **81**; báo cáo `docs/i-review.md`). Việc kế: quyết #142 · cụm H / Phần O cụm J (chờ BA). Tồn đọng: **`docs/pending-backlog.md`**. Lịch sử State/batch cũ: **`docs/archive/compact-summary-history.md`** (không cần đọc mỗi phiên).
+**Cập nhật:** 2026-10-10 · **END-SPRINT 67 — CỤM I (21 issue Issue List) + ★IR XONG, ĐÃ LÊN UAT ĐỦ** (chapter **81**; báo cáo `docs/i-review.md`). Việc kế: cụm H / Phần O cụm J (chờ BA). Tồn đọng: **`docs/pending-backlog.md`**. Lịch sử State/batch cũ: **`docs/archive/compact-summary-history.md`** (không cần đọc mỗi phiên).
 
 ---
 
@@ -102,7 +102,7 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 
 **Pending sống (hàng đợi):**
 - ✅ **[10/10] `afc42869` ĐÃ DEPLOY UAT** (version khớp XML-RPC) · `wj_contrast` trên UAT 32 → **0** cặp <4.5 (56 trang, 4.001 mẫu) · sheet #170 ghi ĐÃ DEPLOY. Hàng đợi deploy: TRỐNG. DB `wujia_i1…i13` (+`i4b`) + filestore đã xoá.
-- 🔴 **#142 UI-PC-HOME-REDESIGN-001** BA RETEST FAIL 08/10 (Home hiện `$`): gốc **dữ liệu** — partner HCM-01 gắn pricelist "Default (USD)" (id 1) trong khi công ty VND. Chủ dự án quyết: sửa dữ liệu UAT hay trả lời BA. KHÔNG `qa_sync` dòng này tới khi quyết.
+- ✅ **[10/10] #142 UI-PC-HOME-REDESIGN-001 → Ready for Retest** kèm phản hồi BA (LIMIT): lỗi `$` do dữ liệu — bảng giá duy nhất "Default" trên UAT là USD (76/77 đơn USD), code in đúng tiền tệ đơn, PC = mobile. BA đổi bảng giá sang VND rồi đặt đơn mới để retest.
 - **Cụm H** chuẩn hoá component (`docs/next-session-clusters-H.md`): H-A (H0 → H1 → H3 → ★HR-1) không cần BA; H-B chờ BA duyệt spec.
 - **Phần O cụm J** (portal Vận hành nhượng quyền) — PEND theo BA 07/10 (`docs/next-session-clusters-J.md`).
 - **ADR-027**: 7 câu hỏi BA (chapter 74) + áp `auto_install` đồng loạt 1 phiên + nợ ch.77 (portal_sale write, `_sql_constraints`, bàn giao Thái).
