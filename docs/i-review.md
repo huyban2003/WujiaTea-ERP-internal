@@ -67,7 +67,9 @@ Sửa:
 
 Deploy:
 `nssm stop Odoo; python D:\wujia-tea\odoo19\odoo-bin -c D:\wujia-tea\config\odoo-server.conf -d wujia_tea_19 --addons-path "D:\wujia-tea\custom,D:\wujia-tea\odoo19\addons" -u wujia_portal_layout,wujia_portal_delivery,wujia_portal_debt --stop-after-init; nssm start Odoo`
-— sau đó chạy lại `wj_contrast.py --base <UAT> --login em.hcm` (mục tiêu 0 cặp).
+
+
+**Sau deploy (10/10/2026):** version 3 module khớp repo (XML-RPC) · `wj_contrast.py` trên UAT, 56 trang × 4.001 mẫu chữ (thường/rê chuột/focus): **32 → 0 cặp** dưới 4.5, vòng focus <3 = 0, 0 HTTP lỗi · sheet dòng 170 ghi ĐÃ DEPLOY UAT 10/10/2026.
 
 ## 4. Rà diff cụm I
 

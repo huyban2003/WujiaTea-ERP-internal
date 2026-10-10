@@ -3272,5 +3272,6 @@ rồi đánh ✅ ở bảng Trạng thái §2 `docs/next-session-clusters-F.md`.
   #160 đã ghi từ trước, #170 "CHƯA lên UAT (phần bổ sung)".
 - #142 UI-PC-HOME-REDESIGN-001: Home hiện `$` do dữ liệu (partner HCM-01 gắn pricelist "Default (USD)"), không phải code ⇒ chờ chủ dự án.
 - Deploy: `nssm stop Odoo; python D:\wujia-tea\odoo19\odoo-bin -c D:\wujia-tea\config\odoo-server.conf -d wujia_tea_19 --addons-path "D:\wujia-tea\custom,D:\wujia-tea\odoo19\addons" -u wujia_portal_layout,wujia_portal_delivery,wujia_portal_debt --stop-after-init; nssm start Odoo`
-- Phiên kế: sau deploy, chạy lại `wj_contrast.py --base http://113.161.187.126:8019 --login em.hcm` (mục tiêu 0) → `qa_deploy_mark.py WJ-PORTAL-UI-006 --apply`;
-  quyết #142; Phần O cụm J / cụm H.
+- 10/10 sau deploy `afc42869`: version 3 module khớp · `wj_contrast` UAT **32 → 0** cặp <4.5 (56 trang, 4.001 mẫu) · ledger + sheet dòng 170
+  "ĐÃ DEPLOY UAT 10/10/2026" (+1 History; ghi trực tiếp vì `qa_deploy_mark` chỉ thay tiền tố "Chờ deploy UAT") · xoá 14 DB `wujia_i1…i13`, `i4b` + filestore.
+- Phiên kế: quyết #142; cụm H (H-A không cần BA) / Phần O cụm J (chờ BA).

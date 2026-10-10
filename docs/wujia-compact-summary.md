@@ -2,7 +2,7 @@
 
 **Mục đích:** context inject vào mọi session. Mỗi §section search-able qua `/recall`. History chi tiết → `chapters/*.tex` + git log.
 
-**Cập nhật:** 2026-10-10 · **END-SPRINT 67 — CỤM I (21 issue Issue List) + ★IR XONG** (chapter **81**; báo cáo `docs/i-review.md`). Việc kế: deploy vá `afc42869` → đo lại #170 · quyết #142 · cụm H / Phần O cụm J (chờ BA). Tồn đọng: **`docs/pending-backlog.md`**. Lịch sử State/batch cũ: **`docs/archive/compact-summary-history.md`** (không cần đọc mỗi phiên).
+**Cập nhật:** 2026-10-10 · **END-SPRINT 67 — CỤM I (21 issue Issue List) + ★IR XONG, ĐÃ LÊN UAT ĐỦ** (chapter **81**; báo cáo `docs/i-review.md`). Việc kế: quyết #142 · cụm H / Phần O cụm J (chờ BA). Tồn đọng: **`docs/pending-backlog.md`**. Lịch sử State/batch cũ: **`docs/archive/compact-summary-history.md`** (không cần đọc mỗi phiên).
 
 ---
 
@@ -101,14 +101,14 @@ ADR-001 odoo19 source độc lập / 002 venv conda `odoo` py3.10 / 003 PG role 
 **State (2026-10-10 · END-SPRINT 67) — CỤM I + ★IR CHỐT SỔ.** 21 issue (STT 62, 152–174) code xong I1→I13, chủ dự án deploy UAT 09/10 (lần đầu 2 tiến trình `-u` cùng lúc khoá DB, chạy lại theo danh sách module ⇒ 0 lệch). ★IR đo chỉ đọc trên UAT: ma trận role × cửa hàng × route `scripts/qa/wj_ir_matrix.py` 274 ô (0 HTTP ≥500, 0 lỗi JS, 0 tràn; 22 ô lệch = kỳ vọng script), `wj_ir_checks.py` 44 kiểm đạt đủ 21 issue, quét admin chưa chọn cửa hàng 0 lộ chứng từ. #170 trên UAT lộ 32 cặp <4.5 (chip Giao hàng chỉ hiện khi có dữ liệu, số Đã thanh toán Công nợ, placeholder bị `.form-control::placeholder` của bundle website đè) ⇒ vá `afc42869` (layout 19.0.60.10.1 · delivery 19.0.4.2.1 · debt 19.0.5.2.1, `?v=1336`, test 736/736). Sheet: 20 dòng Ready for Retest + #156 Done (BA đóng 10/10); `issue_queue --dev` chỉ còn #142. Ledger: 19 "ĐÃ DEPLOY UAT 09/10/2026", #160 đã có, #170 "CHƯA lên UAT (phần bổ sung)". Chapter 81. Báo cáo `docs/i-review.md`.
 
 **Pending sống (hàng đợi):**
-- 🔴 **Deploy `afc42869`** (`-u wujia_portal_layout,wujia_portal_delivery,wujia_portal_debt`, lệnh §6) → `wj_contrast.py --base <UAT> --login em.hcm` (mục tiêu 0) → `qa_deploy_mark.py WJ-PORTAL-UI-006 --apply`.
+- ✅ **[10/10] `afc42869` ĐÃ DEPLOY UAT** (version khớp XML-RPC) · `wj_contrast` trên UAT 32 → **0** cặp <4.5 (56 trang, 4.001 mẫu) · sheet #170 ghi ĐÃ DEPLOY. Hàng đợi deploy: TRỐNG. DB `wujia_i1…i13` (+`i4b`) + filestore đã xoá.
 - 🔴 **#142 UI-PC-HOME-REDESIGN-001** BA RETEST FAIL 08/10 (Home hiện `$`): gốc **dữ liệu** — partner HCM-01 gắn pricelist "Default (USD)" (id 1) trong khi công ty VND. Chủ dự án quyết: sửa dữ liệu UAT hay trả lời BA. KHÔNG `qa_sync` dòng này tới khi quyết.
 - **Cụm H** chuẩn hoá component (`docs/next-session-clusters-H.md`): H-A (H0 → H1 → H3 → ★HR-1) không cần BA; H-B chờ BA duyệt spec.
 - **Phần O cụm J** (portal Vận hành nhượng quyền) — PEND theo BA 07/10 (`docs/next-session-clusters-J.md`).
 - **ADR-027**: 7 câu hỏi BA (chapter 74) + áp `auto_install` đồng loạt 1 phiên + nợ ch.77 (portal_sale write, `_sql_constraints`, bàn giao Thái).
 - **i18n defer**: 11 finding dịch chờ BA chốt từ vựng · BA rà dịch máy zh/th · nhãn `member.role` tiếng Việt trong `display_name`.
 - **Thông báo NOTI-02 bước 2**: row `franchise_id` NULL (gán hay xoá — chủ dự án quyết) rồi mới `required=True`.
-- **Nợ cụm I**: `wj_ir_matrix.py` `expect()` sửa cho màn `no_store`/khối nhắc cố ý + cắt route `/portal/reports/orders`; kịch bản ghi dữ liệu (#154, #155) chỉ đo ở DB copy; xoá DB `wujia_i1…i13` + filestore (hỏi chủ dự án).
+- **Nợ cụm I**: `wj_ir_matrix.py` `expect()` sửa cho màn `no_store`/khối nhắc cố ý + cắt route `/portal/reports/orders`; kịch bản ghi dữ liệu (#154, #155) chỉ đo ở DB copy.
 - **Dashboard** workstream riêng (Step 2b/3, `docs/dashboard-migration-plan.md`) · **Bù hàng K** (b)(d) · legacy desktop `pc_source_ui_v1_4`.
 - Lịch sử đầy đủ mọi State + pending cũ (C1–C10, D, merge Thái, E, F, G, J): `docs/archive/compact-summary-history.md`.
 
