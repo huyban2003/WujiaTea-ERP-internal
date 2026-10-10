@@ -38,13 +38,13 @@
     --wujia-brand-fill:       var(--wujia-cta);       /* nền chip/nút/phân trang đang chọn · 4.70 */
     --wujia-brand-fill-hover: var(--wujia-cta-dark);  /* 6.42 */
     --wujia-danger-text:      #C92020;   /* thay #EF4444/#DC2626 làm chữ */
-    --wujia-danger-fill:      #C92020;   /* badge số đỏ chữ trắng · 5.66 */
+    --wujia-danger-fill:      #DC2626;   /* badge số đỏ chữ trắng · 4.83 */
     --wujia-success-text:     #107736;   /* thay #16A34A làm chữ */
     --wujia-success-fill:     #15803D;   /* badge Quản lý · 5.02 */
     --wujia-warning-text:     #9B5504;   /* thay #F29A1F/#D97706 làm chữ */
     --wujia-warning-fill:     #B45309;   /* badge Chủ tiệm · 5.02 */
-    /* Topbar PC giữ nền #28A9DF (nhận diện) ⇒ chữ/icon trên nó dùng navy (hero mobile) · 5.98,
-       7.1 trên pill trắng mờ. Viền focus trên topbar cũng navy (ring --wujia-cta chỉ 1.75). */
+    /* Topbar PC giữ nền #28A9DF (nhận diện) ⇒ chữ/icon nằm thẳng trên nó dùng navy · 5.98.
+       Viền focus trên topbar cũng navy (ring --wujia-cta chỉ 1.75). */
     --wujia-topbar-fg:        #0B2430;
     /* Disabled cũng ≥4.5 theo BA; phân biệt bằng nền/viền xám + cursor, không bằng chữ nhạt. */
     --wj-disabled-fg:         var(--wujia-text-muted);
@@ -236,17 +236,18 @@
     --wj-btn-radius:    12px;
     --wj-btn-danger:    #DC2626;
 
-    /* ---------- Navbar pill (Current Store badge on cyan navbar) ---------- */
-    --wujia-navbar-pill-bg:       rgba(255, 255, 255, 0.18);
-    --wujia-navbar-pill-bg-hover: rgba(255, 255, 255, 0.28);
-    --wujia-navbar-pill-text:     var(--wujia-topbar-fg);
-    --wujia-navbar-pill-icon:     var(--wujia-topbar-fg);
-    --wujia-navbar-pill-radius:   10px;
+    /* ---------- Navbar pill: thẻ trắng trên topbar PC (cửa hàng · ngôn ngữ · giỏ · chuông · tài khoản) ---------- */
+    --wujia-navbar-pill-bg:       var(--wujia-bg-card);
+    --wujia-navbar-pill-bg-hover: var(--wujia-primary-soft);
+    --wujia-navbar-pill-text:     var(--wujia-text-primary);
+    --wujia-navbar-pill-icon:     var(--wujia-brand-text);
+    --wujia-navbar-pill-radius:   14px;
+    --wujia-navbar-pill-shadow:   0 1px 2px rgb(11 36 48 / .12);
     --wujia-navbar-pill-padding:  6px 16px;
     --wujia-navbar-pill-gap:      10px;
     --wujia-navbar-pill-font:     15px;
     --wujia-navbar-pill-label-size: 11px;
-    --wujia-navbar-pill-label-color: var(--wujia-topbar-fg);
+    --wujia-navbar-pill-label-color: var(--wujia-text-subtitle);
 
     /* ---------- Header right action icons ---------- */
     --wujia-header-icon-size:        20px;

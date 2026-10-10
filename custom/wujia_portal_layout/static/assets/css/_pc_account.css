@@ -193,17 +193,18 @@
    Cụm B: avatar nay đứng TRƯỚC nên khối chữ căn TRÁI; max-width 112 =
    204 pill − padding 10/12 − avatar 36 − 2 gap 10 − chevron 16. */
 .wujia-navbar .wj-pc-user-nav { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; max-width: 112px; overflow: hidden; }
-.wujia-navbar .wj-pc-user-nav__name { font-size: 13px; font-weight: 700; color: var(--wujia-topbar-fg); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.wujia-navbar .wj-pc-user-nav__role { font-size: 10px; font-weight: 700; color: var(--wujia-topbar-fg); }
-/* UI-03 (Sprint 34 → cụm B): account glass pill 204×52 (source v1.5 x=1696,y=10).
+.wujia-navbar .wj-pc-user-nav__name { font-size: 13px; font-weight: 700; color: var(--wujia-navbar-pill-text); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wujia-navbar .wj-pc-user-nav__role { font-size: 10px; font-weight: 700; color: var(--wujia-navbar-pill-label-color); }
+/* UI-03 (Sprint 34 → cụm B): account pill 204×48 (source v1.5 là 204×52; cao 48 = khối cửa hàng).
    Cụm B bỏ 2 hack toạ độ cũ — margin-right:24 và margin-top:5 — vì vị trí nay do
    `.wj-pc-navactions` quyết định (padding-right 20 trên .navbar-container + margin
    giữa các item + align-items:center). Giữ 2 hack đó sẽ cộng dồn thành lệch 24px. */
 .wujia-navbar .dropdown-user > .dropdown-user-link {
     display: flex; align-items: center; gap: 10px;
-    width: 204px; height: 52px; padding: 0 12px 0 10px;
-    border-radius: 18px;
+    width: 204px; height: 48px; padding: 0 12px 0 10px;
+    border-radius: var(--wujia-navbar-pill-radius);
     background: var(--wujia-navbar-pill-bg);
+    box-shadow: var(--wujia-navbar-pill-shadow);
     box-sizing: border-box;
 }
 .wujia-navbar .dropdown-user > .dropdown-user-link:hover,
@@ -215,7 +216,7 @@
     width: 36px; height: 36px; border: 0; flex: 0 0 auto;
 }
 .wujia-navbar .dropdown-user > .dropdown-user-link.dropdown-toggle::after { display: none; }
-.wujia-navbar .wj-pc-user-nav__chev { font-size: 16px; color: var(--wujia-topbar-fg); flex: 0 0 auto; }
+.wujia-navbar .wj-pc-user-nav__chev { font-size: 16px; color: var(--wujia-navbar-pill-text); flex: 0 0 auto; }
 
 /* UI-02 (Sprint 34): PC language control = pill 118×40 (BA Figma 4600:72-75).
    Reuse navbar-pill tokens for visual consistency with the store pill.
@@ -234,6 +235,7 @@
     line-height: 1 !important;
     border-radius: 20px;
     background: var(--wujia-navbar-pill-bg);
+    box-shadow: var(--wujia-navbar-pill-shadow);
     box-sizing: border-box;
 }
 .wujia-navbar .dropdown-language > .nav-link:hover,
@@ -257,8 +259,9 @@
    mép phải 1900. Suy ngược từ phải sang: padding-right 20 → account x=1696;
    khoảng cách account↔bell 14, bell↔cart 12, cart↔lang 22. Chiều dọc để
    `align-items:center` lo — <li> cao 62.3 nên pill 52 tự ra y=10, pill 40 ra y=16.
-   Tất cả trong @media ≥1200px: <992px dùng `mobile_header.xml`, không đụng tới. */
-@media (min-width: 1200px) {
+   Áp từ 992 (cả dải ngăn kéo 992–1199: giỏ/chuông cũng là thẻ tròn như ≥1200);
+   <992px dùng `mobile_header.xml`, không đụng tới. */
+@media (min-width: 992px) {
     .wujia-navbar .navbar-container { padding-right: 20px; }
     /* Khoảng cách bằng `gap`, KHÔNG bằng `li + li`: selector adjacent-sibling ở đây
        không ăn (đã đo — cùng rule mà cart nhận, bell thì computed ra 0), còn `gap`
@@ -280,6 +283,7 @@
         display: inline-flex; align-items: center; justify-content: center;
         border-radius: 20px;
         background: var(--wujia-navbar-pill-bg);
+        box-shadow: var(--wujia-navbar-pill-shadow);
         box-sizing: border-box;
     }
     /* Giỏ 19 / chuông 20: nét vẽ cao bằng nhau (~16.6px) — glyph giỏ rộng hơn chuông. Phải
@@ -324,15 +328,16 @@
 }
 
 /* ---------- WJ-PORTAL-UI-006: chữ + icon topbar PC ----------
-   Nền topbar giữ #28A9DF (nhận diện) — chữ trắng trên nó chỉ 2.68 (2.0–2.24 trên pill trắng mờ),
-   Vuexy hover còn #CCC (1.26). Mọi chữ/icon của link trực tiếp trên topbar dùng navy
-   --wujia-topbar-fg (5.98 trên nền, 7.1 trên pill). Không chạm dropdown-menu (nền trắng riêng). */
+   Nền topbar giữ #28A9DF (nhận diện); mọi link của topbar nằm trong thẻ trắng nên chữ dùng
+   token pill (Vuexy hover còn #CCC). Không chạm dropdown-menu (nền trắng riêng). */
 .wujia-navbar .navbar-container ul.nav li > a.nav-link,
 .wujia-navbar .navbar-container ul.nav li > a.nav-link:hover,
 .wujia-navbar .navbar-container ul.nav li > a.nav-link:focus,
-.wujia-navbar .navbar-container ul.nav li > a.nav-link .selected-language,
+.wujia-navbar .navbar-container ul.nav li > a.nav-link .selected-language {
+    color: var(--wujia-navbar-pill-text) !important;
+}
 .wujia-navbar .navbar-container ul.nav li > a.nav-link i.ficon {
-    color: var(--wujia-topbar-fg) !important;
+    color: var(--wujia-navbar-pill-icon) !important;
 }
 /* Viền focus trên topbar: ring --wujia-cta trên #28A9DF chỉ 1.75 ⇒ navy (5.98). Đổi token tại
    phạm vi topbar, rule focus chung ở _interaction.css giữ nguyên. */

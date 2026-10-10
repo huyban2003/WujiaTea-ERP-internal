@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""G2 — top bar PC ≥1200: action circle giỏ + chuông (UI-PC-TOPBAR-REG-001).
+"""G2 — top bar PC ≥992: action circle giỏ + chuông (UI-PC-TOPBAR-REG-001).
 
 Gốc hồi quy: `.nav-link{display:block}` của web.assets_frontend nạp SAU _components.css nên
 `inline-flex` của `.wujia-header-icon-btn` thua ⇒ icon dồn góc trên-trái circle, badge đè nét
@@ -12,7 +12,7 @@ from odoo.tests import TransactionCase, tagged
 
 from .test_g1_mobile_density import _css, _media_blocks, _outside_media, _rules
 
-PC_MQ = '@media (min-width: 1200px)'
+PC_MQ = '@media (min-width: 992px) {'
 BTN = ('.wujia-navbar .navbar-container ul.nav li.wujia-header-icon-item'
        ' > a.wujia-header-icon-btn')
 VUEXY_ICON = (0, 4, 3)
@@ -35,7 +35,7 @@ class TestPcTopbarG2(TransactionCase):
 
     def _body(self, selector):
         hits = [b for s, b in self.pc if s == selector]
-        self.assertTrue(hits, 'thiếu rule ≥1200: %s' % selector)
+        self.assertTrue(hits, 'thiếu rule ≥992: %s' % selector)
         return hits[0]
 
     def test_circle_tu_khai_flex_can_giua(self):
@@ -58,7 +58,7 @@ class TestPcTopbarG2(TransactionCase):
         self.assertRegex(body, r'right:\s*-\d+px')
 
     def test_khong_dung_rule_chung_va_mobile(self):
-        """Sửa chỉ trong khối ≥1200 — `.wujia-header-badge` gốc dùng chung 8 module + header mobile."""
+        """Sửa chỉ trong khối ≥992 — `.wujia-header-badge` gốc dùng chung 8 module + header mobile."""
         comps = _css('_components.css')
         base = [b for s, b in _rules(comps) if s == '.wujia-header-badge']
         self.assertIn('top: 2px', base[0])

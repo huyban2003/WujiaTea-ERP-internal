@@ -118,11 +118,9 @@ class TestStoreBlockCssG2(TransactionCase):
         blk = css[css.index('{', i):]
         body = re.search(r'\.wujia-store-current-block\s*\{([^{}]*)\}', blk).group(1)
         self.assertIn('min-width: 0', body)
-        # `width: auto` làm khối ôm chữ, co cả khi còn chỗ (đo: 273 thay vì 430 ở 1199)
-        self.assertNotIn('width: auto', body)
         self.assertRegex(blk, r'li:has\(> \.wujia-store-current-block\)\s*\{\s*min-width: 0')
-        # ≥1200 vẫn 430 cố định theo Figma
-        self.assertIn('width: 430px', _rule(self.css, '.wujia-store-current-block'))
+        # khối ôm nội dung ở mọi khổ PC, trần 430 của Figma
+        self.assertIn('max-width: 430px', _rule(self.css, '.wujia-store-current-block'))
 
     def test_nhan_viet_khong_bi_viet_hoa_tung_chu(self):
         self.assertNotIn('capitalize', _rule(self.css, '.wujia-store-role-badge'))

@@ -77,11 +77,14 @@ class TestSharedTokensReachAA(TransactionCase):
         self.assertFalse(bad, 'nền đặc mang chữ trắng dưới 4.5: %s' % bad)
 
     def test_topbar_keeps_cyan_and_navy_text(self):
-        """Topbar PC/mobile giữ nền #28A9DF (chủ dự án chốt 09/10) ⇒ chữ/icon navy."""
+        """Topbar PC/mobile giữ nền #28A9DF (chủ dự án chốt 09/10) ⇒ chữ/icon navy; pill PC là thẻ trắng."""
         cyan = self._hex('--wujia-primary')
         self.assertEqual(cyan, '#28A9DF', 'màu thương hiệu không được đổi')
         self.assertGreaterEqual(_contrast(self._hex('--wujia-topbar-fg'), cyan), 4.5)
-        self.assertGreaterEqual(_contrast(self._hex('--wujia-navbar-pill-text'), '#FFFFFF'), 4.5)
+        pill = self._hex('--wujia-navbar-pill-bg')
+        for t in ('--wujia-navbar-pill-text', '--wujia-navbar-pill-icon', '--wujia-navbar-pill-label-color'):
+            self.assertGreaterEqual(_contrast(self._hex(t), pill), 4.5, t)
+            self.assertGreaterEqual(_contrast(self._hex(t), self._hex('--wujia-navbar-pill-bg-hover')), 4.5, t)
         # Vòng focus mặc định (xanh CTA) ≥ 3 trên mọi nền sáng.
         ring = re.search(r'(var\((--[\w-]+)\)|#[0-9A-Fa-f]{6})\s*$', self.tokens['--wujia-focus-ring'].strip())
         ring_hex = self._hex(ring.group(2)) if ring.group(2) else ring.group(1).upper()

@@ -74,28 +74,29 @@
 .wujia-store-role-badge-owner   { background-color: var(--wujia-warning-fill); }
 .wujia-store-role-badge-staff   { background-color: var(--wujia-text-muted); }
 
-/* UI-01 (Sprint 34): PC Current Store — store pill + role trong 1 container 430px
-   (BA Figma block x=324,y=12,w=430,h=48; role ~x=644). Store pill co giãn lấp trái,
-   role neo phải. Thay 2 <li> rời (span ~329px) trước đây. */
+/* PC Current Store — store pill + role trong 1 thẻ ôm nội dung, tối đa 430 (Figma UI-01 là 430
+   cố định; chủ dự án chốt ôm nội dung 10/10/2026). */
 .wujia-store-current-block {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    width: 430px;
+    width: auto;
+    max-width: 430px;
     height: 48px;
+    padding-right: 12px;
     margin-right: 12px;
     background-color: var(--wujia-navbar-pill-bg);
     border-radius: var(--wujia-navbar-pill-radius);
+    box-shadow: var(--wujia-navbar-pill-shadow);
+    box-sizing: border-box;
     transition: background-color 0.15s ease-in-out;
     /* UI-01 retest 22/07/2026: BA đo x=314, expected x=324 → shift phải 10px.
        Vuexy bookmark-wrapper offset không đổi được sạch (share với các nav-item khác),
        nên bù cục bộ bằng margin-left. Đo lại trên 1920×1080 sau deploy. */
     margin-left: 10px;
 }
-/* UI-01 retest (cụm A, 03/08): source WJ_PC_CoreShell_FINAL_v1 neo role tại x=650 trong
-   block x=324 w=430 → pill chiếm 318px rồi gap 8 (324+318+8=650), block chừa 22px cuối.
-   `flex: 0 1` (không grow) giữ mốc đó; vẫn shrink được nên tên cửa hàng dài vẫn ellipsis. */
-.wujia-store-current-block .wujia-active-store-badge { flex: 0 1 318px; min-width: 0; margin-right: 0; overflow: hidden; }
+/* `flex: 0 1 auto` + min-width 0: pill ôm chữ, tên cửa hàng dài vẫn ellipsis. */
+.wujia-store-current-block .wujia-active-store-badge { flex: 0 1 auto; min-width: 0; margin-right: 0; overflow: hidden; }
 /* UI-PC-TOPBAR-REG-001: nền thuộc về cả khối (chip vai trò nằm trong một bề mặt), pill cửa
    hàng trong suốt; vùng bấm vẫn chỉ là thẻ <a>. */
 .wujia-store-current-block:has(.wujia-active-store-badge:hover),
@@ -111,25 +112,25 @@
 .wujia-store-current-block .wujia-active-store-badge .wujia-store-badge-name {
     display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
 }
-/* UI-01: source role chip 82×26 tại x=650,y=24 (trước là 103×46 do padding 10/20 + min-height 46).
-   Chỉ scope trong .wujia-store-current-block — .wujia-store-role-badge trần dùng chỗ khác,
-   strip mobile có class riêng .wujia-store-strip-role. */
+/* Chip vai trò trên thẻ trắng: nền nhạt + chữ đậm cùng tông. Chỉ scope trong khối —
+   .wujia-store-role-badge trần còn dùng ở menu tài khoản. */
 .wujia-store-current-block .wujia-store-role-badge {
     flex: 0 0 auto;
     margin-right: 0;
     height: 26px;
     min-height: 26px;
-    min-width: 82px;          /* source rect 82×26; "Owner"/"Staff" ngắn hơn nên cần min-width */
     justify-content: center;
-    padding: 0 10px;
+    padding: 0 12px;
+    border-radius: 999px;
     font-size: 12px;
     box-sizing: border-box;
 }
+.wujia-store-current-block .wujia-store-role-badge-staff   { background-color: var(--wj-sb-neutral-bg); color: var(--wujia-text-secondary); }
+.wujia-store-current-block .wujia-store-role-badge-manager { background-color: var(--wujia-success-bg); color: var(--wujia-success-text); }
+.wujia-store-current-block .wujia-store-role-badge-owner   { background-color: var(--wujia-warning-bg); color: var(--wujia-warning-text); }
 
-/* Top bar 992–1199: hàng trái không xuống dòng (`_pc_account.css`). Đủ chỗ thì khối giữ 430
-   như ≥1200; thiếu chỗ thì co (flex-shrink mặc định 1, cần `min-width: 0` ở cả <li> lẫn khối)
-   thay vì rớt dòng. Pill cửa hàng đã `flex: 0 1 318px; min-width: 0` ⇒ tên dài ellipsis,
-   chip vai trò giữ nguyên. Không dùng `width: auto`: khối sẽ ôm chữ và co cả khi còn chỗ. */
+/* Top bar 992–1199: hàng trái không xuống dòng (`_pc_account.css`). Thiếu chỗ thì khối co
+   (cần `min-width: 0` ở cả <li> lẫn khối) thay vì rớt dòng; tên dài ellipsis, chip giữ nguyên. */
 @media (min-width: 992px) and (max-width: 1199.98px) {
     .wujia-navbar .navbar-nav > li:has(> .wujia-store-current-block) { min-width: 0; }
     .wujia-store-current-block { min-width: 0; }
